@@ -68,11 +68,23 @@ class RitaseController extends Controller
             'waktu' => 'required|in:pagi,malam',
             'kabupaten' => 'required|in:Nganjuk,Kediri,Kota Kediri,Jombang,Lainnya',
             'status' => 'required|in:valid,pending,gagal_produksi',
-            'nominal_kompensasi' => 'nullable|numeric|min:0',
+            'nominal_kompensasi' => 'nullable',
             'catatan' => 'nullable|string|max:500',
         ];
 
-        $request->validate($rules);
+        $validated = $request->validate($rules);
+        $validated['nominal_kompensasi'] = is_numeric($validated['nominal_kompensasi'] ?? 0) ? (float) $validated['nominal_kompensasi'] : 0;
+
+        if (cache()->get('aturan_validasi_enabled', false)) {
+            $validasi = \App\Models\ValidasiBukti::where('kode_sopir', $request->kode_sopir)
+                ->where('tanggal', $request->tanggal)
+                ->where('kode_tujuan', $request->kode_tujuan)
+                ->where('status', 'disetujui')
+                ->exists();
+            if (!$validasi) {
+                return back()->withInput()->with('error', 'Sopir ini belum memiliki bukti validasi yang disetujui untuk tanggal dan tujuan ini.');
+            }
+        }
 
         // 🔥🔥🔥 HITUNG DT - PASTIKAN INI BERJALAN 🔥🔥🔥
         $dtValue = $this->hitungDT($request, null);
@@ -97,7 +109,7 @@ class RitaseController extends Controller
             'status' => $request->status,
             'dt' => $dtValue,
             'upah_sopir' => 0,
-            'nominal_kompensasi' => $request->nominal_kompensasi ?? 0,
+            'nominal_kompensasi' => $validated['nominal_kompensasi'],
             'catatan' => $request->catatan,
         ]);
 
@@ -115,11 +127,12 @@ class RitaseController extends Controller
             'waktu' => 'required|in:pagi,malam',
             'kabupaten' => 'required|in:Nganjuk,Kediri,Kota Kediri,Jombang,Lainnya',
             'status' => 'required|in:valid,pending,gagal_produksi',
-            'nominal_kompensasi' => 'nullable|numeric|min:0',
+            'nominal_kompensasi' => 'nullable',
             'catatan' => 'nullable|string|max:500',
         ];
 
-        $request->validate($rules);
+        $validated = $request->validate($rules);
+        $validated['nominal_kompensasi'] = is_numeric($validated['nominal_kompensasi'] ?? 0) ? (float) $validated['nominal_kompensasi'] : 0;
 
         $ritase = Ritase::findOrFail($id);
 
@@ -141,7 +154,7 @@ class RitaseController extends Controller
             'kabupaten' => $request->kabupaten,
             'status' => $request->status,
             'dt' => $dtValue,
-            'nominal_kompensasi' => $request->nominal_kompensasi ?? 0,
+            'nominal_kompensasi' => $validated['nominal_kompensasi'],
             'catatan' => $request->catatan,
         ]);
 

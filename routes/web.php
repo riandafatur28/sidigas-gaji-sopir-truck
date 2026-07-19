@@ -7,6 +7,8 @@ use App\Http\Controllers\TujuanController;
 use App\Http\Controllers\RitaseController;
 use App\Http\Controllers\PeriodeController;
 use App\Http\Controllers\PenggajianController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ValidasiBuktiController;
 use Illuminate\Support\Facades\Route;
 
 // Redirect root ke login
@@ -14,8 +16,16 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+// ================= PUBLIC ROUTES (no auth) =================
+Route::get('/validasi-bukti', [ValidasiBuktiController::class, 'form'])->name('validasi-bukti.form');
+Route::post('/validasi-bukti', [ValidasiBuktiController::class, 'submit'])->name('validasi-bukti.submit')->middleware('throttle:5,3');
+
 // ================= GUEST ROUTES =================
-Route::middleware('guest')->group(function () {
+Route::middleware(['guest', 'throttle:10,3'])->group(function () {
+    // Google Login
+    Route::get('/auth/google', [AuthController::class, 'loginGoogle'])->name('google.login');
+    Route::get('/auth/google/callback', [AuthController::class, 'loginGoogleCallback'])->name('google.callback');
+
     // Login
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
@@ -38,6 +48,10 @@ Route::middleware('auth')->group(function () {
     // Dashboard & Logout
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    // Profil
+    Route::get('/profil', [ProfileController::class, 'show'])->name('profil');
+    Route::post('/profil', [ProfileController::class, 'update'])->name('profil.update');
 
     // Kelola Sopir
     Route::get('/sopir', [SopirController::class, 'index'])->name('sopir.index');
@@ -64,18 +78,28 @@ Route::middleware('auth')->group(function () {
     Route::delete('/periode/{id}', [PeriodeController::class, 'destroy'])->name('periode.destroy');
 
     // Kelola Gaji
-Route::get('/gaji', [PenggajianController::class, 'index'])->name('gaji.index');
-Route::get('/gaji/riwayat', [PenggajianController::class, 'riwayat'])->name('gaji.riwayat');
-Route::get('/gaji/{id}/edit', [PenggajianController::class, 'edit'])->name('gaji.edit');
-Route::put('/gaji/{id}', [PenggajianController::class, 'update'])->name('gaji.update');
-Route::post('/gaji', [PenggajianController::class, 'store'])->name('gaji.store');
-Route::delete('/gaji/{id}', [PenggajianController::class, 'destroy'])->name('gaji.destroy');
-Route::get('/gaji/slip/{periode_id}/{kode_sopir}', [PenggajianController::class, 'slipGaji'])->name('gaji.slip');
-Route::get('/api/get-ritase-data', [PenggajianController::class, 'getRitaseData'])->name('api.get-ritase-data');
-
-    // API untuk get data ritase
+    Route::get('/gaji', [PenggajianController::class, 'index'])->name('gaji.index');
+    Route::get('/gaji/riwayat', [PenggajianController::class, 'riwayat'])->name('gaji.riwayat');
+    Route::get('/gaji/laporan', [PenggajianController::class, 'laporan'])->name('gaji.laporan');
+    Route::get('/gaji/{id}/edit', [PenggajianController::class, 'edit'])->name('gaji.edit');
+    Route::put('/gaji/{id}', [PenggajianController::class, 'update'])->name('gaji.update');
+    Route::post('/gaji', [PenggajianController::class, 'store'])->name('gaji.store');
+    Route::delete('/gaji/{id}', [PenggajianController::class, 'destroy'])->name('gaji.destroy');
+    Route::get('/gaji/slip/{periode_id}/{kode_sopir}', [PenggajianController::class, 'slipGaji'])->name('gaji.slip');
+    Route::get('/gaji/slip-pdf/{periode_id}', [PenggajianController::class, 'downloadSlipPdf'])->name('gaji.slip-pdf');
+    Route::get('/gaji/laporan-pdf/{periode_id}', [PenggajianController::class, 'downloadLaporanPdf'])->name('gaji.laporan-pdf');
     Route::get('/api/get-ritase-data', [PenggajianController::class, 'getRitaseData'])->name('api.get-ritase-data');
 
     // API untuk cek aturan sewa DT
     Route::post('/ritase/cek-aturan', [RitaseController::class, 'cekAturanSewaDT'])->name('ritase.cek.aturan');
+
+    // Validasi Bukti
+    Route::get('/validasi-bukti/kelola', [ValidasiBuktiController::class, 'kelola'])->name('validasi-bukti.kelola');
+    Route::get('/validasi-bukti/{id}', [ValidasiBuktiController::class, 'detail'])->name('validasi-bukti.detail');
+    Route::post('/validasi-bukti/{id}/setujui', [ValidasiBuktiController::class, 'setujui'])->name('validasi-bukti.setujui');
+    Route::post('/validasi-bukti/{id}/tolak', [ValidasiBuktiController::class, 'tolak'])->name('validasi-bukti.tolak');
+    Route::post('/validasi-bukti/{id}/ritase', [ValidasiBuktiController::class, 'tambahRitase'])->name('validasi-bukti.ritase');
+
+    // Toggle aturan validasi
+    Route::post('/settings/toggle-validasi', [ValidasiBuktiController::class, 'toggleAturan'])->name('settings.toggle-validasi');
 });

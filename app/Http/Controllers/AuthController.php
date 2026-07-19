@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -22,13 +23,15 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email'    => 'required|email',
+            'email'    => 'required|email|ends_with:gmail.com',
             'password' => 'required',
+        ], [
+            'email.ends_with' => 'Email harus menggunakan domain @gmail.com.',
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->intended(route('dashboard'));
+            return redirect()->route('dashboard');
         }
 
         return back()
@@ -45,7 +48,9 @@ class AuthController extends Controller
     public function sendOtp(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|exists:users,email',
+            'email' => 'required|email|ends_with:gmail.com|exists:users,email',
+        ], [
+            'email.ends_with' => 'Email harus menggunakan domain @gmail.com.',
         ]);
 
         Otp::where('email', $request->email)->delete();
@@ -112,6 +117,38 @@ class AuthController extends Controller
         return redirect()
             ->route('login')
             ->with('success', 'Password berhasil diperbarui! Silakan login.');
+    }
+
+    // ============ GOOGLE LOGIN ============
+    public function loginGoogle()
+    {
+        return Socialite::driver('google')
+            ->redirectUrl(route('google.callback'))
+            ->redirect();
+    }
+
+    public function loginGoogleCallback()
+    {
+        try {
+            $googleUser = Socialite::driver('google')
+                ->redirectUrl(route('google.callback'))
+                ->user();
+        } catch (\Exception $e) {
+            return redirect()->route('login')
+                ->withErrors(['email' => 'Gagal login dengan Google. Silakan coba lagi.']);
+        }
+
+        $user = User::where('email', $googleUser->email)->first();
+
+        if (!$user) {
+            return redirect()->route('login')
+                ->withErrors(['email' => 'Email Google tidak terdaftar di sistem. Silakan login dengan email & password.']);
+        }
+
+        Auth::login($user);
+        request()->session()->regenerate();
+
+        return redirect()->route('dashboard');
     }
 
     // ============ LOGOUT ============

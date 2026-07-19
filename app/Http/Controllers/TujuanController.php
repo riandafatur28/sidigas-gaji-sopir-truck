@@ -74,6 +74,12 @@ class TujuanController extends Controller
     public function destroy($id)
     {
         $tujuan = Tujuan::findOrFail($id);
+
+        if ($tujuan->ritase()->count() > 0) {
+            return redirect()->back()
+                ->with('error', 'Tujuan tidak dapat dihapus karena sudah memiliki data ritase!');
+        }
+
         $tujuan->delete();
 
         return redirect()->route('tujuan.index')

@@ -4,20 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? 'Dashboard' }} - Sistem Armada</title>
+    <title>{{ $title ?? 'Dashboard' }} - SIDIGAS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        primary: '#1a1a2e',
-                        secondary: '#2d2d44',
-                        accent: '#4a4a6a',
-                        muted: '#6a6a8a',
-                        surface: '#f8f8fa',
-                    },
                     fontFamily: {
                         sans: ['Inter', 'system-ui', 'sans-serif'],
                     },
@@ -32,8 +27,8 @@
 
         /* SIDEBAR */
         .sidebar {
-            background: #1a1a2e;
-            border-right: 1px solid #2d2d44;
+            background: #ffffff;
+            border-right: 1px solid #e5e7eb;
             transition: transform 0.3s ease;
             position: fixed;
             top: 0;
@@ -55,7 +50,7 @@
 
         /* NAVIGASI */
         .nav-item {
-            color: #8a8aaa;
+            color: #6b7280;
             transition: all 0.2s ease;
             border-radius: 8px;
             font-size: 15px;
@@ -66,12 +61,12 @@
             gap: 12px;
         }
         .nav-item:hover {
-            background: #2d2d44;
-            color: #ffffff;
+            background: #f3f4f6;
+            color: #1f2937;
         }
         .nav-item.active {
-            background: #2d2d44;
-            color: #ffffff;
+            background: #eff6ff;
+            color: #2563eb;
             font-weight: 600;
         }
         .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
@@ -103,7 +98,7 @@
         .sidebar-label {
             font-size: 11px;
             font-weight: 600;
-            color: #4a4a6a;
+            color: #9ca3af;
             text-transform: uppercase;
             letter-spacing: 0.08em;
             padding: 0 12px;
@@ -112,8 +107,8 @@
         }
 
         /* LOGO */
-        .logo-text { font-size: 18px; font-weight: 700; }
-        .logo-sub { font-size: 10px; }
+        .logo-text { font-size: 18px; font-weight: 700; color: #1f2937; }
+        .logo-sub { font-size: 10px; color: #9ca3af; }
 
         /* SCROLLBAR */
         ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -158,18 +153,8 @@
     {{-- ========================================= --}}
     <aside id="sidebar" class="sidebar">
         {{-- LOGO --}}
-        <div class="p-6 border-b border-[#2d2d44]">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-[#2d2d44] rounded-lg flex items-center justify-center border border-[#3d3d54] flex-shrink-0">
-                    <svg class="w-6 h-6 text-[#8a8aaa]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                    </svg>
-                </div>
-                <div>
-                    <h1 class="logo-text text-white">Sistem Armada</h1>
-                    <p class="logo-sub text-[#6a6a8a]">v2.4.1</p>
-                </div>
-            </div>
+        <div class="p-6 border-b border-gray-200">
+            <h1 class="logo-text text-gray-900">SIDIGAS</h1>
         </div>
 
         {{-- MENU --}}
@@ -198,12 +183,11 @@
                 <span>Kelola Tujuan</span>
             </a>
 
-            <a href="#" class="nav-item">
+            <a href="{{ route('validasi-bukti.kelola') }}" class="nav-item {{ request()->routeIs('validasi-bukti.*') ? 'active' : '' }}">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
                 <span>Validasi Bukti</span>
-                <span class="ml-auto bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">8</span>
             </a>
 
             <a href="{{ route('periode.index') }}" class="nav-item {{ request()->routeIs('periode.*') ? 'active' : '' }}">
@@ -222,7 +206,7 @@
 
             <span class="sidebar-label mt-5">Keuangan</span>
 
-            <a href="{{ route('gaji.index') }}" class="nav-item {{ request()->routeIs('gaji.index') ? 'active' : '' }}">
+            <a href="{{ route('gaji.index') }}" class="nav-item {{ request()->routeIs('gaji.index') || request()->routeIs('gaji.edit') || request()->routeIs('gaji.slip') ? 'active' : '' }}">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
@@ -235,25 +219,55 @@
                 </svg>
                 <span>Riwayat Gaji</span>
             </a>
+
+            <a href="{{ route('gaji.laporan') }}" class="nav-item {{ request()->routeIs('gaji.laporan') ? 'active' : '' }}">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span>Laporan Gaji</span>
+            </a>
+
+            <span class="sidebar-label mt-5">Akun</span>
+
+            <a href="{{ route('profil') }}" class="nav-item {{ request()->routeIs('profil') ? 'active' : '' }}">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                <span>Profil</span>
+            </a>
         </nav>
 
-        {{-- USER --}}
-        <div class="p-4 border-t border-[#2d2d44] mt-auto">
-            <div class="flex items-center gap-3 px-3 py-3 bg-[#2d2d44] rounded-lg">
-                <div class="w-10 h-10 bg-[#3d3d54] rounded-full flex items-center justify-center border border-[#4a4a6a] flex-shrink-0">
-                    <span class="text-sm font-bold text-[#8a8aaa]">{{ substr($user->name, 0, 1) }}</span>
+        {{-- USER DROPDOWN --}}
+        <div class="p-4 border-t border-gray-200 mt-auto relative" id="userDropdown">
+            <button onclick="toggleUserMenu()" class="w-full flex items-center gap-3 px-3 py-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all cursor-pointer">
+                <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span class="text-sm font-bold text-gray-600">{{ substr($user->name, 0, 1) }}</span>
                 </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-white truncate">{{ $user->name }}</p>
-                    <p class="text-xs text-[#6a6a8a] truncate">{{ $user->email }}</p>
+                <div class="flex-1 min-w-0 text-left">
+                    <p class="text-sm font-medium text-gray-800 truncate">{{ $user->name }}</p>
+                    <p class="text-xs text-gray-400 truncate">{{ $user->email }}</p>
                 </div>
+                <svg class="w-4 h-4 text-gray-400 transition-transform duration-200" id="userChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+            <div id="userMenu" class="absolute bottom-full left-4 right-4 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg hidden overflow-hidden">
+            <a href="{{ route('profil') }}" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                    <span>Profil</span>
+                </a>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                        <span>Logout</span>
+                    </button>
+                </form>
             </div>
-            <form method="POST" action="{{ route('logout') }}" class="mt-3">
-                @csrf
-                <button type="submit" class="w-full text-center text-sm text-[#6a6a8a] hover:text-white px-3 py-2.5 rounded-lg border border-[#2d2d44] hover:border-[#4a4a6a] transition-all font-medium">
-                    Logout
-                </button>
-            </form>
         </div>
     </aside>
 
@@ -367,6 +381,26 @@
                 if (isMobile() && isSidebarOpen) {
                     isSidebarOpen = false;
                     updateSidebarState();
+                }
+            });
+
+            // USER DROPDOWN
+            window.toggleUserMenu = function() {
+                const menu = document.getElementById('userMenu');
+                const chevron = document.getElementById('userChevron');
+                const isHidden = menu.classList.contains('hidden');
+                menu.classList.toggle('hidden');
+                if (chevron) {
+                    chevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+                }
+            };
+            document.addEventListener('click', function(e) {
+                const dropdown = document.getElementById('userDropdown');
+                const menu = document.getElementById('userMenu');
+                if (dropdown && !dropdown.contains(e.target) && !menu.classList.contains('hidden')) {
+                    menu.classList.add('hidden');
+                    const chevron = document.getElementById('userChevron');
+                    if (chevron) chevron.style.transform = 'rotate(0deg)';
                 }
             });
 

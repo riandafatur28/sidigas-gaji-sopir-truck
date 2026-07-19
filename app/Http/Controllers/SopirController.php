@@ -75,6 +75,12 @@ class SopirController extends Controller
     public function destroy($id)
     {
         $sopir = Sopir::findOrFail($id);
+
+        if ($sopir->ritase()->count() > 0) {
+            return redirect()->back()
+                ->with('error', 'Sopir tidak dapat dihapus karena sudah memiliki data ritase!');
+        }
+
         $sopir->delete();
 
         return redirect()->route('sopir.index')

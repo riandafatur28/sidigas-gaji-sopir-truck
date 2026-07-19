@@ -4,9 +4,9 @@
     <meta charset="utf-8">
     <title>Slip Gaji Sopir</title>
     <style>
-        @page { margin: 10mm; }
+        @page { margin: 5mm; }
         body { font-family: Arial, sans-serif; font-size: 10px; margin: 0; padding: 0; }
-        .container { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 5mm; height: 277mm; }
+        .container { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 4mm; height: 277mm; }
         .slip { border: 1px solid #000; padding: 3mm; page-break-inside: avoid; }
         .slip-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 2mm; margin-bottom: 2mm; }
         .slip-header h2 { margin: 0; font-size: 12px; font-weight: bold; }

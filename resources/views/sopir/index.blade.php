@@ -3,142 +3,94 @@
     :pageTitle="'Kelola Sopir'"
     :user="auth()->user()">
 
-    <!-- Header Section -->
-    <div class="mb-6">
-        <h2 class="text-3xl font-bold text-pupr-blue mb-2">Kelola Data Sopir 👥</h2>
-        <p class="text-gray-600">Tambah, edit, dan hapus data sopir armada Anda.</p>
+    {{-- HEADER --}}
+    <div class="border-b border-gray-200 pb-4 mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Kelola Data Sopir</h1>
+        <p class="text-base text-gray-500 mt-1">Tambah, edit, dan hapus data sopir armada Anda.</p>
     </div>
 
-    <!-- Alert Success -->
+    {{-- ALERT SUCCESS --}}
     @if(session('success'))
-        <div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-r-xl flex items-start space-x-3">
-            <svg class="w-6 h-6 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <div>
-                <p class="text-green-800 font-semibold">Berhasil!</p>
-                <p class="text-green-700 text-sm">{{ session('success') }}</p>
-            </div>
+        <div class="border border-green-200 bg-green-50 text-green-700 px-4 py-3 rounded mb-4 text-sm">
+            {{ session('success') }}
         </div>
     @endif
 
-    <!-- Stats Cards -->
+    {{-- STATS CARDS --}}
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div class="bg-white rounded-2xl shadow-md p-5 border-l-4 border-pupr-blue">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs text-gray-500 uppercase font-semibold">Total Sopir</p>
-                    <p class="text-2xl font-bold text-gray-900 mt-1">{{ $totalSopir }}</p>
-                </div>
-                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-6 h-6 text-pupr-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                    </svg>
-                </div>
-            </div>
+        <div class="bg-white border border-gray-200 rounded p-4">
+            <p class="text-xs text-gray-500 uppercase font-semibold">Total Sopir</p>
+            <p class="text-2xl font-bold text-gray-900 mt-1">{{ $totalSopir }}</p>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-md p-5 border-l-4 border-green-500">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs text-gray-500 uppercase font-semibold">Sopir Aktif</p>
-                    <p class="text-2xl font-bold text-green-600 mt-1">{{ $sopirAktif }}</p>
-                </div>
-                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
-            </div>
+        <div class="bg-white border border-gray-200 rounded p-4">
+            <p class="text-xs text-gray-500 uppercase font-semibold">Sopir Aktif</p>
+            <p class="text-2xl font-bold text-gray-900 mt-1">{{ $sopirAktif }}</p>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-md p-5 border-l-4 border-red-500">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs text-gray-500 uppercase font-semibold">Sopir Nonaktif</p>
-                    <p class="text-2xl font-bold text-red-600 mt-1">{{ $sopirNonaktif }}</p>
-                </div>
-                <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
-            </div>
+        <div class="bg-white border border-gray-200 rounded p-4">
+            <p class="text-xs text-gray-500 uppercase font-semibold">Sopir Nonaktif</p>
+            <p class="text-2xl font-bold text-gray-900 mt-1">{{ $sopirNonaktif }}</p>
         </div>
     </div>
 
-    <!-- Form Tambah Sopir -->
-    <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 border-t-4 border-pupr-yellow">
-        <div class="flex items-center justify-between mb-4">
-            <div>
-                <h3 class="text-lg font-bold text-pupr-blue">Tambah Sopir Baru</h3>
-                <p class="text-sm text-gray-500">Kode sopir akan digenerate otomatis (SPR-XXX)</p>
-            </div>
-            <div class="hidden sm:flex items-center space-x-2 bg-pupr-yellow/20 px-4 py-2 rounded-xl">
-                <svg class="w-5 h-5 text-pupr-yellow-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <span class="text-xs font-semibold text-pupr-yellow-dark">Auto Generate ID</span>
-            </div>
+    {{-- FORM TAMBAH SOPIR --}}
+    <div class="bg-white border border-gray-200 rounded mb-6">
+        <div class="bg-gray-50 border-b border-gray-200 px-5 py-3">
+            <span class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Tambah Sopir Baru</span>
+            <span class="font-normal text-gray-400 text-xs ml-2">Kode sopir akan digenerate otomatis (SPR-XXX)</span>
         </div>
-
-        <form id="formTambahSopir" class="flex flex-col sm:flex-row gap-3">
-            @csrf
-            <div class="flex-1">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Sopir</label>
-                <input type="text" id="namaTambah" required
-                    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pupr-yellow focus:border-pupr-yellow focus:bg-white text-gray-900 outline-none transition-all"
-                    placeholder="Masukkan nama sopir...">
-                <p class="text-red-500 text-xs font-medium mt-1 hidden" id="errorTambah"></p>
-            </div>
-            <div class="flex items-end">
-                <button type="button" onclick="konfirmasiTambah()"
-                    class="w-full sm:w-auto gradient-yellow text-pupr-blue font-bold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl btn-press transition-all flex items-center justify-center space-x-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                    </svg>
-                    <span>Tambah</span>
-                </button>
-            </div>
-        </form>
+        <div class="px-5 py-4">
+            <form id="formTambahSopir" class="flex flex-col sm:flex-row gap-3">
+                @csrf
+                <div class="flex-1">
+                    <input type="text" id="namaTambah" required
+                        class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-white"
+                        placeholder="Masukkan nama sopir...">
+                    <p class="text-red-500 text-xs mt-1 hidden" id="errorTambah"></p>
+                </div>
+                <div class="flex items-end">
+                    <button type="button" onclick="konfirmasiTambah()"
+                        class="bg-[#1a1a2e] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#2d2d44] transition">
+                        Tambah
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
-    <!-- Tabel Data Sopir -->
-    <div class="bg-white rounded-2xl shadow-lg border-t-4 border-pupr-blue overflow-hidden">
-        <div class="p-6 border-b border-gray-200">
+    {{-- TABEL DATA SOPIR --}}
+    <div class="bg-white border border-gray-200 rounded overflow-hidden">
+        <div class="border-b border-gray-200 px-5 py-3 bg-gray-50">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h3 class="text-lg font-bold text-pupr-blue">Daftar Sopir</h3>
-                    <p class="text-sm text-gray-500">Menampilkan {{ $sopirs->firstItem() ?? 0 }} - {{ $sopirs->lastItem() ?? 0 }} dari {{ $sopirs->total() }} data</p>
+                    <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Daftar Sopir</p>
+                    <p class="text-xs text-gray-400 mt-0.5">Menampilkan {{ $sopirs->firstItem() ?? 0 }} - {{ $sopirs->lastItem() ?? 0 }} dari {{ $sopirs->total() }} data</p>
                 </div>
 
-                <!-- Search dengan Live Search -->
+                {{-- SEARCH --}}
                 <div class="relative w-full sm:w-72">
                     <input type="text" id="liveSearch" value="{{ $search }}"
-                        class="w-full pl-10 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pupr-yellow focus:border-pupr-yellow text-gray-900 outline-none transition-all text-sm"
+                        class="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-white"
                         placeholder="Ketik untuk mencari..." autocomplete="off">
 
-                    <!-- Icon Search -->
-                    <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
 
-                    <!-- Loading Indicator -->
                     <div id="searchLoading" class="hidden absolute right-3 top-1/2 transform -translate-y-1/2">
-                        <svg class="w-5 h-5 text-pupr-yellow animate-spin" fill="none" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-gray-400 animate-spin" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
                     </div>
 
-                    <!-- Clear Button -->
-                    <button id="clearSearch" class="hidden absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-200 rounded-full transition-colors" title="Hapus pencarian">
-                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button id="clearSearch" class="hidden absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded transition" title="Hapus pencarian">
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                     </button>
                 </div>
-                </form>
             </div>
         </div>
 
@@ -147,60 +99,53 @@
                 <table class="w-full">
                     <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">No</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Kode Sopir</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Nama Sopir</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Tanggal Ditambahkan</th>
-                            <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Aksi</th>
+                            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">No</th>
+                            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Kode Sopir</th>
+                            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Nama Sopir</th>
+                            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tanggal Ditambahkan</th>
+                            <th class="px-4 py-2 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @foreach($sopirs as $index => $sopir)
-                            <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 text-sm text-gray-600 font-medium">{{ $sopirs->firstItem() + $index }}</td>
-                                <td class="px-6 py-4">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-lg bg-pupr-yellow/20 text-pupr-yellow-dark font-bold text-sm">
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3 text-sm text-gray-600">{{ $sopirs->firstItem() + $index }}</td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex items-center px-2 py-0.5 bg-gray-100 text-gray-700 text-xs font-medium rounded">
                                         {{ $sopir->kode_sopir }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-9 h-9 gradient-yellow rounded-full flex items-center justify-center shadow-sm">
-                                            <span class="text-pupr-blue font-bold text-sm">{{ substr($sopir->nama, 0, 1) }}</span>
-                                        </div>
-                                        <span class="text-sm font-semibold text-gray-900">{{ $sopir->nama }}</span>
-                                    </div>
+                                <td class="px-4 py-3">
+                                    <span class="text-sm font-medium text-gray-900">{{ $sopir->nama }}</span>
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="px-4 py-3">
                                     @if($sopir->status == 'aktif')
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
-                                            <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-medium">
+                                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
                                             Aktif
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">
-                                            <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 text-xs font-medium">
+                                            <span class="w-1.5 h-1.5 bg-red-500 rounded-full mr-1.5"></span>
                                             Nonaktif
                                         </span>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-600">
+                                <td class="px-4 py-3 text-sm text-gray-600">
                                     {{ $sopir->created_at->format('d M Y') }}
                                 </td>
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center justify-center space-x-2">
-                                        <!-- Tombol Edit -->
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center justify-center space-x-1.5">
                                         <button onclick="openEditModal({{ $sopir->id }}, '{{ $sopir->kode_sopir }}', '{{ $sopir->nama }}', '{{ $sopir->status }}')"
-                                            class="p-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors btn-press" title="Edit">
+                                            class="p-1.5 text-gray-500 border border-gray-200 rounded hover:text-gray-700 hover:bg-gray-50 transition" title="Edit">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                             </svg>
                                         </button>
 
-                                        <!-- Tombol Hapus -->
                                         <button onclick="confirmDelete({{ $sopir->id }}, '{{ $sopir->nama }}')"
-                                            class="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors btn-press" title="Hapus">
+                                            class="p-1.5 text-red-500 border border-gray-200 rounded hover:text-red-700 hover:bg-red-50 transition" title="Hapus">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                             </svg>
@@ -212,57 +157,54 @@
                     </tbody>
                 </table>
             @else
-                <div class="text-center py-16">
-                    <svg class="w-20 h-20 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="text-center py-12">
+                    <svg class="w-16 h-16 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
-                    <p class="text-gray-500 font-semibold">Belum ada data sopir</p>
+                    <p class="text-gray-500 font-medium">Belum ada data sopir</p>
                     <p class="text-gray-400 text-sm mt-1">Tambahkan sopir pertama Anda menggunakan form di atas.</p>
                 </div>
             @endif
         </div>
 
-        <!-- Pagination -->
+        {{-- PAGINATION --}}
         @if($sopirs->hasPages())
-            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+            <div class="border-t border-gray-200 px-5 py-3 bg-gray-50">
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <p class="text-sm text-gray-600">
                         Halaman {{ $sopirs->currentPage() }} dari {{ $sopirs->lastPage() }}
                     </p>
 
-                    <div class="flex items-center space-x-2">
-                        {{-- Previous Page Link --}}
+                    <div class="flex items-center space-x-1.5">
                         @if($sopirs->onFirstPage())
-                            <span class="px-3 py-2 text-sm text-gray-400 bg-white border border-gray-200 rounded-lg cursor-not-allowed">
-                                ← Sebelumnya
+                            <span class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 rounded cursor-not-allowed">
+                                Sebelumnya
                             </span>
                         @else
-                            <a href="{{ $sopirs->previousPageUrl() }}" class="px-3 py-2 text-sm text-pupr-blue bg-white border border-pupr-yellow hover:bg-pupr-yellow rounded-lg transition-colors font-semibold">
-                                ← Sebelumnya
+                            <a href="{{ $sopirs->previousPageUrl() }}" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded hover:bg-gray-50 font-medium">
+                                Sebelumnya
                             </a>
                         @endif
 
-                        {{-- Pagination Elements --}}
                         @foreach($sopirs->getUrlRange(1, $sopirs->lastPage()) as $page => $url)
                             @if($page == $sopirs->currentPage())
-                                <span class="px-3 py-2 text-sm font-bold text-pupr-blue bg-pupr-yellow border border-pupr-yellow rounded-lg">
+                                <span class="px-3 py-1.5 text-sm font-bold text-white bg-[#1a1a2e] border border-[#1a1a2e] rounded">
                                     {{ $page }}
                                 </span>
                             @else
-                                <a href="{{ $url }}" class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-200 hover:bg-pupr-yellow hover:text-pupr-blue hover:border-pupr-yellow rounded-lg transition-colors font-semibold">
+                                <a href="{{ $url }}" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">
                                     {{ $page }}
                                 </a>
                             @endif
                         @endforeach
 
-                        {{-- Next Page Link --}}
                         @if($sopirs->hasMorePages())
-                            <a href="{{ $sopirs->nextPageUrl() }}" class="px-3 py-2 text-sm text-pupr-blue bg-white border border-pupr-yellow hover:bg-pupr-yellow rounded-lg transition-colors font-semibold">
-                                Selanjutnya →
+                            <a href="{{ $sopirs->nextPageUrl() }}" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded hover:bg-gray-50 font-medium">
+                                Selanjutnya
                             </a>
                         @else
-                            <span class="px-3 py-2 text-sm text-gray-400 bg-white border border-gray-200 rounded-lg cursor-not-allowed">
-                                Selanjutnya →
+                            <span class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 rounded cursor-not-allowed">
+                                Selanjutnya
                             </span>
                         @endif
                     </div>
@@ -271,29 +213,31 @@
         @endif
     </div>
 
-    <!-- Modal Konfirmasi Tambah -->
-    <div id="tambahModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 overlay">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm transform transition-all">
-            <div class="p-6 text-center">
-                <div class="w-16 h-16 bg-pupr-yellow/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-8 h-8 text-pupr-yellow-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
+    {{-- MODAL KONFIRMASI TAMBAH --}}
+    <div id="tambahModal" class="fixed inset-0 bg-black/40 z-50 hidden items-center justify-center">
+        <div class="bg-white rounded border border-gray-200 w-full max-w-md mx-4">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Konfirmasi Tambah Sopir</h3>
+                    <button onclick="closeTambahModal()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
                 </div>
-                <h3 class="text-lg font-bold text-gray-900 mb-2">Konfirmasi Tambah Sopir</h3>
                 <p class="text-sm text-gray-600 mb-6">
                     Anda akan menambahkan sopir dengan nama:<br>
-                    <strong id="namaKonfirmasiTambah" class="text-pupr-blue text-base"></strong><br>
+                    <strong id="namaKonfirmasiTambah" class="text-gray-900 text-base"></strong><br>
                     <span class="text-xs text-gray-500 mt-1 block">Kode sopir akan digenerate otomatis (SPR-XXX)</span>
                 </p>
 
                 <div class="flex gap-3">
                     <button onclick="closeTambahModal()"
-                        class="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-colors btn-press">
+                        class="flex-1 border border-gray-300 rounded text-sm font-medium text-gray-700 px-4 py-2.5 hover:bg-gray-50 transition">
                         Batal
                     </button>
                     <button onclick="submitTambah()"
-                        class="flex-1 gradient-yellow text-pupr-blue font-bold py-3 rounded-xl shadow-lg hover:shadow-xl btn-press transition-all">
+                        class="flex-1 bg-[#1a1a2e] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#2d2d44] transition">
                         Ya, Tambah
                     </button>
                 </div>
@@ -301,82 +245,84 @@
         </div>
     </div>
 
-    <!-- Modal Edit -->
-    <div id="editModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 overlay">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all">
-            <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-pupr-yellow/10 to-pupr-yellow/5 rounded-t-2xl">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-bold text-pupr-blue">Edit Data Sopir</h3>
-                    <button onclick="closeEditModal()" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    {{-- MODAL EDIT --}}
+    <div id="editModal" class="fixed inset-0 bg-black/40 z-50 hidden items-center justify-center">
+        <div class="bg-white rounded border border-gray-200 w-full max-w-md mx-4">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Edit Data Sopir</h3>
+                    <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                     </button>
                 </div>
+
+                <form id="editForm" method="POST" class="space-y-4">
+                    @csrf
+                    @method('PUT')
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Kode Sopir</label>
+                        <input type="text" id="edit_kode" disabled
+                            class="w-full px-4 py-2.5 bg-gray-100 border border-gray-200 rounded text-sm text-gray-600 cursor-not-allowed">
+                        <p class="text-xs text-gray-400 mt-1">Kode tidak dapat diubah</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Nama Sopir</label>
+                        <input type="text" id="edit_nama" name="nama" required
+                            class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-white">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Status</label>
+                        <select id="edit_status" name="status" required
+                            class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-white">
+                            <option value="aktif">Aktif</option>
+                            <option value="nonaktif">Nonaktif</option>
+                        </select>
+                    </div>
+
+                    <div class="flex gap-3 pt-2">
+                        <button type="button" onclick="closeEditModal()"
+                            class="flex-1 border border-gray-300 rounded text-sm font-medium text-gray-700 px-4 py-2.5 hover:bg-gray-50 transition">
+                            Batal
+                        </button>
+                        <button type="button" onclick="konfirmasiEdit()"
+                            class="flex-1 bg-[#1a1a2e] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#2d2d44] transition">
+                            Simpan Perubahan
+                        </button>
+                    </div>
+                </form>
             </div>
-
-            <form id="editForm" method="POST" class="p-6 space-y-4">
-                @csrf
-                @method('PUT')
-
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">Kode Sopir</label>
-                    <input type="text" id="edit_kode" disabled
-                        class="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-gray-600 font-bold cursor-not-allowed">
-                    <p class="text-xs text-gray-400 mt-1">Kode tidak dapat diubah</p>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Sopir</label>
-                    <input type="text" id="edit_nama" name="nama" required
-                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pupr-yellow focus:border-pupr-yellow text-gray-900 outline-none transition-all">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
-                    <select id="edit_status" name="status" required
-                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pupr-yellow focus:border-pupr-yellow text-gray-900 outline-none transition-all">
-                        <option value="aktif">Aktif</option>
-                        <option value="nonaktif">Nonaktif</option>
-                    </select>
-                </div>
-
-                <div class="flex gap-3 pt-2">
-                    <button type="button" onclick="closeEditModal()"
-                        class="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-colors btn-press">
-                        Batal
-                    </button>
-                    <button type="button" onclick="konfirmasiEdit()"
-                        class="flex-1 gradient-yellow text-pupr-blue font-bold py-3 rounded-xl shadow-lg hover:shadow-xl btn-press transition-all">
-                        Simpan Perubahan
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 
-    <!-- Modal Konfirmasi Edit -->
-    <div id="konfirmasiEditModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 overlay">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm transform transition-all">
-            <div class="p-6 text-center">
-                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                    </svg>
+    {{-- MODAL KONFIRMASI EDIT --}}
+    <div id="konfirmasiEditModal" class="fixed inset-0 bg-black/40 z-50 hidden items-center justify-center">
+        <div class="bg-white rounded border border-gray-200 w-full max-w-md mx-4">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Konfirmasi Perubahan</h3>
+                    <button onclick="closeKonfirmasiEditModal()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
                 </div>
-                <h3 class="text-lg font-bold text-gray-900 mb-2">Konfirmasi Perubahan</h3>
                 <p class="text-sm text-gray-600 mb-6">
                     Anda yakin ingin memperbarui data sopir:<br>
-                    <strong id="namaKonfirmasiEdit" class="text-pupr-blue text-base"></strong>?
+                    <strong id="namaKonfirmasiEdit" class="text-gray-900 text-base"></strong>?
                 </p>
 
                 <div class="flex gap-3">
                     <button onclick="closeKonfirmasiEditModal()"
-                        class="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-colors btn-press">
+                        class="flex-1 border border-gray-300 rounded text-sm font-medium text-gray-700 px-4 py-2.5 hover:bg-gray-50 transition">
                         Batal
                     </button>
                     <button onclick="submitEdit()"
-                        class="flex-1 gradient-yellow text-pupr-blue font-bold py-3 rounded-xl shadow-lg hover:shadow-xl btn-press transition-all">
+                        class="flex-1 bg-[#1a1a2e] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#2d2d44] transition">
                         Ya, Simpan
                     </button>
                 </div>
@@ -384,16 +330,18 @@
         </div>
     </div>
 
-    <!-- Modal Konfirmasi Hapus -->
-    <div id="deleteModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 overlay">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm transform transition-all">
-            <div class="p-6 text-center">
-                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
+    {{-- MODAL KONFIRMASI HAPUS --}}
+    <div id="deleteModal" class="fixed inset-0 bg-black/40 z-50 hidden items-center justify-center">
+        <div class="bg-white rounded border border-gray-200 w-full max-w-md mx-4">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Hapus Data Sopir?</h3>
+                    <button onclick="closeDeleteModal()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
                 </div>
-                <h3 class="text-lg font-bold text-gray-900 mb-2">Hapus Data Sopir?</h3>
                 <p class="text-sm text-gray-600 mb-6">
                     Anda yakin ingin menghapus <strong id="delete_nama" class="text-gray-900"></strong>?<br>
                     <span class="text-xs text-red-500 mt-1 block">Tindakan ini tidak dapat dibatalkan.</span>
@@ -401,11 +349,11 @@
 
                 <div class="flex gap-3">
                     <button onclick="closeDeleteModal()"
-                        class="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-colors btn-press">
+                        class="flex-1 border border-gray-300 rounded text-sm font-medium text-gray-700 px-4 py-2.5 hover:bg-gray-50 transition">
                         Batal
                     </button>
                     <button onclick="submitDelete()"
-                        class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl shadow-lg btn-press transition-all">
+                        class="flex-1 bg-red-600 text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-red-700 transition">
                         Ya, Hapus
                     </button>
                 </div>
@@ -414,6 +362,11 @@
     </div>
 
     <script>
+        // ===== VALIDASI INPUT: Hanya huruf, angka, spasi, strip =====
+        function validasiNama(input) {
+            return /^[a-zA-Z0-9\s\-\.]+$/.test(input);
+        }
+
         // ===== TAMBAH SOPIR =====
         function konfirmasiTambah() {
             const nama = document.getElementById('namaTambah').value.trim();
@@ -424,6 +377,11 @@
             }
             if (nama.length < 3) {
                 document.getElementById('errorTambah').textContent = 'Nama minimal 3 karakter.';
+                document.getElementById('errorTambah').classList.remove('hidden');
+                return;
+            }
+            if (!validasiNama(nama)) {
+                document.getElementById('errorTambah').textContent = 'Nama hanya boleh huruf, angka, spasi, dan strip.';
                 document.getElementById('errorTambah').classList.remove('hidden');
                 return;
             }
@@ -442,7 +400,6 @@
         }
 
         function submitTambah() {
-            // Buat form dinamis dan submit
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = '{{ route("sopir.store") }}';
@@ -484,6 +441,7 @@
         function konfirmasiEdit() {
             const nama = document.getElementById('edit_nama').value.trim();
             if (!nama || nama.length < 3) return;
+            if (!validasiNama(nama)) return;
 
             document.getElementById('namaKonfirmasiEdit').textContent = nama;
             closeEditModal();
@@ -614,7 +572,7 @@
     })();
     </script>
 
-    <!-- Form Hapus (hidden, untuk submit) -->
+    {{-- FORM HAPUS (HIDDEN) --}}
     <form id="deleteForm" method="POST" style="display: none;">
         @csrf
         @method('DELETE')

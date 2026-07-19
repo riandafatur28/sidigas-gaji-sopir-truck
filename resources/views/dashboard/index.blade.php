@@ -10,8 +10,17 @@
                 <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
                 <p class="text-base text-gray-500 mt-1">Halo, {{ explode(' ', auth()->user()->name)[0] }}</p>
             </div>
-            <div class="text-base text-gray-500">
-                {{ now()->translatedFormat('d F Y') }}
+            <div class="flex items-center gap-3">
+                <span class="text-sm text-gray-500">{{ $periodLabel }}</span>
+                <select id="periodeFilter" onchange="window.location.href='{{ route('dashboard') }}?periode='+this.value" class="text-sm border border-gray-200 rounded px-3 py-1.5 text-gray-700 bg-white focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20">
+                    <option value="semua" {{ $filter == 'semua' ? 'selected' : '' }}>Semua</option>
+                    <option value="periode_ini" {{ $filter == 'periode_ini' ? 'selected' : '' }}>Periode Ini</option>
+                    <option value="periode_lalu" {{ $filter == 'periode_lalu' ? 'selected' : '' }}>Periode Lalu</option>
+                    <option value="bulan_ini" {{ $filter == 'bulan_ini' ? 'selected' : '' }}>Bulan Ini</option>
+                    <option value="3_bulan_lalu" {{ $filter == '3_bulan_lalu' ? 'selected' : '' }}>3 Bulan Lalu</option>
+                    <option value="6_bulan_lalu" {{ $filter == '6_bulan_lalu' ? 'selected' : '' }}>6 Bulan Lalu</option>
+                    <option value="1_tahun_lalu" {{ $filter == '1_tahun_lalu' ? 'selected' : '' }}>1 Tahun Lalu</option>
+                </select>
             </div>
         </div>
     </div>
@@ -29,9 +38,17 @@
             <p class="text-sm text-gray-400 mt-1">tervalidasi</p>
         </div>
         <div class="border border-gray-200 rounded px-5 py-4 bg-white">
-            <p class="text-sm text-gray-500 uppercase tracking-wider font-semibold">Menunggu Verifikasi</p>
-            <p class="text-4xl font-bold text-gray-900 mt-1">{{ $ritasePending }}</p>
-            <p class="text-sm text-gray-400 mt-1">perlu review</p>
+            <div class="flex items-center justify-between">
+                <p class="text-sm text-gray-500 uppercase tracking-wider font-semibold">Menunggu Verifikasi</p>
+                <select id="filterValidasi" onchange="ubahValidasi(this.value)"
+                    class="text-xs border border-gray-200 rounded px-2 py-1 text-gray-600 bg-white focus:border-[#1a1a2e]">
+                    <option value="pending">Pending</option>
+                    <option value="disetujui">Disetujui</option>
+                    <option value="ditolak">Ditolak</option>
+                </select>
+            </div>
+            <p id="angkaValidasi" class="text-4xl font-bold text-gray-900 mt-1">{{ $validasiPending }}</p>
+            <p id="labelValidasi" class="text-sm text-gray-400 mt-1">butuh review</p>
         </div>
         <div class="border border-gray-200 rounded px-5 py-4 bg-white">
             <p class="text-sm text-gray-500 uppercase tracking-wider font-semibold">Total Gaji</p>
@@ -42,7 +59,7 @@
                     Rp {{ number_format($totalGaji, 0, ',', '.') }}
                 @endif
             </p>
-            <p class="text-sm text-gray-400 mt-1">periode berjalan</p>
+            <p class="text-sm text-gray-400 mt-1">{{ strtolower($periodLabel) }}</p>
         </div>
     </div>
 
@@ -86,10 +103,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @php
-                        $recentRitase = \App\Models\Ritase::with(['sopir', 'tujuan'])->latest()->limit(6)->get();
-                    @endphp
-
                     @forelse($recentRitase as $rit)
                     <tr class="border-b border-gray-100 hover:bg-gray-50">
                         <td class="px-5 py-3">
@@ -136,8 +149,8 @@
                         <td class="px-5 py-3 text-right text-base font-bold text-gray-900">{{ $ritaseValid ?? 0 }}</td>
                     </tr>
                     <tr class="border-b border-gray-100">
-                        <td class="px-5 py-3 text-base text-gray-600">Menunggu Verifikasi</td>
-                        <td class="px-5 py-3 text-right text-base font-bold text-gray-900">{{ $ritasePending }}</td>
+                        <td class="px-5 py-3 text-base text-gray-600">Validasi Pending</td>
+                        <td class="px-5 py-3 text-right text-base font-bold text-gray-900">{{ $validasiPending }}</td>
                     </tr>
                     <tr class="border-b border-gray-100">
                         <td class="px-5 py-3 text-base text-gray-600">Gagal Produksi</td>
@@ -200,3 +213,18 @@
     </div>
 
 </x-layouts.dashboard>
+
+<script>
+function ubahValidasi(status) {
+    var angka = document.getElementById('angkaValidasi');
+    var label = document.getElementById('labelValidasi');
+    var data = {
+        pending:  { count: {{ $validasiPending }}, text: 'butuh review' },
+        disetujui: { count: {{ $validasiDisetujui }}, text: 'total disetujui' },
+        ditolak:   { count: {{ $validasiDitolak }}, text: 'total ditolak' }
+    };
+    var d = data[status] || data.pending;
+    angka.textContent = d.count;
+    label.textContent = d.text;
+}
+</script>

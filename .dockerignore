@@ -1,0 +1,17 @@
+vendor
+node_modules
+.git
+.env
+.gitignore
+*.md
+.DS_Store
+storage/app/public
+bootstrap/cache/*.php
+public/hot
+public/build/manifest.json
+tests
+docker-compose*
+*.sqlite
+ngrok.exe
+*.pfx
+*.pem

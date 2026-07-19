@@ -17,23 +17,13 @@
             overflow-x: auto;
         }
 
-        .slip-title {
-            font-size: 22px;
+        .slip-header {
+            font-size: 18px;
             font-weight: 700;
-            color: #000;
             text-align: center;
-            padding: 10px 0;
-            border-bottom: 3px solid #000;
-            margin-bottom: 15px;
-            letter-spacing: 2px;
-        }
-
-        .slip-subtitle {
-            text-align: center;
-            font-size: 16px;
-            color: #000;
-            margin-bottom: 15px;
-            font-weight: 600;
+            padding: 8px 0;
+            border-bottom: 2px solid #000;
+            margin-bottom: 12px;
         }
 
         table {
@@ -45,26 +35,25 @@
 
         th {
             border: 1px solid #000;
-            padding: 8px 10px;
+            padding: 6px 8px;
             text-align: center;
             font-weight: 700;
-            color: #000;
             font-size: 13px;
             background: white;
         }
 
         td {
             border: 1px solid #000;
-            padding: 8px 10px;
+            padding: 6px 8px;
             text-align: center;
-            color: #000;
-            font-size: 14px;
+            font-size: 15px;
             background: white;
         }
 
         .text-right { text-align: right; }
         .text-left { text-align: left; }
         .font-bold { font-weight: 700; }
+        .label-tujuan-nama { font-size: 17px; font-weight: 700; }
 
         .page-break {
             page-break-after: always;
@@ -97,17 +86,16 @@
 </head>
 <body>
 
-    <button onclick="window.print()" class="print-btn no-print">🖨️ Cetak Slip</button>
+    <button onclick="window.print()" class="print-btn no-print">Cetak Slip</button>
     <a href="{{ route('gaji.index') }}" class="print-btn no-print" style="background: #666; text-decoration: none; display: inline-block; margin-left: 10px;">← Kembali</a>
 
     @php
-        // CEK APAKAH ADA DATA
-        $hasData = isset($gaji) && $gaji && isset($dataPerHari) && count($dataPerHari) > 0 && $gaji->total > 0;
+        $hasData = isset($gaji) && $gaji && isset($dataPerHari) && count($dataPerHari) > 0;
     @endphp
 
     @if(!$hasData)
         <div class="slip-container text-center py-10">
-            <p style="font-size: 18px; color: #000; font-weight: 600;">Tidak ada data gaji untuk sopir ini</p>
+            <p style="font-size: 18px; font-weight: 600;">Tidak ada data gaji untuk sopir ini</p>
             @if(isset($error))
                 <p style="font-size: 14px; color: #cc0000; margin-top: 5px;">{{ $error }}</p>
             @endif
@@ -121,88 +109,47 @@
     @else
         @php
             $totalDT = $gaji->dt ?? 0;
-            $grandTotal = $gaji->total ?? 0;
+            $totalKompensasi = $gaji->kompensasi_gagal ?? 0;
 
-            // URUTAN HARI
-            $semuaHari = ['Sabtu', 'Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', "Jum'at"];
-
-            // DATA PER HARI
-            $dataByHari = [];
-            $ritKeByHari = [];
-            $urutanHari = [];
-
-            foreach ($dataPerHari as $d) {
-                $dataByHari[$d['hari']] = $d;
-                $ritKeByHari[$d['hari']] = $d['rit_ke'] > 1 ? $d['rit_ke'] : 1;
-                $urutanHari[] = $d['hari'];
+            $pages = [];
+            foreach ($dataPerHari as $entry) {
+                $pages[$entry['rit_ke']][] = $entry;
             }
-
-            $totalHari = count($urutanHari);
-            $itemsPerPage = 7;
-            $totalPages = max(1, ceil($totalHari / $itemsPerPage));
-
-            // TUJUAN STRING
-            $allTujuan = [];
-            foreach ($detailTujuan as $d) {
-                $allTujuan[] = $d->tujuan ? $d->tujuan->nama : $d->kode_tujuan;
-            }
-            $tujuanString = implode(', ', array_slice($allTujuan, 0, 2));
-            if (count($allTujuan) > 2) {
-                $tujuanString .= ', ...';
-            }
+            ksort($pages);
+            $totalPages = max(1, count($pages));
 
             $tanggalMulai = \Carbon\Carbon::parse($periode->tanggal_mulai)->format('d/m/Y');
             $tanggalSelesai = \Carbon\Carbon::parse($periode->tanggal_selesai)->format('d/m/Y');
 
-            // HITUNG TOTAL SOLAR & UPAH PER HARI
-            $totalSolarPerHari = [];
-            $totalUpahPerHari = [];
-            $totalJumlahPerHari = [];
-            $tujuanPerHari = [];
+            $totalSolarAll = array_sum(array_column($dataPerHari, 'solar'));
+            $totalUpahAll = array_sum(array_column($dataPerHari, 'upah'));
+            $totalJumlahAll = array_sum(array_column($dataPerHari, 'jumlah'));
+            $totalDTAll = array_sum(array_column($dataPerHari, 'dt'));
 
-            foreach ($urutanHari as $hari) {
-                $solar = $dataByHari[$hari]['solar'] ?? 0;
-                $upah = $dataByHari[$hari]['upah'] ?? 0;
-                $tujuan = $dataByHari[$hari]['tujuan'] ?? '-';
-
-                $totalSolarPerHari[$hari] = $solar;
-                $totalUpahPerHari[$hari] = $upah;
-                $totalJumlahPerHari[$hari] = $solar + $upah;
-                $tujuanPerHari[$hari] = $tujuan;
-            }
+            $halamanIndex = 0;
         @endphp
 
-        @for($halaman = 0; $halaman < $totalPages; $halaman++)
+        @foreach($pages as $ritKe => $pageData)
             @php
-                $startIdx = $halaman * $itemsPerPage;
-                $endIdx = min($startIdx + $itemsPerPage, count($urutanHari));
-                $hariHalaman = array_slice($urutanHari, $startIdx, $endIdx - $startIdx);
-                $isLastPage = ($halaman == $totalPages - 1);
+                $isLastPage = ($halamanIndex == $totalPages - 1);
 
-                $headerNama = $sopir->nama;
-                $headerPeriode = $periode->nama_periode;
-                $headerTujuan = $tujuanString;
+                $pageDT = array_sum(array_column($pageData, 'dt'));
+                $pageJumlah = array_sum(array_column($pageData, 'jumlah'));
             @endphp
 
             <div class="slip-container">
-                {{-- HEADER --}}
-                <div class="slip-title">SLIP GAJI SOPIR</div>
-                <div class="slip-subtitle">
-                    {{ $headerNama }} | {{ $headerPeriode }} ({{ $tanggalMulai }} - {{ $tanggalSelesai }}) | {{ $headerTujuan }}
-                    <span style="margin-left: 20px; font-weight: 400; color: #666;">Halaman {{ $halaman + 1 }} dari {{ $totalPages }}</span>
-                </div>
+                <div class="slip-header">{{ $sopir->nama }} | {{ $periode->nama_periode }} ({{ $tanggalMulai }} - {{ $tanggalSelesai }}) <span style="font-weight: 400; font-size: 14px; color: #666;">Halaman {{ $halamanIndex + 1 }} dari {{ $totalPages }}</span></div>
 
-                {{-- TABEL --}}
                 <table>
                     <thead>
                         <tr>
                             <th style="width: 12%;">NAMA</th>
-                            @foreach($hariHalaman as $hari)
+                            @foreach($pageData as $d)
                                 @php
-                                    $ritKe = $ritKeByHari[$hari] ?? 1;
-                                    $label = $hari;
-                                    if (isset($dataByHari[$hari]) && $dataByHari[$hari]['rit_ke'] > 1) {
-                                        $label = $hari . ' ' . $ritKe . '/4';
+                                    $tglHeader = \Carbon\Carbon::parse($d['tanggal'])->format('d/m');
+                                    $label = $d['hari'] . ' ' . $tglHeader;
+                                    if ($d['total_rit_hari'] > 1) {
+                                        $label .= ' (' . $d['rit_ke'] . '/' . $d['total_rit_hari'] . ')';
                                     }
                                 @endphp
                                 <th style="width: 10%;">{{ $label }}</th>
@@ -212,81 +159,61 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {{-- SOLAR --}}
                         <tr>
-                            <td class="font-bold text-left" style="font-size: 15px;">Solar</td>
-                            @foreach($hariHalaman as $hari)
+                            <td class="label-tujuan-nama text-left">Solar</td>
+                            @foreach($pageData as $d)
                                 @php
-                                    $val = $totalSolarPerHari[$hari] ?? 0;
-                                    $display = $val > 0 ? number_format($val, 0, ',', '.') : '';
+                                    $display = $d['is_gagal'] ? 'GAGAL' : ($d['solar'] > 0 ? number_format($d['solar'], 0, ',', '.') : '');
                                 @endphp
-                                <td class="text-right" style="font-size: 15px;">{{ $display }}</td>
+                                <td class="text-right">{{ $display }}</td>
                             @endforeach
-                            <td class="text-right" style="font-size: 15px;"></td>
-                            <td class="text-right" style="font-size: 15px;"></td>
+                            <td></td>
+                            <td></td>
                         </tr>
-
-                        {{-- SOPIR --}}
                         <tr>
-                            <td class="font-bold text-left" style="font-size: 15px;">Sopir</td>
-                            @foreach($hariHalaman as $hari)
+                            <td class="label-tujuan-nama text-left">Sopir</td>
+                            @foreach($pageData as $d)
                                 @php
-                                    $val = $totalUpahPerHari[$hari] ?? 0;
-                                    $display = $val > 0 ? number_format($val, 0, ',', '.') : '';
+                                    $display = $d['is_gagal'] ? '-' : ($d['upah'] > 0 ? number_format($d['upah'], 0, ',', '.') : '');
                                 @endphp
-                                <td class="text-right" style="font-size: 15px;">{{ $display }}</td>
+                                <td class="text-right">{{ $display }}</td>
                             @endforeach
-                            <td class="text-right" style="font-size: 15px;"></td>
-                            <td class="text-right" style="font-size: 15px;"></td>
+                            <td></td>
+                            <td></td>
                         </tr>
-
-                        {{-- JUMLAH --}}
                         <tr>
-                            <td class="font-bold text-left" style="font-size: 15px;">Jumlah</td>
-                            @foreach($hariHalaman as $hari)
+                            <td class="label-tujuan-nama text-left">Jumlah</td>
+                            @foreach($pageData as $d)
                                 @php
-                                    $val = $totalJumlahPerHari[$hari] ?? 0;
-                                    $display = $val > 0 ? number_format($val, 0, ',', '.') : '';
+                                    $display = $d['jumlah'] > 0 ? number_format($d['jumlah'], 0, ',', '.') : '';
                                 @endphp
-                                <td class="text-right font-bold" style="font-size: 15px;">{{ $display }}</td>
+                                <td class="text-right font-bold">{{ $display }}</td>
                             @endforeach
-                            <td class="text-right font-bold" style="font-size: 15px;">{{ number_format($totalDT, 0, ',', '.') }}</td>
-                            <td class="text-right font-bold" style="font-size: 16px;">{{ number_format($grandTotal, 0, ',', '.') }}</td>
+                            <td class="text-right font-bold">{{ $pageDT > 0 ? number_format($pageDT, 0, ',', '.') : '' }}</td>
+                            <td class="text-right font-bold">{{ number_format($pageJumlah + $pageDT, 0, ',', '.') }}</td>
                         </tr>
-
-                        {{-- TUJUAN --}}
                         <tr>
-                            <td class="font-bold text-left" style="font-size: 13px;">Tujuan</td>
-                            @foreach($hariHalaman as $hari)
+                            <td class="label-tujuan-nama text-left">Tujuan</td>
+                            @foreach($pageData as $d)
                                 @php
-                                    $tujuan = $tujuanPerHari[$hari] ?? '-';
+                                    $tujuanLabel = $d['is_gagal'] ? 'Gagal Produksi' : $d['tujuan'];
                                 @endphp
-                                <td class="text-left" style="font-size: 12px; font-weight: 500;">{{ $tujuan }}</td>
+                                <td class="text-left" style="font-size: 15px;">{{ $tujuanLabel }}</td>
                             @endforeach
-                            <td style="font-size: 12px;"></td>
-                            <td style="font-size: 12px;"></td>
+                            <td></td>
+                            <td></td>
                         </tr>
                     </tbody>
                 </table>
 
-                {{-- FOOTER --}}
-                <div style="margin-top: 12px; padding-top: 10px; border-top: 2px solid #000; display: flex; flex-wrap: wrap; justify-content: space-between; font-size: 13px; color: #000;">
-                    <div style="display: flex; flex-wrap: wrap; gap: 5px 15px;">
-                        @foreach($detailTujuan as $d)
-                            <span>• {{ $d->tujuan ? $d->tujuan->nama : $d->kode_tujuan }}</span>
-                        @endforeach
-                    </div>
-                    <div style="font-weight: 700;">
-                        <span>DT: Rp {{ number_format($totalDT, 0, ',', '.') }}</span>
-                        <span style="margin-left: 20px; font-weight: 800; font-size: 15px;">GRAND TOTAL: Rp {{ number_format($grandTotal, 0, ',', '.') }}</span>
-                    </div>
-                </div>
-
-                {{-- FOOTER INSTITUSI --}}
-                <div style="margin-top: 8px; padding-top: 5px; border-top: 1px solid #ccc; display: flex; justify-content: space-between; font-size: 11px; color: #666;">
-                    <span>Sistem Armada - Kementerian PUPR</span>
-                    <span>Slip Gaji {{ $sopir->nama }} - {{ $periode->nama_periode }}</span>
-                    <span>Cetak: {{ now()->format('d/m/Y H:i') }}</span>
+                <div style="margin-top: 10px; padding-top: 8px; border-top: 2px solid #000; text-align: right; font-weight: 700;">
+                    @if($pageDT > 0)
+                        <span>DT: Rp {{ number_format($pageDT, 0, ',', '.') }}</span>
+                    @endif
+                    <span style="margin-left: 20px;">TOTAL: Rp {{ number_format($pageJumlah + $pageDT, 0, ',', '.') }}</span>
+                    @if($isLastPage)
+                        <span style="margin-left: 20px; font-weight: 900;">GRAND TOTAL: Rp {{ number_format($totalJumlahAll + $totalDTAll, 0, ',', '.') }}</span>
+                    @endif
                 </div>
             </div>
 
@@ -294,7 +221,8 @@
                 <div class="page-break"></div>
             @endif
 
-        @endfor
+            @php $halamanIndex++; @endphp
+        @endforeach
     @endif
 
     <script>
