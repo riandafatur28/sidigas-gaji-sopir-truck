@@ -2,7 +2,7 @@ services:
   - type: web
     name: sistem-armada
     runtime: docker
-    repo: https://github.com/username/sistem-armada
+    repo: https://github.com/riandafatur28/sistem-distribusi-gaji-dumptruck
     branch: main
     plan: free
     healthCheckPath: /login
