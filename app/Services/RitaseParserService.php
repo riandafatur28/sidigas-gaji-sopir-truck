@@ -391,54 +391,58 @@ class RitaseParserService
                 continue;
             }
 
-            // Cek duplicate by kode_sopir + tanggal
-            $sopir = $matchedSopirs[0]['sopir'];
-            $duplicate = Ritase::where('periode_id', $periodeId)
-                ->where('kode_sopir', $sopir->kode_sopir)
-                ->where('tanggal', $parsed['date'])
-                ->exists();
+            // Tentukan waktu & kabupaten dari route match
+            $tujuan = $routeMatch ? $routeMatch['tujuan'] : null;
+            $kabupaten = $tujuan->kabupaten ?? $this->guessKabupaten($routeName);
+            $waktu = $this->guessWaktu($driverNames, $parsed['date']);
 
-            if ($duplicate) {
-                $skipped++;
-                $details[] = [
-                    'route' => $routeName,
-                    'status' => 'Skipped',
-                    'reason' => 'Duplicate (same sopir + date)',
-                ];
-                continue;
-            }
+            // Create one ritase per driver
+            foreach ($matchedSopirs as $matchedSopir) {
+                $sopir = $matchedSopir['sopir'];
 
-            try {
-                // Tentukan waktu & kabupaten dari route match
-                $tujuan = $routeMatch ? $routeMatch['tujuan'] : null;
-                $kabupaten = $tujuan->kabupaten ?? $this->guessKabupaten($routeName);
-                $waktu = $this->guessWaktu($driverNames, $parsed['date']);
+                // Cek duplicate by kode_sopir + tanggal
+                $duplicate = Ritase::where('periode_id', $periodeId)
+                    ->where('kode_sopir', $sopir->kode_sopir)
+                    ->where('tanggal', $parsed['date'])
+                    ->exists();
 
-                $ritase = new Ritase();
-                $ritase->periode_id = $periodeId;
-                $ritase->kode_sopir = $sopir->kode_sopir;
-                $ritase->kode_tujuan = $kodeTujuan;
-                $ritase->tanggal = $parsed['date'];
-                $ritase->waktu = $waktu;
-                $ritase->kabupaten = $kabupaten;
-                $ritase->status = 'valid';
-                $ritase->catatan = "Auto-create from parser (mode: " . ($parsed['source'] ?? 'rule-based') . ")";
-                $ritase->save();
+                if ($duplicate) {
+                    $skipped++;
+                    $details[] = [
+                        'route' => $routeName,
+                        'status' => 'Skipped',
+                        'sopir' => $sopir->nama,
+                        'reason' => 'Duplicate (same sopir + date)',
+                    ];
+                    continue;
+                }
 
-                $created++;
-                $details[] = [
-                    'route' => $routeName,
-                    'status' => 'Created',
-                    'sopir' => $sopir->nama,
-                    'kode_sopir' => $sopir->kode_sopir,
-                    'kode_tujuan' => $kodeTujuan,
-                    'waktu' => $waktu,
-                    'kabupaten' => $kabupaten,
-                ];
+                try {
+                    $ritase = new Ritase();
+                    $ritase->periode_id = $periodeId;
+                    $ritase->kode_sopir = $sopir->kode_sopir;
+                    $ritase->kode_tujuan = $kodeTujuan;
+                    $ritase->tanggal = $parsed['date'];
+                    $ritase->waktu = $waktu;
+                    $ritase->kabupaten = $kabupaten;
+                    $ritase->status = 'valid';
+                    $ritase->catatan = "Auto-create from parser (mode: " . ($parsed['source'] ?? 'rule-based') . ")";
+                    $ritase->save();
 
-            } catch (\Exception $e) {
-                $errors[] = "Failed to create for '{$routeName}': " . $e->getMessage();
-                $skipped++;
+                    $created++;
+                    $details[] = [
+                        'route' => $routeName,
+                        'status' => 'Created',
+                        'sopir' => $sopir->nama,
+                        'kode_sopir' => $sopir->kode_sopir,
+                        'kode_tujuan' => $kodeTujuan,
+                        'waktu' => $waktu,
+                        'kabupaten' => $kabupaten,
+                    ];
+                } catch (\Exception $e) {
+                    $errors[] = "Failed to create for '{$routeName}' / {$sopir->nama}: " . $e->getMessage();
+                    $skipped++;
+                }
             }
         }
 
