@@ -220,7 +220,7 @@ class RitaseParserService
             }
 
             // Stricter matching: first letter must match (case-insensitive) for non-exact,
-            // and threshold raised to 85% to prevent false matches (Topik 82.7%→Toni, etc.)
+            // threshold 85% to prevent false matches (Topik 82.7%→Toni, Adib 70%→Avit, etc.)
             $matched = false;
 
             // Exact match (case-insensitive) — always match
@@ -234,12 +234,6 @@ class RitaseParserService
                     $driverScore = $bestScore;
                 } else {
                     $driverScore = $bestScore - 30;
-                }
-            } elseif ($bestScore >= 60 && $bestMatch && strlen($driverName) <= 4) {
-                $firstCharMatch = strtolower(substr($bestMatch->nama, 0, 1)) === strtolower(substr($driverName, 0, 1));
-                if ($firstCharMatch) {
-                    $matched = true;
-                    $driverScore = min($bestScore + 10, 100);
                 }
             }
 
