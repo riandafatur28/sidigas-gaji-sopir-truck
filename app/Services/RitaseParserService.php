@@ -471,10 +471,11 @@ class RitaseParserService
     }
 
     /**
-     * Guess waktu based on driver count (simple heuristic).
+     * Guess waktu — default pagi for all parsed records.
+     * Text format has no shift indicator; user confirms all are morning trips.
      */
     protected function guessWaktu(array $driverNames, string $date): string
     {
-        return count($driverNames) > 10 ? 'pagi' : 'malam';
+        return 'pagi';
     }
 }
