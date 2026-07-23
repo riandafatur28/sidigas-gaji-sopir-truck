@@ -366,20 +366,31 @@ class RitaseParserService
                     $score = 95;
                     $type = 'substring';
                 }
-                // 3) Every word in input found somewhere in tujuan words → 90%
+                // 3) Every word from one side found in the other (bidirectional) → 90%
                 else {
-                    $allWordsFound = true;
+                    $inputInTujuan = !empty($cleanWords);
                     foreach ($cleanWords as $w) {
                         if (strlen($w) < 2) continue;
                         $found = false;
                         foreach ($pt['words'] as $tw) {
                             if ($tw === $w) { $found = true; break; }
                         }
-                        if (!$found) { $allWordsFound = false; break; }
+                        if (!$found) { $inputInTujuan = false; break; }
                     }
-                    if ($allWordsFound && !empty($cleanWords)) {
+
+                    $tujuanInInput = !empty($pt['words']);
+                    foreach ($pt['words'] as $tw) {
+                        if (strlen($tw) < 2) continue;
+                        $found = false;
+                        foreach ($cleanWords as $w) {
+                            if ($w === $tw) { $found = true; break; }
+                        }
+                        if (!$found) { $tujuanInInput = false; break; }
+                    }
+
+                    if ($inputInTujuan || $tujuanInInput) {
                         $score = 90;
-                        $type = 'all-words';
+                        $type = 'bidirectional-words';
                     }
                 }
 
