@@ -7,91 +7,50 @@ use App\Models\Sopir;
 use App\Models\Tujuan;
 use App\Models\Periode;
 use Illuminate\Support\Str;
-use Illuminate\Support\Collection;
 
 class RitaseParserService
 {
     /**
-     * Parse raw text message into structured ritase data using LLM.
+     * Parse raw text message into structured ritase data.
+     * Format: "22 07 26 rabu\n" then route lines and "N. Nama" driver lines.
      */
     public function parse(string $text): array
     {
-        $prompt = $this->buildPrompt($text);
-        
-        // In production, call actual LLM API here (OpenAI, Ollama, etc.)
-        // For now, use rule-based parser as fallback
-        return $this->ruleBasedParse($text);
-    }
-
-    /**
-     * Build LLM prompt for parsing.
-     */
-    protected function buildPrompt(string $text): string
-    {
-        return <<<PROMPT
-Parse this Indonesian dump truck driver schedule text into JSON.
-
-Text:
-{$text}
-
-Extract:
-1. Date (format: Y-m-d)
-2. Array of packages/routes, each with:
-   - route_name (raw text)
-   - drivers (array of driver names)
-
-Rules:
-- Date line: "DD MM YY hari" (e.g., "22 07 26 rabu" = 2022-07-26)
-- Package lines contain location keywords: "paket", "bondan", "patching", "kota", "kabupaten"
-- Driver lines are numbered: "1. Name", "2. Name"
-- Driver names may have typos, nicknames, or suffixes (e.g., "Mbah POR", "Eka bence")
-- Return ONLY valid JSON
-
-Example output:
-{
-  "date": "2022-07-26",
-  "packages": [
-    {"route_name": "Bondan patching pare kota", "drivers": ["Riki", "Kola", "Firsa", "Wahyu", "Ginem", "Mbah POR", "Didik", "Yuri", "Agung"]},
-    {"route_name": "Paket cmm blitar kota", "drivers": []},
-    {"route_name": "Paket watualang ngawi", "drivers": ["Gun", "Anjar", "Wilujeng", "Yanto", "Soim", "Kuwat", "Toni", "Aripin", "Avit", "Radib", "Topik", "Narji", "Eka bence", "Prapto", "Berok", "Manto", "Eko Wilangan", "Torik", "Adib", "Wakub"]}
-  ]
-}
-PROMPT;
-    }
-
-    /**
-     * Rule-based parser (fallback when LLM unavailable).
-     */
-    public function ruleBasedParse(string $text): array
-    {
-        $lines = array_map('trim', explode("\n", $text));
-        $lines = array_filter($lines, fn($l) => $l !== '');
-
         $result = [
             'date' => null,
             'packages' => [],
         ];
 
+        $lines = preg_split('/\r\n|\n|\r/', $text);
+        $lines = array_map('trim', $lines);
+        $lines = array_filter($lines, fn($l) => $l !== '');
+        $lines = array_values($lines);
+
+        if (empty($lines)) {
+            return $result;
+        }
+
+        // First line: date format "DD MM YY day" or "DD MM YYYY"
+        $dateLine = $lines[0];
+        $date = $this->parseDate($dateLine);
+
+        if ($date) {
+            $result['date'] = $date;
+        }
+
+        // Parse remaining lines for routes and drivers
         $currentPackage = null;
 
-        foreach ($lines as $line) {
-            // Detect date line: "22 07 26 rabu" or similar
-            if (preg_match('/^(\d{2})\s+(\d{2})\s+(\d{2})\s+\w+/i', $line, $matches)) {
-                $year = '20' . $matches[1];
-                $month = $matches[2];
-                $day = $matches[3];
-                $result['date'] = "{$year}-{$month}-{$day}";
-                continue;
-            }
+        for ($i = 1; $i < count($lines); $i++) {
+            $line = $lines[$i];
 
-            // Detect package/route line (contains location keywords, not numbered)
-            if (preg_match('/^(paket|bondan|patching|kota|kabupaten|rute|route)/i', $line) 
-                || (strlen($line) > 5 && !preg_match('/^\d+\./', $line) && !$this->looksLikeDriverName($line))) {
-                
+            // Detect route line (contains keywords or not a numbered line)
+            if (!$this->looksLikeDriverName($line)) {
+                // Push previous package
                 if ($currentPackage !== null) {
                     $result['packages'][] = $currentPackage;
                 }
-                
+
                 $currentPackage = [
                     'route_name' => $line,
                     'drivers' => [],
@@ -108,10 +67,10 @@ PROMPT;
                         'drivers' => [],
                     ];
                 }
-                
+
                 $driverName = trim($matches[1]);
                 $driverName = $this->cleanDriverName($driverName);
-                
+
                 if (!empty($driverName)) {
                     $currentPackage['drivers'][] = $driverName;
                 }
@@ -128,11 +87,41 @@ PROMPT;
     }
 
     /**
+     * Parse date from first line format "DD MM YY".
+     */
+    protected function parseDate(string $line): ?string
+    {
+        // Format: "22 07 26 rabu" or "22 07 2026 rabu"
+        if (preg_match('/^(\d{1,2})\s+(\d{1,2})\s+(\d{2,4})/', $line, $m)) {
+            $day = str_pad($m[1], 2, '0', STR_PAD_LEFT);
+            $month = str_pad($m[2], 2, '0', STR_PAD_LEFT);
+            $year = $m[3];
+
+            if (strlen($year) === 2) {
+                $year = '20' . $year;
+            }
+
+            // Validate
+            if (checkdate((int)$month, (int)$day, (int)$year)) {
+                return "{$year}-{$month}-{$day}";
+            }
+        }
+
+        // Try ISO format "2026-07-22"
+        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $line, $m)) {
+            if (checkdate((int)$m[2], (int)$m[3], (int)$m[1])) {
+                return $line;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Check if line looks like a driver name (for parsing logic).
      */
     protected function looksLikeDriverName(string $line): bool
     {
-        // Stricter heuristic: numbered lines are always driver lines
         return preg_match('/^\d+\./', $line);
     }
 
@@ -141,9 +130,8 @@ PROMPT;
      */
     protected function cleanDriverName(string $name): string
     {
-        // Remove titles, punctuation, extra spaces
         $name = preg_replace('/^(mbah|pak|bu|ira)\s*/i', '', $name);
-        $name = preg_replace('/\s+/u', ' ', $name); // Normalisasi spasi
+        $name = preg_replace('/\s+/u', ' ', $name);
         return trim($name);
     }
 
@@ -163,7 +151,7 @@ PROMPT;
             foreach ($allSopirs as $sopir) {
                 $similarity = $this->calculateStringSimilarity($driverName, $sopir->nama);
                 $normalizedScore = $similarity * 100;
-                
+
                 if ($normalizedScore > $bestScore) {
                     $bestScore = $normalizedScore;
                     $bestMatch = $sopir;
@@ -200,13 +188,12 @@ PROMPT;
             $bestMatch = null;
             $bestScore = 0;
 
-            // Get all tujuan untuk comparison
             $allTujuan = Tujuan::all(['id', 'nama', 'kode_tujuan']);
 
             foreach ($allTujuan as $tujuan) {
                 $similarity = $this->calculateStringSimilarity($routeName, $tujuan->nama);
                 $normalizedScore = $similarity * 100;
-                
+
                 if ($normalizedScore > $bestScore) {
                     $bestScore = $normalizedScore;
                     $bestMatch = $tujuan;
@@ -229,25 +216,19 @@ PROMPT;
      */
     protected function calculateStringSimilarity(string $str1, string $str2): float
     {
-        // Truncate long strings
         $str1 = strtolower(substr($str1, 0, 50));
         $str2 = strtolower(substr($str2, 0, 50));
-        
-        // Jika sama persis, langsung return 1.0
+
         if ($str1 === $str2) {
             return 1.0;
         }
 
-        // Hitung Jaro-Winkler similarity
         $jaro = $this->jaroDistance($str1, $str2);
         $jaroWinkler = $this->jaroWinklerDistance($jaro, $str1, $str2);
 
         return max($jaroWinkler, $jaro);
     }
 
-    /**
-     * Calculate Jaro distance.
-     */
     protected function jaroDistance(string $str1, string $str2): float
     {
         if ($str1 === $str2) {
@@ -293,9 +274,6 @@ PROMPT;
         return $jaro;
     }
 
-    /**
-     * Calculate Jaro-Winkler distance.
-     */
     protected function jaroWinklerDistance(float $jaro, string $str1, string $str2): float
     {
         $prefixLength = 0;
@@ -313,7 +291,7 @@ PROMPT;
     }
 
     /**
-     * Create ritase records from parsed data.
+     * Create ritase records from parsed data with correct field mapping.
      */
     public function createRitases(array $parsed, int $periodeId, array $driverMatches = [], array $routeMatches = []): array
     {
@@ -324,23 +302,13 @@ PROMPT;
 
         if (empty($parsed['date'])) {
             $errors[] = 'No date found in parsed data';
-            return [
-                'created' => 0,
-                'skipped' => 0,
-                'errors' => $errors,
-                'details' => [],
-            ];
+            return compact('created', 'skipped', 'errors', 'details');
         }
 
         $periode = Periode::find($periodeId);
         if (!$periode) {
             $errors[] = "Periode not found with ID: $periodeId";
-            return [
-                'created' => 0,
-                'skipped' => 0,
-                'errors' => $errors,
-                'details' => [],
-            ];
+            return compact('created', 'skipped', 'errors', 'details');
         }
 
         $driverMatchesMap = collect($driverMatches)->keyBy('input_name');
@@ -350,18 +318,15 @@ PROMPT;
             $routeName = $package['route_name'];
             $driverNames = $package['drivers'] ?? [];
 
-            // Match the route
             $routeMatch = $routeMatchesMap[$routeName] ?? null;
+            $kodeTujuan = $routeMatch && $routeMatch['matched'] ? $routeMatch['tujuan']->kode_tujuan : null;
 
-            // Find all matched sopirs for this package's drivers
             $matchedSopirs = [];
-            $packageErrors = [];
 
             foreach ($driverNames as $driverName) {
                 $driverMatch = $driverMatchesMap[$driverName] ?? null;
 
                 if (!$driverMatch || !$driverMatch['matched']) {
-                    $packageErrors[] = "Driver '{$driverName}' not found in database";
                     continue;
                 }
 
@@ -369,17 +334,6 @@ PROMPT;
                     'sopir' => $driverMatch['sopir'],
                     'confidence' => $driverMatch['confidence'],
                 ];
-            }
-
-            // Skip packages with more than 10 drivers (safety measure)
-            if (count($matchedSopirs) > 10) {
-                $skipped++;
-                $details[] = [
-                    'route' => $routeName,
-                    'status' => 'Skipped',
-                    'reason' => 'Too many drivers',
-                ];
-                continue;
             }
 
             if (empty($matchedSopirs)) {
@@ -392,9 +346,10 @@ PROMPT;
                 continue;
             }
 
-            // Check for duplicate ritase
+            // Cek duplicate by kode_sopir + tanggal
+            $sopir = $matchedSopirs[0]['sopir'];
             $duplicate = Ritase::where('periode_id', $periodeId)
-                ->where('sopir_id', $matchedSopirs[0]['sopir']->id)
+                ->where('kode_sopir', $sopir->kode_sopir)
                 ->where('tanggal', $parsed['date'])
                 ->exists();
 
@@ -403,43 +358,78 @@ PROMPT;
                 $details[] = [
                     'route' => $routeName,
                     'status' => 'Skipped',
-                    'reason' => 'Duplicate ritase',
+                    'reason' => 'Duplicate (same sopir + date)',
                 ];
                 continue;
             }
 
             try {
+                // Tentukan waktu & kabupaten dari route match
+                $tujuan = $routeMatch ? $routeMatch['tujuan'] : null;
+                $kabupaten = $tujuan->kabupaten ?? $this->guessKabupaten($routeName);
+                $waktu = $this->guessWaktu($driverNames, $parsed['date']);
+
                 $ritase = new Ritase();
                 $ritase->periode_id = $periodeId;
-                $ritase->sopir_id = $matchedSopirs[0]['sopir']->id;
+                $ritase->kode_sopir = $sopir->kode_sopir;
+                $ritase->kode_tujuan = $kodeTujuan;
                 $ritase->tanggal = $parsed['date'];
+                $ritase->waktu = $waktu;
+                $ritase->kabupaten = $kabupaten;
+                $ritase->status = 'valid';
+                $ritase->catatan = "Auto-create from parser (mode: " . ($parsed['source'] ?? 'rule-based') . ")";
                 $ritase->save();
 
                 $created++;
-
                 $details[] = [
                     'route' => $routeName,
                     'status' => 'Created',
-                    'drivers' => array_column($matchedSopirs, 'sopir', 'sopir.id'),
+                    'sopir' => $sopir->nama,
+                    'kode_sopir' => $sopir->kode_sopir,
+                    'kode_tujuan' => $kodeTujuan,
+                    'waktu' => $waktu,
+                    'kabupaten' => $kabupaten,
                 ];
 
             } catch (\Exception $e) {
-                $errors[] = "Failed to create ritase for route '{$routeName}': " . $e->getMessage();
+                $errors[] = "Failed to create for '{$routeName}': " . $e->getMessage();
                 $skipped++;
-                $details[] = [
-                    'route' => $routeName,
-                    'status' => 'Error',
-                    'reason' => $e->getMessage(),
-                ];
             }
         }
 
-        return [
-            'created' => $created,
-            'skipped' => $skipped,
-            'errors' => $errors,
-            'details' => $details,
+        return compact('created', 'skipped', 'errors', 'details');
+    }
+
+    /**
+     * Guess kabupaten based on route name.
+     */
+    protected function guessKabupaten(string $routeName): string
+    {
+        $routeLower = strtolower($routeName);
+        $kabupatenMap = [
+            'nganjuk' => 'Nganjuk',
+            'kediri' => 'Kediri',
+            'jombang' => 'Jombang',
+            'blitar' => 'Kota Kediri',
+            'pare' => 'Kediri',
+            'watualang' => 'Nganjuk',
+            'ngawi' => 'Nganjuk',
         ];
+
+        foreach ($kabupatenMap as $keyword => $kab) {
+            if (str_contains($routeLower, $keyword)) {
+                return $kab;
+            }
+        }
+
+        return 'Lainnya';
+    }
+
+    /**
+     * Guess waktu based on driver count (simple heuristic).
+     */
+    protected function guessWaktu(array $driverNames, string $date): string
+    {
+        return count($driverNames) > 10 ? 'pagi' : 'malam';
     }
 }
-?>

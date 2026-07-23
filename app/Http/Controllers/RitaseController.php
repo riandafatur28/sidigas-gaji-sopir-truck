@@ -301,16 +301,17 @@ class RitaseController extends Controller
     }
 
     /**
-     * Show parser form.
+     * Show parser form (unified: LLM AI + Rule-based).
      */
     public function parserForm()
     {
         $periodes = Periode::orderBy('id', 'desc')->get();
-        return view('ritase.parser', compact('periodes'));
+        $mode = request('mode', 'rule');
+        return view('ritase.parser', compact('periodes', 'mode'));
     }
 
     /**
-     * Process parsed text.
+     * Process parsed text (unified: supports llm and rule modes).
      */
     public function parserProcess(Request $request)
     {
@@ -318,9 +319,18 @@ class RitaseController extends Controller
             'text' => 'required|string',
             'periode_id' => 'required|exists:periodes,id',
             'auto_create' => 'boolean',
+            'mode' => 'in:rule,llm',
         ]);
 
-        $parser = new \App\Services\RitaseParserService();
+        $mode = $request->input('mode', 'rule');
+
+        // Pilih service berdasarkan mode
+        if ($mode === 'llm') {
+            $parser = app(\App\Services\LlmRitaseParserService::class);
+        } else {
+            $parser = new \App\Services\RitaseParserService();
+        }
+
         $parsed = $parser->parse($request->text);
 
         if (empty($parsed['date'])) {
@@ -340,13 +350,18 @@ class RitaseController extends Controller
             'packages' => $parsed['packages'],
             'driver_matches' => $driverMatches,
             'route_matches' => $routeMatches,
+            'mode' => $mode,
+            'confidence' => $parsed['confidence'] ?? 100,
+            'hallucination_detected' => $parsed['hallucination_detected'] ?? false,
+            'source' => $parsed['source'] ?? ($mode === 'llm' ? 'llm-fallback' : 'rule-based'),
             'created' => 0,
             'skipped' => 0,
             'errors' => [],
+            'details' => [],
         ];
 
         if ($request->boolean('auto_create')) {
-            $createResult = $parser->createRitases($parsed, $request->periode_id);
+            $createResult = $parser->createRitases($parsed, $request->periode_id, $driverMatches, $routeMatches);
             $results['created'] = $createResult['created'];
             $results['skipped'] = $createResult['skipped'];
             $results['errors'] = array_merge($results['errors'], $createResult['errors']);
