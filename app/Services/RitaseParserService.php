@@ -712,17 +712,57 @@ class RitaseParserService
     protected function guessKabupaten(string $routeName): string
     {
         $routeLower = strtolower($routeName);
-        $kabupatenMap = [
+
+        // Kecamatan → Kabupaten mapping (word-boundary check)
+        $kecamatanMap = [
+            // Kabupaten Nganjuk (35.18)
+            'bagor' => 'Nganjuk', 'bandarkedungmulyo' => 'Nganjuk', 'baron' => 'Nganjuk',
+            'berbek' => 'Nganjuk', 'gondang' => 'Nganjuk', 'jatikalen' => 'Nganjuk',
+            'kertosono' => 'Nganjuk', 'lengkong' => 'Nganjuk', 'loceret' => 'Nganjuk',
+            'ngetos' => 'Nganjuk', 'ngluyu' => 'Nganjuk', 'ngronggot' => 'Nganjuk',
+            'pace' => 'Nganjuk', 'patianrowo' => 'Nganjuk', 'prambon' => 'Nganjuk',
+            'rejoso' => 'Nganjuk', 'sawahan' => 'Nganjuk', 'sukomoro' => 'Nganjuk',
+            'tanjunganom' => 'Nganjuk', 'wilangan' => 'Nganjuk',
+            // Kabupaten Jombang (35.17)
+            'bareng' => 'Jombang', 'diwek' => 'Jombang', 'gudo' => 'Jombang',
+            'jogoroto' => 'Jombang', 'kabuh' => 'Jombang', 'kesamben' => 'Jombang',
+            'kudu' => 'Jombang', 'megaluh' => 'Jombang', 'mojoagung' => 'Jombang',
+            'mojowarno' => 'Jombang', 'ngoro' => 'Jombang', 'ngusikan' => 'Jombang',
+            'perak' => 'Jombang', 'peterongan' => 'Jombang', 'plandaan' => 'Jombang',
+            'ploso' => 'Jombang', 'sumobito' => 'Jombang', 'tembelang' => 'Jombang',
+            'wonosalam' => 'Jombang',
+            // Kabupaten Kediri (35.06)
+            'badas' => 'Kediri', 'banyakan' => 'Kediri', 'gampengrejo' => 'Kediri',
+            'grogol' => 'Kediri', 'gurah' => 'Kediri', 'kandangan' => 'Kediri',
+            'kandat' => 'Kediri', 'kayen kidul' => 'Kediri', 'kepung' => 'Kediri',
+            'kras' => 'Kediri', 'kunjang' => 'Kediri', 'mojo' => 'Kediri',
+            'ngadiluwih' => 'Kediri', 'ngancar' => 'Kediri', 'ngasem' => 'Kediri',
+            'pagu' => 'Kediri', 'papar' => 'Kediri', 'pare' => 'Kediri',
+            'plemahan' => 'Kediri', 'plosoklaten' => 'Kediri', 'puncu' => 'Kediri',
+            'purwoasri' => 'Kediri', 'ringinrejo' => 'Kediri', 'semen' => 'Kediri',
+            'tarokan' => 'Kediri', 'wates' => 'Kediri',
+            // Kota Kediri (35.71)
+            'mojoroto' => 'Kota Kediri', 'pesantren' => 'Kota Kediri',
+        ];
+
+        foreach ($kecamatanMap as $kec => $kab) {
+            // Word-boundary match: bareng matches "bareng" but not "pembarengan"
+            if (preg_match('/\b' . preg_quote($kec, '/') . '\b/', $routeLower)) {
+                return $kab;
+            }
+        }
+
+        // Fallback keyword
+        $keywordMap = [
             'nganjuk' => 'Nganjuk',
             'kediri' => 'Kediri',
             'jombang' => 'Jombang',
             'blitar' => 'Blitar',
-            'pare' => 'Kediri',
             'watualang' => 'Ngawi',
             'ngawi' => 'Ngawi',
         ];
 
-        foreach ($kabupatenMap as $keyword => $kab) {
+        foreach ($keywordMap as $keyword => $kab) {
             if (str_contains($routeLower, $keyword)) {
                 return $kab;
             }
@@ -734,9 +774,9 @@ class RitaseParserService
     /**
      * Guess waktu from route name — 'malam' if route contains 'malam', else 'pagi'.
      */
-    protected function guessWaktu(array $driverNames, string $date): string
+    protected function guessWaktu(array $driverNames, string $routeName): string
     {
-        return str_contains(strtolower($date), 'malam') ? 'malam' : 'pagi';
+        return str_contains(strtolower($routeName), 'malam') ? 'malam' : 'pagi';
     }
 
     protected function getLastSopir(): ?\App\Models\Sopir

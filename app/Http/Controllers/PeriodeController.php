@@ -98,7 +98,7 @@ class PeriodeController extends Controller
         $periode = Periode::findOrFail($id);
 
         // Cek apakah periode sudah punya ritase
-        if ($periode->ritases()->count() > 0) {
+        if ($periode->ritase()->count() > 0) {
             return redirect()->back()
                 ->with('error', 'Periode tidak dapat dihapus karena sudah memiliki data ritase!');
         }
