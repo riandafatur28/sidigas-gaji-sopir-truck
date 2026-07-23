@@ -5,6 +5,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SopirController;
 use App\Http\Controllers\TujuanController;
 use App\Http\Controllers\RitaseController;
+use App\Http\Controllers\RitaseParserController;
+use App\Http\Controllers\LlmRitaseParserController;
 use App\Http\Controllers\PeriodeController;
 use App\Http\Controllers\PenggajianController;
 use App\Http\Controllers\ProfileController;
@@ -70,6 +72,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/ritase', [RitaseController::class, 'store'])->name('ritase.store');
     Route::put('/ritase/{id}', [RitaseController::class, 'update'])->name('ritase.update');
     Route::delete('/ritase/{id}', [RitaseController::class, 'destroy'])->name('ritase.destroy');
+
+    // Parser Ritase dari Teks
+    Route::get('/ritase/parser', [RitaseController::class, 'parserForm'])->name('ritase.parser');
+    Route::post('/ritase/parser', [RitaseController::class, 'parserProcess'])->name('ritase.parser.process');
+
+    // LLM-based Ritase Parser
+    Route::get('/ritase/parser/llm', [LlmRitaseParserController::class, 'form'])->name('ritase.llm.form');
+    Route::post('/ritase/parser/llm', [LlmRitaseParserController::class, 'process'])->name('ritase.llm.process');
 
     // Kelola Periode
     Route::get('/periode', [PeriodeController::class, 'index'])->name('periode.index');

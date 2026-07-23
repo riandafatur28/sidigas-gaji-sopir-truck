@@ -299,4 +299,60 @@ class RitaseController extends Controller
             'kompensasi' => $nominalKompensasi,
         ]);
     }
+
+    /**
+     * Show parser form.
+     */
+    public function parserForm()
+    {
+        $periodes = Periode::orderBy('id', 'desc')->get();
+        return view('ritase.parser', compact('periodes'));
+    }
+
+    /**
+     * Process parsed text.
+     */
+    public function parserProcess(Request $request)
+    {
+        $request->validate([
+            'text' => 'required|string',
+            'periode_id' => 'required|exists:periodes,id',
+            'auto_create' => 'boolean',
+        ]);
+
+        $parser = new \App\Services\RitaseParserService();
+        $parsed = $parser->parse($request->text);
+
+        if (empty($parsed['date'])) {
+            return back()->withErrors(['text' => 'Tanggal tidak terdeteksi. Format: DD MM YY hari'])
+                ->withInput();
+        }
+
+        $driverMatches = $parser->matchDrivers(
+            collect($parsed['packages'])->pluck('drivers')->flatten()->unique()->values()->all()
+        );
+        $routeMatches = $parser->matchRoutes(
+            collect($parsed['packages'])->pluck('route_name')->unique()->values()->all()
+        );
+
+        $results = [
+            'date' => $parsed['date'],
+            'packages' => $parsed['packages'],
+            'driver_matches' => $driverMatches,
+            'route_matches' => $routeMatches,
+            'created' => 0,
+            'skipped' => 0,
+            'errors' => [],
+        ];
+
+        if ($request->boolean('auto_create')) {
+            $createResult = $parser->createRitases($parsed, $request->periode_id);
+            $results['created'] = $createResult['created'];
+            $results['skipped'] = $createResult['skipped'];
+            $results['errors'] = array_merge($results['errors'], $createResult['errors']);
+            $results['details'] = $createResult['details'];
+        }
+
+        return view('ritase.parser-result', compact('results'));
+    }
 }
