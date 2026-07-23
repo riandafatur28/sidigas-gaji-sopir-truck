@@ -93,7 +93,8 @@ class RitaseParserService
                     if ($foundPos !== null) {
                         $prefix = trim(substr($line, 0, $foundPos));
                         $routeName = trim(substr($line, $foundPos));
-                        $implicitDrivers = explode(' ', $prefix);
+                        // Seluruh prefix adalah 1 nama driver (Yuri badug → satu nama)
+                        $implicitDrivers = [$prefix];
                     }
                 }
 
@@ -203,6 +204,7 @@ class RitaseParserService
     protected function cleanDriverName(string $name): string
     {
         $name = preg_replace('/^(mbah|pak|bu|ira)\s*/i', '', $name);
+        $name = str_replace(['√', '✔', '✓', '🙏', '🙌'], '', $name);
         $name = preg_replace('/\s+/u', ' ', $name);
         return trim($name);
     }
@@ -524,10 +526,11 @@ class RitaseParserService
                 ];
             }
 
-            // Auto-create unmatched routes
+            // Auto-create unmatched routes (skip "gagal produksi" — itu status, bukan route)
             $routeName = $package['route_name'];
             $rKey = $routeName;
-            if (!isset($createdRoutes[$rKey])) {
+            $isGagalRp = str_contains(strtolower($routeName), 'gagal');
+            if (!$isGagalRp && !isset($createdRoutes[$rKey])) {
                 $rm = $routeMatchesMap[$rKey] ?? null;
                 if (!$rm || !$rm['matched']) {
                     $last = $this->getLastTujuan();
@@ -555,8 +558,20 @@ class RitaseParserService
             $routeName = $package['route_name'];
             $driverNames = $package['drivers'] ?? [];
 
+            $isGagal = str_contains(strtolower($routeName), 'gagal');
             $routeMatch = $routeMatchesMap[$routeName] ?? null;
-            $kodeTujuan = $routeMatch && $routeMatch['matched'] ? $routeMatch['tujuan']->kode_tujuan : null;
+            $kodeTujuan = ($routeMatch && $routeMatch['matched'] && !$isGagal)
+                ? $routeMatch['tujuan']->kode_tujuan
+                : null;
+
+            // Bersihin auto-created Tujuan kalo gagal produksi
+            if ($isGagal) {
+                $tujuanGagal = \App\Models\Tujuan::where('nama', $routeName)->first();
+                if ($tujuanGagal) {
+                    \App\Models\Ritase::where('kode_tujuan', $tujuanGagal->kode_tujuan)->update(['kode_tujuan' => null]);
+                    $tujuanGagal->delete();
+                }
+            }
 
             $matchedSopirs = [];
 
@@ -587,6 +602,42 @@ class RitaseParserService
             $tujuan = $routeMatch ? $routeMatch['tujuan'] : null;
             $kabupaten = $tujuan->kabupaten ?? $this->guessKabupaten($routeName);
             $waktu = $this->guessWaktu($driverNames, $routeName);
+
+            $isGagal = str_contains(strtolower($routeName), 'gagal');
+
+            if ($isGagal) {
+                // Gagal produksi: update existing ritase for these drivers on same date
+                $updated = 0;
+                foreach ($matchedSopirs as $matchedSopir) {
+                    $sopir = $matchedSopir['sopir'];
+                    $affected = Ritase::where('periode_id', $periodeId)
+                        ->where('kode_sopir', $sopir->kode_sopir)
+                        ->where('tanggal', $parsed['date'])
+                        ->where('waktu', $waktu)
+                        ->where('status', 'valid')
+                        ->latest('id')
+                        ->limit(1)
+                        ->update(['dt' => 0, 'status' => 'gagal_produksi']);
+                    if ($affected) {
+                        $updated++;
+                        $details[] = [
+                            'route' => $routeName,
+                            'status' => 'Updated to gagal',
+                            'sopir' => $sopir->nama,
+                            'reason' => 'DT=0, status=gagal_produksi',
+                        ];
+                    }
+                }
+                if ($updated === 0) {
+                    $skipped++;
+                    $details[] = [
+                        'route' => $routeName,
+                        'status' => 'Skipped',
+                        'reason' => 'No valid records to update for gagal produksi',
+                    ];
+                }
+                continue; // skip normal ritase creation
+            }
 
             // Create one ritase per driver
             foreach ($matchedSopirs as $matchedSopir) {
