@@ -66,13 +66,7 @@
                         </select>
                     </div>
 
-                    <div class="flex items-center">
-                        <input type="checkbox" name="auto_create" id="auto_create" value="1"
-                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                        <label for="auto_create" class="ml-2 block text-sm text-gray-700">
-                            Simpan otomatis ke database setelah preview
-                        </label>
-                    </div>
+
 
                     <div class="flex gap-4">
                         <button type="submit"
