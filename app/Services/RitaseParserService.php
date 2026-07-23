@@ -124,8 +124,24 @@ class RitaseParserService
 
         // Push last package if exists
         if ($currentPackage !== null) {
-            $result['packages'][] = $currentPackage;
+            $result["packages"][] = $currentPackage;
         }
+
+        // Merge packages with same route_name (gabung driver)
+        $merged = [];
+        foreach ($result["packages"] as $pkg) {
+            $key = $pkg["route_name"];
+            if (!isset($merged[$key])) {
+                $merged[$key] = $pkg;
+            } else {
+                foreach ($pkg["drivers"] as $d) {
+                    if (!in_array(strtolower($d), array_map("strtolower", $merged[$key]["drivers"]))) {
+                        $merged[$key]["drivers"][] = $d;
+                    }
+                }
+            }
+        }
+        $result["packages"] = array_values($merged);
 
         return $result;
     }
