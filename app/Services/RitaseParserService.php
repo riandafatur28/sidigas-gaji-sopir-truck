@@ -586,16 +586,17 @@ class RitaseParserService
             // Tentukan waktu & kabupaten dari route match
             $tujuan = $routeMatch ? $routeMatch['tujuan'] : null;
             $kabupaten = $tujuan->kabupaten ?? $this->guessKabupaten($routeName);
-            $waktu = $this->guessWaktu($driverNames, $parsed['date']);
+            $waktu = $this->guessWaktu($driverNames, $routeName);
 
             // Create one ritase per driver
             foreach ($matchedSopirs as $matchedSopir) {
                 $sopir = $matchedSopir['sopir'];
 
-                // Cek duplicate by kode_sopir + tanggal
+                // Cek duplicate by kode_sopir + tanggal + waktu
                 $duplicate = Ritase::where('periode_id', $periodeId)
                     ->where('kode_sopir', $sopir->kode_sopir)
                     ->where('tanggal', $parsed['date'])
+                    ->where('waktu', $waktu)
                     ->exists();
 
                 if ($duplicate) {
@@ -604,7 +605,7 @@ class RitaseParserService
                         'route' => $routeName,
                         'status' => 'Skipped',
                         'sopir' => $sopir->nama,
-                        'reason' => 'Duplicate (same sopir + date)',
+                        'reason' => 'Duplicate (same sopir + date + waktu)',
                     ];
                     continue;
                 }
@@ -680,12 +681,11 @@ class RitaseParserService
     }
 
     /**
-     * Guess waktu — default pagi for all parsed records.
-     * Text format has no shift indicator; user confirms all are morning trips.
+     * Guess waktu from route name — 'malam' if route contains 'malam', else 'pagi'.
      */
     protected function guessWaktu(array $driverNames, string $date): string
     {
-        return 'pagi';
+        return str_contains(strtolower($date), 'malam') ? 'malam' : 'pagi';
     }
 
     protected function getLastSopir(): ?\App\Models\Sopir
