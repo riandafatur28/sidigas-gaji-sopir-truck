@@ -57,6 +57,10 @@
                                    class="inline-flex items-center px-2.5 py-1.5 bg-blue-50 text-blue-700 rounded text-xs font-medium hover:bg-blue-100 transition">
                                     Detail
                                 </a>
+                                <a href="{{ route('gaji.slip-view', $periode['id']) }}" target="_blank"
+                                   class="inline-flex items-center px-2.5 py-1.5 bg-blue-50 text-blue-700 rounded text-xs font-medium hover:bg-blue-100 transition">
+                                    Lihat
+                                </a>
                                 <a href="{{ route('gaji.slip-pdf', $periode['id']) }}"
                                    class="inline-flex items-center px-2.5 py-1.5 bg-gray-50 text-gray-700 rounded text-xs font-medium hover:bg-gray-100 transition">
                                     Slip

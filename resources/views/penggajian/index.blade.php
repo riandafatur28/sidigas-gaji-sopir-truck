@@ -223,6 +223,11 @@
                                    class="text-xs text-gray-600 border border-gray-200 px-2.5 py-1.5 rounded hover:bg-gray-50 font-medium">
                                     Edit
                                 </a>
+                                <a href="{{ route('gaji.slip-view', $periode['id']) }}" target="_blank"
+                                   class="text-xs text-blue-600 border border-blue-200 px-2.5 py-1.5 rounded hover:bg-blue-50 font-medium"
+                                   title="Lihat Slip Gaji">
+                                    Lihat
+                                </a>
                                 <a href="{{ route('gaji.slip-pdf', $periode['id']) }}"
                                    class="text-xs text-gray-600 border border-gray-200 px-2.5 py-1.5 rounded hover:bg-gray-50 font-medium"
                                    title="Download Slip PDF">

@@ -91,6 +91,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/gaji/{id}', [PenggajianController::class, 'destroy'])->name('gaji.destroy');
     Route::get('/gaji/slip/{periode_id}/{kode_sopir}', [PenggajianController::class, 'slipGaji'])->name('gaji.slip');
     Route::get('/gaji/slip-pdf/{periode_id}', [PenggajianController::class, 'downloadSlipPdf'])->name('gaji.slip-pdf');
+    Route::get('/gaji/slip-view/{periode_id}', [PenggajianController::class, 'lihatSlip'])->name('gaji.slip-view');
     Route::get('/gaji/laporan-pdf/{periode_id}', [PenggajianController::class, 'downloadLaporanPdf'])->name('gaji.laporan-pdf');
     Route::get('/api/get-ritase-data', [PenggajianController::class, 'getRitaseData'])->name('api.get-ritase-data');
 

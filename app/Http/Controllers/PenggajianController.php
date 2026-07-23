@@ -882,20 +882,16 @@ class PenggajianController extends Controller
         return view('penggajian.laporan', compact('periodes', 'periodeId', 'data', 'periode'));
     }
 
-    public function downloadSlipPdf($periodeId)
+    private function buildPeriodeSlipData($periodeId)
     {
         $periode = Periode::findOrFail($periodeId);
 
         $sopirIds = Penggajian::where('periode_id', $periodeId)
-            ->pluck('kode_sopir')
-            ->unique()
-            ->values();
+            ->pluck('kode_sopir')->unique()->values();
 
         $ritaseSopirIds = Ritase::where('periode_id', $periodeId)
             ->whereNotIn('kode_sopir', $sopirIds)
-            ->pluck('kode_sopir')
-            ->unique()
-            ->values();
+            ->pluck('kode_sopir')->unique()->values();
 
         $sopirIds = $sopirIds->concat($ritaseSopirIds)->unique()->values();
 
@@ -907,20 +903,15 @@ class PenggajianController extends Controller
             }
         }
 
-        usort($allSlips, function ($a, $b) {
-            return $a['sopir']->id <=> $b['sopir']->id;
-        });
+        usort($allSlips, fn($a, $b) => $a['sopir']->id <=> $b['sopir']->id);
 
         $startDate = \Carbon\Carbon::parse($periode->tanggal_mulai);
         $endDate = \Carbon\Carbon::parse($periode->tanggal_selesai);
 
         $namaHari = [
-            'Saturday' => 'Sabtu',
-            'Sunday' => 'Minggu',
-            'Monday' => 'Senin',
-            'Tuesday' => 'Selasa',
-            'Wednesday' => 'Rabu',
-            'Thursday' => 'Kamis',
+            'Saturday' => 'Sabtu', 'Sunday' => 'Minggu',
+            'Monday' => 'Senin', 'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu', 'Thursday' => 'Kamis',
             'Friday' => "Jum'at",
         ];
 
@@ -934,48 +925,27 @@ class PenggajianController extends Controller
             ];
         }
 
-        // Find max rit count across all sopirs
-        $maxRitKe = 1;
-        foreach ($allSlips as $slip) {
-            foreach ($slip['dataPerHari'] as $entry) {
-                $maxRitKe = max($maxRitKe, $entry['rit_ke']);
-            }
-        }
-
-        // Build organized data with [date][rit_ke] map per sopir
         $organizedSlips = [];
         foreach ($allSlips as $slip) {
             $ritMap = [];
-            $allDt = $slip['totalDTAll'];
-            $allJumlah = $slip['totalJumlahAll'];
-            $allSolar = $slip['totalSolarAll'];
-            $allUpah = $slip['totalUpahAll'];
-
             foreach ($slip['dataPerHari'] as $entry) {
-                $tgl = $entry['tanggal'];
-                $rit = $entry['rit_ke'];
-                if (!isset($ritMap[$tgl])) {
-                    $ritMap[$tgl] = [];
-                }
-                $ritMap[$tgl][$rit] = $entry;
+                $ritMap[$entry['tanggal']][$entry['rit_ke']] = $entry;
             }
-
             $organizedSlips[] = [
                 'sopir' => $slip['sopir'],
                 'ritMap' => $ritMap,
-                'totalSolarAll' => $allSolar,
-                'totalUpahAll' => $allUpah,
-                'totalJumlahAll' => $allJumlah,
-                'totalDTAll' => $allDt,
-                'grandTotal' => $allJumlah + $allDt,
+                'totalSolarAll' => $slip['totalSolarAll'],
+                'totalUpahAll' => $slip['totalUpahAll'],
+                'totalJumlahAll' => $slip['totalJumlahAll'],
+                'totalDTAll' => $slip['totalDTAll'],
+                'grandTotal' => $slip['totalJumlahAll'] + $slip['totalDTAll'],
             ];
         }
 
-        // Flatten: satu entry per sopir per rit (hanya rit yang ada datanya)
         $slipEntries = [];
         foreach ($organizedSlips as $slip) {
             $sopirRits = [];
-            foreach ($slip['ritMap'] as $tgl => $rits) {
+            foreach ($slip['ritMap'] as $rits) {
                 foreach ($rits as $rit => $entry) {
                     $sopirRits[$rit] = true;
                 }
@@ -984,12 +954,8 @@ class PenggajianController extends Controller
             sort($sopirRits);
 
             foreach ($sopirRits as $rit) {
-                $totalSolar = 0;
-                $totalUpah = 0;
-                $totalJumlah = 0;
-                $totalDT = 0;
-
-                foreach ($slip['ritMap'] as $tgl => $rits) {
+                $totalSolar = $totalUpah = $totalJumlah = $totalDT = 0;
+                foreach ($slip['ritMap'] as $rits) {
                     if (isset($rits[$rit])) {
                         $e = $rits[$rit];
                         $totalSolar += $e['solar'];
@@ -998,7 +964,6 @@ class PenggajianController extends Controller
                         $totalDT += $e['dt'];
                     }
                 }
-
                 $slipEntries[] = [
                     'sopir' => $slip['sopir'],
                     'ritMap' => $slip['ritMap'],
@@ -1012,26 +977,32 @@ class PenggajianController extends Controller
             }
         }
 
-        // Urut: berdasarkan rit dulu, baru sopir
-        usort($slipEntries, function ($a, $b) {
-            if ($a['ritKe'] !== $b['ritKe']) {
-                return $a['ritKe'] <=> $b['ritKe'];
-            }
-            return $a['sopir']->id <=> $b['sopir']->id;
-        });
+        usort($slipEntries, fn($a, $b) =>
+            $a['ritKe'] !== $b['ritKe'] ? $a['ritKe'] <=> $b['ritKe'] : $a['sopir']->id <=> $b['sopir']->id
+        );
 
-        // 4 entry per page, tanpa forced page-break per rit
         $sopirPerPages = collect($slipEntries)->chunk(4)->map->values()->toArray();
 
-        $fileName = 'Slip_Gaji_' . str_replace(' ', '_', $periode->nama_periode) . '.pdf';
+        return compact('sopirPerPages', 'dateHeaders', 'periode');
+    }
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('penggajian.slip-pdf', compact(
-            'sopirPerPages', 'dateHeaders', 'periode'
-        ))->setPaper([0, 0, 595, 935], 'landscape')
-          ->setOption('isPhpEnabled', true)
-          ->setOption('defaultFont', 'Times New Roman')
-          ->setOption('isRemoteEnabled', false)
-          ->setOption('dpi', 72);
+    public function lihatSlip($periodeId)
+    {
+        $data = $this->buildPeriodeSlipData($periodeId);
+        return view('penggajian.slip-pdf', $data);
+    }
+
+    public function downloadSlipPdf($periodeId)
+    {
+        $data = $this->buildPeriodeSlipData($periodeId);
+        $fileName = 'Slip_Gaji_' . str_replace(' ', '_', $data['periode']->nama_periode) . '.pdf';
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('penggajian.slip-pdf', $data)
+            ->setPaper([0, 0, 595, 935], 'landscape')
+            ->setOption('isPhpEnabled', true)
+            ->setOption('defaultFont', 'Times New Roman')
+            ->setOption('isRemoteEnabled', false)
+            ->setOption('dpi', 72);
 
         return $pdf->download($fileName);
     }
