@@ -66,15 +66,15 @@ Route::middleware('auth')->group(function () {
     Route::put('/tujuan/{id}', [TujuanController::class, 'update'])->name('tujuan.update');
     Route::delete('/tujuan/{id}', [TujuanController::class, 'destroy'])->name('tujuan.destroy');
 
-    // Kelola Ritase
-    Route::get('/ritase', [RitaseController::class, 'index'])->name('ritase.index');
-    Route::post('/ritase', [RitaseController::class, 'store'])->name('ritase.store');
-    Route::put('/ritase/{id}', [RitaseController::class, 'update'])->name('ritase.update');
-    Route::delete('/ritase/{id}', [RitaseController::class, 'destroy'])->name('ritase.destroy');
+    // Parser Ritase dari Teks (main /ritase)
+    Route::get('/ritase', [RitaseController::class, 'parserForm'])->name('ritase.parser');
+    Route::post('/ritase', [RitaseController::class, 'parserProcess'])->name('ritase.parser.process');
 
-    // Parser Ritase dari Teks
-    Route::get('/ritase/parser', [RitaseController::class, 'parserForm'])->name('ritase.parser');
-    Route::post('/ritase/parser', [RitaseController::class, 'parserProcess'])->name('ritase.parser.process');
+    // Kelola Ritase (table view)
+    Route::get('/ritase/table', [RitaseController::class, 'index'])->name('ritase.index');
+    Route::post('/ritase/table', [RitaseController::class, 'store'])->name('ritase.store');
+    Route::put('/ritase/table/{id}', [RitaseController::class, 'update'])->name('ritase.update');
+    Route::delete('/ritase/table/{id}', [RitaseController::class, 'destroy'])->name('ritase.destroy');
 
     // Kelola Periode
     Route::get('/periode', [PeriodeController::class, 'index'])->name('periode.index');
