@@ -15,9 +15,11 @@ class RitaseController extends Controller
         $search = $request->get('search', '');
         $filterPeriode = $request->get('periode', '');
         $filterSopir = $request->get('sopir', '');
+        $filterTujuan = $request->get('tujuan', '');
 
         $periodes = Periode::orderBy('id', 'asc')->get();
         $sopirs = Sopir::where('status', 'aktif')->orderBy('id', 'asc')->get();
+        $tujuans = Tujuan::where('status', 'aktif')->orderBy('id', 'asc')->get();
 
         $ritases = Ritase::with(['periode', 'sopir', 'tujuan'])
             ->when($filterPeriode, function ($query) use ($filterPeriode) {
@@ -25,6 +27,9 @@ class RitaseController extends Controller
             })
             ->when($filterSopir, function ($query) use ($filterSopir) {
                 $query->where('kode_sopir', $filterSopir);
+            })
+            ->when($filterTujuan, function ($query) use ($filterTujuan) {
+                $query->where('kode_tujuan', $filterTujuan);
             })
             ->when($search, function ($query) use ($search) {
                 $query->where('kode_ritase', 'like', "%{$search}%")
@@ -48,9 +53,11 @@ class RitaseController extends Controller
             'ritases',
             'periodes',
             'sopirs',
+            'tujuans',
             'search',
             'filterPeriode',
             'filterSopir',
+            'filterTujuan',
             'totalRitase',
             'ritaseValid',
             'ritasePending',

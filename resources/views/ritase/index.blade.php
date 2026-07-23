@@ -232,6 +232,12 @@
                                 <option value="{{ $sopir->kode_sopir }}" {{ $filterSopir == $sopir->kode_sopir ? 'selected' : '' }}>{{ $sopir->nama }}</option>
                             @endforeach
                         </select>
+                        <select name="tujuan" onchange="this.form.submit()" class="px-3 py-2 border border-gray-200 rounded text-sm bg-white">
+                            <option value="">Semua Tujuan</option>
+                            @foreach($tujuans as $tujuan)
+                                <option value="{{ $tujuan->kode_tujuan }}" {{ ($filterTujuan ?? '') == $tujuan->kode_tujuan ? 'selected' : '' }}>{{ $tujuan->nama }}</option>
+                            @endforeach
+                        </select>
                     </form>
                     <div class="relative w-full sm:w-64">
                         <input type="text" id="liveSearch" value="{{ $search }}"
