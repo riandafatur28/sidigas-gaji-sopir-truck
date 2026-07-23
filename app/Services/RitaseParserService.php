@@ -712,66 +712,118 @@ class RitaseParserService
                     $gagalWaktu = $parsed['header_waktu'] ?? null;
                 }
 
-                // Gagal produksi: update existing ritase for these drivers on same date
-                $updated = 0;
-                foreach ($matchedSopirs as $matchedSopir) {
-                    $sopir = $matchedSopir['sopir'];
+                // Pure gagal modifier (route is just "Gagal" or "Gagal produksi")
+                // → update existing valid records to gagal
+                // Combined gagal route (route has real name + "gagal")
+                // → create new records with status=gagal_produksi
+                $isPureGagal = preg_match('/^gagal(\s*produksi)?$/i', trim($routeName));
 
-                    // Find valid record: try gagal's waktu first, then retry without
-                    $affected = Ritase::where('periode_id', $periodeId)
-                        ->where('kode_sopir', $sopir->kode_sopir)
-                        ->where('tanggal', $parsed['date'])
-                        ->where('waktu', $waktu)
-                        ->where('status', 'valid')
-                        ->latest('id')
-                        ->limit(1)
-                        ->update(['dt' => 0, 'status' => 'gagal_produksi']);
+                if ($isPureGagal) {
+                    // PURE GAGAL: update existing valid records for these drivers
+                    $updated = 0;
+                    foreach ($matchedSopirs as $matchedSopir) {
+                        $sopir = $matchedSopir['sopir'];
 
-                    if (!$affected) {
-                        // Retry without waktu (gagal route may have different shift than original)
                         $affected = Ritase::where('periode_id', $periodeId)
                             ->where('kode_sopir', $sopir->kode_sopir)
                             ->where('tanggal', $parsed['date'])
+                            ->where('waktu', $waktu)
                             ->where('status', 'valid')
                             ->latest('id')
                             ->limit(1)
                             ->update(['dt' => 0, 'status' => 'gagal_produksi']);
-                    }
 
-                    if ($affected) {
-                        // Update gagal record: set kode_tujuan + waktu
-                        $gagalUpdate = [];
-                        if ($gagalTarget) {
-                            $gagalUpdate['kode_tujuan'] = $gagalTarget;
-                        }
-                        if ($gagalWaktu) {
-                            $gagalUpdate['waktu'] = $gagalWaktu;
-                        }
-                        if (!empty($gagalUpdate)) {
-                            Ritase::where('periode_id', $periodeId)
+                        if (!$affected) {
+                            $affected = Ritase::where('periode_id', $periodeId)
                                 ->where('kode_sopir', $sopir->kode_sopir)
                                 ->where('tanggal', $parsed['date'])
-                                ->where('status', 'gagal_produksi')
+                                ->where('status', 'valid')
                                 ->latest('id')
                                 ->limit(1)
-                                ->update($gagalUpdate);
+                                ->update(['dt' => 0, 'status' => 'gagal_produksi']);
                         }
-                        $updated++;
+
+                        if ($affected) {
+                            $gagalUpdate = [];
+                            if ($gagalTarget) {
+                                $gagalUpdate['kode_tujuan'] = $gagalTarget;
+                            }
+                            if ($gagalWaktu) {
+                                $gagalUpdate['waktu'] = $gagalWaktu;
+                            }
+                            if (!empty($gagalUpdate)) {
+                                Ritase::where('periode_id', $periodeId)
+                                    ->where('kode_sopir', $sopir->kode_sopir)
+                                    ->where('tanggal', $parsed['date'])
+                                    ->where('status', 'gagal_produksi')
+                                    ->latest('id')
+                                    ->limit(1)
+                                    ->update($gagalUpdate);
+                            }
+                            $updated++;
+                            $details[] = [
+                                'route' => $routeName,
+                                'status' => 'Updated to gagal',
+                                'sopir' => $sopir->nama,
+                                'reason' => 'DT=0, status=gagal_produksi',
+                            ];
+                        }
+                    }
+                    if ($updated === 0) {
+                        $skipped++;
                         $details[] = [
                             'route' => $routeName,
-                            'status' => 'Updated to gagal',
-                            'sopir' => $sopir->nama,
-                            'reason' => 'DT=0, status=gagal_produksi',
+                            'status' => 'Skipped',
+                            'reason' => 'No valid records to update for gagal produksi',
                         ];
                     }
-                }
-                if ($updated === 0) {
-                    $skipped++;
-                    $details[] = [
-                        'route' => $routeName,
-                        'status' => 'Skipped',
-                        'reason' => 'No valid records to update for gagal produksi',
-                    ];
+                } else {
+                    // COMBINED GAGAL: create new records with dt=0, status=gagal_produksi
+                    // (separate package, not modifying existing valid records)
+                    foreach ($matchedSopirs as $matchedSopir) {
+                        $sopir = $matchedSopir['sopir'];
+                        $gagalWaktuVal = $gagalWaktu ?: $waktu;
+
+                        $duplicate = Ritase::where('periode_id', $periodeId)
+                            ->where('kode_sopir', $sopir->kode_sopir)
+                            ->where('tanggal', $parsed['date'])
+                            ->where('waktu', $gagalWaktuVal)
+                            ->where('kode_tujuan', $gagalTarget ?: $kodeTujuan)
+                            ->exists();
+
+                        if ($duplicate) {
+                            $skipped++;
+                            $details[] = [
+                                'route' => $routeName,
+                                'status' => 'Skipped',
+                                'sopir' => $sopir->nama,
+                                'reason' => 'Duplicate',
+                            ];
+                            continue;
+                        }
+
+                        try {
+                            $ritase = new Ritase();
+                            $ritase->periode_id = $periodeId;
+                            $ritase->kode_sopir = $sopir->kode_sopir;
+                            $ritase->kode_tujuan = $gagalTarget ?: $kodeTujuan;
+                            $ritase->tanggal = $parsed['date'];
+                            $ritase->waktu = $gagalWaktuVal;
+                            $ritase->dt = 0;
+                            $ritase->status = 'gagal_produksi';
+                            $ritase->kabupaten = $kabupaten;
+                            $ritase->save();
+                            $created++;
+                            $details[] = [
+                                'route' => $routeName,
+                                'status' => 'Created gagal',
+                                'sopir' => $sopir->nama,
+                                'reason' => 'DT=0, status=gagal_produksi',
+                            ];
+                        } catch (\Exception $e) {
+                            $errors[] = "Failed to create gagal ritase for {$sopir->nama}: {$e->getMessage()}";
+                        }
+                    }
                 }
                 continue; // skip normal ritase creation
             }
