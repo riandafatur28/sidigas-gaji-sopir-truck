@@ -223,11 +223,11 @@
                                    class="text-xs text-gray-600 border border-gray-200 px-2.5 py-1.5 rounded hover:bg-gray-50 font-medium">
                                     Edit
                                 </a>
-                                <a href="{{ route('gaji.slip-view', $periode['id']) }}" target="_blank"
+                                <button onclick="lihatSlipModal({{ $periode['id'] }})"
                                    class="text-xs text-blue-600 border border-blue-200 px-2.5 py-1.5 rounded hover:bg-blue-50 font-medium"
                                    title="Lihat Slip Gaji">
                                     Lihat
-                                </a>
+                                </button>
                                 <a href="{{ route('gaji.slip-pdf', $periode['id']) }}"
                                    class="text-xs text-gray-600 border border-gray-200 px-2.5 py-1.5 rounded hover:bg-gray-50 font-medium"
                                    title="Download Slip PDF">
@@ -703,6 +703,42 @@
                 }
             });
         });
+
+        function lihatSlipModal(periodeId) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/40 z-50 flex items-center justify-center';
+            modal.innerHTML = `
+                <div class="bg-white rounded border border-gray-200 w-full max-w-6xl max-h-[95vh] overflow-y-auto p-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-lg font-semibold text-gray-900">Slip Gaji</h3>
+                        <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="slipViewContent" class="text-center text-gray-500 py-8">Loading slip...</div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            fetch('/gaji/slip-view/' + periodeId)
+                .then(r => r.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const styles = doc.querySelectorAll('style');
+                    let styleHtml = '';
+                    styles.forEach(s => styleHtml += s.outerHTML);
+                    const blocks = doc.querySelectorAll('.slip-block');
+                    let slipHtml = '';
+                    blocks.forEach(b => slipHtml += b.outerHTML);
+                    document.getElementById('slipViewContent').innerHTML = styleHtml + (slipHtml || '<p class="text-gray-500">Tidak ada data slip</p>');
+                })
+                .catch(() => {
+                    document.getElementById('slipViewContent').innerHTML = '<p class="text-red-500">Gagal memuat slip</p>';
+                });
+        }
     </script>
     @endpush
 </x-layouts.dashboard>
