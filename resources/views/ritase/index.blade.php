@@ -824,7 +824,7 @@
 
         // ===== EDIT RITASE =====
         function openEditModal(ritase) {
-            document.getElementById('editForm').action = '{{ route('ritase.update', '') }}/' + ritase.id;
+            document.getElementById('editForm').action = '{{ route('ritase.update', ['id' => '__ID__']) }}'.replace('__ID__', ritase.id);
             document.getElementById('edit_kode_ritase').value = ritase.kode_ritase;
             document.getElementById('edit_periode_id').value = ritase.periode_id;
             document.getElementById('edit_tanggal').value = ritase.tanggal;
