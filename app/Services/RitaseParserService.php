@@ -110,7 +110,7 @@ class RitaseParserService
                 continue;
             }
 
-            // Detect driver line (numbered)
+            // Detect driver line (numbered) — only applies to currentPackage
             if (preg_match('/^\d+\.(.*)$/', $line, $matches)) {
                 if ($currentPackage === null) {
                     // No package context, create temporary package
@@ -126,13 +126,6 @@ class RitaseParserService
                 if (!empty($driverName)) {
                     $seenDrivers = true;
                     $lowerDriver = strtolower($driverName);
-                    // Add to all packages in current batch (pushed + current)
-                    for ($j = $batchStartIdx; $j < count($result['packages']); $j++) {
-                        if (!in_array($lowerDriver, array_map('strtolower', $result['packages'][$j]['drivers']), true)) {
-                            $result['packages'][$j]['drivers'][] = $driverName;
-                        }
-                    }
-                    // Add to current package (not yet in result)
                     if (!in_array($lowerDriver, array_map('strtolower', $currentPackage['drivers']), true)) {
                         $currentPackage['drivers'][] = $driverName;
                     }
