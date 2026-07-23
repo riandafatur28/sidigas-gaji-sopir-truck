@@ -680,10 +680,44 @@ class RitaseParserService
             $isGagal = str_contains(strtolower($routeName), 'gagal');
 
             if ($isGagal) {
+                // Determine target route for this gagal (kode_tujuan + waktu to set)
+                // Priority: gagal_route (line after block) > route w/o 'gagal' suffix (combined line) > header (before date)
+                $gagalTarget = null;
+                $gagalWaktu = null;
+
+                $gagalRouteOverride = $package['gagal_route'] ?? null;
+                if ($gagalRouteOverride) {
+                    $gagalMatches = $this->matchRoutes([$gagalRouteOverride]);
+                    if (!empty($gagalMatches) && $gagalMatches[0]['matched']) {
+                        $gagalTarget = $gagalMatches[0]['tujuan']->kode_tujuan;
+                        $gagalWaktu = $this->guessWaktu([], $gagalRouteOverride);
+                    }
+                }
+
+                // Fallback: strip "gagal" from route name ("Overlay malam kertosono Gagal produksi")
+                if (empty($gagalTarget)) {
+                    $cleanGagal = preg_replace('/\s+gagal(\s+produksi)?$/i', '', $routeName);
+                    $cleanGagal = trim($cleanGagal);
+                    if ($cleanGagal !== $routeName && !empty($cleanGagal)) {
+                        $gm = $this->matchRoutes([$cleanGagal]);
+                        if (!empty($gm) && $gm[0]['matched']) {
+                            $gagalTarget = $gm[0]['tujuan']->kode_tujuan;
+                            $gagalWaktu = $this->guessWaktu([], $cleanGagal);
+                        }
+                    }
+                }
+
+                if (empty($gagalTarget) && !empty($parsed['header_kode_tujuan'])) {
+                    $gagalTarget = $parsed['header_kode_tujuan'];
+                    $gagalWaktu = $parsed['header_waktu'] ?? null;
+                }
+
                 // Gagal produksi: update existing ritase for these drivers on same date
                 $updated = 0;
                 foreach ($matchedSopirs as $matchedSopir) {
                     $sopir = $matchedSopir['sopir'];
+
+                    // Find valid record: try gagal's waktu first, then retry without
                     $affected = Ritase::where('periode_id', $periodeId)
                         ->where('kode_sopir', $sopir->kode_sopir)
                         ->where('tanggal', $parsed['date'])
@@ -692,31 +726,31 @@ class RitaseParserService
                         ->latest('id')
                         ->limit(1)
                         ->update(['dt' => 0, 'status' => 'gagal_produksi']);
+
+                    if (!$affected) {
+                        // Retry without waktu (gagal route may have different shift than original)
+                        $affected = Ritase::where('periode_id', $periodeId)
+                            ->where('kode_sopir', $sopir->kode_sopir)
+                            ->where('tanggal', $parsed['date'])
+                            ->where('status', 'valid')
+                            ->latest('id')
+                            ->limit(1)
+                            ->update(['dt' => 0, 'status' => 'gagal_produksi']);
+                    }
+
                     if ($affected) {
                         // Update gagal record: set kode_tujuan + waktu
-                        // Priority: gagal_route (line after gagal block) > header (before date)
                         $gagalUpdate = [];
-                        $gagalRouteOverride = $package['gagal_route'] ?? null;
-                        if ($gagalRouteOverride) {
-                            $gagalMatches = $this->matchRoutes([$gagalRouteOverride]);
-                            if (!empty($gagalMatches) && $gagalMatches[0]['matched']) {
-                                $gagalUpdate['kode_tujuan'] = $gagalMatches[0]['tujuan']->kode_tujuan;
-                                $gagalWaktu = $this->guessWaktu([], $gagalRouteOverride);
-                                if ($gagalWaktu) {
-                                    $gagalUpdate['waktu'] = $gagalWaktu;
-                                }
-                            }
-                        } elseif (!empty($parsed['header_kode_tujuan'])) {
-                            $gagalUpdate['kode_tujuan'] = $parsed['header_kode_tujuan'];
-                            if (!empty($parsed['header_waktu'])) {
-                                $gagalUpdate['waktu'] = $parsed['header_waktu'];
-                            }
+                        if ($gagalTarget) {
+                            $gagalUpdate['kode_tujuan'] = $gagalTarget;
+                        }
+                        if ($gagalWaktu) {
+                            $gagalUpdate['waktu'] = $gagalWaktu;
                         }
                         if (!empty($gagalUpdate)) {
                             Ritase::where('periode_id', $periodeId)
                                 ->where('kode_sopir', $sopir->kode_sopir)
                                 ->where('tanggal', $parsed['date'])
-                                ->where('waktu', $waktu)
                                 ->where('status', 'gagal_produksi')
                                 ->latest('id')
                                 ->limit(1)
