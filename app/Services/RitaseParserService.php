@@ -19,6 +19,7 @@ class RitaseParserService
         $result = [
             'date' => null,
             'packages' => [],
+            'header_kode_tujuan' => null,
         ];
 
         $lines = preg_split('/\r\n|\n|\r/', $text);
@@ -30,12 +31,52 @@ class RitaseParserService
             return $result;
         }
 
-        // First line: date format "DD MM YY day" or "DD MM YYYY"
-        $dateLine = $lines[0];
-        $date = $this->parseDate($dateLine);
+        // Scan ALL lines for first date pattern (header lines may come before date)
+        $date = null;
+        $dateLineIdx = -1;
+        foreach ($lines as $idx => $line) {
+            $d = $this->parseDate($line);
+            if ($d) {
+                $date = $d;
+                $dateLineIdx = $idx;
+                break;
+            }
+            // Also try finding date embedded in the line (e.g. "BBM: ... 29 06 26 senin")
+            // Use negative lookaround to avoid matching inside prices/times
+            if (preg_match_all('/(?<!\d)(\d{1,2})\s+(\d{1,2})\s+(\d{2,4})(?!\d)/', $line, $matches, PREG_SET_ORDER)) {
+                foreach ($matches as $m) {
+                    $day = str_pad($m[1], 2, '0', STR_PAD_LEFT);
+                    $month = str_pad($m[2], 2, '0', STR_PAD_LEFT);
+                    $year = $m[3];
+                    if (strlen($year) === 2) { $year = '20'.$year; }
+                    if (checkdate((int)$month, (int)$day, (int)$year)) {
+                        $date = "{$year}-{$month}-{$day}";
+                        $dateLineIdx = $idx;
+                        break 2;
+                    }
+                }
+            }
+        }
 
         if ($date) {
             $result['date'] = $date;
+        }
+
+        // If first line is NOT a date, try to match it as a header route
+        // (e.g. "malam Kertosono" before the date/BBM line)
+        if ($dateLineIdx > 0) {
+            $headerLine = $lines[0];
+            // Skip if it's a BBM/upah header line
+            if (!str_starts_with(strtolower($headerLine), 'bbm')) {
+                $headerMatches = $this->matchRoutes([$headerLine]);
+                if (!empty($headerMatches) && $headerMatches[0]['matched']) {
+                    $result['header_kode_tujuan'] = $headerMatches[0]['tujuan']->kode_tujuan;
+                }
+                // Detect shift from header line (e.g. "malam Kertosono" -> malam)
+                if (str_contains(strtolower($headerLine), 'malam')) {
+                    $result['header_waktu'] = 'malam';
+                }
+            }
         }
 
         // Parse remaining lines for routes and drivers
@@ -45,6 +86,11 @@ class RitaseParserService
 
         for ($i = 1; $i < count($lines); $i++) {
             $line = $lines[$i];
+
+            // Skip BBM/upah/kompensasi header lines (meta info, not a route)
+            if (str_starts_with(strtolower($line), 'bbm')) {
+                continue;
+            }
 
             // Detect route line (contains keywords or not a numbered line)
             if (!$this->looksLikeDriverName($line)) {
@@ -619,6 +665,24 @@ class RitaseParserService
                         ->limit(1)
                         ->update(['dt' => 0, 'status' => 'gagal_produksi']);
                     if ($affected) {
+                        // Update gagal record: set kode_tujuan + waktu from header
+                        $gagalUpdate = [];
+                        if (!empty($parsed['header_kode_tujuan'])) {
+                            $gagalUpdate['kode_tujuan'] = $parsed['header_kode_tujuan'];
+                        }
+                        if (!empty($parsed['header_waktu'])) {
+                            $gagalUpdate['waktu'] = $parsed['header_waktu'];
+                        }
+                        if (!empty($gagalUpdate)) {
+                            Ritase::where('periode_id', $periodeId)
+                                ->where('kode_sopir', $sopir->kode_sopir)
+                                ->where('tanggal', $parsed['date'])
+                                ->where('waktu', $waktu)
+                                ->where('status', 'gagal_produksi')
+                                ->latest('id')
+                                ->limit(1)
+                                ->update($gagalUpdate);
+                        }
                         $updated++;
                         $details[] = [
                             'route' => $routeName,
