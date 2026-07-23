@@ -206,42 +206,51 @@ class RitaseParserService
         foreach ($driverNames as $driverName) {
             $bestMatch = null;
             $bestScore = 0;
-            $driverScore = 0;
-            $lowerInput = strtolower($driverName);
+            $lowerInput = strtolower(trim($driverName));
+            $inputMeta = metaphone($driverName);
 
             foreach ($allSopirs as $sopir) {
-                $similarity = $this->calculateStringSimilarity($driverName, $sopir->nama);
-                $normalizedScore = $similarity * 100;
+                $score = 0;
+                $sopirLower = strtolower(trim($sopir->nama));
 
-                if ($normalizedScore > $bestScore) {
-                    $bestScore = $normalizedScore;
+                // 1) Exact match (case-insensitive) → 100%
+                if ($sopirLower === $lowerInput) {
+                    $score = 100;
+                }
+                // 2) Phonetic match (metaphone) → 95% — catches Toni↔Tony
+                elseif ($inputMeta !== '' && $inputMeta === metaphone($sopir->nama)) {
+                    $score = 95;
+                }
+                // 3) Substring match — "Eko" ↔ "Eko Wilangan", "Wilujeng" ↔ "Mbah Wilujeng"
+                elseif (str_contains($sopirLower, $lowerInput) || str_contains($lowerInput, $sopirLower)) {
+                    // Avoid matching single-letter or 2-char substrings
+                    if (strlen($lowerInput) > 2 || strlen($sopirLower) > 2) {
+                        $score = 90;
+                    }
+                }
+                // 4) Jaro-Winkler fallback with strict 85% threshold + first-letter check
+                else {
+                    $similarity = $this->calculateStringSimilarity($driverName, $sopir->nama) * 100;
+                    if ($similarity >= 85) {
+                        $firstCharMatch = strtolower(substr($sopir->nama, 0, 1)) === strtolower(substr($driverName, 0, 1));
+                        if ($firstCharMatch) {
+                            $score = $similarity;
+                        }
+                    }
+                }
+
+                if ($score > $bestScore) {
+                    $bestScore = $score;
                     $bestMatch = $sopir;
                 }
             }
 
-            // Stricter matching: first letter must match (case-insensitive) for non-exact,
-            // threshold 85% to prevent false matches (Topik 82.7%→Toni, Adib 70%→Avit, etc.)
-            $matched = false;
-
-            // Exact match (case-insensitive) — always match
-            if ($bestMatch && strtolower($bestMatch->nama) === $lowerInput) {
-                $matched = true;
-                $driverScore = 100;
-            } elseif ($bestScore >= 85 && $bestMatch) {
-                $firstCharMatch = strtolower(substr($bestMatch->nama, 0, 1)) === strtolower(substr($driverName, 0, 1));
-                if ($firstCharMatch) {
-                    $matched = true;
-                    $driverScore = $bestScore;
-                } else {
-                    $driverScore = $bestScore - 30;
-                }
-            }
-
+            $matched = $bestScore >= 85;
             $results[] = [
                 'input_name' => $driverName,
                 'matched' => $matched,
                 'sopir' => $bestMatch,
-                'confidence' => round($driverScore, 2),
+                'confidence' => round($matched ? $bestScore : 0, 2),
             ];
         }
 
