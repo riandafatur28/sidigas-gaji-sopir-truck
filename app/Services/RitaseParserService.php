@@ -402,6 +402,67 @@ class RitaseParserService
         $driverMatchesMap = collect($driverMatches)->keyBy('input_name');
         $routeMatchesMap = collect($routeMatches)->keyBy('input_route');
 
+        // Auto-create unmatched drivers & routes as new DB records
+        $createdDrivers = [];
+        $createdRoutes = [];
+
+        foreach ($parsed['packages'] as $package) {
+            // Auto-create unmatched drivers in this package
+            foreach (($package['drivers'] ?? []) as $driverName) {
+                $key = $driverName;
+                if (isset($createdDrivers[$key])) {
+                    continue; // already created in this batch
+                }
+                $dm = $driverMatchesMap[$key] ?? null;
+                if ($dm && $dm['matched']) {
+                    continue; // already exists in DB
+                }
+                // Create new sopir
+                $last = $this->getLastSopir();
+                $num = $last ? (int)substr($last->kode_sopir, 4) + 1 : 1;
+                $kode = 'SPR-' . str_pad($num, 3, '0', STR_PAD_LEFT);
+                $sopir = \App\Models\Sopir::create([
+                    'kode_sopir' => $kode,
+                    'nama' => $driverName,
+                    'status' => 'aktif',
+                ]);
+                $createdDrivers[$key] = true;
+                // Add to driverMatchesMap so it's used in processing
+                $driverMatchesMap[$key] = [
+                    'input_name' => $driverName,
+                    'matched' => true,
+                    'sopir' => $sopir,
+                    'confidence' => 100,
+                ];
+            }
+
+            // Auto-create unmatched routes
+            $routeName = $package['route_name'];
+            $rKey = $routeName;
+            if (!isset($createdRoutes[$rKey])) {
+                $rm = $routeMatchesMap[$rKey] ?? null;
+                if (!$rm || !$rm['matched']) {
+                    $last = $this->getLastTujuan();
+                    $num = $last ? (int)substr($last->kode_tujuan, 4) + 1 : 1;
+                    $kode = 'TUJ-' . str_pad($num, 3, '0', STR_PAD_LEFT);
+                    $tujuan = \App\Models\Tujuan::create([
+                        'kode_tujuan' => $kode,
+                        'nama' => $routeName,
+                        'status' => 'aktif',
+                    ]);
+                    $createdRoutes[$rKey] = true;
+                    // Set kabupaten guess on the model for later use
+                    $tujuan->setAttribute('kabupaten', $this->guessKabupaten($routeName));
+                    $routeMatchesMap[$rKey] = [
+                        'input_route' => $routeName,
+                        'matched' => true,
+                        'tujuan' => $tujuan,
+                        'confidence' => 100,
+                    ];
+                }
+            }
+        }
+
         foreach ($parsed['packages'] as $package) {
             $routeName = $package['route_name'];
             $driverNames = $package['drivers'] ?? [];
@@ -537,5 +598,15 @@ class RitaseParserService
     protected function guessWaktu(array $driverNames, string $date): string
     {
         return 'pagi';
+    }
+
+    protected function getLastSopir(): ?\App\Models\Sopir
+    {
+        return \App\Models\Sopir::orderBy('id', 'desc')->first();
+    }
+
+    protected function getLastTujuan(): ?\App\Models\Tujuan
+    {
+        return \App\Models\Tujuan::orderBy('id', 'desc')->first();
     }
 }
