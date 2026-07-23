@@ -418,6 +418,18 @@ class RitaseParserService
                 }
 
                 try {
+                    // DT: 330.000 default, kecuali ada rit lain utk sopir+date+kab+waktu yg sama
+                    $dtValue = 330000;
+                    $ritLain = Ritase::where('kode_sopir', $sopir->kode_sopir)
+                        ->where('tanggal', $parsed['date'])
+                        ->where('kabupaten', $kabupaten)
+                        ->where('waktu', $waktu)
+                        ->where('status', '!=', 'gagal_produksi')
+                        ->first();
+                    if ($ritLain) {
+                        $dtValue = 0;
+                    }
+
                     $ritase = new Ritase();
                     $ritase->periode_id = $periodeId;
                     $ritase->kode_sopir = $sopir->kode_sopir;
@@ -425,6 +437,7 @@ class RitaseParserService
                     $ritase->tanggal = $parsed['date'];
                     $ritase->waktu = $waktu;
                     $ritase->kabupaten = $kabupaten;
+                    $ritase->dt = $dtValue;
                     $ritase->status = 'valid';
                     $ritase->catatan = "Auto-create from parser (mode: " . ($parsed['source'] ?? 'rule-based') . ")";
                     $ritase->save();
