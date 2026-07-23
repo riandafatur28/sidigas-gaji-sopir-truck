@@ -237,7 +237,7 @@ class RitaseParserService
 
         $len1 = strlen($str1);
         $len2 = strlen($str2);
-        $matchDistance = (int)max($len1, $len2) / 2 - 1;
+        $matchDistance = (int)(max($len1, $len2) / 2) - 1;
 
         $matches1 = [];
         $matches2 = [];

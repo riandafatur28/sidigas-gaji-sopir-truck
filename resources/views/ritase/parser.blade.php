@@ -1,5 +1,3 @@
-@props(['periodes' => [], 'mode' => 'rule'])
-
 <x-layouts.dashboard
     :title="'Parser Ritase'"
     :pageTitle="'Parser Ritase'"
@@ -62,7 +60,7 @@
                             <option value="">-- Pilih Periode --</option>
                             @foreach ($periodes as $periode)
                             <option value="{{ $periode->id }}" {{ old('periode_id') == $periode->id ? 'selected' : '' }}>
-                                {{ $periode->nama }} ({{ $periode->tanggal_mulai }} s/d {{ $periode->tanggal_selesai }})
+                                {{ $periode->nama_periode }} ({{ $periode->tanggal_mulai }} s/d {{ $periode->tanggal_selesai }})
                             </option>
                             @endforeach
                         </select>
