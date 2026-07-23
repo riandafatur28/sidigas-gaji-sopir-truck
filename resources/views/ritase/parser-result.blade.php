@@ -6,26 +6,9 @@
     <div class="mb-6 flex justify-between items-center">
         <div>
             <h1 class="text-2xl font-bold text-gray-900">Hasil Parsing Teks Ritase</h1>
-            <div class="flex items-center gap-2 mt-1">
-                @if (isset($results['mode']) && $results['mode'] === 'llm')
-                <span class="px-2 py-0.5 text-xs font-semibold rounded bg-purple-100 text-purple-800">🤖 AI Mode</span>
-                @else
-                <span class="px-2 py-0.5 text-xs font-semibold rounded bg-blue-100 text-blue-800">⚙️ Rule-based</span>
-                @endif
-
-                @if (isset($results['hallucination_detected']) && $results['hallucination_detected'])
-                <span class="px-2 py-0.5 text-xs font-semibold rounded bg-red-100 text-red-800">🚨 Hallucination Risk</span>
-                @endif
-
-                @if (isset($results['confidence']) && $results['confidence'] < 100)
-                <span class="px-2 py-0.5 text-xs font-semibold rounded
-                    {{ $results['confidence'] >= 80 ? 'bg-green-100 text-green-800' : ($results['confidence'] >= 60 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
-                    Confidence: {{ $results['confidence'] }}%
-                </span>
-                @endif
-            </div>
+            <p class="text-sm text-gray-500 mt-1">NER-based matching (exact → phonetic → substring → similarity)</p>
         </div>
-        <a href="{{ route('ritase.parser', ['mode' => $results['mode'] ?? 'rule']) }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">← Kembali</a>
+        <a href="{{ route('ritase.parser') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">← Kembali</a>
     </div>
 
     @if (isset($results['errors']) && count($results['errors']) > 0)
@@ -36,17 +19,6 @@
             <li>{{ $error }}</li>
             @endforeach
         </ul>
-    </div>
-    @endif
-
-    {{-- Hallucination warning --}}
-    @if (isset($results['hallucination_detected']) && $results['hallucination_detected'])
-    <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-        <p class="text-yellow-800">
-            <strong>⚠️ Potensi Halusinasi Terdeteksi</strong><br>
-            Confidence score {{ $results['confidence'] }}% di bawah threshold. Hasil mungkin tidak akurat.
-            <a href="{{ route('ritase.parser', ['mode' => 'rule']) }}" class="underline">Coba mode Rule-based</a> sebagai pembanding.
-        </p>
     </div>
     @endif
 
@@ -231,14 +203,13 @@
         <div class="mt-2 flex gap-3">
             <a href="{{ route('ritase.index') }}" class="text-green-600 hover:underline">Lihat Data Ritase</a>
             <span class="text-gray-400">|</span>
-            <a href="{{ route('ritase.parser', ['mode' => $results['mode'] ?? 'rule']) }}" class="text-green-600 hover:underline">Parse Lagi</a>
+            <a href="{{ route('ritase.parser') }}" class="text-green-600 hover:underline">Parse Lagi</a>
         </div>
     </div>
     @else
     <div class="mt-6 flex justify-end gap-3">
         <form action="{{ route('ritase.parser.process') }}" method="POST" class="inline">
             @csrf
-            <input type="hidden" name="mode" value="{{ $results['mode'] ?? 'rule' }}">
             <input type="hidden" name="periode_id" value="{{ request()->periode_id ?? old('periode_id') }}">
             <input type="hidden" name="text" value="{{ request()->text ?? old('text') }}">
             <input type="hidden" name="auto_create" value="1">
@@ -246,7 +217,7 @@
                 Simpan Semua ke Database
             </button>
         </form>
-        <a href="{{ route('ritase.parser', ['mode' => $results['mode'] ?? 'rule']) }}" class="px-6 py-2 bg-gray-200 text-gray-700 font-medium rounded-md hover:bg-gray-300">
+        <a href="{{ route('ritase.parser') }}" class="px-6 py-2 bg-gray-200 text-gray-700 font-medium rounded-md hover:bg-gray-300">
             Edit Ulang
         </a>
     </div>

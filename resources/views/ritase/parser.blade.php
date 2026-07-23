@@ -18,32 +18,12 @@
     </div>
     @endif
 
-    {{-- Mode toggle --}}
-    <div class="mb-6 bg-white border border-gray-200 rounded-lg p-1 inline-flex" role="group">
-        <a href="{{ route('ritase.parser', ['mode' => 'rule']) }}"
-            class="px-4 py-2 text-sm font-medium rounded-md {{ $mode === 'rule' ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-600 hover:text-gray-800' }}">
-            ⚙️ Rule-based
-        </a>
-        <a href="{{ route('ritase.parser', ['mode' => 'llm']) }}"
-            class="px-4 py-2 text-sm font-medium rounded-md {{ $mode === 'llm' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-600 hover:text-gray-800' }}">
-            🤖 AI / LLM
-        </a>
-    </div>
-
-    @if ($mode === 'llm')
-    <div class="mb-4 p-3 bg-purple-50 border border-purple-200 rounded-lg text-sm text-purple-800">
-        <strong>🤖 Mode AI / LLM:</strong> Coba parse pakai AI dulu. Kalau gagal (401/timeout), auto turun ke rule-based.
-        <span class="block mt-1 text-purple-600">Confidence score + hallucination detection aktif.</span>
-    </div>
-    @endif
-
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {{-- Form --}}
         <div class="lg:col-span-2">
             <div class="bg-white shadow rounded-lg">
                 <form method="POST" action="{{ route('ritase.parser.process') }}" class="p-6 space-y-6">
                     @csrf
-                    <input type="hidden" name="mode" value="{{ $mode }}">
 
                     <div>
                         <label for="text" class="block text-sm font-medium text-gray-700 mb-2">Teks Jadwal Sopir</label>
@@ -66,17 +46,11 @@
                         </select>
                     </div>
 
-
-
                     <div class="flex gap-4">
                         <button type="submit"
                             class="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                             <span class="flex items-center gap-2">
-                                @if ($mode === 'llm')
-                                <span>🤖</span>
-                                @else
                                 <span>⚙️</span>
-                                @endif
                                 Parse & Preview
                             </span>
                         </button>
@@ -113,17 +87,10 @@ Paket watualang ngawi
             </div>
 
             <div class="bg-white shadow rounded-lg p-4">
-                <h3 class="font-medium text-gray-900 mb-2">Mode Parser</h3>
-                <div class="space-y-2 text-sm">
-                    <div class="flex items-center gap-2">
-                        <span class="px-2 py-0.5 text-xs rounded bg-blue-100 text-blue-800">Rule</span>
-                        <span>Keyword-based, cepat, tanpa API</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="px-2 py-0.5 text-xs rounded bg-purple-100 text-purple-800">AI</span>
-                        <span>LLM-powered, confidence score</span>
-                    </div>
-                </div>
+                <h3 class="font-medium text-gray-900 mb-2">Tentang Parser</h3>
+                <p class="text-sm text-gray-600">
+                    Menggunakan NER hybrid (exact → phonetic → substring → similarity) untuk mencocokkan nama sopir dan rute secara otomatis. Data baru langsung dibuat.
+                </p>
             </div>
 
             <div class="bg-white shadow rounded-lg p-4">

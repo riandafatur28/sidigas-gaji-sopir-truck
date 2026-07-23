@@ -5,7 +5,6 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SopirController;
 use App\Http\Controllers\TujuanController;
 use App\Http\Controllers\RitaseController;
-use App\Http\Controllers\RitaseParserController;
 use App\Http\Controllers\PeriodeController;
 use App\Http\Controllers\PenggajianController;
 use App\Http\Controllers\ProfileController;

@@ -41,14 +41,4 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URL'),
     ],
 
-    // LLM API untuk parser ritase
-    'llm' => [
-        'api_key' => env('LLM_API_KEY', ''),
-        'endpoint' => env('LLM_ENDPOINT', 'https://api.openai.com/v1/chat/completions'),
-        'model' => env('LLM_MODEL', 'gpt-4'),
-        'max_tokens' => env('LLM_MAX_TOKENS', 2000),
-        'temperature' => env('LLM_TEMPERATURE', 0.1),
-        'min_confidence' => env('LLM_MIN_CONFIDENCE', 70),
-    ],
-
 ];

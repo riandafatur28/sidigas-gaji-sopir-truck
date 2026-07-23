@@ -308,17 +308,16 @@ class RitaseController extends Controller
     }
 
     /**
-     * Show parser form (unified: LLM AI + Rule-based).
+     * Show parser form (NER-based).
      */
     public function parserForm()
     {
         $periodes = Periode::orderBy('id', 'desc')->get();
-        $mode = request('mode', 'rule');
-        return view('ritase.parser', compact('periodes', 'mode'));
+        return view('ritase.parser', compact('periodes'));
     }
 
     /**
-     * Process parsed text (unified: supports llm and rule modes).
+     * Process parsed text using NER-based matching.
      */
     public function parserProcess(Request $request)
     {
@@ -326,18 +325,9 @@ class RitaseController extends Controller
             'text' => 'required|string',
             'periode_id' => 'required|exists:periodes,id',
             'auto_create' => 'boolean',
-            'mode' => 'in:rule,llm',
         ]);
 
-        $mode = $request->input('mode', 'rule');
-
-        // Pilih service berdasarkan mode
-        if ($mode === 'llm') {
-            $parser = app(\App\Services\LlmRitaseParserService::class);
-        } else {
-            $parser = new \App\Services\RitaseParserService();
-        }
-
+        $parser = new \App\Services\RitaseParserService();
         $parsed = $parser->parse($request->text);
 
         if (empty($parsed['date'])) {
@@ -357,10 +347,6 @@ class RitaseController extends Controller
             'packages' => $parsed['packages'],
             'driver_matches' => $driverMatches,
             'route_matches' => $routeMatches,
-            'mode' => $mode,
-            'confidence' => $parsed['confidence'] ?? 100,
-            'hallucination_detected' => $parsed['hallucination_detected'] ?? false,
-            'source' => $parsed['source'] ?? ($mode === 'llm' ? 'llm-fallback' : 'rule-based'),
             'created' => 0,
             'skipped' => 0,
             'errors' => [],
