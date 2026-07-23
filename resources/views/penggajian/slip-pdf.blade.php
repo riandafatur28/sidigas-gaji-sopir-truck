@@ -83,6 +83,19 @@
             padding: 1mm 2.5mm;
             border-top: 1.5px solid #000;
         }
+
+        @media screen {
+            body { padding: 8px; width: auto; }
+            .page { padding: 0; page-break-after: auto; }
+            .slip-block { width: 100%; min-width: 0; overflow-x: auto; }
+            .slip-block table { table-layout: auto !important; }
+            .slip-block th { font-size: 9px; padding: 4px 5px; white-space: nowrap; }
+            .slip-block td { font-size: 10px; padding: 4px 5px; }
+            .slip-block td.label { font-size: 10px; width: auto !important; min-width: 70px; white-space: nowrap; }
+            .block-header { font-size: 11px; padding: 4px 8px; }
+            .block-footer { font-size: 9px; padding: 4px 8px; }
+            .slip-block th[style*="mm"] { width: auto !important; min-width: 70px; }
+        }
     </style>
 </head>
 <body>
