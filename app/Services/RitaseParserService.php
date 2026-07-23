@@ -258,8 +258,9 @@ class RitaseParserService
     }
 
     /**
-     * Match routes from parsed to existing tujuan (locations) with similarity.
-     * Strips known non-location prefixes, then tries shorter versions for low confidence.
+     * Match routes from parsed to existing tujuan (locations) with NER hybrid.
+     * Levels: exact (100%) → word-in-tujuan (90%) → Jaro-Winkler ≥85% + first-letter (80%).
+     * Strips known non-location prefixes from both input and tujuan names before comparing.
      */
     public function matchRoutes(array $routeNames): array
     {
@@ -269,54 +270,109 @@ class RitaseParserService
         // Known non-location prefixes to strip before matching
         $stripPrefixes = ['paket cmm', 'paket', 'patching', 'bondan', 'gabungan', 'rombongan', 'cmm'];
 
+        // Preprocess each tujuan: strip prefixes for comparison
+        $processedTujuan = [];
+        foreach ($allTujuan as $tujuan) {
+            $stripped = $this->stripRoutePrefixes($tujuan->nama, $stripPrefixes);
+            $processedTujuan[] = [
+                'model' => $tujuan,
+                'stripped' => $stripped,
+                'stripped_lower' => strtolower($stripped),
+                'words' => explode(' ', strtolower($stripped)),
+            ];
+        }
+
         foreach ($routeNames as $routeName) {
             $bestMatch = null;
             $bestScore = 0;
+            $matchType = 'none';
 
-            // Strip known non-location prefixes from route name
-            $cleanRoute = $routeName;
-            $lowerRoute = strtolower($cleanRoute);
-            foreach ($stripPrefixes as $prefix) {
-                if (str_starts_with($lowerRoute, $prefix . ' ')) {
-                    $cleanRoute = trim(substr($cleanRoute, strlen($prefix) + 1));
-                    $lowerRoute = strtolower($cleanRoute);
+            // Strip known prefixes from input route
+            $cleanRoute = $this->stripRoutePrefixes($routeName, $stripPrefixes);
+            $cleanLower = strtolower($cleanRoute);
+            $cleanWords = explode(' ', $cleanLower);
+
+            foreach ($processedTujuan as $pt) {
+                $score = 0;
+                $type = '';
+
+                // 1) Exact match (after prefix stripping) → 100%
+                if ($cleanLower === $pt['stripped_lower']) {
+                    $score = 100;
+                    $type = 'exact';
                 }
-            }
-
-            // Try progressively shorter versions of the minimal route name
-            $attempts = [$cleanRoute];
-            $words = explode(' ', $cleanRoute);
-            while (count($words) > 1) {
-                array_shift($words);
-                $attempts[] = implode(' ', $words);
-            }
-
-            foreach ($attempts as $attempt) {
-                foreach ($allTujuan as $tujuan) {
-                    $similarity = $this->calculateStringSimilarity($attempt, $tujuan->nama);
-                    $normalizedScore = $similarity * 100;
-
-                    if ($normalizedScore > $bestScore) {
-                        $bestScore = $normalizedScore;
-                        $bestMatch = $tujuan;
+                // 2) All input words appear as contiguous substring within tujuan stripped name → 95%
+                elseif (str_contains($pt['stripped_lower'], $cleanLower)) {
+                    $score = 95;
+                    $type = 'substring';
+                }
+                // 3) Every word in input found somewhere in tujuan words → 90%
+                else {
+                    $allWordsFound = true;
+                    foreach ($cleanWords as $w) {
+                        if (strlen($w) < 2) continue;
+                        $found = false;
+                        foreach ($pt['words'] as $tw) {
+                            if ($tw === $w) { $found = true; break; }
+                        }
+                        if (!$found) { $allWordsFound = false; break; }
+                    }
+                    if ($allWordsFound && !empty($cleanWords)) {
+                        $score = 90;
+                        $type = 'all-words';
                     }
                 }
 
-                // If good match found, stop trying shorter versions
-                if ($bestScore >= 80) {
-                    break;
+                if ($score > $bestScore) {
+                    $bestScore = $score;
+                    $bestMatch = $pt['model'];
+                    $matchType = $type;
+                }
+            }
+
+            // 4) Fallback: Jaro-Winkler ≥85% with first-letter match
+            if ($bestScore < 85) {
+                foreach ($processedTujuan as $pt) {
+                    $similarity = $this->calculateStringSimilarity($cleanRoute, $pt['stripped']);
+                    $normalizedScore = $similarity * 100;
+
+                    if ($normalizedScore >= 85
+                        && !empty($cleanRoute) && !empty($pt['stripped'])
+                        && $cleanLower[0] === $pt['stripped_lower'][0]
+                    ) {
+                        if ($normalizedScore > $bestScore) {
+                            $bestScore = $normalizedScore;
+                            $bestMatch = $pt['model'];
+                            $matchType = 'fuzzy';
+                        }
+                    }
                 }
             }
 
             $results[] = [
                 'input_route' => $routeName,
-                'matched' => $bestScore >= 60,
+                'matched' => $bestScore >= 80,
                 'tujuan' => $bestMatch,
                 'confidence' => round($bestScore, 2),
             ];
         }
 
         return $results;
+    }
+
+    /**
+     * Strip known non-location prefixes from a route or tujuan name (used once).
+     */
+    protected function stripRoutePrefixes(string $name, array $prefixes): string
+    {
+        $lower = strtolower($name);
+        foreach ($prefixes as $prefix) {
+            if (str_starts_with($lower, $prefix . ' ')) {
+                $name = trim(substr($name, strlen($prefix) + 1));
+                $lower = strtolower($name);
+            }
+        }
+        return $name;
     }
 
     /**
