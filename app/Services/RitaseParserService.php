@@ -38,6 +38,9 @@ class RitaseParserService
             $result['date'] = $date;
         }
 
+        // Load sopir names for detecting implicit drivers in route lines
+        $sopirNames = Sopir::where('status', 'aktif')->pluck('nama')->map(fn($n) => strtolower($n))->toArray();
+
         // Parse remaining lines for routes and drivers
         $currentPackage = null;
 
@@ -51,9 +54,23 @@ class RitaseParserService
                     $result['packages'][] = $currentPackage;
                 }
 
+                // Extract driver name(s) from route line prefix if first word matches a sopir
+                $implicitDrivers = [];
+                $words = explode(' ', $line);
+                while (!empty($words) && in_array(strtolower($words[0]), $sopirNames)) {
+                    $implicitDrivers[] = array_shift($words);
+                }
+                $cleanedRoute = implode(' ', $words);
+                // If driver was extracted but no route remains, treat full line as route
+                if (empty($cleanedRoute) && !empty($implicitDrivers)) {
+                    // Unlikely — keep original line as route, no implicit driver
+                    $implicitDrivers = [];
+                    $cleanedRoute = $line;
+                }
+
                 $currentPackage = [
-                    'route_name' => $line,
-                    'drivers' => [],
+                    'route_name' => $cleanedRoute,
+                    'drivers' => $implicitDrivers,
                 ];
                 continue;
             }
@@ -179,24 +196,52 @@ class RitaseParserService
 
     /**
      * Match routes from parsed to existing tujuan (locations) with similarity.
+     * Strips known non-location prefixes, then tries shorter versions for low confidence.
      */
     public function matchRoutes(array $routeNames): array
     {
         $results = [];
+        $allTujuan = Tujuan::all(['id', 'nama', 'kode_tujuan']);
+
+        // Known non-location prefixes to strip before matching
+        $stripPrefixes = ['paket cmm', 'paket', 'patching', 'bondan', 'gabungan', 'rombongan', 'cmm'];
 
         foreach ($routeNames as $routeName) {
             $bestMatch = null;
             $bestScore = 0;
 
-            $allTujuan = Tujuan::all(['id', 'nama', 'kode_tujuan']);
+            // Strip known non-location prefixes from route name
+            $cleanRoute = $routeName;
+            $lowerRoute = strtolower($cleanRoute);
+            foreach ($stripPrefixes as $prefix) {
+                if (str_starts_with($lowerRoute, $prefix . ' ')) {
+                    $cleanRoute = trim(substr($cleanRoute, strlen($prefix) + 1));
+                    $lowerRoute = strtolower($cleanRoute);
+                }
+            }
 
-            foreach ($allTujuan as $tujuan) {
-                $similarity = $this->calculateStringSimilarity($routeName, $tujuan->nama);
-                $normalizedScore = $similarity * 100;
+            // Try progressively shorter versions of the minimal route name
+            $attempts = [$cleanRoute];
+            $words = explode(' ', $cleanRoute);
+            while (count($words) > 1) {
+                array_shift($words);
+                $attempts[] = implode(' ', $words);
+            }
 
-                if ($normalizedScore > $bestScore) {
-                    $bestScore = $normalizedScore;
-                    $bestMatch = $tujuan;
+            foreach ($attempts as $attempt) {
+                foreach ($allTujuan as $tujuan) {
+                    $similarity = $this->calculateStringSimilarity($attempt, $tujuan->nama);
+                    $normalizedScore = $similarity * 100;
+
+                    if ($normalizedScore > $bestScore) {
+                        $bestScore = $normalizedScore;
+                        $bestMatch = $tujuan;
+                    }
+                }
+
+                // If good match found, stop trying shorter versions
+                if ($bestScore >= 80) {
+                    break;
                 }
             }
 
@@ -410,10 +455,10 @@ class RitaseParserService
             'nganjuk' => 'Nganjuk',
             'kediri' => 'Kediri',
             'jombang' => 'Jombang',
-            'blitar' => 'Kota Kediri',
+            'blitar' => 'Blitar',
             'pare' => 'Kediri',
-            'watualang' => 'Nganjuk',
-            'ngawi' => 'Nganjuk',
+            'watualang' => 'Ngawi',
+            'ngawi' => 'Ngawi',
         ];
 
         foreach ($kabupatenMap as $keyword => $kab) {
