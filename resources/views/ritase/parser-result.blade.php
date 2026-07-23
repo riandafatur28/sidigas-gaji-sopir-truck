@@ -1,8 +1,7 @@
-@extends('layouts.app')
-
-@section('title', 'Hasil Parser Ritase')
-
-@section('content')
+<x-layouts.dashboard
+    :title="'Hasil Parser Ritase'"
+    :pageTitle="'Hasil Parser Ritase'"
+    :user="auth()->user()">
 <div class="max-w-5xl mx-auto">
     <div class="mb-6 flex justify-between items-center">
         <div>
@@ -253,4 +252,4 @@
     </div>
     @endif
 </div>
-@endsection
+</x-layouts.dashboard>

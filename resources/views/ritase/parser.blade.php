@@ -1,8 +1,9 @@
-@extends('layouts.app')
+@props(['periodes' => [], 'mode' => 'rule'])
 
-@section('title', 'Parser Ritase')
-
-@section('content')
+<x-layouts.dashboard
+    :title="'Parser Ritase'"
+    :pageTitle="'Parser Ritase'"
+    :user="auth()->user()">
 <div class="max-w-4xl mx-auto py-6">
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900">Parser Ritase</h1>
@@ -182,4 +183,4 @@ function fillSample() {
     document.getElementById('text').value = sampleText;
 }
 </script>
-@endsection
+</x-layouts.dashboard>
