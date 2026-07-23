@@ -191,20 +191,21 @@ class PenggajianController extends Controller
                     ->where('kode_sopir', $sopir->kode_sopir)
                     ->where('kode_tujuan', $tujuan->kode_tujuan)
                     ->count(); // include gagal in count
+                $jumlahRitValid = Ritase::where('periode_id', $periodeId)
+                    ->where('kode_sopir', $sopir->kode_sopir)
+                    ->where('kode_tujuan', $tujuan->kode_tujuan)
+                    ->where('status', '!=', 'gagal_produksi')
+                    ->count();
                 if ($jumlahRit > 0) {
                     $rate = $defaultRates[$tujuan->kode_tujuan] ?? null;
                     $ritPerTujuan[$tujuan->kode_tujuan] = [
                         'total_rit' => $jumlahRit,
-                        'total_rit_valid' => Ritase::where('periode_id', $periodeId)
-                            ->where('kode_sopir', $sopir->kode_sopir)
-                            ->where('kode_tujuan', $tujuan->kode_tujuan)
-                            ->where('status', '!=', 'gagal_produksi')
-                            ->count(),
+                        'total_rit_valid' => $jumlahRitValid,
                         'solar_per_rit' => $rate ? $rate['bbm_per_rit'] : 0,
                         'upah_per_rit' => $rate ? $rate['upah_per_rit'] : 0,
-                        'total_solar' => $rate ? ($rate['bbm_per_rit'] * $jumlahRit) : 0,
-                        'total_upah' => $rate ? ($rate['upah_per_rit'] * $jumlahRit) : 0,
-                        'subtotal' => $rate ? (($rate['bbm_per_rit'] + $rate['upah_per_rit']) * $jumlahRit) : 0,
+                        'total_solar' => $rate ? ($rate['bbm_per_rit'] * $jumlahRitValid) : 0,
+                        'total_upah' => $rate ? ($rate['upah_per_rit'] * $jumlahRitValid) : 0,
+                        'subtotal' => $rate ? (($rate['bbm_per_rit'] + $rate['upah_per_rit']) * $jumlahRitValid) : 0,
                     ];
                     $totalRit += $jumlahRit;
                 }
