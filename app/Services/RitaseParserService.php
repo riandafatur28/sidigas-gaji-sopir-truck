@@ -207,6 +207,7 @@ class RitaseParserService
             $bestMatch = null;
             $bestScore = 0;
             $driverScore = 0;
+            $lowerInput = strtolower($driverName);
 
             foreach ($allSopirs as $sopir) {
                 $similarity = $this->calculateStringSimilarity($driverName, $sopir->nama);
@@ -218,17 +219,33 @@ class RitaseParserService
                 }
             }
 
-            // Apply confidence threshold (minimum 70%)
-            if ($bestScore >= 70) {
-                $driverScore = $bestScore;
-            } elseif (strlen($driverName) <= 4) {
-                // Short names get bonus
-                $driverScore = $bestScore + 10;
+            // Stricter matching: first letter must match (case-insensitive) for non-exact,
+            // and threshold raised to 85% to prevent false matches (Topik 82.7%→Toni, etc.)
+            $matched = false;
+
+            // Exact match (case-insensitive) — always match
+            if ($bestMatch && strtolower($bestMatch->nama) === $lowerInput) {
+                $matched = true;
+                $driverScore = 100;
+            } elseif ($bestScore >= 85 && $bestMatch) {
+                $firstCharMatch = strtolower(substr($bestMatch->nama, 0, 1)) === strtolower(substr($driverName, 0, 1));
+                if ($firstCharMatch) {
+                    $matched = true;
+                    $driverScore = $bestScore;
+                } else {
+                    $driverScore = $bestScore - 30;
+                }
+            } elseif ($bestScore >= 60 && $bestMatch && strlen($driverName) <= 4) {
+                $firstCharMatch = strtolower(substr($bestMatch->nama, 0, 1)) === strtolower(substr($driverName, 0, 1));
+                if ($firstCharMatch) {
+                    $matched = true;
+                    $driverScore = min($bestScore + 10, 100);
+                }
             }
 
             $results[] = [
                 'input_name' => $driverName,
-                'matched' => $driverScore >= 70,
+                'matched' => $matched,
                 'sopir' => $bestMatch,
                 'confidence' => round($driverScore, 2),
             ];
