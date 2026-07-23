@@ -38,9 +38,6 @@ class RitaseParserService
             $result['date'] = $date;
         }
 
-        // Load sopir names for detecting implicit drivers in route lines
-        $sopirNames = Sopir::where('status', 'aktif')->pluck('nama')->map(fn($n) => strtolower($n))->toArray();
-
         // Parse remaining lines for routes and drivers
         $currentPackage = null;
 
@@ -54,22 +51,52 @@ class RitaseParserService
                     $result['packages'][] = $currentPackage;
                 }
 
-                // Extract driver name(s) from route line prefix if first word matches a sopir
+                // Route type keywords — mark where route description starts
+                // Format: [sopir names] [keyword] [route details]
+                $routeKeywords = ['patching', 'paket', 'overlay', 'cmm'];
+
                 $implicitDrivers = [];
-                $words = explode(' ', $line);
-                while (!empty($words) && in_array(strtolower($words[0]), $sopirNames)) {
-                    $implicitDrivers[] = array_shift($words);
+                $routeName = $line;
+
+                $lowerLine = strtolower($line);
+
+                // Check if line starts with a keyword → pure route, no sopir
+                $startsWithKw = false;
+                foreach ($routeKeywords as $kw) {
+                    if (str_starts_with($lowerLine, $kw . ' ') || $lowerLine === $kw) {
+                        $startsWithKw = true;
+                        break;
+                    }
                 }
-                $cleanedRoute = implode(' ', $words);
-                // If driver was extracted but no route remains, treat full line as route
-                if (empty($cleanedRoute) && !empty($implicitDrivers)) {
-                    // Unlikely — keep original line as route, no implicit driver
-                    $implicitDrivers = [];
-                    $cleanedRoute = $line;
+
+                if (!$startsWithKw) {
+                    // Check for keyword NOT at start → sopir before keyword
+                    $foundPos = null;
+                    $foundKw = null;
+                    foreach ($routeKeywords as $kw) {
+                        $pos = strpos($lowerLine, ' ' . $kw . ' ');
+                        if ($pos !== false) {
+                            $foundPos = $pos + 1; // position of keyword start
+                            $foundKw = $kw;
+                            break;
+                        }
+                        // Line ends with keyword (no trailing space)
+                        if (str_ends_with($lowerLine, ' ' . $kw)) {
+                            $foundPos = strlen($line) - strlen($kw);
+                            $foundKw = $kw;
+                            break;
+                        }
+                    }
+
+                    if ($foundPos !== null) {
+                        $prefix = trim(substr($line, 0, $foundPos));
+                        $routeName = trim(substr($line, $foundPos));
+                        $implicitDrivers = explode(' ', $prefix);
+                    }
                 }
 
                 $currentPackage = [
-                    'route_name' => $cleanedRoute,
+                    'route_name' => $routeName,
                     'drivers' => $implicitDrivers,
                 ];
                 continue;
