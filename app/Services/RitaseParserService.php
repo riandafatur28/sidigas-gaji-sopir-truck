@@ -40,6 +40,8 @@ class RitaseParserService
 
         // Parse remaining lines for routes and drivers
         $currentPackage = null;
+        $batchStartIdx = 0; // index in result[packages] where current driver-batch started
+        $seenDrivers = false; // true once any numbered line was added in current batch
 
         for ($i = 1; $i < count($lines); $i++) {
             $line = $lines[$i];
@@ -99,6 +101,12 @@ class RitaseParserService
                     'route_name' => $routeName,
                     'drivers' => $implicitDrivers,
                 ];
+
+                // If numbered drivers were seen, this is a new batch — reset start
+                if ($seenDrivers) {
+                    $batchStartIdx = count($result['packages']);
+                    $seenDrivers = false;
+                }
                 continue;
             }
 
@@ -116,7 +124,18 @@ class RitaseParserService
                 $driverName = $this->cleanDriverName($driverName);
 
                 if (!empty($driverName)) {
-                    $currentPackage['drivers'][] = $driverName;
+                    $seenDrivers = true;
+                    $lowerDriver = strtolower($driverName);
+                    // Add to all packages in current batch (pushed + current)
+                    for ($j = $batchStartIdx; $j < count($result['packages']); $j++) {
+                        if (!in_array($lowerDriver, array_map('strtolower', $result['packages'][$j]['drivers']), true)) {
+                            $result['packages'][$j]['drivers'][] = $driverName;
+                        }
+                    }
+                    // Add to current package (not yet in result)
+                    if (!in_array($lowerDriver, array_map('strtolower', $currentPackage['drivers']), true)) {
+                        $currentPackage['drivers'][] = $driverName;
+                    }
                 }
                 continue;
             }
