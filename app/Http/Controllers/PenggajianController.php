@@ -56,7 +56,19 @@ class PenggajianController extends Controller
             ];
         });
 
-        $allTujuans = Tujuan::where('status', 'aktif')->orderBy('id', 'asc')->get();
+        // Only show Tujuan that have ritase in selected period
+        if ($periodeId) {
+            $tujuanCodes = Ritase::where('periode_id', $periodeId)
+                ->whereNotNull('kode_tujuan')
+                ->distinct()
+                ->pluck('kode_tujuan');
+            $allTujuans = Tujuan::whereIn('kode_tujuan', $tujuanCodes)
+                ->orderBy('id', 'asc')
+                ->get();
+        } else {
+            $allTujuans = Tujuan::where('status', 'aktif')->orderBy('id', 'asc')->get();
+        }
+
         $periodesForDropdown = Periode::all();
 
         return view('penggajian.index', compact('periodes', 'allTujuans', 'periodesForDropdown', 'periodeId'));
@@ -165,7 +177,11 @@ class PenggajianController extends Controller
             $q->where('periode_id', $periodeId);
         })->whereNotIn('kode_sopir', $existingSopirCodes)->get();
 
-        $allTujuans = Tujuan::where('status', 'aktif')->get();
+        $tujuanCodes = Ritase::where('periode_id', $periodeId)
+            ->whereNotNull('kode_tujuan')
+            ->distinct()
+            ->pluck('kode_tujuan');
+        $allTujuans = Tujuan::whereIn('kode_tujuan', $tujuanCodes)->get();
 
         foreach ($sopirs as $sopir) {
             $ritPerTujuan = [];
@@ -388,7 +404,14 @@ class PenggajianController extends Controller
     {
         $periode = Periode::findOrFail($id);
 
-        $allTujuans = Tujuan::where('status', 'aktif')->orderBy('id', 'asc')->get();
+        // Only show Tujuan that have ritase/penggajian data in this period
+        $tujuanCodes = Ritase::where('periode_id', $id)
+            ->whereNotNull('kode_tujuan')
+            ->distinct()
+            ->pluck('kode_tujuan');
+        $allTujuans = Tujuan::whereIn('kode_tujuan', $tujuanCodes)
+            ->orderBy('id', 'asc')
+            ->get();
 
         $existingGaji = Penggajian::with(['details', 'sopir'])
             ->where('periode_id', $id)
