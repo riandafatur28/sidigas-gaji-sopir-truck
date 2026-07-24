@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'Dashboard' }} - SIDIGAS</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@7/dist/turbo.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
     <script defer src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
@@ -141,31 +142,108 @@
             .main-content.full-width { margin-left: 0 !important; }
         }
 
-        /* PAGE LOADER BAR */
-        #page-loader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 3px;
-            z-index: 9999; pointer-events: none; display: none;
+        /* SKELETON OVERLAY — muncul saat Turbo Drive fetch */
+        #skeleton-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9998;
+            background: #f0f0f2;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
         }
-        #page-loader .bar {
-            height: 100%; width: 0%;
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #3b82f6);
+        #skeleton-overlay.active {
+            pointer-events: auto;
+            opacity: 1;
+        }
+        #skeleton-overlay .sk-inner {
+            margin-left: 280px;
+            padding: 24px 32px;
+        }
+        @media (max-width: 1023px) {
+            #skeleton-overlay .sk-inner { margin-left: 0; }
+        }
+        .sk-block {
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .sk-line {
+            height: 16px;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
             background-size: 200% 100%;
-            animation: loader-glow 1s ease infinite;
-            transition: width 0.3s ease;
+            animation: sk-shimmer 1.5s infinite ease-in-out;
         }
-        @keyframes loader-glow {
-            0% { background-position: 0% 0; }
+        .sk-line-sm { height: 12px; }
+        .sk-line-lg { height: 24px; }
+        .sk-line-xl { height: 36px; }
+        .sk-row {
+            display: flex;
+            gap: 16px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .sk-cell { flex: 1; }
+        .sk-cell-sm { flex: 0 0 60px; }
+        .sk-cell-md { flex: 0 0 120px; }
+        @keyframes sk-shimmer {
+            0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
         }
-        #page-loader.active { display: block; }
-        #page-loader.done .bar { width: 100% !important; opacity: 0; transition: width 0.2s, opacity 0.3s 0.2s; }
+        .sk-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .sk-card-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
     </style>
     @stack('styles')
 </head>
 <body>
 
-    {{-- PAGE LOADER --}}
-    <div id="page-loader"><div class="bar"></div></div>
+    {{-- SKELETON OVERLAY — muncul pas Turbo Drive fetch --}}
+    <div id="skeleton-overlay">
+        <div class="sk-inner">
+            <div class="sk-header">
+                <div class="sk-block" style="width:240px;padding:16px 20px;margin:0">
+                    <div class="sk-line sk-line-lg" style="width:70%;margin-bottom:8px"></div>
+                    <div class="sk-line sk-line-sm" style="width:45%"></div>
+                </div>
+                <div class="sk-block" style="width:120px;padding:16px 20px;margin:0">
+                    <div class="sk-line" style="width:60%"></div>
+                </div>
+            </div>
+            <div class="sk-card-row">
+                <div class="sk-block" style="margin:0"><div class="sk-line sk-line-lg" style="width:40%;margin-bottom:10px"></div><div class="sk-line sk-line-xl" style="width:60%"></div></div>
+                <div class="sk-block" style="margin:0"><div class="sk-line sk-line-lg" style="width:40%;margin-bottom:10px"></div><div class="sk-line sk-line-xl" style="width:60%"></div></div>
+                <div class="sk-block" style="margin:0"><div class="sk-line sk-line-lg" style="width:40%;margin-bottom:10px"></div><div class="sk-line sk-line-xl" style="width:60%"></div></div>
+            </div>
+            <div class="sk-block">
+                <div class="sk-line sk-line-lg" style="width:30%;margin-bottom:16px"></div>
+                <div class="sk-row" style="border-bottom-color:#e5e7eb">
+                    <div class="sk-cell"><div class="sk-line"></div></div>
+                    <div class="sk-cell-md"><div class="sk-line"></div></div>
+                    <div class="sk-cell-md"><div class="sk-line"></div></div>
+                    <div class="sk-cell-sm"><div class="sk-line"></div></div>
+                </div>
+                <div class="sk-row">
+                    <div class="sk-cell"><div class="sk-line" style="width:70%"></div></div>
+                    <div class="sk-cell-md"><div class="sk-line" style="width:65%"></div></div>
+                    <div class="sk-cell-md"><div class="sk-line" style="width:55%"></div></div>
+                    <div class="sk-cell-sm"><div class="sk-line"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     {{-- OVERLAY --}}
     <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
@@ -444,31 +522,20 @@
         })();
     </script>
     <script>
-        (function() {
-            var loader = document.getElementById("page-loader");
-            if (loader) {
-                var navByLink = sessionStorage.getItem("_nav");
-                if (navByLink) {
-                    sessionStorage.removeItem("_nav");
-                    loader.classList.add("active");
-                    loader.querySelector(".bar").style.width = "60%";
-                    setTimeout(function() {
-                        loader.querySelector(".bar").style.width = "100%";
-                        loader.classList.add("done");
-                        setTimeout(function() {
-                            loader.classList.remove("active", "done");
-                            loader.querySelector(".bar").style.width = "0%";
-                        }, 500);
-                    }, 200);
-                }
-            }
-            document.addEventListener("click", function(e) {
-                var link = e.target.closest("a");
-                if (link && link.href && link.href.indexOf(window.location.origin) === 0 && !link.hasAttribute("target")) {
-                    sessionStorage.setItem("_nav", "1");
-                }
-            });
-        })();
+        // Turbo Drive events: show/hide skeleton overlay
+        document.addEventListener('turbo:before-fetch-request', function() {
+            var sk = document.getElementById('skeleton-overlay');
+            if (sk) sk.classList.add('active');
+        });
+        document.addEventListener('turbo:render', function() {
+            var sk = document.getElementById('skeleton-overlay');
+            if (sk) sk.classList.remove('active');
+        });
+        // Fallback: hidden on popstate
+        window.addEventListener('popstate', function() {
+            var sk = document.getElementById('skeleton-overlay');
+            if (sk) sk.classList.remove('active');
+        });
     </script>
     @stack('scripts')
 </body>

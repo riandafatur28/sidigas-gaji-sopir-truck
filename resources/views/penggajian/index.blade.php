@@ -317,7 +317,9 @@
             return /^\d+(\.\d+)?$/.test(input) && parseFloat(input) >= 0;
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        // Turbo-ready: run immediately (script at bottom of body)
+        (function() {
+            'use strict';
             // Ambil periode dari URL
             const urlParams = new URLSearchParams(window.location.search);
             const periodeFromUrl = urlParams.get('periode');
@@ -361,7 +363,7 @@
                 downloadBtn.href = '{{ url("/gaji/slip-pdf") }}/' + selectedPeriode;
                 downloadBtn.classList.remove('hidden');
             }
-        });
+        })();
 
         function loadGajiData(periodeId) {
             const container = document.getElementById('tabelGajiContainer');
