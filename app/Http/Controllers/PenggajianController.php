@@ -96,8 +96,13 @@ class PenggajianController extends Controller
 
             $ritPerTujuan = [];
             foreach ($gaji->details as $detail) {
+                // Live count from Ritase table (not saved count)
+                $liveCount = Ritase::where('periode_id', $periodeId)
+                    ->where('kode_sopir', $gaji->kode_sopir)
+                    ->where('kode_tujuan', $detail->kode_tujuan)
+                    ->count();
                 $ritPerTujuan[$detail->kode_tujuan] = [
-                    'total_rit' => $detail->jumlah_rit,
+                    'total_rit' => $liveCount,
                     'solar_per_rit' => $detail->solar_per_rit,
                     'upah_per_rit' => $detail->upah_per_rit,
                     'total_solar' => $detail->total_solar,
@@ -105,6 +110,12 @@ class PenggajianController extends Controller
                     'subtotal' => $detail->subtotal,
                 ];
             }
+
+            // Live DT sum from Ritase
+            $liveDT = Ritase::where('periode_id', $periodeId)
+                ->where('kode_sopir', $gaji->kode_sopir)
+                ->where('status', '!=', 'gagal_produksi')
+                ->sum('dt') ?? 0;
 
             $gagalRits = Ritase::where('periode_id', $periodeId)
                 ->where('kode_sopir', $gaji->kode_sopir)
@@ -123,7 +134,7 @@ class PenggajianController extends Controller
                 'kode_sopir' => $gaji->kode_sopir,
                 'nama_sopir' => $gaji->sopir ? $gaji->sopir->nama : 'Unknown',
                 'periode_id' => $gaji->periode_id,
-                'total_dt' => floatval($gaji->dt),
+                'total_dt' => floatval($liveDT),
                 'total_kompensasi' => floatval($gaji->kompensasi_gagal ?? 0),
                 'total_solar' => floatval($gaji->uang_solar),
                 'total_upah' => floatval($gaji->upah_sopir),

@@ -434,40 +434,40 @@
             data.forEach((sopir, index) => {
                 const totalRit = Object.values(sopir.rit_per_tujuan).reduce(function(s, item) { return s + item.total_rit; }, 0);
 
-                const belumDihitung = sopir.belum_dihitung || false;
-
-                let totalSolar, totalUpah;
-                if (belumDihitung) {
-                    totalSolar = 0;
-                    totalUpah = 0;
-                    Object.keys(sopir.rit_per_tujuan).forEach(function(kodeTujuan) {
-                        const rit = sopir.rit_per_tujuan[kodeTujuan].total_rit;
-                        totalSolar += (bbmByTujuan[kodeTujuan] || 0) * rit;
-                        totalUpah += (upahByTujuan[kodeTujuan] || 0) * rit;
-                    });
-                } else {
+                // Always preview from form inputs (live update saat user ketik)
+                let totalSolar = 0;
+                let totalUpah = 0;
+                Object.keys(sopir.rit_per_tujuan).forEach(function(kodeTujuan) {
+                    const rit = sopir.rit_per_tujuan[kodeTujuan].total_rit;
+                    totalSolar += (bbmByTujuan[kodeTujuan] || 0) * rit;
+                    totalUpah += (upahByTujuan[kodeTujuan] || 0) * rit;
+                });
+                // Fallback: if form has 0 but saved data has values, use saved
+                if (totalSolar === 0 && totalUpah === 0 && !sopir.belum_dihitung) {
                     totalSolar = sopir.total_solar || 0;
                     totalUpah = sopir.total_upah || 0;
                 }
 
                 const totalDT = sopir.total_dt || 0;
-                let totalKompensasi = sopir.total_kompensasi || 0;
-                if (belumDihitung) {
-                    totalKompensasi = 0;
-                    const sopirKode = sopir.kode_sopir;
-                    Object.keys(kompensasiByTujuan).forEach(function(kodeTujuan) {
-                        const kompPerRit = kompensasiByTujuan[kodeTujuan] || 0;
-                        if (kompPerRit > 0) {
-                            const sopirGagal = (gagalCountsBySopir[sopirKode] || {})[kodeTujuan] || 0;
-                            if (sopirGagal > 0) {
-                                totalKompensasi += kompPerRit * sopirGagal;
-                            }
+                // Always recalc kompensasi from form inputs (live preview)
+                let totalKompensasi = 0;
+                const sopirKode = sopir.kode_sopir;
+                Object.keys(kompensasiByTujuan).forEach(function(kodeTujuan) {
+                    const kompPerRit = kompensasiByTujuan[kodeTujuan] || 0;
+                    if (kompPerRit > 0) {
+                        const sopirGagal = (gagalCountsBySopir[sopirKode] || {})[kodeTujuan] || 0;
+                        if (sopirGagal > 0) {
+                            totalKompensasi += kompPerRit * sopirGagal;
                         }
-                    });
+                    }
+                });
+                // Fallback: if no form kompensasi, use saved value
+                if (totalKompensasi === 0 && !sopir.belum_dihitung) {
+                    totalKompensasi = sopir.total_kompensasi || 0;
                 }
                 const previewGrand = totalSolar + totalUpah + totalDT + totalKompensasi;
 
-                grandTotalAll += (belumDihitung ? previewGrand : (sopir.grand_total || 0));
+                grandTotalAll += previewGrand;
 
                 const firstChar = sopir.nama_sopir ? sopir.nama_sopir.charAt(0).toUpperCase() : '?';
 
@@ -494,7 +494,7 @@
                     <td class="px-4 py-3 text-right">
                         <span class="text-gray-800 font-medium" id="kompTotal_${sopir.kode_sopir}">Rp ${formatRupiah(totalKompensasi)}</span>
                     </td>
-                    <td class="px-4 py-3 text-right font-bold text-gray-900" id="grandTotal_${sopir.kode_sopir}">Rp ${formatRupiah(belumDihitung ? previewGrand : (sopir.grand_total || 0))}</td>
+                    <td class="px-4 py-3 text-right font-bold text-gray-900" id="grandTotal_${sopir.kode_sopir}">Rp ${formatRupiah(previewGrand)}</td>
                     <td class="px-4 py-3 text-center">
                         <div class="flex justify-center gap-1">
                             <button onclick="showDetail(${index})" class="text-xs text-gray-600 border border-gray-200 px-2.5 py-1.5 rounded hover:bg-gray-50 font-medium">
