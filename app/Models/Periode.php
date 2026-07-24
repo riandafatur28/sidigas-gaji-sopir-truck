@@ -54,4 +54,35 @@ class Periode extends Model
     {
         return $query->where('status', 'aktif');
     }
+
+    // ✅ Sync status based on current date — panggil tiap request yg butuh 'periode aktif'
+    public static function syncActiveStatus(): ?self
+    {
+        $today = now()->startOfDay();
+
+        $currentIds = static::where('tanggal_mulai', '<=', $today)
+            ->where('tanggal_selesai', '>=', $today)
+            ->pluck('id');
+
+        if ($currentIds->isEmpty()) {
+            // No period spans today → deactivate all
+            static::where('status', 'aktif')->update(['status' => 'selesai']);
+            return null;
+        }
+
+        // If multiple spans today (shouldn't happen), take the last one
+        $targetId = $currentIds->sort()->last();
+
+        // Deactivate others
+        static::where('id', '!=', $targetId)
+            ->where('status', 'aktif')
+            ->update(['status' => 'selesai']);
+
+        // Activate target
+        static::where('id', $targetId)
+            ->where('status', '!=', 'aktif')
+            ->update(['status' => 'aktif']);
+
+        return static::find($targetId);
+    }
 }

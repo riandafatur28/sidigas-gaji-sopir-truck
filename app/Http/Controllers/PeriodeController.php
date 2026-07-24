@@ -10,6 +10,9 @@ class PeriodeController extends Controller
 {
     public function index(Request $request)
     {
+        // Auto-sync: periode yg mencakup hari ini jadi aktif, lainnya selesai
+        Periode::syncActiveStatus();
+
         $search = $request->get('search', '');
 
         $periodes = Periode::where('nama_periode', 'like', "%{$search}%")

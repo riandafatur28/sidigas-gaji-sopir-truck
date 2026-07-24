@@ -45,4 +45,26 @@ class Tujuan extends Model
     {
         return $query->where('status', 'nonaktif');
     }
+
+    /**
+     * Sync status: tujuan dgn ritase di periode aktif → aktif, sisanya → nonaktif.
+     */
+    public static function syncActiveStatus(): void
+    {
+        $activePeriode = Periode::where('status', 'aktif')->first();
+        if (!$activePeriode) return;
+
+        $activeTujuans = Ritase::where('periode_id', $activePeriode->id)
+            ->whereNotNull('kode_tujuan')
+            ->distinct()
+            ->pluck('kode_tujuan');
+
+        static::whereIn('kode_tujuan', $activeTujuans)
+            ->where('status', '!=', 'aktif')
+            ->update(['status' => 'aktif']);
+
+        static::whereNotIn('kode_tujuan', $activeTujuans)
+            ->where('status', '!=', 'nonaktif')
+            ->update(['status' => 'nonaktif']);
+    }
 }

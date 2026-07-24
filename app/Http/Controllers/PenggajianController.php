@@ -15,7 +15,16 @@ class PenggajianController extends Controller
 {
     public function index(Request $request)
     {
+        // Auto-sync: periode yg mencakup hari ini jadi aktif, lainnya selesai
+        Periode::syncActiveStatus();
+
         $periodeId = $request->get('periode');
+
+        // Default ke periode aktif kalo gak pilih
+        if (!$periodeId) {
+            $active = Periode::where('status', 'aktif')->first();
+            if ($active) $periodeId = $active->id;
+        }
 
         $allPeriodes = Periode::orderBy('id', 'desc')->get();
         $periodeIds = $allPeriodes->pluck('id');
@@ -1110,6 +1119,7 @@ class PenggajianController extends Controller
 
     public function riwayat()
     {
+        Periode::syncActiveStatus();
         $allPeriodes = Periode::orderBy('id', 'desc')->get();
         $periodeIds = $allPeriodes->pluck('id');
 

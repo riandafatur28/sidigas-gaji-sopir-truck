@@ -93,6 +93,10 @@ class RitaseController extends Controller
             }
         }
 
+        // Auto-aktifkan sopir/tujuan kalo lagi dipake
+        Sopir::where('kode_sopir', $request->kode_sopir)->where('status', '!=', 'aktif')->update(['status' => 'aktif']);
+        Tujuan::where('kode_tujuan', $request->kode_tujuan)->where('status', '!=', 'aktif')->update(['status' => 'aktif']);
+
         // 🔥🔥🔥 HITUNG DT - PASTIKAN INI BERJALAN 🔥🔥🔥
         $dtValue = $this->hitungDT($request, null);
 
@@ -140,6 +144,10 @@ class RitaseController extends Controller
 
         $validated = $request->validate($rules);
         $validated['nominal_kompensasi'] = is_numeric($validated['nominal_kompensasi'] ?? 0) ? (float) $validated['nominal_kompensasi'] : 0;
+
+        // Auto-aktifkan sopir/tujuan kalo lagi dipake
+        Sopir::where('kode_sopir', $request->kode_sopir)->where('status', '!=', 'aktif')->update(['status' => 'aktif']);
+        Tujuan::where('kode_tujuan', $request->kode_tujuan)->where('status', '!=', 'aktif')->update(['status' => 'aktif']);
 
         $ritase = Ritase::findOrFail($id);
 
@@ -359,6 +367,10 @@ class RitaseController extends Controller
             $results['skipped'] = $createResult['skipped'];
             $results['errors'] = array_merge($results['errors'], $createResult['errors']);
             $results['details'] = $createResult['details'];
+
+            // Auto-sync status sopir & tujuan setelah parsing
+            \App\Models\Sopir::syncActiveStatus();
+            \App\Models\Tujuan::syncActiveStatus();
         }
 
         return view('ritase.parser-result', [
