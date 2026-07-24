@@ -3,7 +3,34 @@
     :pageTitle="'Data Gaji'"
     :user="auth()->user()">
 
-    {{-- HEADER --}}
+    @push('styles')
+<style>
+    /* Skeleton animation */
+    .skeleton-row td {
+        padding: 12px 16px !important;
+    }
+    .skeleton-box {
+        display: inline-block;
+        height: 14px;
+        border-radius: 4px;
+        background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.4s infinite ease-in-out;
+    }
+    @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+    .skeleton-avatar { width: 32px; height: 32px; border-radius: 9999px; }
+    .skeleton-name { width: 100px; }
+    .skeleton-code { width: 60px; height: 10px; margin-top: 4px; }
+    .skeleton-number { width: 50px; }
+    .skeleton-rit { width: 24px; }
+    .skeleton-btn { width: 48px; height: 24px; border-radius: 4px; display: inline-block; }
+</style>
+@endpush
+
+{{-- HEADER --}}
     <div class="border-b border-gray-200 pb-4 mb-6">
         <div class="flex items-center justify-between">
             <div>
@@ -342,7 +369,7 @@
             const periodeLabel = document.getElementById('periodeLabel');
 
             container.classList.remove('hidden');
-            tbody.innerHTML = `<tr><td colspan="8" class="px-4 py-8 text-center text-gray-500">Loading data...</td></tr>`;
+            tbody.innerHTML = renderSkeleton(6);
 
             const periodeSelect = document.getElementById('pilih_periode');
             const periodeText = periodeSelect.options[periodeSelect.selectedIndex].text;
@@ -511,6 +538,32 @@
             });
 
             document.getElementById('grandTotalAll').textContent = 'Rp ' + formatRupiah(grandTotalAll);
+        }
+
+        function renderSkeleton(rows) {
+            const w = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+            let h = '';
+            for (let r = 0; r < rows; r++) {
+                h += `<tr class="skeleton-row">
+                    <td class="px-4 py-3">
+                        <div class="flex items-center space-x-2">
+                            <div class="skeleton-box skeleton-avatar"></div>
+                            <div>
+                                <div class="skeleton-box skeleton-name" style="width:${w(70,130)}px"></div>
+                                <div class="skeleton-box skeleton-code"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-center"><div class="skeleton-box skeleton-rit" style="margin:0 auto"></div></td>
+                    <td class="px-4 py-3 text-right"><div class="skeleton-box skeleton-number" style="margin-left:auto"></div></td>
+                    <td class="px-4 py-3 text-right"><div class="skeleton-box skeleton-number" style="margin-left:auto"></div></td>
+                    <td class="px-4 py-3 text-right"><div class="skeleton-box skeleton-number" style="margin-left:auto"></div></td>
+                    <td class="px-4 py-3 text-right"><div class="skeleton-box skeleton-number" style="margin-left:auto"></div></td>
+                    <td class="px-4 py-3 text-right"><div class="skeleton-box skeleton-number" style="width:${w(60,90)}px;margin-left:auto"></div></td>
+                    <td class="px-4 py-3 text-center"><div class="skeleton-box skeleton-btn" style="margin:0 auto"></div></td>
+                </tr>`;
+            }
+            return h;
         }
 
         function formatRupiah(angka) {

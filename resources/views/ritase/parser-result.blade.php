@@ -200,11 +200,19 @@
         @if (($results['skipped'] ?? 0) > 0)
         <p class="text-yellow-700 text-sm mt-1">{{ $results['skipped'] }} data dilewati (duplikat/error).</p>
         @endif
-        <div class="mt-2 flex gap-3">
-            <a href="{{ route('ritase.index') }}" class="text-green-600 hover:underline">Lihat Data Ritase</a>
+        <div class="mt-4 flex flex-wrap gap-3">
+            <a href="{{ route('gaji.index', ['periode' => $periodeId]) }}"
+               class="inline-flex items-center px-5 py-2.5 bg-[#1a1a2e] text-white font-semibold rounded-md hover:bg-[#2d2d44] transition">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                </svg>
+                Lanjut ke Hitung Gaji
+            </a>
+            <a href="{{ route('ritase.index') }}" class="text-green-600 hover:underline inline-flex items-center">Lihat Data Ritase</a>
             <span class="text-gray-400">|</span>
-            <a href="{{ route('ritase.parser') }}" class="text-green-600 hover:underline">Parse Lagi</a>
+            <a href="{{ route('ritase.parser') }}" class="text-green-600 hover:underline inline-flex items-center">Parse Lagi</a>
         </div>
+        <p class="text-xs text-gray-400 mt-3">Setelah masuk halaman Gaji, tabel akan otomatis terload dengan data ritase terbaru.</p>
     </div>
     @else
     <div class="mt-6 flex justify-end gap-3">

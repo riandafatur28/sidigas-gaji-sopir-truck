@@ -361,6 +361,9 @@ class RitaseController extends Controller
             $results['details'] = $createResult['details'];
         }
 
-        return view('ritase.parser-result', compact('results'));
+        return view('ritase.parser-result', [
+            'results' => $results,
+            'periodeId' => $request->periode_id,
+        ]);
     }
 }
