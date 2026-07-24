@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="turbo-cache-control" content="no-cache">
     <title>{{ $title ?? 'Dashboard' }} - SIDIGAS</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="{{ asset('js/turbo.min.js') }}" data-turbo-suppress-warning></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
     <script defer src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
@@ -524,29 +522,23 @@
         })();
     </script>
     <script>
-        // Turbo Drive events: show/hide skeleton overlay
-        document.addEventListener('turbo:before-fetch-request', function() {
-            var sk = document.getElementById('skeleton-overlay');
-            if (sk) {
-                sk.dataset.showTime = Date.now();
-                sk.classList.add('active');
-            }
-        });
-        document.addEventListener('turbo:render', function() {
-            var sk = document.getElementById('skeleton-overlay');
-            if (sk) {
-                var elapsed = Date.now() - (parseInt(sk.dataset.showTime) || 0);
-                var minShow = 350;
-                if (elapsed >= minShow) {
-                    sk.classList.remove('active');
-                } else {
-                    setTimeout(function() {
-                        sk.classList.remove('active');
-                    }, minShow - elapsed);
+        // Skeleton overlay — muncul pas klik link, ilang pas halaman baru siap
+        document.addEventListener('click', function(e) {
+            var link = e.target.closest('a');
+            if (link && link.href && link.href.indexOf(window.location.origin) === 0 && !link.hasAttribute('target') && !link.hasAttribute('data-turbo') && !link.getAttribute('href').startsWith('#')) {
+                var sk = document.getElementById('skeleton-overlay');
+                if (sk) {
+                    sk.dataset.showTime = Date.now();
+                    sk.classList.add('active');
                 }
             }
         });
-        // Fallback: hidden on popstate
+        window.addEventListener('pageshow', function() {
+            var sk = document.getElementById('skeleton-overlay');
+            if (sk) {
+                sk.classList.remove('active');
+            }
+        });
         window.addEventListener('popstate', function() {
             var sk = document.getElementById('skeleton-overlay');
             if (sk) sk.classList.remove('active');
