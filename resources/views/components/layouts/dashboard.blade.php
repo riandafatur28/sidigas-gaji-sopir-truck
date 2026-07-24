@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -140,10 +140,32 @@
             .main-content { margin-left: 280px; }
             .main-content.full-width { margin-left: 0 !important; }
         }
+
+        /* PAGE LOADER BAR */
+        #page-loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 3px;
+            z-index: 9999; pointer-events: none; display: none;
+        }
+        #page-loader .bar {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #3b82f6);
+            background-size: 200% 100%;
+            animation: loader-glow 1s ease infinite;
+            transition: width 0.3s ease;
+        }
+        @keyframes loader-glow {
+            0% { background-position: 0% 0; }
+            100% { background-position: -200% 0; }
+        }
+        #page-loader.active { display: block; }
+        #page-loader.done .bar { width: 100% !important; opacity: 0; transition: width 0.2s, opacity 0.3s 0.2s; }
     </style>
     @stack('styles')
 </head>
 <body>
+
+    {{-- PAGE LOADER --}}
+    <div id="page-loader"><div class="bar"></div></div>
 
     {{-- OVERLAY --}}
     <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
@@ -419,6 +441,33 @@
             updateDateTime();
             setInterval(updateDateTime, 1000);
 
+        })();
+    </script>
+    <script>
+        (function() {
+            var loader = document.getElementById("page-loader");
+            if (loader) {
+                var navByLink = sessionStorage.getItem("_nav");
+                if (navByLink) {
+                    sessionStorage.removeItem("_nav");
+                    loader.classList.add("active");
+                    loader.querySelector(".bar").style.width = "60%";
+                    setTimeout(function() {
+                        loader.querySelector(".bar").style.width = "100%";
+                        loader.classList.add("done");
+                        setTimeout(function() {
+                            loader.classList.remove("active", "done");
+                            loader.querySelector(".bar").style.width = "0%";
+                        }, 500);
+                    }, 200);
+                }
+            }
+            document.addEventListener("click", function(e) {
+                var link = e.target.closest("a");
+                if (link && link.href && link.href.indexOf(window.location.origin) === 0 && !link.hasAttribute("target")) {
+                    sessionStorage.setItem("_nav", "1");
+                }
+            });
         })();
     </script>
     @stack('scripts')
