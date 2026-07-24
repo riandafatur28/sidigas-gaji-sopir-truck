@@ -141,26 +141,22 @@
             .main-content.full-width { margin-left: 0 !important; }
         }
 
-        /* SKELETON OVERLAY — muncul saat Turbo Drive fetch */
         #skeleton-overlay {
-            position: fixed;
+            position: absolute;
             inset: 0;
-            z-index: 9998;
+            z-index: 50;
             background: #f0f0f2;
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.2s ease;
+            overflow-y: auto;
         }
         #skeleton-overlay.active {
             pointer-events: auto;
             opacity: 1;
         }
         #skeleton-overlay .sk-inner {
-            margin-left: 280px;
             padding: 24px 32px;
-        }
-        @media (max-width: 1023px) {
-            #skeleton-overlay .sk-inner { margin-left: 0; }
         }
         .sk-block {
             background: #fff;
@@ -209,42 +205,7 @@
 </head>
 <body>
 
-    {{-- SKELETON OVERLAY — muncul pas Turbo Drive fetch --}}
-    <div id="skeleton-overlay">
-        <div class="sk-inner">
-            <div class="sk-header">
-                <div class="sk-block" style="width:240px;padding:16px 20px;margin:0">
-                    <div class="sk-line sk-line-lg" style="width:70%;margin-bottom:8px"></div>
-                    <div class="sk-line sk-line-sm" style="width:45%"></div>
-                </div>
-                <div class="sk-block" style="width:120px;padding:16px 20px;margin:0">
-                    <div class="sk-line" style="width:60%"></div>
-                </div>
-            </div>
-            <div class="sk-card-row">
-                <div class="sk-block" style="margin:0"><div class="sk-line sk-line-lg" style="width:40%;margin-bottom:10px"></div><div class="sk-line sk-line-xl" style="width:60%"></div></div>
-                <div class="sk-block" style="margin:0"><div class="sk-line sk-line-lg" style="width:40%;margin-bottom:10px"></div><div class="sk-line sk-line-xl" style="width:60%"></div></div>
-                <div class="sk-block" style="margin:0"><div class="sk-line sk-line-lg" style="width:40%;margin-bottom:10px"></div><div class="sk-line sk-line-xl" style="width:60%"></div></div>
-            </div>
-            <div class="sk-block">
-                <div class="sk-line sk-line-lg" style="width:30%;margin-bottom:16px"></div>
-                <div class="sk-row" style="border-bottom-color:#e5e7eb">
-                    <div class="sk-cell"><div class="sk-line"></div></div>
-                    <div class="sk-cell-md"><div class="sk-line"></div></div>
-                    <div class="sk-cell-md"><div class="sk-line"></div></div>
-                    <div class="sk-cell-sm"><div class="sk-line"></div></div>
-                </div>
-                <div class="sk-row">
-                    <div class="sk-cell"><div class="sk-line" style="width:70%"></div></div>
-                    <div class="sk-cell-md"><div class="sk-line" style="width:65%"></div></div>
-                    <div class="sk-cell-md"><div class="sk-line" style="width:55%"></div></div>
-                    <div class="sk-cell-sm"><div class="sk-line"></div></div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    {{-- OVERLAY --}}
     <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
 
     {{-- ========================================= --}}
@@ -373,7 +334,7 @@
     {{-- ========================================= --}}
     {{-- MAIN CONTENT --}}
     {{-- ========================================= --}}
-    <div id="mainContent" class="main-content">
+    <div id="mainContent" class="main-content" style="position:relative">
 
         {{-- HEADER BAR --}}
         <header class="header-bar">
@@ -401,6 +362,40 @@
         <main class="flex-1 p-4 sm:p-6 lg:p-8">
             {{ $slot }}
         </main>
+        {{-- SKELETON OVERLAY — dalem mainContent biar sidebar keliatan --}}
+        <div id="skeleton-overlay">
+            <div class="sk-inner">
+                <div class="sk-header">
+                    <div class="sk-block" style="width:240px;padding:16px 20px;margin:0">
+                        <div class="sk-line sk-line-lg" style="width:70%;margin-bottom:8px"></div>
+                        <div class="sk-line sk-line-sm" style="width:45%"></div>
+                    </div>
+                    <div class="sk-block" style="width:120px;padding:16px 20px;margin:0">
+                        <div class="sk-line" style="width:60%"></div>
+                    </div>
+                </div>
+                <div class="sk-card-row">
+                    <div class="sk-block" style="margin:0"><div class="sk-line sk-line-lg" style="width:40%;margin-bottom:10px"></div><div class="sk-line sk-line-xl" style="width:60%"></div></div>
+                    <div class="sk-block" style="margin:0"><div class="sk-line sk-line-lg" style="width:40%;margin-bottom:10px"></div><div class="sk-line sk-line-xl" style="width:60%"></div></div>
+                    <div class="sk-block" style="margin:0"><div class="sk-line sk-line-lg" style="width:40%;margin-bottom:10px"></div><div class="sk-line sk-line-xl" style="width:60%"></div></div>
+                </div>
+                <div class="sk-block">
+                    <div class="sk-line sk-line-lg" style="width:30%;margin-bottom:16px"></div>
+                    <div class="sk-row" style="border-bottom-color:#e5e7eb">
+                        <div class="sk-cell"><div class="sk-line"></div></div>
+                        <div class="sk-cell-md"><div class="sk-line"></div></div>
+                        <div class="sk-cell-md"><div class="sk-line"></div></div>
+                        <div class="sk-cell-sm"><div class="sk-line"></div></div>
+                    </div>
+                    <div class="sk-row">
+                        <div class="sk-cell"><div class="sk-line" style="width:70%"></div></div>
+                        <div class="sk-cell-md"><div class="sk-line" style="width:65%"></div></div>
+                        <div class="sk-cell-md"><div class="sk-line" style="width:55%"></div></div>
+                        <div class="sk-cell-sm"><div class="sk-line"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </div>
 
