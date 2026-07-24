@@ -525,11 +525,24 @@
         // Turbo Drive events: show/hide skeleton overlay
         document.addEventListener('turbo:before-fetch-request', function() {
             var sk = document.getElementById('skeleton-overlay');
-            if (sk) sk.classList.add('active');
+            if (sk) {
+                sk.dataset.showTime = Date.now();
+                sk.classList.add('active');
+            }
         });
         document.addEventListener('turbo:render', function() {
             var sk = document.getElementById('skeleton-overlay');
-            if (sk) sk.classList.remove('active');
+            if (sk) {
+                var elapsed = Date.now() - (parseInt(sk.dataset.showTime) || 0);
+                var minShow = 350;
+                if (elapsed >= minShow) {
+                    sk.classList.remove('active');
+                } else {
+                    setTimeout(function() {
+                        sk.classList.remove('active');
+                    }, minShow - elapsed);
+                }
+            }
         });
         // Fallback: hidden on popstate
         window.addEventListener('popstate', function() {
