@@ -1,7 +1,7 @@
 <x-layouts.dashboard
     :title="'Edit Gaji'"
     :pageTitle="'Edit Gaji'"
-    :user="auth()->user()">
+    >
 
     <div class="border-b border-gray-200 pb-4 mb-6">
         <div class="flex items-center justify-between">
@@ -61,6 +61,8 @@
                                 <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">BBM/Rit</th>
                                 <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Upah/Rit</th>
                                 <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Kompensasi Gagal</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Tol</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Lembur</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
@@ -104,6 +106,46 @@
                                         <input type="hidden" name="detail[{{ $loop->index }}][kode_tujuan]" value="{{ $tujuan->kode_tujuan }}">
                                     </div>
                                 </td>
+                                <td class="px-4 py-2.5">
+                                    <div class="flex items-center gap-2 max-w-xs">
+                                        @php
+                                            $tolVal = $detailPerTujuan[$tujuan->kode_tujuan]['tol_per_rit'] ?? 0;
+                                        @endphp
+                                        <input type="checkbox"
+                                               data-tujuan="{{ $tujuan->kode_tujuan }}"
+                                               class="tol-checkbox w-4 h-4 rounded border-gray-300 cursor-pointer"
+                                               {{ $tolVal > 0 ? 'checked' : '' }}>
+                                        <input type="number"
+                                               name="detail[{{ $loop->index }}][tol_per_rit]"
+                                               data-tujuan="{{ $tujuan->kode_tujuan }}"
+                                               data-field="tol_per_rit"
+                                               min="0" step="0.01"
+                                               placeholder="0"
+                                               value="{{ $tolVal }}"
+                                               {{ $tolVal > 0 ? '' : 'disabled' }}
+                                               class="tol-input w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition {{ $tolVal > 0 ? 'bg-white' : 'bg-gray-100 opacity-50 cursor-not-allowed' }}">
+                                    </div>
+                                </td>
+                                <td class="px-4 py-2.5">
+                                    <div class="flex items-center gap-2 max-w-xs">
+                                        @php
+                                            $lemburTujuanVal = $detailPerTujuan[$tujuan->kode_tujuan]['lembur_per_rit'] ?? 0;
+                                        @endphp
+                                        <input type="checkbox"
+                                               data-tujuan="{{ $tujuan->kode_tujuan }}"
+                                               class="lembur-tujuan-checkbox w-4 h-4 rounded border-gray-300 cursor-pointer"
+                                               {{ $lemburTujuanVal > 0 ? 'checked' : '' }}>
+                                        <input type="number"
+                                               name="detail[{{ $loop->index }}][lembur_per_rit]"
+                                               data-tujuan="{{ $tujuan->kode_tujuan }}"
+                                               data-field="lembur_per_rit"
+                                               min="0" step="1"
+                                               placeholder="0"
+                                               value="{{ $lemburTujuanVal }}"
+                                               {{ $lemburTujuanVal > 0 ? '' : 'disabled' }}
+                                               class="lembur-tujuan-input w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition {{ $lemburTujuanVal > 0 ? 'bg-white' : 'bg-gray-100 opacity-50 cursor-not-allowed' }}">
+                                    </div>
+                                </td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -117,7 +159,7 @@
             <table class="w-full">
                 <thead>
                     <tr class="bg-gray-50 border-b border-gray-200">
-                        <th class="text-left text-sm font-semibold text-gray-600 uppercase tracking-wider px-5 py-3" colspan="7">
+                        <th class="text-left text-sm font-semibold text-gray-600 uppercase tracking-wider px-5 py-3" colspan="9">
                             Rincian Gaji Per Sopir
                         </th>
                     </tr>
@@ -129,7 +171,9 @@
                         <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Total Solar</th>
                         <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Total Upah</th>
                         <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Total DT</th>
+                        <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Tol</th>
                         <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Kompensasi</th>
+                        <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Lembur</th>
                         <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Grand Total</th>
                     </tr>
                 </thead>
@@ -156,20 +200,22 @@
                             <td class="px-4 py-2.5 text-right text-gray-800 font-medium text-sm">Rp {{ number_format($gaji->uang_solar, 0, ',', '.') }}</td>
                             <td class="px-4 py-2.5 text-right text-gray-800 font-medium text-sm">Rp {{ number_format($gaji->upah_sopir, 0, ',', '.') }}</td>
                             <td class="px-4 py-2.5 text-right text-gray-800 font-medium text-sm">Rp {{ number_format($gaji->dt, 0, ',', '.') }}</td>
+                            <td class="px-4 py-2.5 text-right text-gray-800 font-medium text-sm">Rp {{ number_format($gaji->tol ?? 0, 0, ',', '.') }}</td>
                             <td class="px-4 py-2.5 text-right font-medium text-gray-800 text-sm">
                                 Rp {{ number_format($kompensasiGagal[$gaji->kode_sopir] ?? 0, 0, ',', '.') }}
                             </td>
+                            <td class="px-4 py-2.5 text-right text-gray-800 font-medium text-sm">Rp {{ number_format($gaji->upah_lembur ?? 0, 0, ',', '.') }}</td>
                             <td class="px-4 py-2.5 text-right font-bold text-sm text-gray-900">Rp {{ number_format($gaji->total, 0, ',', '.') }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-4 py-6 text-center text-sm text-gray-400">Tidak ada data gaji untuk periode ini.</td>
+                            <td colspan="9" class="px-4 py-6 text-center text-sm text-gray-400">Tidak ada data gaji untuk periode ini.</td>
                         </tr>
                     @endforelse
                 </tbody>
                 <tfoot class="bg-gray-50 border-t border-gray-200">
                     <tr>
-                        <td colspan="6" class="px-5 py-3 text-right text-sm font-semibold text-gray-700">TOTAL KESELURUHAN:</td>
+                        <td colspan="8" class="px-5 py-3 text-right text-sm font-semibold text-gray-700">TOTAL KESELURUHAN:</td>
                         <td class="px-5 py-3 text-right text-sm font-bold text-gray-900">Rp {{ number_format($existingGaji->sum('total'), 0, ',', '.') }}</td>
                     </tr>
                 </tfoot>
@@ -208,7 +254,37 @@
 
     @push('scripts')
     <script>
+
+
         const allTujuansEdit = @json($allTujuans ?? []);
+
+        // ===== CHECKBOX TOGGLE (TOL, LEMBUR SOPIR, LEMBUR TUJUAN) =====
+        function toggleCheckboxGroup(checkbox, inputSelector) {
+            const container = checkbox.closest('.flex.items-center.gap-2');
+            const input = container?.querySelector(inputSelector);
+            if (input) {
+                if (checkbox.checked) {
+                    input.disabled = false;
+                    input.classList.remove('bg-gray-100', 'opacity-50', 'cursor-not-allowed');
+                    input.classList.add('bg-white');
+                    input.focus();
+                } else {
+                    input.disabled = true;
+                    input.value = '0';
+                    input.classList.remove('bg-white');
+                    input.classList.add('bg-gray-100', 'opacity-50', 'cursor-not-allowed');
+                }
+            }
+        }
+
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('tol-checkbox')) {
+                toggleCheckboxGroup(e.target, '.tol-input');
+            }
+            if (e.target.classList.contains('lembur-tujuan-checkbox')) {
+                toggleCheckboxGroup(e.target, '.lembur-tujuan-input');
+            }
+        });
 
         // ===== VALIDASI INPUT =====
         function validasiNominal(input) {
@@ -279,13 +355,25 @@
                 const upah = document.querySelectorAll('.input-upah')[i]?.value || '0';
                 const kompInputs = document.querySelectorAll('input[name$="[kompensasi_gagal]"]');
                 const komp = kompInputs[i]?.value || '0';
+                const tolInputs = document.querySelectorAll('input[name$="[tol_per_rit]"]');
+                const tolVal = tolInputs[i]?.value || '0';
+                const lemburTujuanInputs = document.querySelectorAll('input[name$="[lembur_per_rit]"]');
+                const lemburTujuanVal = lemburTujuanInputs[i]?.value || '0';
                 const bbmNum = parseInt(bbm) || 0;
                 const upahNum = parseInt(upah) || 0;
                 const kompNum = parseInt(komp) || 0;
-                if (bbmNum > 0 || upahNum > 0 || kompNum > 0) {
+                const tolNum = parseInt(tolVal) || 0;
+                const lemburTujuanNum = parseInt(lemburTujuanVal) || 0;
+                if (bbmNum > 0 || upahNum > 0 || kompNum > 0 || tolNum > 0 || lemburTujuanNum > 0) {
                     let line = `${namaTujuan} <span class="text-gray-600">BBM: Rp ${bbmNum.toLocaleString('id-ID')} | Upah: Rp ${upahNum.toLocaleString('id-ID')}`;
                     if (kompNum > 0) {
                         line += ` | Kompensasi: Rp ${kompNum.toLocaleString('id-ID')}`;
+                    }
+                    if (tolNum > 0) {
+                        line += ` | Tol: Rp ${tolNum.toLocaleString('id-ID')}`;
+                    }
+                    if (lemburTujuanNum > 0) {
+                        line += ` | Lembur: Rp ${lemburTujuanNum.toLocaleString('id-ID')}`;
                     }
                     line += '</span>';
                     detailHtml += `<div class="flex justify-between text-sm">${line}</div>`;

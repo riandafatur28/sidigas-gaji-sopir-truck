@@ -18,7 +18,7 @@
         }
 
         .slip-header {
-            font-size: 18px;
+            font-size: 14pt;
             font-weight: 700;
             text-align: center;
             padding: 8px 0;
@@ -29,31 +29,31 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
+            font-size: 14pt;
             min-width: 800px;
         }
 
         th {
-            border: 1px solid #000;
+            border: 1.5px solid #000;
             padding: 6px 8px;
             text-align: center;
             font-weight: 700;
-            font-size: 13px;
+            font-size: 14pt;
             background: white;
         }
 
         td {
-            border: 1px solid #000;
+            border: 1.5px solid #000;
             padding: 6px 8px;
             text-align: center;
-            font-size: 15px;
+            font-size: 14pt;
             background: white;
         }
 
         .text-right { text-align: right; }
         .text-left { text-align: left; }
         .font-bold { font-weight: 700; }
-        .label-tujuan-nama { font-size: 17px; font-weight: 700; }
+        .label-tujuan-nama { font-weight: 700; }
 
         .page-break {
             page-break-after: always;
@@ -69,7 +69,7 @@
             border: none;
             cursor: pointer;
             margin-bottom: 20px;
-            font-size: 14px;
+            font-size: 14pt;
             font-weight: 600;
         }
         .print-btn:hover { background: #333; }
@@ -95,11 +95,11 @@
 
     @if(!$hasData)
         <div class="slip-container text-center py-10">
-            <p style="font-size: 18px; font-weight: 600;">Tidak ada data gaji untuk sopir ini</p>
+            <p style="font-size: 14pt; font-weight: 600;">Tidak ada data gaji untuk sopir ini</p>
             @if(isset($error))
-                <p style="font-size: 14px; color: #cc0000; margin-top: 5px;">{{ $error }}</p>
+                <p style="font-size: 14pt; color: #cc0000; margin-top: 5px;">{{ $error }}</p>
             @endif
-            <p style="font-size: 14px; color: #666; margin-top: 5px;">
+            <p style="font-size: 14pt; color: #666; margin-top: 5px;">
                 Periode: {{ $periode->nama_periode }} | Sopir: {{ $sopir->nama }}
             </p>
             <div style="margin-top: 15px;">
@@ -125,6 +125,7 @@
             $totalUpahAll = array_sum(array_column($dataPerHari, 'upah'));
             $totalJumlahAll = array_sum(array_column($dataPerHari, 'jumlah'));
             $totalDTAll = array_sum(array_column($dataPerHari, 'dt'));
+            $totalTolAll = array_sum(array_column($dataPerHari, 'tol'));
 
             $halamanIndex = 0;
         @endphp
@@ -135,14 +136,17 @@
 
                 $pageDT = array_sum(array_column($pageData, 'dt'));
                 $pageJumlah = array_sum(array_column($pageData, 'jumlah'));
+                $pageTol = array_sum(array_column($pageData, 'tol'));
+                $rowspan = $pageTol > 0 ? 5 : 4;
             @endphp
 
             <div class="slip-container">
-                <div class="slip-header">{{ $sopir->nama }} | {{ $periode->nama_periode }} ({{ $tanggalMulai }} - {{ $tanggalSelesai }}) <span style="font-weight: 400; font-size: 14px; color: #666;">Halaman {{ $halamanIndex + 1 }} dari {{ $totalPages }}</span></div>
+                <div class="slip-header"><span style="font-weight: 400; font-size: 14pt; color: #666;">Halaman {{ $halamanIndex + 1 }} dari {{ $totalPages }}</span></div>
 
                 <table>
                     <thead>
                         <tr>
+                            <th style="width: 12%;">SOPIR</th>
                             <th style="width: 12%;">NAMA</th>
                             @foreach($pageData as $d)
                                 @php
@@ -160,6 +164,7 @@
                     </thead>
                     <tbody>
                         <tr>
+                            <td class="label-tujuan-nama text-left" style="vertical-align:middle;" rowspan="{{ $rowspan }}">{{ $sopir->nama }}</td>
                             <td class="label-tujuan-nama text-left">Solar</td>
                             @foreach($pageData as $d)
                                 @php
@@ -174,13 +179,27 @@
                             <td class="label-tujuan-nama text-left">Sopir</td>
                             @foreach($pageData as $d)
                                 @php
-                                    $display = $d['is_gagal'] ? '-' : ($d['upah'] > 0 ? number_format($d['upah'], 0, ',', '.') : '');
+                                    $upahTampil = $d['upah'] + ($d['is_lembur'] ? $d['upah_lembur'] : 0);
+                                    $display = $d['is_gagal'] ? '-' : ($upahTampil > 0 ? number_format($upahTampil, 0, ',', '.') : '');
                                 @endphp
                                 <td class="text-right">{{ $display }}</td>
                             @endforeach
                             <td></td>
                             <td></td>
                         </tr>
+@if($pageTol > 0)
+                        <tr>
+                            <td class="label-tujuan-nama text-left">Tol</td>
+                            @foreach($pageData as $d)
+                                @php
+                                    $display = $d['is_gagal'] ? '-' : ($d['tol'] > 0 ? number_format($d['tol'], 0, ',', '.') : '');
+                                @endphp
+                                <td class="text-right">{{ $display }}</td>
+                            @endforeach
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        @endif
                         <tr>
                             <td class="label-tujuan-nama text-left">Jumlah</td>
                             @foreach($pageData as $d)
@@ -190,15 +209,15 @@
                                 <td class="text-right font-bold">{{ $display }}</td>
                             @endforeach
                             <td class="text-right font-bold">{{ $pageDT > 0 ? number_format($pageDT, 0, ',', '.') : '' }}</td>
-                            <td class="text-right font-bold">{{ number_format($pageJumlah + $pageDT, 0, ',', '.') }}</td>
+                            <td class="text-right font-bold">{{ number_format($pageJumlah + $pageDT + $pageTol, 0, ',', '.') }}</td>
                         </tr>
                         <tr>
                             <td class="label-tujuan-nama text-left">Tujuan</td>
                             @foreach($pageData as $d)
                                 @php
-                                    $tujuanLabel = $d['is_gagal'] ? 'Gagal Produksi' : $d['tujuan'];
+                                    $tujuanLabel = $d['is_gagal'] ? 'Gagal Produksi' : $d['tujuan'] . ($d['is_lembur'] ? ' (Lembur)' : '');
                                 @endphp
-                                <td class="text-left" style="font-size: 15px;">{{ $tujuanLabel }}</td>
+                                <td class="text-left">{{ $tujuanLabel }}</td>
                             @endforeach
                             <td></td>
                             <td></td>
@@ -207,12 +226,15 @@
                 </table>
 
                 <div style="margin-top: 10px; padding-top: 8px; border-top: 2px solid #000; text-align: right; font-weight: 700;">
+                    @if($pageTol > 0)
+                        <span style="margin-left: 15px;">Tol: Rp {{ number_format($pageTol, 0, ',', '.') }}</span>
+                    @endif
                     @if($pageDT > 0)
                         <span>DT: Rp {{ number_format($pageDT, 0, ',', '.') }}</span>
                     @endif
-                    <span style="margin-left: 20px;">TOTAL: Rp {{ number_format($pageJumlah + $pageDT, 0, ',', '.') }}</span>
+                    <span style="margin-left: 15px;">TOTAL: Rp {{ number_format($pageJumlah + $pageDT + $pageTol, 0, ',', '.') }}</span>
                     @if($isLastPage)
-                        <span style="margin-left: 20px; font-weight: 900;">GRAND TOTAL: Rp {{ number_format($totalJumlahAll + $totalDTAll, 0, ',', '.') }}</span>
+                        <span style="margin-left: 15px; font-weight: 900;">GRAND TOTAL: Rp {{ number_format($totalJumlahAll + $totalDTAll + $totalTolAll, 0, ',', '.') }}</span>
                     @endif
                 </div>
             </div>

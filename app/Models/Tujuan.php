@@ -63,8 +63,5 @@ class Tujuan extends Model
             ->where('status', '!=', 'aktif')
             ->update(['status' => 'aktif']);
 
-        static::whereNotIn('kode_tujuan', $activeTujuans)
-            ->where('status', '!=', 'nonaktif')
-            ->update(['status' => 'nonaktif']);
     }
 }

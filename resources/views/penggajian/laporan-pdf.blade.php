@@ -56,7 +56,7 @@
 
         table tbody td {
             padding: 1.5mm 1.5mm;
-            border-bottom: 1px solid #e5e7eb;
+            border: 1px solid #d1d5db;
             text-align: center;
             font-size: 8pt;
             word-break: break-word;
@@ -72,7 +72,7 @@
             font-weight: 700;
         }
         table tbody tr.subtotal-row td {
-            border-bottom: 1.5px solid #9ca3af;
+            border: 1.5px solid #9ca3af;
             padding: 2mm 1.5mm;
             font-size: 8.5pt;
         }
@@ -178,9 +178,16 @@
                 @endforelse
             </tbody>
             <tfoot>
+                @php
+                    $potonganOp = ($data['total_ritase'] ?? 0) * 20000;
+                @endphp
+                <tr style="background:#f3f4f6;">
+                    <td colspan="5" style="text-align:right;padding:2mm 1.5mm;font-size:8.5pt;font-weight:600;border-bottom:1px solid #d1d5db;">Pot. Operasional (20rb × {{ $data['total_ritase'] ?? 0 }} rit)</td>
+                    <td style="padding:2mm 1.5mm;font-size:8.5pt;font-weight:600;text-align:center;border-bottom:1px solid #d1d5db;">Rp {{ number_format($potonganOp, 0, ',', '.') }}</td>
+                </tr>
                 <tr class="grand-total-row">
-                    <td colspan="5" style="text-align:right;">GRAND TOTAL</td>
-                    <td>Rp {{ number_format($data['grand_total_all'], 0, ',', '.') }}</td>
+                    <td colspan="5" style="text-align:right;">GRAND TOTAL (termasuk pot. operasional)</td>
+                    <td>Rp {{ number_format($data['grand_total_all'] + ($data['total_ritase'] * 20000), 0, ',', '.') }}</td>
                 </tr>
             </tfoot>
         </table>

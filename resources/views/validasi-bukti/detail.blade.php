@@ -1,7 +1,7 @@
 <x-layouts.dashboard
     :title="'Detail Validasi Bukti'"
     :pageTitle="'Detail Validasi Bukti'"
-    :user="auth()->user()">
+    >
 
     <div class="border-b border-gray-200 pb-4 mb-6">
         <div class="flex items-center justify-between">

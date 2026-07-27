@@ -87,40 +87,61 @@ class PenggajianController extends Controller
     {
         try {
             $periodeId = $request->get('periode');
+            $tanggal = $request->get('tanggal'); // optional daily filter
+
+            // When tanggal is set, auto-detect the correct period that contains it
+            if ($tanggal) {
+                $found = \App\Models\Periode::whereDate('tanggal_mulai', '<=', $tanggal)
+                    ->whereDate('tanggal_selesai', '>=', $tanggal)->first();
+                if ($found) $periodeId = $found->id;
+            }
+
             if (!$periodeId) {
                 return response()->json(['error' => 'Parameter tidak lengkap'], 400);
             }
 
             // --- BATCH: all counts & sums in ~4 queries, no N+1 ---
-            $ritCounts = Ritase::where('periode_id', $periodeId)
+            $ritBase = Ritase::where('periode_id', $periodeId);
+            if ($tanggal) {
+                $ritBase->whereDate('tanggal', $tanggal);
+            }
+            $ritCounts = (clone $ritBase)
                 ->selectRaw('kode_sopir, kode_tujuan, COUNT(*) as total')
                 ->groupBy('kode_sopir', 'kode_tujuan')
                 ->get()->keyBy(fn($r) => $r->kode_sopir.'|'.$r->kode_tujuan);
 
-            $validCounts = Ritase::where('periode_id', $periodeId)
+            $validCounts = (clone $ritBase)
                 ->where('status', '!=', 'gagal_produksi')
                 ->selectRaw('kode_sopir, kode_tujuan, COUNT(*) as total')
                 ->groupBy('kode_sopir', 'kode_tujuan')
                 ->get()->keyBy(fn($r) => $r->kode_sopir.'|'.$r->kode_tujuan);
 
-            $dtSums = Ritase::where('periode_id', $periodeId)
+            $dtSums = (clone $ritBase)
                 ->where('status', '!=', 'gagal_produksi')
                 ->selectRaw('kode_sopir, SUM(dt) as total_dt')
                 ->groupBy('kode_sopir')
                 ->get()->keyBy('kode_sopir');
+            $ritLemburSum = (clone $ritBase)
+                ->where('is_lembur', true)
+                ->selectRaw('kode_sopir, SUM(upah_lembur) as total_lembur')
+                ->groupBy('kode_sopir')
+                ->get()->keyBy('kode_sopir');
 
-            $allGagalRits = Ritase::where('periode_id', $periodeId)
+            $allGagalRits = (clone $ritBase)
                 ->where('status', 'gagal_produksi')
                 ->orderBy('tanggal')
                 ->get(['id', 'kode_sopir', 'tanggal', 'kode_tujuan'])
                 ->groupBy('kode_sopir');
 
             // --- BATCH: siapkan data sopir & tujuan ---
-            $allSopirCodes = Ritase::where('periode_id', $periodeId)
+            $allSopirCodes = (clone $ritBase)
                 ->distinct()->pluck('kode_sopir');
-            $sopirs = Sopir::whereIn('kode_sopir', $allSopirCodes)->get()->keyBy('kode_sopir');
+            $sopirs = Sopir::whereIn('kode_sopir', $allSopirCodes)
+                ->orderBy('id', 'asc')
+                ->get()->keyBy('kode_sopir');
+            $allSopirCodes = $sopirs->keys();
 
-            $tujuanCodes = Ritase::where('periode_id', $periodeId)
+            $tujuanCodes = (clone $ritBase)
                 ->whereNotNull('kode_tujuan')->distinct()->pluck('kode_tujuan');
             $allTujuans = Tujuan::whereIn('kode_tujuan', $tujuanCodes)->get()->keyBy('kode_tujuan');
 
@@ -137,17 +158,18 @@ class PenggajianController extends Controller
             if ($refPeriodeId) {
                 $rates = PenggajianDetail::whereHas('penggajian', function ($q) use ($refPeriodeId) {
                     $q->where('periode_id', $refPeriodeId);
-                })->selectRaw('kode_tujuan, AVG(solar_per_rit) as bbm, AVG(upah_per_rit) as upah')
+                })->selectRaw('kode_tujuan, AVG(solar_per_rit) as bbm, AVG(upah_per_rit) as upah, AVG(tol_per_rit) as tol')
                   ->groupBy('kode_tujuan')->get();
                 foreach ($rates as $r) {
                     $defaultRates[$r->kode_tujuan] = [
                         'bbm_per_rit' => floatval($r->bbm),
                         'upah_per_rit' => floatval($r->upah),
+                        'tol_per_rit' => floatval($r->tol),
                     ];
                 }
             }
 
-            $kompensasiPerTujuan = Ritase::where('periode_id', $periodeId)
+            $kompensasiPerTujuan = (clone $ritBase)
                 ->where('status', 'gagal_produksi')
                 ->selectRaw('kode_tujuan, MAX(nominal_kompensasi) as kompensasi_per_rit')
                 ->groupBy('kode_tujuan')->pluck('kompensasi_per_rit', 'kode_tujuan')->toArray();
@@ -157,6 +179,18 @@ class PenggajianController extends Controller
                     $defaultRates[$kodeTujuan] = ['bbm_per_rit' => 0, 'upah_per_rit' => 0];
                 }
                 $defaultRates[$kodeTujuan]['kompensasi_gagal'] = floatval($kompPerRit);
+            }
+
+            $lemburPerTujuan = (clone $ritBase)
+                ->where('is_lembur', true)
+                ->selectRaw('kode_tujuan, MAX(upah_lembur) as lembur_per_rit')
+                ->groupBy('kode_tujuan')->pluck('lembur_per_rit', 'kode_tujuan')->toArray();
+
+            foreach ($lemburPerTujuan as $kodeTujuan => $lemburPerRit) {
+                if (!isset($defaultRates[$kodeTujuan])) {
+                    $defaultRates[$kodeTujuan] = ['bbm_per_rit' => 0, 'upah_per_rit' => 0];
+                }
+                $defaultRates[$kodeTujuan]['lembur_per_rit'] = floatval($lemburPerRit);
             }
 
             // --- BUILD RESULT ---
@@ -182,8 +216,10 @@ class PenggajianController extends Controller
                         'total_rit_valid' => $totalRitValid,
                         'solar_per_rit' => $detail?->solar_per_rit ? (float)$detail->solar_per_rit : ($rate ? $rate['bbm_per_rit'] : 0),
                         'upah_per_rit' => $detail?->upah_per_rit ? (float)$detail->upah_per_rit : ($rate ? $rate['upah_per_rit'] : 0),
+                        'tol_per_rit' => $detail?->tol_per_rit ? (float)$detail->tol_per_rit : ($rate ? ($rate['tol_per_rit'] ?? 0) : 0),
                         'total_solar' => $detail?->total_solar ? (float)$detail->total_solar : ($rate ? $rate['bbm_per_rit'] * $totalRitValid : 0),
                         'total_upah' => $detail?->total_upah ? (float)$detail->total_upah : ($rate ? $rate['upah_per_rit'] * $totalRitValid : 0),
+                        'total_tol' => $detail?->total_tol ? (float)$detail->total_tol : (($rate['tol_per_rit'] ?? 0) * $totalRitValid),
                         'subtotal' => $detail?->subtotal ? (float)$detail->subtotal : ($rate ? ($rate['bbm_per_rit'] + $rate['upah_per_rit']) * $totalRitValid : 0),
                     ];
                 }
@@ -191,6 +227,7 @@ class PenggajianController extends Controller
                 if (empty($ritPerTujuan)) continue;
 
                 $totalDT = isset($dtSums[$kodeSopir]) ? (float)$dtSums[$kodeSopir]->total_dt : 0;
+            $upahLembur = $gaji ? (float)$gaji->upah_lembur : (float)($ritLemburSum->get($kodeSopir)?->total_lembur ?? 0);
 
                 $gagalCollect = $allGagalRits->get($kodeSopir, collect());
                 $gagalRits = $gagalCollect->map(fn($rit) => [
@@ -201,16 +238,19 @@ class PenggajianController extends Controller
 
                 $previewSolar = array_sum(array_column($ritPerTujuan, 'total_solar'));
                 $previewUpah = array_sum(array_column($ritPerTujuan, 'total_upah'));
+                $previewTol = $gaji ? (float)$gaji->tol : 0;
 
                 $result[] = [
                     'kode_sopir' => $kodeSopir,
                     'nama_sopir' => $sopir->nama,
                     'periode_id' => $periodeId,
                     'total_dt' => $totalDT,
+                    'total_tol' => $previewTol,
                     'total_kompensasi' => $gaji ? (float)$gaji->kompensasi_gagal : 0,
                     'total_solar' => $previewSolar,
                     'total_upah' => $previewUpah,
-                    'grand_total' => $previewSolar + $previewUpah + $totalDT,
+                    'upah_lembur' => $upahLembur,
+                    'grand_total' => $previewSolar + $previewUpah + $totalDT + $previewTol + $upahLembur,
                     'rit_per_tujuan' => $ritPerTujuan,
                     'gagal_rits' => $gagalRits,
                     'belum_dihitung' => !$gaji,
@@ -220,6 +260,7 @@ class PenggajianController extends Controller
             return response()->json([
                 'sopir' => $result,
                 'default_rates' => $defaultRates,
+                'detected_periode_id' => $periodeId,
             ]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -273,7 +314,9 @@ class PenggajianController extends Controller
                 $detailTujuanMap[$d['kode_tujuan']] = [
                     'bbm_per_rit' => floatval($d['bbm_per_rit']) ?: 0,
                     'upah_per_rit' => floatval($d['upah_per_rit']) ?: 0,
+                    'tol_per_rit' => floatval($d['tol_per_rit'] ?? 0) ?: 0,
                     'kompensasi_gagal' => floatval($d['kompensasi_gagal'] ?? 0) ?: 0,
+                    'lembur_per_rit' => floatval($d['lembur_per_rit'] ?? 0) ?: 0,
                 ];
             }
 
@@ -285,82 +328,19 @@ class PenggajianController extends Controller
                         ->where('status', 'gagal_produksi')
                         ->update(['nominal_kompensasi' => $kompensasiPerRit]);
                 }
-            }
 
-            foreach ($sopirs as $sopir) {
-                $totalSolar = 0;
-                $totalUpah = 0;
-                $totalSubtotal = 0;
-                $detailList = [];
-
-                foreach ($detailTujuanMap as $kodeTujuan => $biaya) {
-                    $jumlahRit = Ritase::where('periode_id', $periodeId)
-                        ->where('kode_sopir', $sopir->kode_sopir)
-                        ->where('kode_tujuan', $kodeTujuan)
-                        ->where('status', '!=', 'gagal_produksi')
-                        ->count();
-
-                    if ($jumlahRit > 0) {
-                        $bbmPerRit = $biaya['bbm_per_rit'];
-                        $upahPerRit = $biaya['upah_per_rit'];
-                        $totalSolar += $bbmPerRit * $jumlahRit;
-                        $totalUpah += $upahPerRit * $jumlahRit;
-                        $totalSubtotal += ($bbmPerRit * $jumlahRit) + ($upahPerRit * $jumlahRit);
-
-                        $detailList[] = [
-                            'kode_tujuan' => $kodeTujuan,
-                            'jumlah_rit' => $jumlahRit,
-                            'bbm_per_rit' => $bbmPerRit,
-                            'upah_per_rit' => $upahPerRit,
-                        ];
-
-                        Ritase::where('periode_id', $periodeId)
-                            ->where('kode_sopir', $sopir->kode_sopir)
-                            ->where('kode_tujuan', $kodeTujuan)
-                            ->where('status', '!=', 'gagal_produksi')
-                            ->update(['upah_sopir' => $upahPerRit]);
-                    }
-                }
-
-                $totalDT = Ritase::where('periode_id', $periodeId)
-                    ->where('kode_sopir', $sopir->kode_sopir)
+                // Lembur per-tujuan: update semua ritase non-gagal di tujuan ini
+                $lemburPerRit = $biaya['lembur_per_rit'];
+                Ritase::where('periode_id', $periodeId)
+                    ->where('kode_tujuan', $kodeTujuan)
                     ->where('status', '!=', 'gagal_produksi')
-                    ->sum('dt') ?? 0;
-
-                $kompensasiGagal = Ritase::where('periode_id', $periodeId)
-                    ->where('kode_sopir', $sopir->kode_sopir)
-                    ->where('status', 'gagal_produksi')
-                    ->sum('nominal_kompensasi') ?? 0;
-
-                $grandTotal = $totalSubtotal + $totalDT + $kompensasiGagal;
-
-                $gaji = Penggajian::create([
-                    'kode_sopir' => $sopir->kode_sopir,
-                    'periode_id' => $periodeId,
-                    'tanggal' => now(),
-                    'uang_solar' => $totalSolar,
-                    'upah_sopir' => $totalUpah,
-                    'dt' => $totalDT,
-                    'kompensasi_gagal' => $kompensasiGagal,
-                    'total' => $grandTotal,
-                ]);
-
-                foreach ($detailList as $dl) {
-                    $subtotal = ($dl['bbm_per_rit'] * $dl['jumlah_rit']) + ($dl['upah_per_rit'] * $dl['jumlah_rit']);
-
-                    PenggajianDetail::create([
-                        'penggajian_id' => $gaji->id,
-                        'kode_tujuan' => $dl['kode_tujuan'],
-                        'jumlah_rit' => $dl['jumlah_rit'],
-                        'solar_per_rit' => $dl['bbm_per_rit'],
-                        'upah_per_rit' => $dl['upah_per_rit'],
-                        'total_solar' => $dl['bbm_per_rit'] * $dl['jumlah_rit'],
-                        'total_upah' => $dl['upah_per_rit'] * $dl['jumlah_rit'],
-                        'sewa_dt' => 0,
-                        'subtotal' => $subtotal,
+                    ->update([
+                        'is_lembur' => $lemburPerRit > 0,
+                        'upah_lembur' => $lemburPerRit,
                     ]);
-                }
             }
+
+            $this->processPenggajian($periodeId, $request, $detailTujuanMap);
 
             DB::commit();
             return redirect()->route('gaji.index', ['periode' => $periodeId])
@@ -399,9 +379,23 @@ class PenggajianController extends Controller
                     $detailPerTujuan[$detail->kode_tujuan] = [
                         'bbm_per_rit' => $detail->solar_per_rit,
                         'upah_per_rit' => $detail->upah_per_rit,
+                        'tol_per_rit' => $detail->tol_per_rit ?? 0,
                         'kompensasi_gagal' => 0,
+                        'lembur_per_rit' => 0,
                     ];
                 }
+            }
+        }
+
+        // Ambil nilai lembur dari ritase (per-tujuan)
+        $ritLemburTujuan = Ritase::where('periode_id', $id)
+            ->where('is_lembur', true)
+            ->selectRaw('kode_tujuan, MAX(upah_lembur) as lembur_per_rit')
+            ->groupBy('kode_tujuan')
+            ->pluck('lembur_per_rit', 'kode_tujuan');
+        foreach ($detailPerTujuan as $kodeTujuan => &$data) {
+            if (isset($ritLemburTujuan[$kodeTujuan])) {
+                $data['lembur_per_rit'] = (float) $ritLemburTujuan[$kodeTujuan];
             }
         }
 
@@ -417,6 +411,116 @@ class PenggajianController extends Controller
         }
 
         return view('penggajian.edit', compact('periode', 'allTujuans', 'existingGaji', 'detailPerTujuan', 'kompensasiGagal'));
+    }
+
+    private function processPenggajian($periodeId, $request, $detailTujuanMap)
+    {
+        // BATCH: pre-fetch all counts, dt sums, kompensasi sums in 5 queries
+        $ritCounts = Ritase::where('periode_id', $periodeId)
+            ->where('status', '!=', 'gagal_produksi')
+            ->selectRaw('kode_sopir, kode_tujuan, COUNT(*) as total')
+            ->groupBy('kode_sopir', 'kode_tujuan')
+            ->get();
+        $ritDtSum = Ritase::where('periode_id', $periodeId)
+            ->where('status', '!=', 'gagal_produksi')
+            ->selectRaw('kode_sopir, SUM(dt) as total')
+            ->groupBy('kode_sopir')
+            ->get()->keyBy('kode_sopir');
+        $ritKompensasiSum = Ritase::where('periode_id', $periodeId)
+            ->where('status', 'gagal_produksi')
+            ->selectRaw('kode_sopir, SUM(nominal_kompensasi) as total')
+            ->groupBy('kode_sopir')
+            ->get()->keyBy('kode_sopir');
+        $ritLemburSum = Ritase::where('periode_id', $periodeId)
+            ->where('is_lembur', true)
+            ->selectRaw('kode_sopir, SUM(upah_lembur) as total_lembur')
+            ->groupBy('kode_sopir')
+            ->get()->keyBy('kode_sopir');
+        $countBySopir = $ritCounts->groupBy('kode_sopir');
+
+        // BATCH update upah_sopir — per tujuan, not per sopir+tujuan
+        foreach ($detailTujuanMap as $kodeTujuan => $biaya) {
+            Ritase::where('periode_id', $periodeId)
+                ->where('kode_tujuan', $kodeTujuan)
+                ->where('status', '!=', 'gagal_produksi')
+                ->update(['upah_sopir' => $biaya['upah_per_rit']]);
+        }
+
+        $sopirs = Sopir::whereHas('ritase', function ($q) use ($periodeId) {
+            $q->where('periode_id', $periodeId);
+        })->get();
+
+        foreach ($sopirs as $sopir) {
+            $totalSolar = 0;
+            $totalUpah = 0;
+            $totalTol = 0;
+            $totalSubtotal = 0;
+            $detailList = [];
+
+            $sopirCounts = isset($countBySopir[$sopir->kode_sopir])
+                ? $countBySopir[$sopir->kode_sopir]->keyBy('kode_tujuan')
+                : collect();
+
+            foreach ($detailTujuanMap as $kodeTujuan => $biaya) {
+                $row = $sopirCounts->get($kodeTujuan);
+                $jumlahRit = $row ? (int) $row->total : 0;
+
+                if ($jumlahRit > 0) {
+                    $bbmPerRit = $biaya['bbm_per_rit'];
+                    $upahPerRit = $biaya['upah_per_rit'];
+                    $tolPerRit = $biaya['tol_per_rit'];
+                    $totalSolar += $bbmPerRit * $jumlahRit;
+                    $totalUpah += $upahPerRit * $jumlahRit;
+                    $totalTol += $tolPerRit * $jumlahRit;
+                    $totalSubtotal += ($bbmPerRit * $jumlahRit) + ($upahPerRit * $jumlahRit);
+
+                    $detailList[] = [
+                        'kode_tujuan' => $kodeTujuan,
+                        'jumlah_rit' => $jumlahRit,
+                        'bbm_per_rit' => $bbmPerRit,
+                        'upah_per_rit' => $upahPerRit,
+                        'tol_per_rit' => $tolPerRit,
+                    ];
+                }
+            }
+
+            $totalDT = (int) ($ritDtSum->get($sopir->kode_sopir)?->total ?? 0);
+            $kompensasiGagal = (int) ($ritKompensasiSum->get($sopir->kode_sopir)?->total ?? 0);
+            $upahLembur = (int) ($ritLemburSum->get($sopir->kode_sopir)?->total_lembur ?? 0);
+
+            $grandTotal = $totalSubtotal + $totalDT + $totalTol + $kompensasiGagal + $upahLembur;
+
+            $gaji = Penggajian::create([
+                'kode_sopir' => $sopir->kode_sopir,
+                'periode_id' => $periodeId,
+                'tanggal' => now(),
+                'uang_solar' => $totalSolar,
+                'upah_sopir' => $totalUpah,
+                'dt' => $totalDT,
+                'tol' => $totalTol,
+                'upah_lembur' => $upahLembur,
+                'kompensasi_gagal' => $kompensasiGagal,
+                'total' => $grandTotal,
+            ]);
+
+            foreach ($detailList as $dl) {
+                $subtotal = ($dl['bbm_per_rit'] * $dl['jumlah_rit']) + ($dl['upah_per_rit'] * $dl['jumlah_rit']);
+
+                PenggajianDetail::create([
+                    'penggajian_id' => $gaji->id,
+                    'kode_tujuan' => $dl['kode_tujuan'],
+                    'jumlah_rit' => $dl['jumlah_rit'],
+                    'solar_per_rit' => $dl['bbm_per_rit'],
+                    'upah_per_rit' => $dl['upah_per_rit'],
+                    'total_solar' => $dl['bbm_per_rit'] * $dl['jumlah_rit'],
+                    'total_upah' => $dl['upah_per_rit'] * $dl['jumlah_rit'],
+                    'sewa_dt' => 0,
+                    'tol_per_rit' => $dl['tol_per_rit'],
+                    'total_tol' => $dl['tol_per_rit'] * $dl['jumlah_rit'],
+                    'subtotal' => $subtotal,
+                ]);
+            }
+        }
     }
 
     public function update(Request $request, $id)
@@ -467,7 +571,9 @@ class PenggajianController extends Controller
                 $detailTujuanMap[$d['kode_tujuan']] = [
                     'bbm_per_rit' => floatval($d['bbm_per_rit']) ?: 0,
                     'upah_per_rit' => floatval($d['upah_per_rit']) ?: 0,
+                    'tol_per_rit' => floatval($d['tol_per_rit'] ?? 0) ?: 0,
                     'kompensasi_gagal' => floatval($d['kompensasi_gagal'] ?? 0) ?: 0,
+                    'lembur_per_rit' => floatval($d['lembur_per_rit'] ?? 0) ?: 0,
                 ];
             }
 
@@ -479,82 +585,19 @@ class PenggajianController extends Controller
                         ->where('status', 'gagal_produksi')
                         ->update(['nominal_kompensasi' => $kompensasiPerRit]);
                 }
-            }
 
-            foreach ($sopirs as $sopir) {
-                $totalSolar = 0;
-                $totalUpah = 0;
-                $totalSubtotal = 0;
-                $detailList = [];
-
-                foreach ($detailTujuanMap as $kodeTujuan => $biaya) {
-                    $jumlahRit = Ritase::where('periode_id', $periodeId)
-                        ->where('kode_sopir', $sopir->kode_sopir)
-                        ->where('kode_tujuan', $kodeTujuan)
-                        ->where('status', '!=', 'gagal_produksi')
-                        ->count();
-
-                    if ($jumlahRit > 0) {
-                        $bbmPerRit = $biaya['bbm_per_rit'];
-                        $upahPerRit = $biaya['upah_per_rit'];
-                        $totalSolar += $bbmPerRit * $jumlahRit;
-                        $totalUpah += $upahPerRit * $jumlahRit;
-                        $totalSubtotal += ($bbmPerRit * $jumlahRit) + ($upahPerRit * $jumlahRit);
-
-                        $detailList[] = [
-                            'kode_tujuan' => $kodeTujuan,
-                            'jumlah_rit' => $jumlahRit,
-                            'bbm_per_rit' => $bbmPerRit,
-                            'upah_per_rit' => $upahPerRit,
-                        ];
-
-                        Ritase::where('periode_id', $periodeId)
-                            ->where('kode_sopir', $sopir->kode_sopir)
-                            ->where('kode_tujuan', $kodeTujuan)
-                            ->where('status', '!=', 'gagal_produksi')
-                            ->update(['upah_sopir' => $upahPerRit]);
-                    }
-                }
-
-                $totalDT = Ritase::where('periode_id', $periodeId)
-                    ->where('kode_sopir', $sopir->kode_sopir)
+                // Lembur per-tujuan: update semua ritase non-gagal di tujuan ini
+                $lemburPerRit = $biaya['lembur_per_rit'];
+                Ritase::where('periode_id', $periodeId)
+                    ->where('kode_tujuan', $kodeTujuan)
                     ->where('status', '!=', 'gagal_produksi')
-                    ->sum('dt') ?? 0;
-
-                $kompensasiGagal = Ritase::where('periode_id', $periodeId)
-                    ->where('kode_sopir', $sopir->kode_sopir)
-                    ->where('status', 'gagal_produksi')
-                    ->sum('nominal_kompensasi') ?? 0;
-
-                $grandTotal = $totalSubtotal + $totalDT + $kompensasiGagal;
-
-                $gaji = Penggajian::create([
-                    'kode_sopir' => $sopir->kode_sopir,
-                    'periode_id' => $periodeId,
-                    'tanggal' => now(),
-                    'uang_solar' => $totalSolar,
-                    'upah_sopir' => $totalUpah,
-                    'dt' => $totalDT,
-                    'kompensasi_gagal' => $kompensasiGagal,
-                    'total' => $grandTotal,
-                ]);
-
-                foreach ($detailList as $dl) {
-                    $subtotal = ($dl['bbm_per_rit'] * $dl['jumlah_rit']) + ($dl['upah_per_rit'] * $dl['jumlah_rit']);
-
-                    PenggajianDetail::create([
-                        'penggajian_id' => $gaji->id,
-                        'kode_tujuan' => $dl['kode_tujuan'],
-                        'jumlah_rit' => $dl['jumlah_rit'],
-                        'solar_per_rit' => $dl['bbm_per_rit'],
-                        'upah_per_rit' => $dl['upah_per_rit'],
-                        'total_solar' => $dl['bbm_per_rit'] * $dl['jumlah_rit'],
-                        'total_upah' => $dl['upah_per_rit'] * $dl['jumlah_rit'],
-                        'sewa_dt' => 0,
-                        'subtotal' => $subtotal,
+                    ->update([
+                        'is_lembur' => $lemburPerRit > 0,
+                        'upah_lembur' => $lemburPerRit,
                     ]);
-                }
             }
+
+            $this->processPenggajian($periodeId, $request, $detailTujuanMap);
 
             DB::commit();
             return redirect()->route('gaji.index', ['periode' => $periodeId])
@@ -622,6 +665,8 @@ class PenggajianController extends Controller
                 $solarPerRit = $lastSolarPerRit[$kodeTujuan] ?? 0;
                 $totalSolar = $solarPerRit * $jumlahRit;
                 $totalUpah = $upahPerRit * $jumlahRit;
+                $upahLemburTujuan = $rits->sum('upah_lembur');
+                $totalUpah += $upahLemburTujuan;
                 $dtPerTujuan = $rits->sum('dt');
                 $subtotal = $totalSolar + $totalUpah + $dtPerTujuan;
 
@@ -646,6 +691,7 @@ class PenggajianController extends Controller
 
             $gaji = new \stdClass();
             $gaji->dt = $totalDT;
+            $gaji->tol = 0;
             $gaji->uang_solar = $totalUangSolar;
             $gaji->upah_sopir = $totalUpahSopir;
             $gaji->total = $totalSubtotal;
@@ -704,6 +750,7 @@ class PenggajianController extends Controller
                 $solarPerRit = 0;
                 $upahPerRit = 0;
                 $kompensasiRit = 0;
+                $tolPerRit = 0;
 
                 if ($isGagal) {
                     $kompensasiRit = $rit->nominal_kompensasi ?? 0;
@@ -711,6 +758,9 @@ class PenggajianController extends Controller
                     $jmlRit = $detail->jumlah_rit ?? 1;
                     $solarPerRit = $jmlRit > 0 ? ($detail->solar_per_rit ?? $detail->total_solar / $jmlRit) : 0;
                     $upahPerRit = $jmlRit > 0 ? ($detail->upah_per_rit ?? $detail->total_upah / $jmlRit) : ($rit->upah_sopir ?? 0);
+                    if (isset($detail->tol_per_rit)) {
+                        $tolPerRit = $jmlRit > 0 ? ($detail->tol_per_rit ?? $detail->total_tol / $jmlRit) : 0;
+                    }
                 } else {
                     $upahPerRit = $rit->upah_sopir ?? 0;
                 }
@@ -731,10 +781,13 @@ class PenggajianController extends Controller
                     'total_rit_hari' => $ritHari->count(),
                     'solar' => round($solarPerRit),
                     'upah' => round($upahPerRit),
-                    'jumlah' => $isGagal ? round($kompensasiRit) : round($solarPerRit + $upahPerRit),
+                    'jumlah' => $isGagal ? round($kompensasiRit) : round($solarPerRit + $upahPerRit + ($rit->upah_lembur ?? 0)),
                     'tujuan' => $tujuanNama,
                     'is_gagal' => $isGagal,
+                    'is_lembur' => $rit->is_lembur ?? false,
+                    'upah_lembur' => (float)($rit->upah_lembur ?? 0),
                     'dt' => $isGagal ? 0 : (floatval($rit->dt) ?? 0),
+                    'tol' => $isGagal ? 0 : round($tolPerRit),
                 ];
             }
         }
@@ -775,7 +828,7 @@ class PenggajianController extends Controller
             $gajiPerTujuan = PenggajianDetail::whereHas('penggajian', function ($q) use ($periodeId) {
                 $q->where('periode_id', $periodeId);
             })
-                ->selectRaw('kode_tujuan, SUM(jumlah_rit) as total_rit, SUM(total_solar) as total_solar, SUM(total_upah) as total_upah, SUM(subtotal) as subtotal')
+                ->selectRaw('kode_tujuan, SUM(jumlah_rit) as total_rit, SUM(total_solar) as total_solar, SUM(total_upah) as total_upah, SUM(total_tol) as total_tol, SUM(subtotal) as subtotal')
                 ->groupBy('kode_tujuan')
                 ->get()
                 ->keyBy('kode_tujuan');
@@ -827,7 +880,9 @@ class PenggajianController extends Controller
                 $upahPerRit = $rit > 0 ? $upahTotal / $rit : 0;
                 $dtPerRit = $rit > 0 ? $dtTotal / $rit : 0;
 
-                $subtotal = $solarTotal + $upahTotal + $dtTotal + $gagalTotal;
+                $tolTotal = floatval($detail ? $detail->total_tol : 0);
+                $tolPerRit = $rit > 0 ? $tolTotal / $rit : 0;
+                $subtotal = $solarTotal + $upahTotal + $dtTotal + $tolTotal + $gagalTotal;
                 $groupNo = $no++;
 
                 $detailRows[] = [
@@ -842,6 +897,12 @@ class PenggajianController extends Controller
                     'no' => $groupNo, 'tujuan' => $namaTujuan, 'jenis' => 'DT',
                     'harga' => $dtPerRit, 'qty' => $rit, 'total' => $dtTotal, 'is_subtotal' => false,
                 ];
+                if ($tolTotal > 0) {
+                    $detailRows[] = [
+                        'no' => $groupNo, 'tujuan' => $namaTujuan, 'jenis' => 'Tol',
+                        'harga' => $tolPerRit, 'qty' => $rit, 'total' => $tolTotal, 'is_subtotal' => false,
+                    ];
+                }
                 if ($gagalQty > 0) {
                     $detailRows[] = [
                         'no' => $groupNo, 'tujuan' => $namaTujuan, 'jenis' => 'Gagal',
@@ -857,7 +918,7 @@ class PenggajianController extends Controller
                 $totalUpahAll += $upahTotal;
                 $totalDTAll += $dtTotal;
                 $totalGagalAll += $gagalTotal;
-                $grandTotalAll += $subtotal;
+                $grandTotalAll += $subtotal; // sudah include tol
             }
 
             $data = [
@@ -926,6 +987,12 @@ class PenggajianController extends Controller
             foreach ($slip['dataPerHari'] as $entry) {
                 $ritMap[$entry['tanggal']][$entry['rit_ke']] = $entry;
             }
+            $totalRitValid = 0;
+            foreach ($slip['dataPerHari'] as $entry) {
+                if (!$entry['is_gagal']) $totalRitValid++;
+            }
+            $potonganOperasional = $totalRitValid * 20000;
+
             $organizedSlips[] = [
                 'sopir' => $slip['sopir'],
                 'ritMap' => $ritMap,
@@ -933,7 +1000,9 @@ class PenggajianController extends Controller
                 'totalUpahAll' => $slip['totalUpahAll'],
                 'totalJumlahAll' => $slip['totalJumlahAll'],
                 'totalDTAll' => $slip['totalDTAll'],
-                'grandTotal' => $slip['totalJumlahAll'] + $slip['totalDTAll'],
+                'totalTolAll' => $slip['totalTolAll'] ?? 0,
+                'potonganOperasional' => $potonganOperasional,
+                'grandTotal' => $slip['totalJumlahAll'] + $slip['totalDTAll'] + ($slip['totalTolAll'] ?? 0),
             ];
         }
 
@@ -949,7 +1018,7 @@ class PenggajianController extends Controller
             sort($sopirRits);
 
             foreach ($sopirRits as $rit) {
-                $totalSolar = $totalUpah = $totalJumlah = $totalDT = 0;
+                $totalSolar = $totalUpah = $totalJumlah = $totalDT = $totalTol = 0;
                 foreach ($slip['ritMap'] as $rits) {
                     if (isset($rits[$rit])) {
                         $e = $rits[$rit];
@@ -957,6 +1026,7 @@ class PenggajianController extends Controller
                         $totalUpah += $e['upah'];
                         $totalJumlah += $e['jumlah'];
                         $totalDT += $e['dt'];
+                        $totalTol += $e['tol'];
                     }
                 }
                 $slipEntries[] = [
@@ -967,7 +1037,9 @@ class PenggajianController extends Controller
                     'totalUpahAll' => $totalUpah,
                     'totalJumlahAll' => $totalJumlah,
                     'totalDTAll' => $totalDT,
-                    'grandTotal' => $totalJumlah + $totalDT,
+                    'totalTolAll' => $totalTol,
+                    'potonganOperasional' => $slip['potonganOperasional'] ?? 0,
+                    'grandTotal' => $totalJumlah + $totalDT + $totalTol,
                 ];
             }
         }
@@ -1081,6 +1153,12 @@ class PenggajianController extends Controller
                     $tujuanNama = $rit->kode_tujuan;
                 }
 
+                $tolPerRit = 0;
+                if (!$isGagal && $detail && isset($detail->tol_per_rit)) {
+                    $jmlRit = $detail->jumlah_rit ?? 1;
+                    $tolPerRit = $jmlRit > 0 ? ($detail->tol_per_rit ?? $detail->total_tol / $jmlRit) : 0;
+                }
+
                 $dataPerHari[] = [
                     'tanggal' => $tanggal,
                     'hari' => $hari,
@@ -1088,10 +1166,13 @@ class PenggajianController extends Controller
                     'total_rit_hari' => $ritHari->count(),
                     'solar' => round($solarPerRit),
                     'upah' => round($upahPerRit),
-                    'jumlah' => $isGagal ? round($kompensasiRit) : round($solarPerRit + $upahPerRit),
+                    'jumlah' => $isGagal ? round($kompensasiRit) : round($solarPerRit + $upahPerRit + ($rit->upah_lembur ?? 0)),
                     'tujuan' => $tujuanNama,
                     'is_gagal' => $isGagal,
+                    'is_lembur' => $rit->is_lembur ?? false,
+                    'upah_lembur' => (float)($rit->upah_lembur ?? 0),
                     'dt' => $isGagal ? 0 : (floatval($rit->dt) ?? 0),
+                    'tol' => $isGagal ? 0 : round($tolPerRit),
                 ];
             }
         }
@@ -1100,9 +1181,10 @@ class PenggajianController extends Controller
         $totalUpahAll = array_sum(array_column($dataPerHari, 'upah'));
         $totalJumlahAll = array_sum(array_column($dataPerHari, 'jumlah'));
         $totalDTAll = array_sum(array_column($dataPerHari, 'dt'));
+        $totalTolAll = array_sum(array_column($dataPerHari, 'tol'));
         $totalKompensasiAll = $gaji ? ($gaji->kompensasi_gagal ?? 0) : 0;
 
-        $grandTotal = $totalJumlahAll + $totalDTAll;
+        $grandTotal = $totalJumlahAll + $totalDTAll + $totalTolAll;
 
         return [
             'sopir' => $sopir,
@@ -1112,6 +1194,7 @@ class PenggajianController extends Controller
             'totalUpahAll' => $totalUpahAll,
             'totalJumlahAll' => $totalJumlahAll,
             'totalDTAll' => $totalDTAll,
+            'totalTolAll' => $totalTolAll,
             'totalKompensasiAll' => $totalKompensasiAll,
             'grandTotal' => $grandTotal,
         ];
@@ -1120,8 +1203,9 @@ class PenggajianController extends Controller
     public function riwayat()
     {
         Periode::syncActiveStatus();
-        $allPeriodes = Periode::orderBy('id', 'desc')->get();
-        $periodeIds = $allPeriodes->pluck('id');
+
+        $paginatedPeriodes = Periode::orderBy('id', 'desc')->paginate(10);
+        $periodeIds = $paginatedPeriodes->pluck('id');
 
         $ritaseSummary = Ritase::whereIn('periode_id', $periodeIds)
             ->where('status', '!=', 'gagal_produksi')
@@ -1136,7 +1220,7 @@ class PenggajianController extends Controller
             ->get()
             ->keyBy('periode_id');
 
-        $periodes = $allPeriodes->map(function ($periode) use ($ritaseSummary, $gajiSummary) {
+        $periodes = $paginatedPeriodes->getCollection()->map(function ($periode) use ($ritaseSummary, $gajiSummary) {
             $rit = $ritaseSummary->get($periode->id);
             $gaji = $gajiSummary->get($periode->id);
             $hasGaji = $gaji && $gaji->gaji_count > 0;
@@ -1168,7 +1252,9 @@ class PenggajianController extends Controller
             ];
         });
 
-        return view('penggajian.riwayat', compact('periodes'));
+        $paginatedPeriodes->setCollection($periodes);
+
+        return view('penggajian.riwayat', ['periodes' => $paginatedPeriodes]);
     }
 
     public function downloadLaporanPdf($periodeId)
@@ -1195,7 +1281,7 @@ class PenggajianController extends Controller
         $gajiPerTujuan = PenggajianDetail::whereHas('penggajian', function ($q) use ($periodeId) {
             $q->where('periode_id', $periodeId);
         })
-            ->selectRaw('kode_tujuan, SUM(jumlah_rit) as total_rit, SUM(total_solar) as total_solar, SUM(total_upah) as total_upah, SUM(subtotal) as subtotal')
+            ->selectRaw('kode_tujuan, SUM(jumlah_rit) as total_rit, SUM(total_solar) as total_solar, SUM(total_upah) as total_upah, SUM(total_tol) as total_tol, SUM(subtotal) as subtotal')
             ->groupBy('kode_tujuan')
             ->get()
             ->keyBy('kode_tujuan');
@@ -1239,6 +1325,7 @@ class PenggajianController extends Controller
             $rit = intval($detail ? $detail->total_rit : ($nonGagal->total_rit ?? 0));
             $solarTotal = floatval($detail ? $detail->total_solar : 0);
             $upahTotal = floatval($detail ? $detail->total_upah : 0);
+            $tolTotal = floatval($detail ? $detail->total_tol : 0);
             $gagalQty = $gagal ? intval($gagal->jumlah_gagal) : 0;
             $gagalTotal = $gagal ? floatval($gagal->total_kompensasi) : 0;
             $gagalPerUnit = $gagalQty > 0 ? $gagalTotal / $gagalQty : 0;
@@ -1246,8 +1333,9 @@ class PenggajianController extends Controller
             $solarPerRit = $rit > 0 ? $solarTotal / $rit : 0;
             $upahPerRit = $rit > 0 ? $upahTotal / $rit : 0;
             $dtPerRit = $rit > 0 ? $dtTotal / $rit : 0;
+            $tolPerRit = $rit > 0 ? $tolTotal / $rit : 0;
 
-            $subtotal = $solarTotal + $upahTotal + $dtTotal + $gagalTotal;
+            $subtotal = $solarTotal + $upahTotal + $dtTotal + $tolTotal + $gagalTotal;
             $groupNo = $no++;
 
             $detailRows[] = [
@@ -1262,6 +1350,12 @@ class PenggajianController extends Controller
                 'no' => $groupNo, 'tujuan' => $namaTujuan, 'jenis' => 'DT',
                 'harga' => $dtPerRit, 'qty' => $rit, 'total' => $dtTotal, 'is_subtotal' => false,
             ];
+            if ($tolTotal > 0) {
+                $detailRows[] = [
+                    'no' => $groupNo, 'tujuan' => $namaTujuan, 'jenis' => 'Tol',
+                    'harga' => $tolPerRit, 'qty' => $rit, 'total' => $tolTotal, 'is_subtotal' => false,
+                ];
+            }
             if ($gagalQty > 0) {
                 $detailRows[] = [
                     'no' => $groupNo, 'tujuan' => $namaTujuan, 'jenis' => 'Gagal',

@@ -1,58 +1,58 @@
 <x-layouts.dashboard
     :title="'Kelola Tujuan'"
     :pageTitle="'Kelola Tujuan'"
-    :user="auth()->user()">
+    >
 
     {{-- HEADER --}}
-    <div class="border-b border-gray-200 pb-4 mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">Kelola Data Tujuan</h1>
-        <p class="text-base text-gray-500 mt-1">Tambah, edit, dan hapus data tujuan pengiriman armada Anda.</p>
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold" style="color:var(--text)">Kelola Data Tujuan</h1>
+        <p class="text-sm mt-1" style="color:var(--text-muted)">Tambah, edit, dan hapus data tujuan pengiriman armada Anda.</p>
     </div>
 
     {{-- ALERT SUCCESS --}}
     @if(session('success'))
-        <div class="border border-green-200 bg-green-50 text-green-700 px-4 py-3 rounded mb-4 text-sm">
+        <div class="alert alert-success mb-4">
             {{ session('success') }}
         </div>
     @endif
 
     {{-- STATS CARDS --}}
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div class="bg-white border border-gray-200 rounded p-4">
-            <p class="text-xs text-gray-500 uppercase font-semibold">Total Tujuan</p>
-            <p class="text-2xl font-bold text-gray-900 mt-1">{{ $totalTujuan }}</p>
+        <div class="stat-card">
+            <p class="text-xs font-semibold uppercase" style="color:var(--text-muted)">Total Tujuan</p>
+            <p class="text-2xl font-bold mt-1" style="color:var(--text)">{{ $totalTujuan }}</p>
         </div>
 
-        <div class="bg-white border border-gray-200 rounded p-4">
-            <p class="text-xs text-gray-500 uppercase font-semibold">Tujuan Aktif</p>
-            <p class="text-2xl font-bold text-gray-900 mt-1">{{ $tujuanAktif }}</p>
+        <div class="stat-card">
+            <p class="text-xs font-semibold uppercase" style="color:var(--text-muted)">Tujuan Aktif</p>
+            <p class="text-2xl font-bold mt-1" style="color:var(--text)">{{ $tujuanAktif }}</p>
         </div>
 
-        <div class="bg-white border border-gray-200 rounded p-4">
-            <p class="text-xs text-gray-500 uppercase font-semibold">Tujuan Nonaktif</p>
-            <p class="text-2xl font-bold text-gray-900 mt-1">{{ $tujuanNonaktif }}</p>
+        <div class="stat-card">
+            <p class="text-xs font-semibold uppercase" style="color:var(--text-muted)">Tujuan Nonaktif</p>
+            <p class="text-2xl font-bold mt-1" style="color:var(--text)">{{ $tujuanNonaktif }}</p>
         </div>
     </div>
 
     {{-- FORM TAMBAH TUJUAN --}}
-    <div class="bg-white border border-gray-200 rounded mb-6">
-        <div class="bg-gray-50 border-b border-gray-200 px-5 py-3">
-            <span class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Tambah Tujuan Baru</span>
-            <span class="font-normal text-gray-400 text-xs ml-2">Kode tujuan akan digenerate otomatis (TUJ-XXX)</span>
+    <div class="card mb-6">
+        <div class="card-header">
+            <span class="text-xs font-semibold uppercase" style="color:var(--text-muted)">Tambah Tujuan Baru</span>
+            <span class="text-xs ml-2" style="color:var(--text-dims);font-weight:400">Kode tujuan akan digenerate otomatis (TUJ-XXX)</span>
         </div>
-        <div class="px-5 py-4">
+        <div class="card-body">
             <form id="formTambahTujuan" class="flex flex-col sm:flex-row gap-3">
                 @csrf
                 <div class="flex-1">
-                    <label class="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">Nama Tujuan</label>
+                    <label class="form-label">Nama Tujuan</label>
                     <input type="text" id="namaTambah" required
-                        class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition"
+                        class="form-input"
                         placeholder="Masukkan nama tujuan...">
-                    <p class="text-red-500 text-xs font-medium mt-1 hidden" id="errorTambah"></p>
+                    <p class="text-xs font-medium mt-1 hidden" style="color:var(--danger)" id="errorTambah"></p>
                 </div>
                 <div class="flex items-end">
                     <button type="button" onclick="konfirmasiTambah()"
-                        class="px-5 py-2.5 bg-[#1a1a2e] text-white rounded text-sm font-semibold hover:bg-[#2d2d44] transition flex items-center space-x-2">
+                        class="btn btn-primary">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
@@ -64,19 +64,19 @@
     </div>
 
     {{-- TABEL DATA TUJUAN --}}
-    <div class="bg-white border border-gray-200 rounded overflow-hidden">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-gray-50 border-b border-gray-200 px-5 py-3">
+    <div class="card mb-6">
+        <div class="card-header">
             <div>
-                <span class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Daftar Tujuan</span>
-                <span class="text-xs text-gray-400 ml-2">Menampilkan {{ $tujuans->firstItem() ?? 0 }} - {{ $tujuans->lastItem() ?? 0 }} dari {{ $tujuans->total() }} data</span>
+                <span class="text-xs font-semibold uppercase" style="color:var(--text-muted)">Daftar Tujuan</span>
+                <span class="text-xs ml-2" style="color:var(--text-dims)">Menampilkan {{ $tujuans->firstItem() ?? 0 }} - {{ $tujuans->lastItem() ?? 0 }} dari {{ $tujuans->total() }} data</span>
             </div>
 
             <div class="relative w-full sm:w-72">
                 <input type="text" id="liveSearch" value="{{ $search }}"
-                    class="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition"
+                    class="form-input pl-10 pr-10"
                     placeholder="Ketik untuk mencari..." autocomplete="off">
 
-                <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style="color:var(--text-dims)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
 
@@ -96,7 +96,7 @@
         </div>
 
         <table class="w-full">
-            <thead class="bg-gray-50 border-b border-gray-200">
+            <thead style="background:rgba(255,253,252,0.6);border-bottom:1.5px solid var(--border)">
                 <tr>
                     <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">No</th>
                     <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Kode Tujuan</th>
@@ -138,18 +138,10 @@
                             <td class="px-4 py-3">
                                 <div class="flex items-center justify-center space-x-2">
                                     <button onclick="openEditModal({{ $tujuan->id }}, '{{ $tujuan->kode_tujuan }}', '{{ $tujuan->nama }}', '{{ $tujuan->status }}')"
-                                        class="p-1.5 text-gray-500 border border-gray-200 rounded hover:text-gray-700 hover:bg-gray-50 transition" title="Edit">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                        </svg>
-                                    </button>
+                                        class="text-xs text-gray-600 border border-gray-200 px-2.5 py-1.5 rounded hover:bg-gray-50 font-medium">Edit</button>
 
                                     <button onclick="confirmDelete({{ $tujuan->id }}, '{{ $tujuan->nama }}')"
-                                        class="p-1.5 text-red-500 border border-gray-200 rounded hover:text-red-700 hover:bg-red-50 transition" title="Hapus">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                        </svg>
-                                    </button>
+                                        class="text-xs text-red-600 border border-red-200 px-2.5 py-1.5 rounded hover:bg-red-50 font-medium">Hapus</button>
                                 </div>
                             </td>
                         </tr>
@@ -171,41 +163,59 @@
 
         {{-- PAGINATION --}}
         @if($tujuans->hasPages())
-            <div class="px-5 py-3 border-t border-gray-200 bg-gray-50">
+            <div class="border-t border-gray-200 px-5 py-3 bg-gray-50">
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <p class="text-sm text-gray-600">
                         Halaman {{ $tujuans->currentPage() }} dari {{ $tujuans->lastPage() }}
                     </p>
 
-                    <div class="flex items-center space-x-2">
+                    <div class="flex items-center space-x-1.5">
                         @if($tujuans->onFirstPage())
-                            <span class="px-3 py-1.5 text-sm text-gray-400 bg-white border border-gray-200 rounded cursor-not-allowed">
+                            <span class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 rounded cursor-not-allowed">
                                 Sebelumnya
                             </span>
                         @else
-                            <a href="{{ $tujuans->previousPageUrl() }}" class="px-3 py-1.5 text-sm text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 font-medium">
+                            <a href="{{ $tujuans->previousPageUrl() }}" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded hover:bg-gray-50 font-medium">
                                 Sebelumnya
                             </a>
                         @endif
 
-                        @foreach($tujuans->getUrlRange(1, $tujuans->lastPage()) as $page => $url)
-                            @if($page == $tujuans->currentPage())
-                                <span class="px-3 py-1.5 text-sm font-bold text-white bg-[#1a1a2e] border border-[#1a1a2e] rounded">
-                                    {{ $page }}
-                                </span>
-                            @else
-                                <a href="{{ $url }}" class="px-3 py-1.5 text-sm text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 font-medium">
-                                    {{ $page }}
-                                </a>
+                        @php
+                            $window = 2;
+                            $current = $tujuans->currentPage();
+                            $last = $tujuans->lastPage();
+                            $start = max(1, $current - $window);
+                            $end = min($last, $current + $window);
+                        @endphp
+
+                        @if($start > 1)
+                            <a href="{{ $tujuans->url(1) }}" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">1</a>
+                            @if($start > 2)
+                                <span class="px-3 py-1.5 text-sm text-gray-400">...</span>
                             @endif
-                        @endforeach
+                        @endif
+
+                        @for($page = $start; $page <= $end; $page++)
+                            @if($page == $current)
+                                <span class="px-3 py-1.5 text-sm font-bold text-white bg-[#1a1a2e] border border-[#1a1a2e] rounded">{{ $page }}</span>
+                            @else
+                                <a href="{{ $tujuans->url($page) }}" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">{{ $page }}</a>
+                            @endif
+                        @endfor
+
+                        @if($end < $last)
+                            @if($end < $last - 1)
+                                <span class="px-3 py-1.5 text-sm text-gray-400">...</span>
+                            @endif
+                            <a href="{{ $tujuans->url($last) }}" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">{{ $last }}</a>
+                        @endif
 
                         @if($tujuans->hasMorePages())
-                            <a href="{{ $tujuans->nextPageUrl() }}" class="px-3 py-1.5 text-sm text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 font-medium">
+                            <a href="{{ $tujuans->nextPageUrl() }}" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded hover:bg-gray-50 font-medium">
                                 Selanjutnya
                             </a>
                         @else
-                            <span class="px-3 py-1.5 text-sm text-gray-400 bg-white border border-gray-200 rounded cursor-not-allowed">
+                            <span class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 rounded cursor-not-allowed">
                                 Selanjutnya
                             </span>
                         @endif
@@ -261,22 +271,22 @@
                 @method('PUT')
 
                 <div>
-                    <label class="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">Kode Tujuan</label>
+                    <label class="form-label">Kode Tujuan</label>
                     <input type="text" id="edit_kode" disabled
-                        class="w-full px-4 py-2.5 bg-gray-100 border border-gray-200 rounded text-sm text-gray-600 font-semibold cursor-not-allowed">
+                        class="form-input" style="opacity:0.6;cursor:not-allowed">
                     <p class="text-xs text-gray-400 mt-1">Kode tidak dapat diubah</p>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">Nama Tujuan</label>
+                    <label class="form-label">Nama Tujuan</label>
                     <input type="text" id="edit_nama" name="nama" required
-                        class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition">
+                        class="form-input">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">Status</label>
+                    <label class="form-label">Status</label>
                     <select id="edit_status" name="status" required
-                        class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition">
+                        class="form-input">
                         <option value="aktif">Aktif</option>
                         <option value="nonaktif">Nonaktif</option>
                     </select>

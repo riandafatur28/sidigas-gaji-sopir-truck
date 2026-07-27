@@ -11,22 +11,26 @@ class Penggajian extends Model
 
     protected $table = 'penggajian';
 
-    protected $fillable = [
+        protected $fillable = [
         'kode_sopir',
         'periode_id',
         'tanggal',
         'uang_solar',
         'upah_sopir',
         'dt',
+        'tol',
+        'upah_lembur',
         'total',
         'kompensasi_gagal',
     ];
 
-    protected $casts = [
+        protected $casts = [
         'tanggal' => 'date',
         'uang_solar' => 'decimal:2',
         'upah_sopir' => 'decimal:2',
         'dt' => 'decimal:2',
+        'tol' => 'decimal:2',
+        'upah_lembur' => 'decimal:2',
         'total' => 'decimal:2',
         'kompensasi_gagal' => 'decimal:2',
     ];

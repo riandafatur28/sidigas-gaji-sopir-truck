@@ -80,7 +80,7 @@ class ValidasiBuktiController extends Controller
         $list = ValidasiBukti::with(['sopir', 'tujuan', 'periode'])
             ->when($status !== 'semua', fn($q) => $q->where('status', $status))
             ->orderBy('created_at', 'desc')
-            ->paginate(20)
+            ->paginate(10)
             ->withQueryString();
 
         return view('validasi-bukti.kelola', compact('list', 'status'));

@@ -87,8 +87,13 @@ class RitaseParserService
         for ($i = 1; $i < count($lines); $i++) {
             $line = $lines[$i];
 
-            // Skip BBM/upah/kompensasi header lines (meta info, not a route)
+            // Skip BBM/upah/kompensasi header lines
             if (str_starts_with(strtolower($line), 'bbm')) {
+                continue;
+            }
+
+            // Skip "N sopir" count lines (e.g. "10 sopir")
+            if (preg_match('/^\d+\s+sopir$/i', $line)) {
                 continue;
             }
 
@@ -101,12 +106,19 @@ class RitaseParserService
 
                 // Route type keywords — mark where route description starts
                 // Format: [sopir names] [keyword] [route details]
-                $routeKeywords = ['patching', 'paket', 'overlay', 'cmm'];
+                $routeKeywords = ['patching', 'paket', 'overlay', 'cmm', 'plimping'];
 
                 $implicitDrivers = [];
-                $routeName = $line;
+                $isRitKe2 = false;
+                $routeName = preg_replace('/^Paket\s*\d+\s*:\s*/i', '', trim($line));
 
-                $lowerLine = strtolower($line);
+                // Detect "Rit ke 2" / "Rit kedua" — bikin duplicate ritase, bukan lembur
+                if (preg_match('/^rit\s+ke\s*2|^rit\s+kedua/i', $routeName, $rm)) {
+                    $isRitKe2 = true;
+                    $routeName = trim(substr($routeName, strlen($rm[0])));
+                }
+
+                $lowerLine = strtolower($routeName);
 
                 // Check if line starts with a keyword → pure route, no sopir
                 $startsWithKw = false;
@@ -147,6 +159,7 @@ class RitaseParserService
                 $currentPackage = [
                     'route_name' => $routeName,
                     'drivers' => $implicitDrivers,
+                    'is_rit_ke_2' => $isRitKe2,
                 ];
 
                 // If numbered drivers were seen, this is a new batch — reset start
@@ -202,8 +215,23 @@ class RitaseParserService
         }
         $result["packages"] = array_values($merged);
 
+        // Post-processing: bongkar packages — pakai tujuan dari non-bongkar sebelumnya
+        $lastNonBongkarPkg = null;
+        $lastNonBongkarIdx = -1;
+        foreach ($result['packages'] as $idx => $pkg) {
+            $isBongkar = str_contains(strtolower($pkg['route_name']), 'bongkar');
+            if ($isBongkar && $lastNonBongkarPkg !== null) {
+                $result['packages'][$idx]['is_bongkar'] = true;
+                $result['packages'][$idx]['bongkar_source_idx'] = $lastNonBongkarIdx;
+                $result['packages'][$idx]['bongkar_source_route'] = $lastNonBongkarPkg['route_name'];
+            }
+            if (!$isBongkar) {
+                $lastNonBongkarPkg = $pkg;
+                $lastNonBongkarIdx = $idx;
+            }
+        }
+
         // Post-processing: associate following route with gagal produksi
-        // "Gagal produksi ... 13 drivers ... kertosono malam" → gagal pakai route itu
         $gagalIdx = null;
         foreach ($result['packages'] as $idx => $pkg) {
             if (str_contains(strtolower($pkg['route_name']), 'gagal')) {
@@ -342,10 +370,16 @@ class RitaseParserService
     public function matchRoutes(array $routeNames): array
     {
         $results = [];
+
+        // Preprocess: strip "Paket N:" prefix from route names
+        $routeNames = array_map(function($name) {
+            return preg_replace('/^Paket\s*\d+\s*:\s*/i', '', $name);
+        }, $routeNames);
+
         $allTujuan = Tujuan::all(['id', 'nama', 'kode_tujuan']);
 
         // Known non-location prefixes to strip before matching
-        $stripPrefixes = ['paket cmm', 'paket', 'patching', 'bondan', 'gabungan', 'rombongan', 'cmm'];
+        $stripPrefixes = ['paket cmm', 'paket', 'patching', 'bondan', 'gabungan', 'rombongan', 'cmm', 'plimping', 'overlay'];
 
         // Preprocess each tujuan: strip prefixes for comparison
         $processedTujuan = [];
@@ -828,26 +862,117 @@ class RitaseParserService
                 continue; // skip normal ritase creation
             }
 
+            // === BONGKAR PACKAGE ===
+            // Bukan rute baru, bukan ritase baru. Update ritase existing sopir
+            // di paket sebelumnya: kasih is_lembur=true + upah_lembur
+            if (!empty($package['is_bongkar'])) {
+                $sourceIdx = $package['bongkar_source_idx'] ?? null;
+                $sourcePkg = $sourceIdx !== null ? ($parsed['packages'][$sourceIdx] ?? null) : null;
+                $sourceRouteMatch = $sourcePkg ? ($routeMatchesMap[$sourcePkg['route_name']] ?? null) : null;
+
+                if (!$sourceRouteMatch || !$sourceRouteMatch['matched']) {
+                    $skipped++;
+                    $details[] = [
+                        'route' => $routeName,
+                        'status' => 'Skipped (bongkar)',
+                        'reason' => 'Previous package route not matched',
+                    ];
+                    continue;
+                }
+
+                $sourceTujuan = $sourceRouteMatch['tujuan'];
+                $sourceKodeTujuan = $sourceTujuan->kode_tujuan;
+
+                foreach ($matchedSopirs as $matchedSopir) {
+                    $sopir = $matchedSopir['sopir'];
+
+                    // Cari existing ritase sopir ini ke source tujuan di tanggal sama
+                    $existing = Ritase::where('periode_id', $periodeId)
+                        ->where('kode_sopir', $sopir->kode_sopir)
+                        ->where('tanggal', $parsed['date'])
+                        ->where('kode_tujuan', $sourceKodeTujuan)
+                        ->where('status', '!=', 'gagal_produksi')
+                        ->latest('id')
+                        ->first();
+
+                    if (!$existing) {
+                        $skipped++;
+                        $details[] = [
+                            'route' => $routeName,
+                            'status' => 'Skipped (bongkar)',
+                            'sopir' => $sopir->nama,
+                            'reason' => 'No existing ritase to update',
+                        ];
+                        continue;
+                    }
+
+                    // Cek apa sopir ini juga ada di source package → layak lembur
+                    $sourceDriverNames = $sourcePkg['drivers'] ?? [];
+                    $isInSource = false;
+                    foreach ($sourceDriverNames as $sdn) {
+                        if (strtolower(trim($sdn)) === strtolower(trim($sopir->nama))) {
+                            $isInSource = true;
+                            break;
+                        }
+                    }
+
+                    if (!$isInSource) {
+                        $skipped++;
+                        $details[] = [
+                            'route' => $routeName,
+                            'status' => 'Skipped (bongkar)',
+                            'sopir' => $sopir->nama,
+                            'reason' => 'Sopir not in source package, not eligible for lembur',
+                        ];
+                        continue;
+                    }
+
+                    try {
+                        $existing->is_lembur = true;
+                        $existing->upah_lembur = 50000;
+                        $existing->save();
+
+                        $details[] = [
+                            'route' => $routeName,
+                            'status' => 'Updated lembur',
+                            'sopir' => $sopir->nama,
+                            'kode_sopir' => $sopir->kode_sopir,
+                            'kode_tujuan' => $sourceKodeTujuan,
+                            'is_lembur' => true,
+                            'upah_lembur' => 50000,
+                            'reason' => "Lembur on existing ritase #{$existing->id}",
+                        ];
+                    } catch (\Exception $e) {
+                        $errors[] = "Failed to update lembur for {$sopir->nama}: {$e->getMessage()}";
+                    }
+                }
+                continue; // skip normal ritase creation
+            }
+
             // Create one ritase per driver
             foreach ($matchedSopirs as $matchedSopir) {
                 $sopir = $matchedSopir['sopir'];
 
                 // Cek duplicate by kode_sopir + tanggal + waktu
-                $duplicate = Ritase::where('periode_id', $periodeId)
-                    ->where('kode_sopir', $sopir->kode_sopir)
-                    ->where('tanggal', $parsed['date'])
-                    ->where('waktu', $waktu)
-                    ->exists();
+                // Skip kalo is_rit_ke_2 — sengaja bikin ritase kedua
+                $isRitKe2 = !empty($package['is_rit_ke_2']);
+                if (!$isRitKe2) {
+                    $duplicate = Ritase::where('periode_id', $periodeId)
+                        ->where('kode_sopir', $sopir->kode_sopir)
+                        ->where('tanggal', $parsed['date'])
+                        ->where('waktu', $waktu)
+                        ->exists();
 
-                if ($duplicate) {
-                    $skipped++;
-                    $details[] = [
-                        'route' => $routeName,
-                        'status' => 'Skipped',
-                        'sopir' => $sopir->nama,
-                        'reason' => 'Duplicate (same sopir + date + waktu)',
-                    ];
-                    continue;
+                    if ($duplicate) {
+                        $skipped++;
+                        $details[] = [
+                            'route' => $routeName,
+                            'status' => 'Skipped',
+                            'sopir' => $sopir->nama,
+                            'reason' => 'Duplicate (same sopir + date + waktu)',
+                        ];
+                        continue;
+                    }
                 }
 
                 try {
@@ -872,7 +997,9 @@ class RitaseParserService
                     $ritase->kabupaten = $kabupaten;
                     $ritase->dt = $dtValue;
                     $ritase->status = 'valid';
-                    $ritase->catatan = "Auto-create from parser (mode: " . ($parsed['source'] ?? 'rule-based') . ")";
+                    $ritase->catatan = $isRitKe2
+                        ? "Rit ke-2 (parser) — " . ($parsed['source'] ?? 'rule-based')
+                        : "Auto-create from parser (mode: " . ($parsed['source'] ?? 'rule-based') . ")";
                     $ritase->save();
 
                     $created++;
@@ -910,7 +1037,7 @@ class RitaseParserService
             'kertosono' => 'Nganjuk', 'lengkong' => 'Nganjuk', 'loceret' => 'Nganjuk',
             'ngetos' => 'Nganjuk', 'ngluyu' => 'Nganjuk', 'ngronggot' => 'Nganjuk',
             'pace' => 'Nganjuk', 'patianrowo' => 'Nganjuk', 'prambon' => 'Nganjuk',
-            'rejoso' => 'Nganjuk', 'sawahan' => 'Nganjuk', 'sukomoro' => 'Nganjuk',
+            'rejoso' => 'Nganjuk', 'sukomoro' => 'Nganjuk',
             'tanjunganom' => 'Nganjuk', 'wilangan' => 'Nganjuk',
             // Kabupaten Jombang (35.17)
             'bareng' => 'Jombang', 'diwek' => 'Jombang', 'gudo' => 'Jombang',

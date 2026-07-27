@@ -1,7 +1,7 @@
 <x-layouts.dashboard
     :title="'Laporan Gaji'"
     :pageTitle="'Laporan Gaji'"
-    :user="auth()->user()">
+    >
 
     <div class="border-b border-gray-200 pb-4 mb-6">
         <div class="flex items-center justify-between">
@@ -106,9 +106,13 @@
                     @endforelse
                 </tbody>
                 <tfoot>
+                    <tr class="bg-white border-t border-gray-200">
+                        <td colspan="5" class="px-4 py-2.5 text-right text-sm font-medium text-gray-700 uppercase tracking-wider">Pot. Operasional (20rb × {{ $data['total_ritase'] }} rit)</td>
+                        <td class="px-4 py-2.5 text-right text-sm font-medium text-gray-700">Rp {{ number_format($data['total_ritase'] * 20000, 0, ',', '.') }}</td>
+                    </tr>
                     <tr class="bg-gray-100 border-t-2 border-gray-300">
-                        <td colspan="5" class="px-4 py-3 text-right text-sm font-bold text-gray-900 text-base uppercase tracking-wider">Grand Total</td>
-                        <td class="px-4 py-3 text-right text-sm font-bold text-gray-900 text-base">Rp {{ number_format($data['grand_total_all'], 0, ',', '.') }}</td>
+                        <td colspan="5" class="px-4 py-3 text-right text-sm font-bold text-gray-900 text-base uppercase tracking-wider">Grand Total (dengan pot. operasional)</td>
+                        <td class="px-4 py-3 text-right text-sm font-bold text-gray-900 text-base">Rp {{ number_format($data['grand_total_all'] + ($data['total_ritase'] * 20000), 0, ',', '.') }}</td>
                     </tr>
                 </tfoot>
             </table>

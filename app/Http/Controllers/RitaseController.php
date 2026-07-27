@@ -10,21 +10,48 @@ use Illuminate\Http\Request;
 
 class RitaseController extends Controller
 {
+    /**
+     * Clean destination name: remove filler words for compact display.
+     */
+    private function cleanTujuan(?string $nama): string
+    {
+        if (!$nama) return '?';
+        $clean = preg_replace('/\b(paket|overlay|patching|cmm|kormuling)\b/i', '', $nama);
+        $clean = preg_replace('/\s{2,}/', ' ', trim($clean));
+        return $clean ?: $nama;
+    }
     public function index(Request $request)
     {
+        // Auto-sync: periode yg mencakup hari ini jadi aktif, lainnya selesai
+        Periode::syncActiveStatus();
+
         $search = $request->get('search', '');
         $filterPeriode = $request->get('periode', '');
         $filterSopir = $request->get('sopir', '');
         $filterTujuan = $request->get('tujuan', '');
+        $tanggal = $request->get('tanggal', '');
+
+        // Default ke periode aktif
+        if (!$filterPeriode) {
+            $active = Periode::where('status', 'aktif')->first();
+            if ($active) $filterPeriode = $active->id;
+        }
 
         $periodes = Periode::orderBy('id', 'asc')->get();
-        $sopirs = Sopir::where('status', 'aktif')->orderBy('id', 'asc')->get();
-        $tujuans = Tujuan::where('status', 'aktif')->orderBy('id', 'asc')->get();
+        $sopirs = Sopir::orderBy('id', 'asc')->get();
+        $tujuans = Tujuan::orderBy('id', 'asc')->get();
 
-        $ritases = Ritase::with(['periode', 'sopir', 'tujuan'])
-            ->when($filterPeriode, function ($query) use ($filterPeriode) {
-                $query->where('periode_id', $filterPeriode);
-            })
+        // Base query for filtering (shared for table + stat cards)
+        $ritBase = Ritase::with(['periode', 'sopir', 'tujuan']);
+
+        if ($filterPeriode) {
+            $ritBase->where('periode_id', $filterPeriode);
+        }
+        if ($tanggal) {
+            $ritBase->whereDate('tanggal', $tanggal);
+        }
+
+        $ritases = (clone $ritBase)
             ->when($filterSopir, function ($query) use ($filterSopir) {
                 $query->where('kode_sopir', $filterSopir);
             })
@@ -32,22 +59,33 @@ class RitaseController extends Controller
                 $query->where('kode_tujuan', $filterTujuan);
             })
             ->when($search, function ($query) use ($search) {
-                $query->where('kode_ritase', 'like', "%{$search}%")
-                    ->orWhereHas('sopir', function ($q) use ($search) {
-                        $q->where('nama', 'like', "%{$search}%");
-                    })
-                    ->orWhereHas('tujuan', function ($q) use ($search) {
-                        $q->where('nama', 'like', "%{$search}%");
-                    });
+                $query->where(function ($q) use ($search) {
+                    $q->where('kode_ritase', 'like', "%{$search}%")
+                        ->orWhereHas('sopir', function ($sq) use ($search) {
+                            $sq->where('nama', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('tujuan', function ($sq) use ($search) {
+                            $sq->where('nama', 'like', "%{$search}%");
+                        });
+                });
             })
             ->orderBy('id', 'asc')
-            ->paginate(15)
+            ->paginate(10)
             ->withQueryString();
 
-        $totalRitase = Ritase::count();
-        $ritaseValid = Ritase::where('status', 'valid')->count();
-        $ritasePending = Ritase::where('status', 'pending')->count();
-        $ritaseGagal = Ritase::where('status', 'gagal_produksi')->count();
+        // Stat counts filtered by periode + tanggal
+        $statBase = Ritase::query();
+        if ($filterPeriode) {
+            $statBase->where('periode_id', $filterPeriode);
+        }
+        if ($tanggal) {
+            $statBase->whereDate('tanggal', $tanggal);
+        }
+        $totalRitase = (clone $statBase)->count();
+        $ritaseValid = (clone $statBase)->where('status', 'valid')->count();
+        $ritasePending = (clone $statBase)->where('status', 'pending')->count();
+        $ritaseGagal = (clone $statBase)->where('status', 'gagal_produksi')->count();
+        $sopirTerlibat = (clone $statBase)->distinct('kode_sopir')->count('kode_sopir');
 
         return view('ritase.index', compact(
             'ritases',
@@ -58,10 +96,12 @@ class RitaseController extends Controller
             'filterPeriode',
             'filterSopir',
             'filterTujuan',
+            'tanggal',
             'totalRitase',
             'ritaseValid',
             'ritasePending',
-            'ritaseGagal'
+            'ritaseGagal',
+            'sopirTerlibat'
         ));
     }
 
@@ -77,10 +117,14 @@ class RitaseController extends Controller
             'status' => 'required|in:valid,pending,gagal_produksi',
             'nominal_kompensasi' => 'nullable',
             'catatan' => 'nullable|string|max:500',
+            'is_lembur' => 'nullable|in:0,1',
+            'upah_lembur' => 'nullable|numeric|min:0',
         ];
 
         $validated = $request->validate($rules);
         $validated['nominal_kompensasi'] = is_numeric($validated['nominal_kompensasi'] ?? 0) ? (float) $validated['nominal_kompensasi'] : 0;
+        $isLembur = $request->boolean('is_lembur');
+        $upahLembur = $isLembur ? (float) ($request->upah_lembur ?? 0) : 0;
 
         if (cache()->get('aturan_validasi_enabled', false)) {
             $validasi = \App\Models\ValidasiBukti::where('kode_sopir', $request->kode_sopir)
@@ -122,6 +166,8 @@ class RitaseController extends Controller
             'upah_sopir' => 0,
             'nominal_kompensasi' => $validated['nominal_kompensasi'],
             'catatan' => $request->catatan,
+            'is_lembur' => $isLembur,
+            'upah_lembur' => $upahLembur,
         ]);
 
         return redirect()->route('ritase.index')
@@ -140,10 +186,14 @@ class RitaseController extends Controller
             'status' => 'required|in:valid,pending,gagal_produksi',
             'nominal_kompensasi' => 'nullable',
             'catatan' => 'nullable|string|max:500',
+            'is_lembur' => 'nullable|in:0,1',
+            'upah_lembur' => 'nullable|numeric|min:0',
         ];
 
         $validated = $request->validate($rules);
         $validated['nominal_kompensasi'] = is_numeric($validated['nominal_kompensasi'] ?? 0) ? (float) $validated['nominal_kompensasi'] : 0;
+        $isLembur = $request->boolean('is_lembur');
+        $upahLembur = $isLembur ? (float) ($request->upah_lembur ?? 0) : 0;
 
         // Auto-aktifkan sopir/tujuan kalo lagi dipake
         Sopir::where('kode_sopir', $request->kode_sopir)->where('status', '!=', 'aktif')->update(['status' => 'aktif']);
@@ -171,6 +221,8 @@ class RitaseController extends Controller
             'dt' => $dtValue,
             'nominal_kompensasi' => $validated['nominal_kompensasi'],
             'catatan' => $request->catatan,
+            'is_lembur' => $isLembur,
+            'upah_lembur' => $upahLembur,
         ]);
 
         return redirect()->route('ritase.index')
@@ -192,53 +244,42 @@ class RitaseController extends Controller
     }
 
     /**
-     * 🔥🔥🔥 FUNGSI HITUNG DT (DIPERBAIKI) 🔥🔥🔥
+     * 🔥🔥🔥 FUNGSI HITUNG DT 🔥🔥🔥
      *
-     * ATURAN:
-     * 1. Status = 'gagal_produksi' → DT = 0
-     * 2. Kabupaten = 'Lainnya' → TETAP DAPAT DT (Rp 330.000)
-     * 3. Cek rit lain di tanggal yang SAMA dengan kabupaten SAMA dan waktu SAMA:
-     *    - Jika ada → DT = 0 (hitung 1x)
-     *    - Jika tidak ada → DT = 330.000
+     * ATURAN (berdasarkan user):
+     * 1. Gagal Produksi → DT = 0
+     * 2. 2 rit, kabupaten SAMA, waktu SAMA, sehari:
+     *    - Nganjuk/Kediri/Kota Kediri/Jombang → DT 1x (rit ke-2 = 0)
+     *    - Lainnya → DT 2x (rit ke-2 tetap 330.000)
+     * 3. 2 rit, kabupaten SAMA, waktu BEDA, sehari → DT 2x
+     * 4. 2 rit, kabupaten BEDA, waktu sama/beda, sehari → DT 2x
      */
     private function hitungDT($request, $excludeId = null)
     {
-        // 🔥 Jika status Gagal Produksi → DT = 0
         if ($request->status === 'gagal_produksi') {
             return 0;
         }
 
-        // 🔥🔥🔥 KABUPATEN LAINNYA TETAP DAPAT DT 🔥🔥🔥
-        // HAPUS SEMUA PENGECEKAN KABUPATEN LAINNYA
-        // if ($request->kabupaten === 'Lainnya') {
-        //     return 0; // ← INI YANG HARUS DIHAPUS!
-        // }
+        $kabSatuDt = ['Nganjuk', 'Kediri', 'Kota Kediri', 'Jombang'];
 
-        // Cari rit lain dengan kriteria:
-        // - Sopir sama
-        // - Tanggal sama
-        // - Kabupaten SAMA
-        // - Waktu SAMA
-        // - Status BUKAN gagal_produksi
+        // Cek apakah sudah ada rit non-gagal dengan kabupaten & waktu SAMA
         $query = Ritase::where('kode_sopir', $request->kode_sopir)
             ->where('tanggal', $request->tanggal)
             ->where('kabupaten', $request->kabupaten)
             ->where('waktu', $request->waktu)
             ->where('status', '!=', 'gagal_produksi');
 
-        // Jika update, exclude ID sendiri
         if ($excludeId) {
             $query->where('id', '!=', $excludeId);
         }
 
         $ritLain = $query->first();
 
-        // 🔥 Jika ada rit lain dengan kabupaten & waktu SAMA → DT = 0 (hitung 1x)
-        if ($ritLain) {
+        // Hanya batasi 1 DT untuk kabupaten tertentu (selain Lainnya)
+        if ($ritLain && in_array($request->kabupaten, $kabSatuDt)) {
             return 0;
         }
 
-        // 🔥 Default: DT = 330.000
         return 330000;
     }
 
@@ -251,23 +292,14 @@ class RitaseController extends Controller
         $tanggal = $request->tanggal;
         $nominalKompensasi = $request->nominal_kompensasi ?? 0;
 
-        // HITUNG DT
         $dt = 0;
         $keterangan = '';
+        $kabSatuDt = ['Nganjuk', 'Kediri', 'Kota Kediri', 'Jombang'];
 
-        // Jika status Gagal Produksi → DT = 0
         if ($status === 'gagal_produksi') {
             $dt = 0;
             $keterangan = '❌ Gagal Produksi → Tidak dapat DT';
-        }
-        // 🔥🔥🔥 KABUPATEN LAINNYA TETAP DAPAT DT 🔥🔥🔥
-        // HAPUS PENGECEKAN INI
-        // else if ($kabupaten === 'Lainnya') {
-        //     $dt = 0;
-        //     $keterangan = '❌ Kabupaten Lainnya → Tidak dapat DT';
-        // }
-        else {
-            // Cek rit lain di tanggal yang SAMA dengan kabupaten SAMA dan waktu SAMA
+        } else {
             $ritLain = Ritase::where('kode_sopir', $kodeSopir)
                 ->where('tanggal', $tanggal)
                 ->where('kabupaten', $kabupaten)
@@ -275,15 +307,15 @@ class RitaseController extends Controller
                 ->where('status', '!=', 'gagal_produksi')
                 ->first();
 
-            if ($ritLain) {
+            if ($ritLain && in_array($kabupaten, $kabSatuDt)) {
                 $dt = 0;
-                $keterangan = "⚠️ Rit ke-2 dengan kabupaten {$kabupaten} waktu {$waktu} (hitung 1x)";
+                $keterangan = "⚠️ Rit ke-2 kabupaten {$kabupaten} waktu {$waktu} → 0 DT (1x/hari)";
             } else {
                 $dt = 330000;
-                if ($kabupaten === 'Lainnya') {
-                    $keterangan = "✅ Kabupaten Lainnya → DT 1x Rp 330.000";
+                if ($ritLain) {
+                    $keterangan = "✅ Rit ke-2 kabupaten {$kabupaten} waktu {$waktu} → DT Rp 330.000 (Lainnya/hitung 2x)";
                 } else {
-                    $keterangan = "✅ Rit pertama dengan kabupaten {$kabupaten} waktu {$waktu} → DT 1x Rp 330.000";
+                    $keterangan = "✅ Rit pertama kabupaten {$kabupaten} waktu {$waktu} → DT Rp 330.000";
                 }
             }
         }
@@ -303,7 +335,6 @@ class RitaseController extends Controller
                 ->where('tanggal', $tanggal)
                 ->where('status', '!=', 'gagal_produksi')
                 ->count();
-
             $ritKeberapa = $totalRitHariIni + 1;
         }
 
@@ -312,6 +343,112 @@ class RitaseController extends Controller
             'sewa_dt' => $dt,
             'keterangan' => $keterangan,
             'kompensasi' => $nominalKompensasi,
+        ]);
+    }
+
+    /**
+     * Data detail ritase (pivot sopir x tanggal).
+     */
+    public function detailData(Request $request)
+    {
+        $periodeId = $request->get('periode');
+        $search = $request->get('search', '');
+
+        if (!$periodeId) {
+            return response()->json(['sopirs' => [], 'dates' => [], 'data' => []]);
+        }
+
+        $periode = Periode::find($periodeId);
+        if (!$periode) {
+            return response()->json(['sopirs' => [], 'dates' => [], 'data' => []]);
+        }
+
+        // Generate all dates in the period
+        $start = \Carbon\Carbon::parse($periode->tanggal_mulai);
+        $end = \Carbon\Carbon::parse($periode->tanggal_selesai);
+        $dates = [];
+        for ($d = $start->copy(); $d->lte($end); $d->addDay()) {
+            $dates[] = $d->format('Y-m-d');
+        }
+
+        // Build columns: each date split into P (pagi) and M (malam)
+        $columns = [];
+        foreach ($dates as $ymd) {
+            $columns[] = ['key' => $ymd . '_P', 'date' => $ymd, 'waktu' => 'P'];
+            $columns[] = ['key' => $ymd . '_M', 'date' => $ymd, 'waktu' => 'M'];
+        }
+
+        // Get all ritase in this period
+        $ritases = Ritase::with(['sopir', 'tujuan'])
+            ->where('periode_id', $periodeId)
+            ->when($search, function ($q) use ($search) {
+                $q->whereHas('sopir', function ($sq) use ($search) {
+                    $sq->where('nama', 'like', "%{$search}%");
+                })->orWhereHas('tujuan', function ($sq) use ($search) {
+                    $sq->where('nama', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('tanggal', 'asc')
+            ->get();
+
+        // Collect unique sopirs, data keyed by column key (date+waktu), counts
+        $sopirList = [];
+        $data = [];
+        $counts = []; // kode_sopir => ['ritase_berhasil' => ..., 'ritase_gagal' => ...]
+        foreach ($ritases as $r) {
+            if (!$r->sopir) continue;
+            $sk = $r->kode_sopir;
+            if (!isset($sopirList[$sk])) {
+                $sopirList[$sk] = ['kode_sopir' => $sk, 'nama' => $r->sopir->nama];
+                $counts[$sk] = ['ritase_berhasil' => 0, 'ritase_gagal' => 0];
+            }
+            $tgl = $r->tanggal->format('Y-m-d');
+            $wkt = $r->waktu == 'pagi' ? 'P' : 'M';
+            $colKey = $tgl . '_' . $wkt;
+            $tujuanNama = $r->is_lembur ? 'Lembur ' . $this->cleanTujuan($r->tujuan?->nama) : $this->cleanTujuan($r->tujuan?->nama);
+
+            if (!isset($data[$sk])) $data[$sk] = [];
+            if (!isset($data[$sk][$colKey])) $data[$sk][$colKey] = [];
+            $data[$sk][$colKey][] = $tujuanNama;
+
+            // Count berhasil/gagal
+            if ($r->status === 'gagal_produksi') {
+                $counts[$sk]['ritase_gagal']++;
+            } else {
+                $counts[$sk]['ritase_berhasil']++;
+            }
+        }
+
+        // Sort by kode_sopir
+        $allSopirs = collect($sopirList)->sortBy('kode_sopir')->values();
+
+        $total = $allSopirs->count();
+        $perPage = 10;
+        $page = max(1, (int) $request->get('page', 1));
+        $lastPage = max(1, (int) ceil($total / $perPage));
+        $page = min($page, $lastPage);
+        $offset = ($page - 1) * $perPage;
+
+        $sopirs = $allSopirs->slice($offset, $perPage)->values();
+
+        // Filter data for current page sopirs only
+        $pageSopirKeys = $sopirs->pluck('kode_sopir')->toArray();
+        $pageData = array_intersect_key($data, array_flip($pageSopirKeys));
+
+        // Filter counts for current page
+        $pageCounts = array_intersect_key($counts, array_flip($pageSopirKeys));
+
+        return response()->json([
+            'sopirs' => $sopirs,
+            'columns' => $columns,
+            'data' => $pageData,
+            'counts' => $pageCounts,
+            'pagination' => [
+                'page' => $page,
+                'per_page' => $perPage,
+                'total' => $total,
+                'last_page' => $lastPage,
+            ],
         ]);
     }
 
@@ -347,7 +484,9 @@ class RitaseController extends Controller
             collect($parsed['packages'])->pluck('drivers')->flatten()->unique()->values()->all()
         );
         $routeMatches = $parser->matchRoutes(
-            collect($parsed['packages'])->pluck('route_name')->unique()->values()->all()
+            collect($parsed['packages'])
+                ->reject(fn($p) => !empty($p['is_bongkar']))
+                ->pluck('route_name')->unique()->values()->all()
         );
 
         $results = [
@@ -377,5 +516,112 @@ class RitaseController extends Controller
             'results' => $results,
             'periodeId' => $request->periode_id,
         ]);
+    }
+
+    /**
+     * Download PDF detail ritase per sopir.
+     */
+    public function detailPdf(Request $request)
+    {
+        $periodeId = $request->get('periode');
+        if (!$periodeId) abort(404);
+
+        $periode = Periode::findOrFail($periodeId);
+
+        $start = \Carbon\Carbon::parse($periode->tanggal_mulai);
+        $end = \Carbon\Carbon::parse($periode->tanggal_selesai);
+        $dates = [];
+        for ($d = $start->copy(); $d->lte($end); $d->addDay()) {
+            $dates[] = $d->format('Y-m-d');
+        }
+
+        // Build columns with dynamic sub-columns per waktu (P1,P2 / M1,M2)
+        $ritases = Ritase::with(['sopir', 'tujuan'])
+            ->where('periode_id', $periodeId)
+            ->orderBy('tanggal', 'asc')
+            ->get();
+
+        $sopirList = [];
+        $data = [];
+        $counts = [];
+        // Track max ritase per date+waktu across all sopirs
+        $maxRitByWaktu = [];
+        foreach ($dates as $ymd) {
+            $maxRitByWaktu[$ymd] = ['P' => 0, 'M' => 0];
+        }
+
+        $kabSatuDt = ['Nganjuk', 'Kediri', 'Kota Kediri', 'Jombang'];
+        // [sopir][tanggal_kabupaten_waktu] = first occurrence seen
+        $firstRit = [];
+
+        foreach ($ritases as $r) {
+            if (!$r->sopir) continue;
+            $sk = $r->kode_sopir;
+            if (!isset($sopirList[$sk])) {
+                $sopirList[$sk] = ['kode_sopir' => $sk, 'nama' => $r->sopir->nama];
+                $counts[$sk] = ['total' => 0, 'gagal' => 0, 'eligible' => 0];
+            }
+            $tgl = $r->tanggal->format('Y-m-d');
+            $wkt = $r->waktu == 'pagi' ? 'P' : 'M';
+            $colKey = $tgl . '_' . $wkt;
+            $tujuanNama = $r->is_lembur ? 'Lembur ' . $this->cleanTujuan($r->tujuan?->nama) : $this->cleanTujuan($r->tujuan?->nama);
+            if (!isset($data[$sk])) $data[$sk] = [];
+            if (!isset($data[$sk][$colKey])) $data[$sk][$colKey] = [];
+            $data[$sk][$colKey][] = $tujuanNama;
+
+            // Track max count per date+waktu
+            $c = count($data[$sk][$colKey]);
+            if ($c > $maxRitByWaktu[$tgl][$wkt]) {
+                $maxRitByWaktu[$tgl][$wkt] = $c;
+            }
+
+            // Hitung DT eligibility per sopir per (date + kab + waktu)
+            $counts[$sk]['total']++;
+            if ($r->status === 'gagal_produksi') {
+                $counts[$sk]['gagal']++;
+            } else {
+                // DT rules: hanya 1 DT per (kab+waktu) utk kabSatuDt
+                $dkw = $tgl . '_' . ($r->kabupaten ?? '') . '_' . $wkt;
+                $isFirst = empty($firstRit[$sk][$dkw]);
+                $firstRit[$sk][$dkw] = true;
+                $eligibleKab = in_array($r->kabupaten, $kabSatuDt);
+                if (!$eligibleKab || $isFirst) {
+                    $counts[$sk]['eligible']++;
+                }
+            }
+        }
+
+        // Build columns — multiple sub-columns per waktu if max > 1
+        $columns = [];
+        foreach ($dates as $ymd) {
+            $pCount = $maxRitByWaktu[$ymd]['P'];
+            $mCount = $maxRitByWaktu[$ymd]['M'];
+            for ($i = 1; $i <= max($pCount, 1); $i++) {
+                $label = $pCount > 1 ? "P{$i}" : 'P';
+                $columns[] = ['key' => $ymd . "_P_" . ($i-1), 'date' => $ymd, 'waktu' => 'P', 'rit_idx' => $i-1, 'label' => $label];
+            }
+            for ($i = 1; $i <= max($mCount, 1); $i++) {
+                $label = $mCount > 1 ? "M{$i}" : 'M';
+                $columns[] = ['key' => $ymd . "_M_" . ($i-1), 'date' => $ymd, 'waktu' => 'M', 'rit_idx' => $i-1, 'label' => $label];
+            }
+        }
+
+        $sopirs = collect($sopirList)->sortBy('kode_sopir')->values()->all();
+
+        $dayNames = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('ritase.detail-pdf', compact(
+            'periode', 'sopirs', 'columns', 'data', 'counts', 'dates', 'dayNames'
+        ))->setPaper('A4', 'landscape');
+
+        $filename = 'detail-ritase-' . $periode->nama_periode . '.pdf';
+
+        if ($request->has('view')) {
+            return view('ritase.detail-html', compact(
+                'periode', 'sopirs', 'columns', 'data', 'counts', 'dates', 'dayNames'
+            ));
+        }
+
+        return $pdf->download($filename);
     }
 }

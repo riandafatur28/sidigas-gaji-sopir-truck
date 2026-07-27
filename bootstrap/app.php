@@ -12,6 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->append(SecurityHeaders::class);
+        $middleware->append(\App\Http\Middleware\CacheControl::class);
 
         $middleware->alias([
             'throttle.auth' => \Illuminate\Routing\Middleware\ThrottleRequests::class,

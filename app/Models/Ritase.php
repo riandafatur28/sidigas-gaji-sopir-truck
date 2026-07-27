@@ -23,6 +23,8 @@ class Ritase extends Model
         'dt',
         'upah_sopir',
         'nominal_kompensasi',
+        'is_lembur',
+        'upah_lembur',
         'catatan',
     ];
 
@@ -31,6 +33,8 @@ class Ritase extends Model
         'dt' => 'decimal:2',
         'upah_sopir' => 'decimal:2',
         'nominal_kompensasi' => 'decimal:2',
+        'is_lembur' => 'boolean',
+        'upah_lembur' => 'decimal:2',
     ];
 
     protected static function boot()

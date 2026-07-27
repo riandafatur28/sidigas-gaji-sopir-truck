@@ -98,6 +98,10 @@ Route::middleware('auth')->group(function () {
     // API untuk cek aturan sewa DT
     Route::post('/ritase/cek-aturan', [RitaseController::class, 'cekAturanSewaDT'])->name('ritase.cek.aturan');
 
+    // API untuk detail ritase (pivot sopir x tanggal)
+    Route::get('/ritase/detail-data', [RitaseController::class, 'detailData'])->name('ritase.detail-data');
+    Route::get('/ritase/detail-pdf', [RitaseController::class, 'detailPdf'])->name('ritase.detail-pdf');
+
     // Validasi Bukti
     Route::get('/validasi-bukti/kelola', [ValidasiBuktiController::class, 'kelola'])->name('validasi-bukti.kelola');
     Route::get('/validasi-bukti/{id}', [ValidasiBuktiController::class, 'detail'])->name('validasi-bukti.detail');

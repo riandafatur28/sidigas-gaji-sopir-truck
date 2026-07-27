@@ -1,57 +1,57 @@
 <x-layouts.dashboard
     :title="'Kelola Sopir'"
     :pageTitle="'Kelola Sopir'"
-    :user="auth()->user()">
+    >
 
     {{-- HEADER --}}
-    <div class="border-b border-gray-200 pb-4 mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">Kelola Data Sopir</h1>
-        <p class="text-base text-gray-500 mt-1">Tambah, edit, dan hapus data sopir armada Anda.</p>
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold" style="color:var(--text)">Kelola Data Sopir</h1>
+        <p class="text-sm mt-1" style="color:var(--text-muted)">Tambah, edit, dan hapus data sopir armada Anda.</p>
     </div>
 
     {{-- ALERT SUCCESS --}}
     @if(session('success'))
-        <div class="border border-green-200 bg-green-50 text-green-700 px-4 py-3 rounded mb-4 text-sm">
+        <div class="alert alert-success mb-4">
             {{ session('success') }}
         </div>
     @endif
 
     {{-- STATS CARDS --}}
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div class="bg-white border border-gray-200 rounded p-4">
-            <p class="text-xs text-gray-500 uppercase font-semibold">Total Sopir</p>
-            <p class="text-2xl font-bold text-gray-900 mt-1">{{ $totalSopir }}</p>
+        <div class="stat-card">
+            <p class="text-xs font-semibold uppercase" style="color:var(--text-muted)">Total Sopir</p>
+            <p class="text-2xl font-bold mt-1" style="color:var(--text)">{{ $totalSopir }}</p>
         </div>
 
-        <div class="bg-white border border-gray-200 rounded p-4">
-            <p class="text-xs text-gray-500 uppercase font-semibold">Sopir Aktif</p>
-            <p class="text-2xl font-bold text-gray-900 mt-1">{{ $sopirAktif }}</p>
+        <div class="stat-card">
+            <p class="text-xs font-semibold uppercase" style="color:var(--text-muted)">Sopir Aktif</p>
+            <p class="text-2xl font-bold mt-1" style="color:var(--text)">{{ $sopirAktif }}</p>
         </div>
 
-        <div class="bg-white border border-gray-200 rounded p-4">
-            <p class="text-xs text-gray-500 uppercase font-semibold">Sopir Nonaktif</p>
-            <p class="text-2xl font-bold text-gray-900 mt-1">{{ $sopirNonaktif }}</p>
+        <div class="stat-card">
+            <p class="text-xs font-semibold uppercase" style="color:var(--text-muted)">Sopir Nonaktif</p>
+            <p class="text-2xl font-bold mt-1" style="color:var(--text)">{{ $sopirNonaktif }}</p>
         </div>
     </div>
 
     {{-- FORM TAMBAH SOPIR --}}
-    <div class="bg-white border border-gray-200 rounded mb-6">
-        <div class="bg-gray-50 border-b border-gray-200 px-5 py-3">
-            <span class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Tambah Sopir Baru</span>
-            <span class="font-normal text-gray-400 text-xs ml-2">Kode sopir akan digenerate otomatis (SPR-XXX)</span>
+    <div class="card mb-6">
+        <div class="card-header">
+            <span class="text-xs font-semibold uppercase" style="color:var(--text-muted)">Tambah Sopir Baru</span>
+            <span class="text-xs ml-2" style="color:var(--text-dims);font-weight:400">Kode sopir akan digenerate otomatis (SPR-XXX)</span>
         </div>
-        <div class="px-5 py-4">
+        <div class="card-body">
             <form id="formTambahSopir" class="flex flex-col sm:flex-row gap-3">
                 @csrf
                 <div class="flex-1">
                     <input type="text" id="namaTambah" required
-                        class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-white"
+                        class="form-input"
                         placeholder="Masukkan nama sopir...">
                     <p class="text-red-500 text-xs mt-1 hidden" id="errorTambah"></p>
                 </div>
                 <div class="flex items-end">
                     <button type="button" onclick="konfirmasiTambah()"
-                        class="bg-[#1a1a2e] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#2d2d44] transition">
+                        class="btn btn-primary">
                         Tambah
                     </button>
                 </div>
@@ -60,7 +60,7 @@
     </div>
 
     {{-- TABEL DATA SOPIR --}}
-    <div class="bg-white border border-gray-200 rounded overflow-hidden">
+    <div class="card mb-6">
         <div class="border-b border-gray-200 px-5 py-3 bg-gray-50">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
@@ -74,7 +74,7 @@
                         class="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-white"
                         placeholder="Ketik untuk mencari..." autocomplete="off">
 
-                    <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style="color:var(--text-dims)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
 
@@ -97,7 +97,7 @@
         <div class="overflow-x-auto">
             @if($sopirs->count() > 0)
                 <table class="w-full">
-                    <thead class="bg-gray-50 border-b border-gray-200">
+                    <thead style="background:rgba(255,253,252,0.6);border-bottom:1.5px solid var(--border)">
                         <tr>
                             <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">No</th>
                             <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Kode Sopir</th>
@@ -137,19 +137,9 @@
                                 </td>
                                 <td class="px-4 py-3">
                                     <div class="flex items-center justify-center space-x-1.5">
-                                        <button onclick="openEditModal({{ $sopir->id }}, '{{ $sopir->kode_sopir }}', '{{ $sopir->nama }}', '{{ $sopir->status }}')"
-                                            class="p-1.5 text-gray-500 border border-gray-200 rounded hover:text-gray-700 hover:bg-gray-50 transition" title="Edit">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                            </svg>
-                                        </button>
+                                        <button onclick="openEditModal({{ $sopir->id }}, '{{ $sopir->kode_sopir }}', '{{ $sopir->nama }}', '{{ $sopir->status }}')" class="text-xs text-gray-600 border border-gray-200 px-2.5 py-1.5 rounded hover:bg-gray-50 font-medium">Edit</button>
 
-                                        <button onclick="confirmDelete({{ $sopir->id }}, '{{ $sopir->nama }}')"
-                                            class="p-1.5 text-red-500 border border-gray-200 rounded hover:text-red-700 hover:bg-red-50 transition" title="Hapus">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                            </svg>
-                                        </button>
+                                        <button onclick="confirmDelete({{ $sopir->id }}, '{{ $sopir->nama }}')" class="text-xs text-red-600 border border-red-200 px-2.5 py-1.5 rounded hover:bg-red-50 font-medium">Hapus</button>
                                     </div>
                                 </td>
                             </tr>
@@ -186,17 +176,35 @@
                             </a>
                         @endif
 
-                        @foreach($sopirs->getUrlRange(1, $sopirs->lastPage()) as $page => $url)
-                            @if($page == $sopirs->currentPage())
-                                <span class="px-3 py-1.5 text-sm font-bold text-white bg-[#1a1a2e] border border-[#1a1a2e] rounded">
-                                    {{ $page }}
-                                </span>
-                            @else
-                                <a href="{{ $url }}" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">
-                                    {{ $page }}
-                                </a>
+                        @php
+                            $window = 2;
+                            $current = $sopirs->currentPage();
+                            $last = $sopirs->lastPage();
+                            $start = max(1, $current - $window);
+                            $end = min($last, $current + $window);
+                        @endphp
+
+                        @if($start > 1)
+                            <a href="{{ $sopirs->url(1) }}" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">1</a>
+                            @if($start > 2)
+                                <span class="px-3 py-1.5 text-sm text-gray-400">...</span>
                             @endif
-                        @endforeach
+                        @endif
+
+                        @for($page = $start; $page <= $end; $page++)
+                            @if($page == $current)
+                                <span class="px-3 py-1.5 text-sm font-bold text-white bg-[#1a1a2e] border border-[#1a1a2e] rounded">{{ $page }}</span>
+                            @else
+                                <a href="{{ $sopirs->url($page) }}" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">{{ $page }}</a>
+                            @endif
+                        @endfor
+
+                        @if($end < $last)
+                            @if($end < $last - 1)
+                                <span class="px-3 py-1.5 text-sm text-gray-400">...</span>
+                            @endif
+                            <a href="{{ $sopirs->url($last) }}" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">{{ $last }}</a>
+                        @endif
 
                         @if($sopirs->hasMorePages())
                             <a href="{{ $sopirs->nextPageUrl() }}" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded hover:bg-gray-50 font-medium">
@@ -272,13 +280,13 @@
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Nama Sopir</label>
                         <input type="text" id="edit_nama" name="nama" required
-                            class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-white">
+                            class="form-input">
                     </div>
 
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Status</label>
                         <select id="edit_status" name="status" required
-                            class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-white">
+                            class="form-input">
                             <option value="aktif">Aktif</option>
                             <option value="nonaktif">Nonaktif</option>
                         </select>

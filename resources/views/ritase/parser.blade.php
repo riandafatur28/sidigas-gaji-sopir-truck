@@ -1,7 +1,7 @@
 <x-layouts.dashboard
     :title="'Parser Ritase'"
     :pageTitle="'Parser Ritase'"
-    :user="auth()->user()">
+    >
 <div class="max-w-4xl mx-auto py-6">
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900">Parser Ritase</h1>
@@ -79,9 +79,9 @@ Paket watualang ngawi
 1. Gun
 2. Anjar</code></pre>
                     <ul class="list-disc list-inside space-y-1 text-xs">
-                        <li><strong>Baris 1</strong>: Tanggal "DD MM YY hari"</li>
+                        <li><strong>Baris 1</strong>: Tanggal"DD MM YY hari"</li>
                         <li><strong>Rute</strong>: Baris dgn keyword (paket, bondan, dll)</li>
-                        <li><strong>Sopir</strong>: Bernomor "1. Nama"</li>
+                        <li><strong>Sopir</strong>: Bernomor"1. Nama"</li>
                     </ul>
                 </div>
             </div>

@@ -74,8 +74,5 @@ class Sopir extends Model
             ->where('status', '!=', 'aktif')
             ->update(['status' => 'aktif']);
 
-        static::whereNotIn('kode_sopir', $activeSopirs)
-            ->where('status', '!=', 'nonaktif')
-            ->update(['status' => 'nonaktif']);
     }
 }

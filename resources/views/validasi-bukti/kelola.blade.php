@@ -1,7 +1,7 @@
 <x-layouts.dashboard
     :title="'Validasi Bukti'"
     :pageTitle="'Validasi Bukti'"
-    :user="auth()->user()">
+    >
 
     <div class="border-b border-gray-200 pb-4 mb-6">
         <div class="flex items-center justify-between">
@@ -108,7 +108,47 @@
         </table>
     </div>
 
-    <div class="mt-4">
-        {{ $list->links() }}
-    </div>
+    @if($list->hasPages())
+        <div class="border-t border-gray-200 px-5 py-3 bg-gray-50">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-600">Halaman {{ $list->currentPage() }} dari {{ $list->lastPage() }}</p>
+                <div class="flex items-center space-x-1.5">
+                    @if($list->onFirstPage())
+                        <span class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 rounded cursor-not-allowed">Sebelumnya</span>
+                    @else
+                        <a href="{{ $list->previousPageUrl() }}" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded hover:bg-gray-50 font-medium">Sebelumnya</a>
+                    @endif
+
+                    @php
+                        $window = 2; $current = $list->currentPage(); $last = $list->lastPage();
+                        $start = max(1, $current - $window); $end = min($last, $current + $window);
+                    @endphp
+
+                    @if($start > 1)
+                        <a href="{{ $list->url(1) }}" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">1</a>
+                        @if($start > 2) <span class="px-3 py-1.5 text-sm text-gray-400">...</span> @endif
+                    @endif
+
+                    @for($page = $start; $page <= $end; $page++)
+                        @if($page == $current)
+                            <span class="px-3 py-1.5 text-sm font-bold text-white bg-[#1a1a2e] border border-[#1a1a2e] rounded">{{ $page }}</span>
+                        @else
+                            <a href="{{ $list->url($page) }}" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">{{ $page }}</a>
+                        @endif
+                    @endfor
+
+                    @if($end < $last)
+                        @if($end < $last - 1) <span class="px-3 py-1.5 text-sm text-gray-400">...</span> @endif
+                        <a href="{{ $list->url($last) }}" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">{{ $last }}</a>
+                    @endif
+
+                    @if($list->hasMorePages())
+                        <a href="{{ $list->nextPageUrl() }}" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded hover:bg-gray-50 font-medium">Selanjutnya</a>
+                    @else
+                        <span class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 rounded cursor-not-allowed">Selanjutnya</span>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endif
 </x-layouts.dashboard>

@@ -1,7 +1,7 @@
 <x-layouts.dashboard
     :title="'Hasil Parser Ritase'"
     :pageTitle="'Hasil Parser Ritase'"
-    :user="auth()->user()">
+    >
 <div class="max-w-5xl mx-auto">
     <div class="mb-6 flex justify-between items-center">
         <div>
@@ -30,19 +30,19 @@
     @endphp
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-            <p class="text-sm text-gray-500">Tanggal</p>
+            <p style="color:var(--text-muted);font-size:13px">Tanggal</p>
             <p class="text-2xl font-bold text-gray-900">{{ $results['date'] ?? '-' }}</p>
         </div>
         <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-            <p class="text-sm text-gray-500">Total Paket/Rute</p>
+            <p style="color:var(--text-muted);font-size:13px">Total Paket/Rute</p>
             <p class="text-2xl font-bold text-blue-600">{{ count($results['packages'] ?? []) }}</p>
         </div>
         <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-            <p class="text-sm text-gray-500">Total Sopir</p>
+            <p style="color:var(--text-muted);font-size:13px">Total Sopir</p>
             <p class="text-2xl font-bold text-green-600">{{ $totalDrivers }}</p>
         </div>
         <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-            <p class="text-sm text-gray-500">Sopir Ter-match</p>
+            <p style="color:var(--text-muted);font-size:13px">Sopir Ter-match</p>
             <p class="text-2xl font-bold text-purple-600">{{ $driverMatched }}</p>
         </div>
     </div>
@@ -146,8 +146,20 @@
             @foreach ($results['packages'] as $index => $pkg)
             <div class="mb-6 pb-6 border-b border-gray-200 last:border-0 last:pb-0">
                 <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-md font-semibold text-gray-900">Paket {{ $index + 1 }}: {{ $pkg['route_name'] }}</h3>
-                    <span class="text-sm text-gray-500">{{ count($pkg['drivers']) }} sopir</span>
+                    <h3 class="text-md font-semibold text-gray-900">
+                        @if (!empty($pkg['is_rit_ke_2']))
+                            <span class="inline-flex px-2 py-0.5 text-xs font-semibold rounded bg-purple-100 text-purple-800 mr-2">RIT KE 2</span>
+                        @elseif (!empty($pkg['is_bongkar']))
+                            <span class="inline-flex px-2 py-0.5 text-xs font-semibold rounded bg-orange-100 text-orange-800 mr-2">BONGKAR</span>
+                        @endif
+                        Paket {{ $index + 1 }}: {{ $pkg['route_name'] }}
+                    </h3>
+                    <span style="color:var(--text-muted);font-size:13px">
+                        {{ count($pkg['drivers']) }} sopir
+                        @if (!empty($pkg['is_bongkar']) && !empty($pkg['bongkar_source_route']))
+                            · lembur from <strong>{{ $pkg['bongkar_source_route'] }}</strong>
+                        @endif
+                    </span>
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
                     @foreach ($pkg['drivers'] as $driverName)
@@ -181,7 +193,10 @@
         <div class="p-4">
             <ul class="divide-y divide-gray-200">
                 @foreach ($results['details'] as $detail)
-                <li class="py-2 text-sm {{ $detail['status'] === 'Created' ? 'text-green-700' : 'text-yellow-700' }}">
+                <li class="py-2 text-sm {{
+                    $detail['status'] === 'Created' ? 'text-green-700' :
+                    ($detail['status'] === 'Updated lembur' ? 'text-blue-700' : 'text-yellow-700')
+                }}">
                     <strong>{{ $detail['route'] }}</strong>: {{ $detail['status'] }}
                     @if (isset($detail['reason']))
                     <em>({{ $detail['reason'] }})</em>

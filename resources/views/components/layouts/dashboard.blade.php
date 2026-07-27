@@ -5,12 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'Dashboard' }} - SIDIGAS</title>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <noscript><link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet"></noscript>
     <script defer src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
@@ -21,60 +28,336 @@
         }
     </script>
     <style>
-        * { font-family: 'Inter', sans-serif; }
+        /* ============================================
+           SIDIGAS DESIGN SYSTEM — hangat, modern, gak kaku
+           ============================================ */
+        :root {
+            --sidebar-w: 270px;
+            --bg: #f6f3ee;
+            --card-bg: #fffdfc;
+            --primary: #4a3f6b;
+            --primary-light: #e8e5ef;
+            --accent: #c9774d;
+            --accent-light: #f5ede7;
+            --success: #5b8c6f;
+            --success-light: #eaf3ed;
+            --danger: #c45a5a;
+            --danger-light: #f8eaea;
+            --warning: #d4a55a;
+            --warning-light: #f7f0e0;
+            --text: #1e1e2a;
+            --text-muted: #8a8698;
+            --text-dims: #b0acbc;
+            --border: #e8e4de;
+            --header-bg: rgba(255,253,252,0.85);
+            --sidebar-bg: #fffdfc;
+            --input-bg: #fff;
+            --table-hover: rgba(232,229,239,0.3);
+            --scrollbar-thumb: rgba(0,0,0,0.12);
+            --scrollbar-thumb-hover: rgba(0,0,0,0.2);
+        }
 
-        body { background: #f0f0f2; }
+        .dark {
+            --bg: #000000;
+            --card-bg: #111111;
+            --primary: #a89ccf;
+            --primary-light: #1a1a1a;
+            --accent: #d4926a;
+            --accent-light: #1a1a1a;
+            --success: #6da883;
+            --success-light: #1a1a1a;
+            --danger: #f87171;
+            --danger-light: #1a1a1a;
+            --warning: #d4b06a;
+            --warning-light: #1a1a1a;
+            --text: #e5e5e5;
+            --text-muted: #9e9e9e;
+            --text-dims: #6b6b6b;
+            --border: #2a2a2a;
+            --header-bg: rgba(0,0,0,0.92);
+            --sidebar-bg: #0a0a0a;
+            --input-bg: #1a1a1a;
+            --table-hover: rgba(255,255,255,0.04);
+            --scrollbar-thumb: rgba(255,255,255,0.12);
+            --scrollbar-thumb-hover: rgba(255,255,255,0.2);
+        }
+        /* ===== DARK MODE: Tailwind utility overrides ===== */
+        /* Text colors — map to dark palette */
+        .dark .text-gray-900,
+        .dark .text-gray-800,
+        .dark .text-gray-700 { color: var(--text) !important; }
+        .dark .text-gray-600,
+        .dark .text-gray-500 { color: var(--text-muted) !important; }
+        .dark .text-gray-400 { color: var(--text-dims) !important; }
+        .dark .text-gray-300 { color: var(--text-dims) !important; }
+        .dark .text-gray-200 { color: var(--text-dims) !important; }
+        /* Containers & cards */
+        .dark .bg-white { background: var(--card-bg) !important; }
+        /* General form inputs — catch any without explicit bg class */
+        .dark input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+        .dark textarea,
+        .dark select {
+            background: var(--input-bg) !important;
+            color: var(--text) !important;
+        }
+        /* Calendar icon in date inputs — make white in dark mode */
+        .dark input[type="date"]::-webkit-calendar-picker-indicator,
+        .dark input[type="month"]::-webkit-calendar-picker-indicator,
+        .dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
+        .dark .bg-gray-50 { background: rgba(255,255,255,0.04) !important; }
+        .dark .bg-gray-100 { background: rgba(255,255,255,0.06) !important; }
+        .dark .bg-gray-200 { background: rgba(255,255,255,0.09) !important; }
+        /* Borders */
+        .dark .border-gray-200 { border-color: var(--border) !important; }
+        .dark .border-gray-300 { border-color: var(--border) !important; }
+        .dark .divide-gray-100 > * + *,
+        .dark .divide-gray-200 > * + * { border-color: var(--border) !important; }
+        /* Hover — override Tailwind hover:bg-gray-50 */
+        .dark .hover\:bg-gray-50:hover { background-color: var(--table-hover) !important; }
+        /* Table header inline background override */
+        .dark thead[style*="background"],
+        .dark tr[style*="background"] { background: var(--card-bg) !important; }
+        .dark tfoot[style*="background"] { background: var(--card-bg) !important; }
+        /* Buttons */
+        .dark .btn-primary { background: #5a4d8a !important; }  /* deeper purple, not lillac */
+        .dark .btn-primary:hover { background: #4a3d78 !important; }
+        .dark .btn-secondary { background: rgba(255,255,255,0.08) !important; }
+        .dark .btn-secondary:hover { background: rgba(255,255,255,0.12) !important; }
+        /* Badges */
+        .dark .badge-success,
+        .dark .badge-warning,
+        .dark .badge-danger,
+        .dark .badge-info { color: var(--text) !important; }
+        .dark .badge-neutral { background: rgba(255,255,255,0.08) !important; }
+        /* Injected slip/PDF content (modal) — all dark */
+        .dark .slip-container,
+        .dark .slip-block { background: var(--card-bg) !important; border-color: var(--border) !important; }
+        .dark .slip-container th,
+        .dark .slip-container td,
+        .dark .slip-block th,
+        .dark .slip-block td { background: var(--card-bg) !important; border-color: var(--border) !important; color: var(--text) !important; }
+        .dark .slip-header,
+        .dark .block-header,
+        .dark .block-footer { background: var(--card-bg) !important; border-color: var(--border) !important; color: var(--text) !important; }
+        .dark .slip-block td.label { background: var(--card-bg) !important; color: var(--text) !important; }
+        .dark .slip-container .text-right,
+        .dark .slip-container .font-bold,
+        .dark .slip-container .label-tujuan-nama { color: var(--text) !important; }
+        .dark .page-break { border-color: var(--border) !important; }
+        .dark .slip-container .print-btn { background: #3a3650 !important; color: var(--text) !important; border: 1px solid var(--border) !important; }
+        /* Red utility — hapus button, error, required marker */
+        .dark .text-red-500 { color: #f87171 !important; }
+        .dark .text-red-600 { color: #f87171 !important; }
+        .dark .text-red-700 { color: #fca5a5 !important; }
+        .dark .border-red-200 { border-color: rgba(248,113,113,0.25) !important; }
+        .dark .hover\:bg-red-50:hover { background: rgba(248,113,113,0.1) !important; }
+        .dark .hover\:bg-red-100:hover { background: rgba(248,113,113,0.15) !important; }
+        .dark .bg-red-50 { background: rgba(248,113,113,0.1) !important; }
+        .dark .bg-red-100 { background: rgba(248,113,113,0.15) !important; }
+        /* Alerts — satu warna dark mode */
+        .dark .alert-info,
+        .dark .alert-success,
+        .dark .alert-error,
+        .dark .alert-danger,
+        .dark .alert-warning {
+            background: rgba(255,255,255,0.06) !important;
+            color: var(--text) !important;
+        }
+        /* Semantic backgrounds — satu warna, no tints */
+        .dark .bg-green-50,
+        .dark .bg-green-100,
+        .dark .bg-green-500,
+        .dark .bg-blue-50,
+        .dark .bg-blue-100,
+        .dark .bg-amber-50,
+        .dark .bg-amber-50\/30,
+        .dark .bg-indigo-50,
+        .dark .bg-indigo-100,
+        .dark .bg-indigo-50\/30,
+        .dark .bg-yellow-100,
+        .dark .bg-orange-100 { background: transparent !important; }
+        /* Semantic text — satu warna, pakai var(--text) */
+        .dark .text-green-600,
+        .dark .text-green-700,
+        .dark .text-green-800,
+        .dark .text-blue-600,
+        .dark .text-blue-700,
+        .dark .text-blue-800,
+        .dark .text-amber-500,
+        .dark .text-amber-600,
+        .dark .text-indigo-600,
+        .dark .text-indigo-700,
+        .dark .text-yellow-600,
+        .dark .text-yellow-700,
+        .dark .text-orange-600,
+        .dark .text-orange-700 { color: var(--text) !important; }
+        /* Semantic borders */
+        .dark .border-green-200,
+        .dark .border-blue-200 { border-color: var(--border) !important; }
+        /* Hover backgrounds — satu warna */
+        .dark .hover\:bg-green-100:hover,
+        .dark .hover\:bg-blue-100:hover { background: var(--table-hover) !important; }
+        /* Ritase detail-table — semua gelap, satu warna */
+        /* TomSelect dropdown — dark mode */
+        .dark .ts-wrapper .ts-control {
+            background: var(--input-bg) !important;
+            border-color: var(--border) !important;
+            color: var(--text) !important;
+        }
+        .dark .ts-wrapper .ts-control input {
+            color: var(--text) !important;
+        }
+        .dark .ts-wrapper .ts-control .item {
+            color: var(--text) !important;
+        }
+        .dark .ts-dropdown {
+            background: var(--input-bg) !important;
+            border-color: var(--border) !important;
+        }
+        .dark .ts-dropdown .option {
+            color: var(--text) !important;
+            background: transparent !important;
+        }
+        .dark .ts-dropdown .option.active,
+        .dark .ts-dropdown .option:hover {
+            background: var(--table-hover) !important;
+            color: var(--text) !important;
+        }
+        .dark .ts-dropdown .option.active.focus {
+            background: var(--table-hover) !important;
+        }
+        .dark .ts-wrapper.multi .ts-control > div {
+            background: rgba(255,255,255,0.08) !important;
+            color: var(--text) !important;
+        }
+        /* All th/td — prevent injected slip styles from leaking globally */
+        .dark th { background: var(--card-bg) !important; }
+        .dark td { background: var(--card-bg) !important; }
+        /* Ritase detail-table — semua gelap, satu warna */
+        .dark .detail-table th,
+        .dark .detail-table td,
+        .dark .detail-table tr { background: var(--card-bg) !important; }
+        .dark .detail-table th,
+        .dark .detail-table td { border-color: var(--border) !important; }
 
-        /* SIDEBAR */
+        * { font-family: 'Inter', 'system-ui', sans-serif !important; }
+
+        body {
+            background: var(--bg) !important;
+            color: var(--text) !important;
+        }
+
+        /* ============================================
+           SIDEBAR
+           ============================================ */
         .sidebar {
-            background: #ffffff;
-            border-right: 1px solid #e5e7eb;
-            transition: transform 0.3s ease;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
             position: fixed;
             top: 0;
             left: 0;
             height: 100%;
-            width: 280px;
+            width: var(--sidebar-w);
             z-index: 50;
             overflow-y: auto;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .sidebar-hidden { transform: translateX(-100%) !important; }
 
-        /* MAIN CONTENT */
-        .main-content {
-            transition: margin-left 0.3s ease;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+        .sidebar-logo {
+            padding: 24px 24px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .sidebar-logo h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.02em;
+        }
+        .sidebar-logo p {
+            font-size: 10px;
+            color: var(--text-dims);
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-top: 2px;
         }
 
-        /* NAVIGASI */
+        .sidebar-nav {
+            padding: 12px 12px;
+        }
+        .sidebar-section {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text);
+            padding: 20px 14px 6px;
+            display: block;
+        }
         .nav-item {
-            color: #6b7280;
-            transition: all 0.2s ease;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 500;
-            padding: 12px 16px;
             display: flex;
             align-items: center;
             gap: 12px;
+            padding: 10px 14px;
+            margin-bottom: 2px;
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            text-decoration: none;
         }
         .nav-item:hover {
-            background: #f3f4f6;
-            color: #1f2937;
+            background: var(--primary-light);
+            color: var(--primary);
         }
         .nav-item.active {
-            background: #eff6ff;
-            color: #2563eb;
+            background: var(--primary-light);
+            color: var(--primary);
             font-weight: 600;
         }
-        .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            opacity: 0.6;
+        }
+        .nav-item.active svg { opacity: 1; }
+        .nav-item.logout {
+            margin-top: 8px;
+            border-top: 1px solid var(--border);
+            padding-top: 14px;
+            color: var(--danger);
+        }
+        .nav-item.logout:hover {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+        .nav-item.logout svg { opacity: 1; }
 
-        /* HEADER */
+        /* ============================================
+           MAIN CONTENT
+           ============================================ */
+        .main-content {
+            margin-left: var(--sidebar-w);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .main-content.full-width { margin-left: 0 !important; }
+
+        /* ============================================
+           HEADER BAR
+           ============================================ */
         .header-bar {
-            background: #ffffff;
-            border-bottom: 1px solid #e5e7eb;
+            background: var(--header-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
             position: sticky;
             top: 0;
             z-index: 40;
@@ -83,10 +366,11 @@
             align-items: center;
         }
 
-        /* OVERLAY */
+        /* ============================================
+           OVERLAY (mobile sidebar)
+           ============================================ */
         .overlay {
-            background: rgba(0,0,0,0.4);
-            backdrop-filter: blur(2px);
+            background: rgba(0,0,0,0.35);
             position: fixed;
             inset: 0;
             z-index: 45;
@@ -94,41 +378,232 @@
         }
         .overlay.show { display: block; }
 
-        /* SIDEBAR LABEL */
-        .sidebar-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: #9ca3af;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            padding: 0 12px;
-            margin-bottom: 8px;
-            display: block;
+        /* ============================================
+           CARDS — hangat, shadow, no harsh borders
+           ============================================ */
+        .card {
+            background: var(--card-bg);
+            border-radius: 14px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(74,63,107,0.05);
+            overflow: hidden;
+        }
+        .card-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .card-body {
+            padding: 20px 24px;
         }
 
-        /* LOGO */
-        .logo-text { font-size: 18px; font-weight: 700; color: #1f2937; }
-        .logo-sub { font-size: 10px; color: #9ca3af; }
+        /* stat cards */
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 14px;
+            padding: 20px 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(74,63,107,0.05);
+        }
+        .stat-card .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
 
-        /* SCROLLBAR */
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: #f3f4f6; }
-        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+        /* ============================================
+           BUTTONS
+           ============================================ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #3d3460;
+            box-shadow: 0 4px 14px rgba(74,63,107,0.25);
+            transform: translateY(-1px);
+        }
+        .btn-secondary {
+            background: #f0ede8;
+            color: var(--text);
+        }
+        .btn-secondary:hover {
+            background: #e5e0d8;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--border);
+            color: var(--text);
+        }
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-light);
+        }
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 13px;
+            border-radius: 8px;
+        }
+        .btn-xs {
+            padding: 4px 10px;
+            font-size: 12px;
+            border-radius: 6px;
+        }
 
-        /* HAMBURGER BUTTON */
+        /* ============================================
+           TABLES
+           ============================================ */
+        .table-wrap {
+            overflow-x: auto;
+        }
+        .table-wrap table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table-wrap th {
+            text-align: left;
+            padding: 12px 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            border-bottom: 1.5px solid var(--border);
+            background: var(--card-bg);
+        }
+        .table-wrap td {
+            padding: 14px 20px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+        .table-wrap tr:last-child td { border-bottom: none; }
+        .table-wrap tr:hover td {
+            background: var(--table-hover);
+        }
+
+        /* ============================================
+           FORM ELEMENTS
+           ============================================ */
+        .form-input {
+            width: 100%;
+            padding: 10px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: 14px;
+            background: var(--input-bg);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            outline: none;
+            color: var(--text);
+        }
+        .form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(74,63,107,0.1);
+        }
+        .form-input::placeholder { color: var(--text-dims); }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238a8698' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+        .form-input option,
+        .form-select option,
+        select option {
+            background: var(--input-bg);
+            color: var(--text);
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            letter-spacing: 0.02em;
+        }
+
+        /* ============================================
+           ALERTS
+           ============================================ */
+        .alert {
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .alert-success {
+            background: var(--success-light);
+            color: #2d5a42;
+        }
+        .alert-error, .alert-danger {
+            background: var(--danger-light);
+            color: #8a3a3a;
+        }
+        .alert-warning {
+            background: var(--warning-light);
+            color: #7a5e2a;
+        }
+        .alert-info {
+            background: #e8f0fe;
+            color: #1a4f7a;
+        }
+
+        /* ============================================
+           BADGE / STATUS TAG
+           ============================================ */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+        }
+        .badge-success { background: var(--success-light); color: #2d5a42; }
+        .badge-warning { background: var(--warning-light); color: #7a5e2a; }
+        .badge-danger { background: var(--danger-light); color: #8a3a3a; }
+        .badge-info { background: var(--primary-light); color: var(--primary); }
+        .badge-neutral { background: #f0ede8; color: var(--text-muted); }
+
+        /* ============================================
+           HAMBURGER
+           ============================================ */
         .hamburger-btn {
             padding: 8px;
-            border-radius: 8px;
+            border-radius: 10px;
             transition: background 0.2s ease;
             cursor: pointer;
             background: transparent;
             border: none;
         }
-        .hamburger-btn:hover { background: #f3f4f6; }
-        .hamburger-btn svg { width: 24px; height: 24px; color: #4b5563; }
+        .hamburger-btn:hover { background: rgba(74,63,107,0.06); }
+        .hamburger-btn svg { width: 24px; height: 24px; color: var(--text-muted); }
 
-        /* RESPONSIVE */
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
         @media (max-width: 1023px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.mobile-show { transform: translateX(0) !important; }
@@ -137,74 +612,53 @@
         @media (min-width: 1024px) {
             .sidebar { transform: translateX(0); }
             .sidebar.hidden-desktop { transform: translateX(-100%) !important; }
-            .main-content { margin-left: 280px; }
+            .main-content { margin-left: var(--sidebar-w); }
             .main-content.full-width { margin-left: 0 !important; }
         }
 
-        #skeleton-overlay {
-            position: absolute;
-            inset: 0;
-            z-index: 50;
-            background: #f0f0f2;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-            overflow-y: auto;
+        /* ============================================
+           SCROLLBAR
+           ============================================ */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
+
+        /* ============================================
+           SKELETON OVERLAY
+           ============================================ */
         }
-        #skeleton-overlay.active {
-            pointer-events: auto;
-            opacity: 1;
-        }
-        #skeleton-overlay .sk-inner {
-            padding: 24px 32px;
-        }
-        .sk-block {
-            background: #fff;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
-            padding: 20px;
-            margin-bottom: 16px;
-        }
-        .sk-line {
-            height: 16px;
-            border-radius: 6px;
-            background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
-            background-size: 200% 100%;
-            animation: sk-shimmer 1.5s infinite ease-in-out;
-        }
-        .sk-line-sm { height: 12px; }
-        .sk-line-lg { height: 24px; }
-        .sk-line-xl { height: 36px; }
-        .sk-row {
+
+        /* ============================================
+           TOGGLER (sidebar desktop show/hide)
+           ============================================ */
+        .sidebar-toggler {
+            position: fixed;
+            left: var(--sidebar-w);
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 49;
+            width: 20px;
+            height: 48px;
+            background: var(--sidebar-bg);
+            border: 1px solid var(--border);
+            border-left: none;
+            border-radius: 0 8px 8px 0;
             display: flex;
-            gap: 16px;
-            padding: 12px 0;
-            border-bottom: 1px solid #f3f4f6;
-        }
-        .sk-cell { flex: 1; }
-        .sk-cell-sm { flex: 0 0 60px; }
-        .sk-cell-md { flex: 0 0 120px; }
-        @keyframes sk-shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-        .sk-header {
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
+            justify-content: center;
+            cursor: pointer;
+            transition: left 0.3s ease, opacity 0.2s ease;
+            opacity: 0;
+            pointer-events: none;
+            color: var(--text-muted);
         }
-        .sk-card-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
+        .sidebar-toggler:hover { opacity: 1; }
+        .sidebar-toggler svg { width: 14px; height: 14px; }
     </style>
     @stack('styles')
 </head>
 <body>
-
 
     <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
 
@@ -212,124 +666,91 @@
     {{-- SIDEBAR --}}
     {{-- ========================================= --}}
     <aside id="sidebar" class="sidebar">
-        {{-- LOGO --}}
-        <div class="p-6 border-b border-gray-200">
-            <h1 class="logo-text text-gray-900">SIDIGAS</h1>
+        <div class="sidebar-logo">
+            <h1>SIDIGAS</h1>
+            <p>Sistem Distribusi Gaji</p>
         </div>
 
-        {{-- MENU --}}
-        <nav class="p-4 space-y-0.5">
-            <span class="sidebar-label">Menu</span>
+        <nav class="sidebar-nav">
+            <span class="sidebar-section">Menu</span>
 
             <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
                 </svg>
                 <span>Dashboard</span>
             </a>
 
             <a href="{{ route('sopir.index') }}" class="nav-item {{ request()->routeIs('sopir.*') ? 'active' : '' }}">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                 </svg>
                 <span>Kelola Sopir</span>
             </a>
 
             <a href="{{ route('tujuan.index') }}" class="nav-item {{ request()->routeIs('tujuan.*') ? 'active' : '' }}">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                 </svg>
                 <span>Kelola Tujuan</span>
             </a>
 
-            <a href="{{ route('validasi-bukti.kelola') }}" class="nav-item {{ request()->routeIs('validasi-bukti.*') ? 'active' : '' }}">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <span>Validasi Bukti</span>
-            </a>
-
             <a href="{{ route('periode.index') }}" class="nav-item {{ request()->routeIs('periode.*') ? 'active' : '' }}">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                 </svg>
                 <span>Kelola Periode</span>
             </a>
 
             <a href="{{ route('ritase.index') }}" class="nav-item {{ request()->routeIs('ritase.*') ? 'active' : '' }}">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
                 </svg>
                 <span>Kelola Ritase</span>
             </a>
 
-            <span class="sidebar-label mt-5">Keuangan</span>
+            <span class="sidebar-section">Keuangan</span>
 
-            <a href="{{ route('gaji.index') }}" class="nav-item {{ request()->routeIs('gaji.index') || request()->routeIs('gaji.edit') || request()->routeIs('gaji.slip') ? 'active' : '' }}">
+            <a href="{{ route('gaji.index') }}" class="nav-item {{ request()->routeIs('gaji.index') ? 'active' : '' }}">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
                 <span>Hitung Gaji</span>
             </a>
 
             <a href="{{ route('gaji.riwayat') }}" class="nav-item {{ request()->routeIs('gaji.riwayat') ? 'active' : '' }}">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
                 <span>Riwayat Gaji</span>
             </a>
 
+            <span class="sidebar-section">Lainnya</span>
+
             <a href="{{ route('gaji.laporan') }}" class="nav-item {{ request()->routeIs('gaji.laporan') ? 'active' : '' }}">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
                 <span>Laporan Gaji</span>
             </a>
 
-            <span class="sidebar-label mt-5">Akun</span>
-
-            <a href="{{ route('profil') }}" class="nav-item {{ request()->routeIs('profil') ? 'active' : '' }}">
+            <a href="#" onclick="event.preventDefault(); document.getElementById('sidebarLogoutForm').submit();" class="nav-item logout">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                 </svg>
-                <span>Profil</span>
+                <span>Keluar</span>
             </a>
+            <form id="sidebarLogoutForm" method="POST" action="{{ route('logout') }}" class="hidden">@csrf</form>
         </nav>
-
-        {{-- USER DROPDOWN --}}
-        <div class="p-4 border-t border-gray-200 mt-auto relative" id="userDropdown">
-            <button onclick="toggleUserMenu()" class="w-full flex items-center gap-3 px-3 py-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all cursor-pointer">
-                <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span class="text-sm font-bold text-gray-600">{{ substr($user->name, 0, 1) }}</span>
-                </div>
-                <div class="flex-1 min-w-0 text-left">
-                    <p class="text-sm font-medium text-gray-800 truncate">{{ $user->name }}</p>
-                    <p class="text-xs text-gray-400 truncate">{{ $user->email }}</p>
-                </div>
-                <svg class="w-4 h-4 text-gray-400 transition-transform duration-200" id="userChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-            <div id="userMenu" class="absolute bottom-full left-4 right-4 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg hidden overflow-hidden">
-            <a href="{{ route('profil') }}" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                    </svg>
-                    <span>Profil</span>
-                </a>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                        </svg>
-                        <span>Logout</span>
-                    </button>
-                </form>
-            </div>
-        </div>
     </aside>
+
+    {{-- SIDEBAR TOGGLER (desktop) --}}
+    <div id="sidebarToggler" class="sidebar-toggler" onclick="toggleSidebarDesktop()" title="Toggle sidebar">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+    </div>
 
     {{-- ========================================= --}}
     {{-- MAIN CONTENT --}}
@@ -337,208 +758,177 @@
     <div id="mainContent" class="main-content" style="position:relative">
 
         {{-- HEADER BAR --}}
-        <header class="header-bar">
-            <div class="px-4 sm:px-6 lg:px-8 w-full">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        {{-- HAMBURGER BUTTON --}}
-                        <button id="hamburgerBtn" class="hamburger-btn" onclick="toggleSidebar()" title="Toggle Sidebar">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        <header class="header-bar px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between w-full">
+                <div class="flex items-center gap-3">
+                    <button class="hamburger-btn" onclick="(window.innerWidth>=1024?toggleSidebarDesktop():toggleSidebar())" aria-label="Toggle sidebar">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                    <div>
+                        <h2 class="text-base font-semibold text-[var(--text)]">{{ $pageTitle ?? $title ?? 'Dashboard' }}</h2>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    {{-- Theme toggle --}}
+                    <button id="themeToggle" onclick="toggleTheme()" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-[var(--primary-light)] transition text-sm" style="color:var(--text-muted)" title="Ganti tema">
+                        <svg id="themeIconLight" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                        <svg id="themeIconDark" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-5 h-5" style="display:none">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                        </svg>
+                    </button>
+                    <span id="liveDate" class="text-sm text-[var(--text)] font-medium">{{ \Carbon\Carbon::now()->locale('id')->translatedFormat('j F Y') }}</span>
+                    <span class="text-sm text-[var(--text)]">|</span>
+                    <span id="liveTime" class="text-sm text-[var(--text)] font-mono tabular-nums">00:00:00</span>
+                    <form method="POST" action="{{ route('logout') }}" class="inline">
+                        @csrf
+                        <button type="submit" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-[var(--primary-light)] transition text-sm" style="color:var(--text-muted)" title="Keluar">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                             </svg>
                         </button>
-                        <h1 class="text-lg font-semibold text-gray-800">{{ $pageTitle ?? 'Dashboard' }}</h1>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <span class="text-sm text-gray-500 hidden md:inline">{{ now()->translatedFormat('d F Y') }}</span>
-                        <span class="text-gray-300 hidden md:inline">|</span>
-                        <span id="liveTime" class="text-sm text-gray-600 font-mono">00:00:00</span>
-                    </div>
+                    </form>
                 </div>
             </div>
         </header>
 
         {{-- CONTENT --}}
-        <main class="flex-1 p-4 sm:p-6 lg:p-8">
+        <main class="flex-1 p-6 sm:p-8 lg:p-10">
             {{ $slot }}
         </main>
+
         {{-- SKELETON OVERLAY — dalem mainContent biar sidebar keliatan --}}
-        <div id="skeleton-overlay">
-            <div class="sk-inner">
-                <div class="sk-header">
-                    <div class="sk-block" style="width:240px;padding:16px 20px;margin:0">
-                        <div class="sk-line sk-line-lg" style="width:70%;margin-bottom:8px"></div>
-                        <div class="sk-line sk-line-sm" style="width:45%"></div>
-                    </div>
-                    <div class="sk-block" style="width:120px;padding:16px 20px;margin:0">
-                        <div class="sk-line" style="width:60%"></div>
-                    </div>
-                </div>
-                <div class="sk-card-row">
-                    <div class="sk-block" style="margin:0"><div class="sk-line sk-line-lg" style="width:40%;margin-bottom:10px"></div><div class="sk-line sk-line-xl" style="width:60%"></div></div>
-                    <div class="sk-block" style="margin:0"><div class="sk-line sk-line-lg" style="width:40%;margin-bottom:10px"></div><div class="sk-line sk-line-xl" style="width:60%"></div></div>
-                    <div class="sk-block" style="margin:0"><div class="sk-line sk-line-lg" style="width:40%;margin-bottom:10px"></div><div class="sk-line sk-line-xl" style="width:60%"></div></div>
-                </div>
-                <div class="sk-block">
-                    <div class="sk-line sk-line-lg" style="width:30%;margin-bottom:16px"></div>
-                    <div class="sk-row" style="border-bottom-color:#e5e7eb">
-                        <div class="sk-cell"><div class="sk-line"></div></div>
-                        <div class="sk-cell-md"><div class="sk-line"></div></div>
-                        <div class="sk-cell-md"><div class="sk-line"></div></div>
-                        <div class="sk-cell-sm"><div class="sk-line"></div></div>
-                    </div>
-                    <div class="sk-row">
-                        <div class="sk-cell"><div class="sk-line" style="width:70%"></div></div>
-                        <div class="sk-cell-md"><div class="sk-line" style="width:65%"></div></div>
-                        <div class="sk-cell-md"><div class="sk-line" style="width:55%"></div></div>
-                        <div class="sk-cell-sm"><div class="sk-line"></div></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
     {{-- ========================================= --}}
     {{-- SCRIPTS --}}
     {{-- ========================================= --}}
+    @stack('scripts')
+
     <script>
         (function() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            const mainContent = document.getElementById('mainContent');
-            const isMobile = () => window.innerWidth < 1024;
+            'use strict';
 
-            let isSidebarOpen = !isMobile();
+            // ===== TOGGLE SIDEBAR (mobile) =====
+            window.toggleSidebar = function() {
+                var sidebar = document.getElementById('sidebar');
+                var overlay = document.getElementById('overlay');
+                sidebar.classList.toggle('mobile-show');
+                overlay.classList.toggle('show');
+                document.body.style.overflow = sidebar.classList.contains('mobile-show') ? 'hidden' : '';
+            };
 
-            function updateSidebarState() {
-                const mobile = isMobile();
-
-                if (mobile) {
-                    // Mobile: pakai class mobile-show
-                    sidebar.classList.remove('hidden-desktop');
-                    if (isSidebarOpen) {
-                        sidebar.classList.add('mobile-show');
-                        overlay.classList.add('show');
-                    } else {
-                        sidebar.classList.remove('mobile-show');
-                        overlay.classList.remove('show');
-                    }
-                    mainContent.classList.remove('full-width');
+            // ===== TOGGLE SIDEBAR (desktop) =====
+            window.toggleSidebarDesktop = function() {
+                var sidebar = document.getElementById('sidebar');
+                var main = document.getElementById('mainContent');
+                var toggler = document.getElementById('sidebarToggler');
+                sidebar.classList.toggle('hidden-desktop');
+                main.classList.toggle('full-width');
+                toggler.classList.toggle('collapsed');
+                if (sidebar.classList.contains('hidden-desktop')) {
+                    toggler.style.left = '0';
+                    toggler.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>';
                 } else {
-                    // Desktop: pakai class hidden-desktop
-                    sidebar.classList.remove('mobile-show');
-                    overlay.classList.remove('show');
-                    if (isSidebarOpen) {
-                        sidebar.classList.remove('hidden-desktop');
-                        mainContent.classList.remove('full-width');
-                    } else {
-                        sidebar.classList.add('hidden-desktop');
-                        mainContent.classList.add('full-width');
-                    }
+                    toggler.style.left = 'var(--sidebar-w)';
+                    toggler.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>';
                 }
+            };
+
+            // Show toggler on hover at edge
+            var togglerEl = document.getElementById('sidebarToggler');
+            if (togglerEl) {
+                document.addEventListener('mousemove', function(e) {
+                    if (e.clientX <= 10) {
+                        togglerEl.style.opacity = '1';
+                        togglerEl.style.pointerEvents = 'auto';
+                    } else if (e.clientX > 40) {
+                        togglerEl.style.opacity = '0';
+                        togglerEl.style.pointerEvents = 'none';
+                    }
+                });
             }
 
-            window.toggleSidebar = function() {
-                isSidebarOpen = !isSidebarOpen;
-                updateSidebarState();
-            };
+            // ===== USER DROPDOWN =====
+            // (removed — user menu replaced with inline logout)
 
-            window.addEventListener('resize', function() {
-                // Reset state sesuai ukuran layar
-                if (isMobile()) {
-                    // Jika di mobile, sidebar default tertutup
-                    if (!sidebar.classList.contains('mobile-show') && isSidebarOpen) {
-                        isSidebarOpen = false;
-                    }
-                } else {
-                    // Jika di desktop, sidebar default terbuka
-                    if (sidebar.classList.contains('hidden-desktop') && !isSidebarOpen) {
-                        isSidebarOpen = true;
-                    }
-                }
-                updateSidebarState();
-            });
-
-            // ESC close sidebar
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && isSidebarOpen) {
-                    if (isMobile()) {
-                        isSidebarOpen = false;
-                        updateSidebarState();
-                    }
-                }
-            });
-
-            // Click outside (mobile only)
-            overlay.addEventListener('click', function() {
-                if (isMobile() && isSidebarOpen) {
-                    isSidebarOpen = false;
-                    updateSidebarState();
-                }
-            });
-
-            // USER DROPDOWN
-            window.toggleUserMenu = function() {
-                const menu = document.getElementById('userMenu');
-                const chevron = document.getElementById('userChevron');
-                const isHidden = menu.classList.contains('hidden');
-                menu.classList.toggle('hidden');
-                if (chevron) {
-                    chevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
-                }
-            };
-            document.addEventListener('click', function(e) {
-                const dropdown = document.getElementById('userDropdown');
-                const menu = document.getElementById('userMenu');
-                if (dropdown && !dropdown.contains(e.target) && !menu.classList.contains('hidden')) {
-                    menu.classList.add('hidden');
-                    const chevron = document.getElementById('userChevron');
-                    if (chevron) chevron.style.transform = 'rotate(0deg)';
-                }
-            });
-
-            // INIT
-            updateSidebarState();
-
-            // LIVE TIME — clear interval lama biar gak numpuk
-            if (window._liveTimeInterval) clearInterval(window._liveTimeInterval);
+            // ===== LIVE CLOCK =====
             function updateDateTime() {
-                const now = new Date();
-                const time = String(now.getHours()).padStart(2,'0') + ':' +
-                             String(now.getMinutes()).padStart(2,'0') + ':' +
-                             String(now.getSeconds()).padStart(2,'0');
-                const el = document.getElementById('liveTime');
+                var now = new Date();
+                var time = String(now.getHours()).padStart(2,'0') + ':' +
+                           String(now.getMinutes()).padStart(2,'0') + ':' +
+                           String(now.getSeconds()).padStart(2,'0');
+                var el = document.getElementById('liveTime');
                 if (el) el.textContent = time;
             }
             updateDateTime();
             window._liveTimeInterval = setInterval(updateDateTime, 1000);
-
         })();
     </script>
     <script>
-        // Skeleton overlay — muncul pas klik link, ilang pas halaman baru siap
+        // Desktop sidebar: klik di luar sidebar → collapse
         document.addEventListener('click', function(e) {
-            var link = e.target.closest('a');
-            if (link && link.href && link.href.indexOf(window.location.origin) === 0 && !link.hasAttribute('target') && !link.hasAttribute('data-turbo') && !link.getAttribute('href').startsWith('#')) {
-                var sk = document.getElementById('skeleton-overlay');
-                if (sk) {
-                    sk.dataset.showTime = Date.now();
-                    sk.classList.add('active');
+            if (window.innerWidth < 1024) return;
+            // Skip if inside a modal
+            if (e.target.closest('.fixed.inset-0.z-50')) return;
+            var sidebar = document.getElementById('sidebar');
+            if (!sidebar || sidebar.classList.contains('hidden-desktop')) return;
+            if (sidebar.contains(e.target) || e.target.closest('#sidebarToggler') || e.target.closest('.hamburger-btn')) return;
+            toggleSidebarDesktop();
+        });
+
+        // Modal click-outside — tutup modal kalo klik backdrop
+        document.addEventListener('click', function(e) {
+            var el = e.target;
+            if (el.classList.contains('fixed') && el.classList.contains('inset-0') && el.classList.contains('z-50')) {
+                if (el.classList.contains('hidden')) return;
+                if (el.style.display !== 'none') {
+                    el.classList.contains('flex') ? el.remove() : el.classList.add('hidden');
                 }
             }
         });
-        window.addEventListener('pageshow', function() {
-            var sk = document.getElementById('skeleton-overlay');
-            if (sk) {
-                sk.classList.remove('active');
+
+        // ===== THEME TOGGLE =====
+        function toggleTheme() {
+            var html = document.documentElement;
+            var isDark = html.classList.contains('dark');
+            if (isDark) {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
             }
-        });
-        window.addEventListener('popstate', function() {
-            var sk = document.getElementById('skeleton-overlay');
-            if (sk) sk.classList.remove('active');
+            updateThemeIcons();
+        }
+        function updateThemeIcons() {
+            var isDark = document.documentElement.classList.contains('dark');
+            var lightIcon = document.getElementById('themeIconLight');
+            var darkIcon = document.getElementById('themeIconDark');
+            if (lightIcon) lightIcon.style.display = isDark ? 'none' : '';
+            if (darkIcon) darkIcon.style.display = isDark ? '' : 'none';
+        }
+        // Apply saved theme on load
+        (function() {
+            var saved = localStorage.getItem('theme');
+            if (saved === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else if (!saved) {
+                // Check system preference
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.classList.add('dark');
+                }
+            }
+            updateThemeIcons();
+        })();
+
+        // Cegah browser autofill — paksa autocomplete=off di semua form
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('form').forEach(function(f) {
+                f.setAttribute('autocomplete', 'off');
+            });
         });
     </script>
-    @stack('scripts')
 </body>
 </html>

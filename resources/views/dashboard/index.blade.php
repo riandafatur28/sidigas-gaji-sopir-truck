@@ -1,230 +1,218 @@
 <x-layouts.dashboard
     :title="'Dashboard'"
     :pageTitle="'Dashboard'"
-    :user="auth()->user()">
+    >
 
-    {{-- HEADER --}}
-    <div class="border-b border-gray-200 pb-4 mb-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
-                <p class="text-base text-gray-500 mt-1">Halo, {{ explode(' ', auth()->user()->name)[0] }}</p>
-            </div>
-            <div class="flex items-center gap-3">
-                <span class="text-sm text-gray-500">{{ $periodLabel }}</span>
-                <select id="periodeFilter" onchange="window.location.href='{{ route('dashboard') }}?periode='+this.value" class="text-sm border border-gray-200 rounded px-3 py-1.5 text-gray-700 bg-white focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20">
-                    <option value="semua" {{ $filter == 'semua' ? 'selected' : '' }}>Semua</option>
-                    <option value="periode_ini" {{ $filter == 'periode_ini' ? 'selected' : '' }}>Periode Ini</option>
-                    <option value="periode_lalu" {{ $filter == 'periode_lalu' ? 'selected' : '' }}>Periode Lalu</option>
-                    <option value="bulan_ini" {{ $filter == 'bulan_ini' ? 'selected' : '' }}>Bulan Ini</option>
-                    <option value="3_bulan_lalu" {{ $filter == '3_bulan_lalu' ? 'selected' : '' }}>3 Bulan Lalu</option>
-                    <option value="6_bulan_lalu" {{ $filter == '6_bulan_lalu' ? 'selected' : '' }}>6 Bulan Lalu</option>
-                    <option value="1_tahun_lalu" {{ $filter == '1_tahun_lalu' ? 'selected' : '' }}>1 Tahun Lalu</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    {{-- METRIK CARD MENYAMPING (4 KOLOM) --}}
-    <div class="grid grid-cols-4 gap-4 mb-6">
-        <div class="border border-gray-200 rounded px-5 py-4 bg-white">
-            <p class="text-sm text-gray-500 uppercase tracking-wider font-semibold">Armada Aktif</p>
-            <p class="text-4xl font-bold text-gray-900 mt-1">{{ $sopirAktif }}</p>
-            <p class="text-sm text-gray-400 mt-1">dari {{ $totalSopir }} total</p>
-        </div>
-        <div class="border border-gray-200 rounded px-5 py-4 bg-white">
-            <p class="text-sm text-gray-500 uppercase tracking-wider font-semibold">Ritase Selesai</p>
-            <p class="text-4xl font-bold text-gray-900 mt-1">{{ number_format($totalRitase) }}</p>
-            <p class="text-sm text-gray-400 mt-1">tervalidasi</p>
-        </div>
-        <div class="border border-gray-200 rounded px-5 py-4 bg-white">
-            <div class="flex items-center justify-between">
-                <p class="text-sm text-gray-500 uppercase tracking-wider font-semibold">Menunggu Verifikasi</p>
-                <select id="filterValidasi" onchange="ubahValidasi(this.value)"
-                    class="text-xs border border-gray-200 rounded px-2 py-1 text-gray-600 bg-white focus:border-[#1a1a2e]">
-                    <option value="pending">Pending</option>
-                    <option value="disetujui">Disetujui</option>
-                    <option value="ditolak">Ditolak</option>
-                </select>
-            </div>
-            <p id="angkaValidasi" class="text-4xl font-bold text-gray-900 mt-1">{{ $validasiPending }}</p>
-            <p id="labelValidasi" class="text-sm text-gray-400 mt-1">butuh review</p>
-        </div>
-        <div class="border border-gray-200 rounded px-5 py-4 bg-white">
-            <p class="text-sm text-gray-500 uppercase tracking-wider font-semibold">Total Gaji</p>
-            <p class="text-4xl font-bold text-gray-900 mt-1">
-                @if($totalGaji >= 1000000)
-                    Rp {{ number_format($totalGaji / 1000000, 1) }} Jt
+    {{-- HEADER -- sapaan personal + endowment + fresh-start effect --}}
+    <div class="flex items-start justify-between mb-8">
+        <div>
+            <h1 class="text-2xl font-bold" style="color:var(--text)">Dashboard</h1>
+            <p class="text-sm mt-1" style="color:var(--text-muted)">
+                Halo, <strong style="color:var(--text)">{{ explode(' ', auth()->user()->name)[0] }}</strong>.
+                @if($hariIniRitase > 0)
+                    Hari ini <strong style="color:var(--primary)">{{ $hariIniRitase }} ritase</strong> sudah tercatat.
                 @else
-                    Rp {{ number_format($totalGaji, 0, ',', '.') }}
+                    Belum ada ritase hari ini — mulai catat perjalanan pertama.
+                @endif
+                @if($sisaHari > 0 && $periodeAktif)
+                    Periode tersisa <strong style="color:var(--accent)">{{ $sisaHari }} hari</strong>.
                 @endif
             </p>
-            <p class="text-sm text-gray-400 mt-1">{{ strtolower($periodLabel) }}</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <select id="periodeFilter" onchange="window.location.href='{{ route('dashboard') }}?periode='+this.value+(document.getElementById('tanggalFilter').value ? '&tanggal='+document.getElementById('tanggalFilter').value : '')"
+                class="form-input form-select text-sm px-3 py-1.5" style="width:auto;display:inline-block">
+                <option value="semua" {{ $filter == 'semua' ? 'selected' : '' }}>Semua Waktu</option>
+                <option value="periode_ini" {{ $filter == 'periode_ini' ? 'selected' : '' }}>Periode Ini</option>
+                <option value="periode_lalu" {{ $filter == 'periode_lalu' ? 'selected' : '' }}>Periode Lalu</option>
+                <option value="bulan_ini" {{ $filter == 'bulan_ini' ? 'selected' : '' }}>Bulan Ini</option>
+                <option value="3_bulan_lalu" {{ $filter == '3_bulan_lalu' ? 'selected' : '' }}>3 Bulan</option>
+                <option value="6_bulan_lalu" {{ $filter == '6_bulan_lalu' ? 'selected' : '' }}>6 Bulan</option>
+                <option value="1_tahun_lalu" {{ $filter == '1_tahun_lalu' ? 'selected' : '' }}>1 Tahun</option>
+            </select>
+            <input type="date" id="tanggalFilter" value="{{ $tanggal }}" onchange="window.location.href='{{ route('dashboard') }}?periode='+document.getElementById('periodeFilter').value+'&tanggal='+this.value"
+                class="px-3 py-2 border border-gray-200 rounded text-sm bg-white">
+            @if($tanggal)
+                <a href="{{ route('dashboard') }}?periode={{ $filter }}" class="px-3 py-2 border border-gray-200 rounded text-sm text-gray-600 hover:bg-gray-50 bg-white">Reset</a>
+            @endif
         </div>
     </div>
 
-    {{-- MENU --}}
-    <div class="w-full border border-gray-200 rounded mb-6 overflow-hidden bg-white">
-        <table class="w-full">
-            <thead>
-                <tr class="bg-gray-50 border-b border-gray-200">
-                    <th class="text-left text-sm font-semibold text-gray-600 uppercase tracking-wider px-5 py-3" colspan="2">Akses Cepat</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="px-5 py-3" colspan="2">
-                        <div class="flex flex-wrap gap-2">
-                            <a href="{{ route('ritase.index') }}" class="text-sm text-gray-700 hover:text-gray-900 px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 font-medium">Input Ritase</a>
-                            <a href="#" class="text-sm text-gray-700 hover:text-gray-900 px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 font-medium">Verifikasi</a>
-                            <a href="{{ route('gaji.index') }}" class="text-sm text-gray-700 hover:text-gray-900 px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 font-medium">Hitung Gaji</a>
-                            <a href="#" class="text-sm text-gray-700 hover:text-gray-900 px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 font-medium">Cetak Slip</a>
-                            <a href="{{ route('sopir.index') }}" class="text-sm text-gray-700 hover:text-gray-900 px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 font-medium">Kelola Sopir</a>
-                            <a href="{{ route('periode.index') }}" class="text-sm text-gray-700 hover:text-gray-900 px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 font-medium">Kelola Periode</a>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    {{-- AKTIVITAS & RINGKASAN --}}
-    <div class="grid grid-cols-3 gap-6 mb-6">
-
-        {{-- Aktivitas --}}
-        <div class="col-span-2 w-full border border-gray-200 rounded overflow-hidden bg-white">
-            <table class="w-full">
-                <thead>
-                    <tr class="bg-gray-50 border-b border-gray-200">
-                        <th class="text-left text-sm font-semibold text-gray-600 uppercase tracking-wider px-5 py-3">Aktivitas Terbaru</th>
-                        <th class="text-right text-sm font-semibold text-gray-600 uppercase tracking-wider px-5 py-3">
-                            <a href="{{ route('ritase.index') }}" class="text-gray-600 hover:text-gray-900">Lihat Semua →</a>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($recentRitase as $rit)
-                    <tr class="border-b border-gray-100 hover:bg-gray-50">
-                        <td class="px-5 py-3">
-                            <div class="flex items-center gap-3">
-                                <span class="text-base font-medium text-gray-800">{{ $rit->sopir->nama ?? 'Unknown' }}</span>
-                                <span class="text-base text-gray-400">→</span>
-                                <span class="text-base text-gray-600">{{ $rit->tujuan->nama ?? '-' }}</span>
-                            </div>
-                        </td>
-                        <td class="px-5 py-3 text-right">
-                            <span class="text-base text-gray-400 mr-3">{{ $rit->tanggal->format('d/m/Y') }}</span>
-                            <span class="text-sm
-                                {{ $rit->status == 'valid' ? 'text-green-700' : '' }}
-                                {{ $rit->status == 'pending' ? 'text-yellow-700' : '' }}
-                                {{ $rit->status == 'gagal_produksi' ? 'text-red-700' : '' }}">
-                                {{ $rit->status == 'valid' ? '✓ Selesai' : ($rit->status == 'pending' ? '○ Pending' : '✗ Gagal') }}
-                            </span>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="2" class="px-5 py-6 text-center text-base text-gray-400">Belum ada aktivitas</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        {{-- Ringkasan --}}
-        <div class="w-full border border-gray-200 rounded overflow-hidden bg-white">
-            <table class="w-full">
-                <thead>
-                    <tr class="bg-gray-50 border-b border-gray-200">
-                        <th class="text-left text-sm font-semibold text-gray-600 uppercase tracking-wider px-5 py-3" colspan="2">Ringkasan</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="border-b border-gray-100">
-                        <td class="px-5 py-3 text-base text-gray-600">Total Armada</td>
-                        <td class="px-5 py-3 text-right text-base font-bold text-gray-900">{{ $totalSopir }}</td>
-                    </tr>
-                    <tr class="border-b border-gray-100">
-                        <td class="px-5 py-3 text-base text-gray-600">Ritase Selesai</td>
-                        <td class="px-5 py-3 text-right text-base font-bold text-gray-900">{{ $ritaseValid ?? 0 }}</td>
-                    </tr>
-                    <tr class="border-b border-gray-100">
-                        <td class="px-5 py-3 text-base text-gray-600">Validasi Pending</td>
-                        <td class="px-5 py-3 text-right text-base font-bold text-gray-900">{{ $validasiPending }}</td>
-                    </tr>
-                    <tr class="border-b border-gray-100">
-                        <td class="px-5 py-3 text-base text-gray-600">Gagal Produksi</td>
-                        <td class="px-5 py-3 text-right text-base font-bold text-gray-900">{{ $ritaseGagal ?? 0 }}</td>
-                    </tr>
-                    <tr>
-                        <td class="px-5 py-3 text-base text-gray-600">Total Gaji</td>
-                        <td class="px-5 py-3 text-right text-base font-bold text-gray-900">Rp {{ number_format($totalGaji, 0, ',', '.') }}</td>
-                    </tr>
-                </tbody>
-            </table>
+    {{-- NEXT ACTION -- satu action utama, kurangi decision fatigue --}}
+    @if($validasiPending > 0)
+    <div class="card mb-6" style="border-left:4px solid var(--accent);border-radius:14px 14px 14px 14px;box-shadow:0 1px 3px rgba(0,0,0,0.04),0 4px 12px rgba(74,63,107,0.05)">
+        <div class="card-body flex items-center justify-between">
+            <div>
+                <p style="font-size:13px;color:var(--text-muted);margin-bottom:2px">Sopir mengandalkan Anda</p>
+                <p style="font-size:15px;font-weight:600;color:var(--text)">
+                    <strong style="color:var(--accent)">{{ $validasiPending }}</strong> validasi menunggu —
+                    sopir belum bisa melihat penghasilan mereka sampai Anda review.
+                </p>
+            </div>
+            <a href="#" class="btn btn-primary btn-sm flex-shrink-0">Review Validasi &rarr;</a>
         </div>
     </div>
+    @elseif($sisaHari > 0 && $sisaHari <= 3 && $periodeAktif)
+    <div class="card mb-6" style="border-left:4px solid var(--primary);border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.04),0 4px 12px rgba(74,63,107,0.05)">
+        <div class="card-body flex items-center justify-between">
+            <div>
+                <p style="font-size:13px;color:var(--text-muted);margin-bottom:2px">Periode hampir berakhir</p>
+                <p style="font-size:15px;font-weight:600;color:var(--text)">
+                    Tinggal <strong style="color:var(--primary)">{{ $sisaHari }} hari</strong> lagi.
+                    Segera hitung gaji sebelum periode ditutup.
+                </p>
+            </div>
+            <a href="{{ route('gaji.index') }}" class="btn btn-primary btn-sm flex-shrink-0">Hitung Gaji</a>
+        </div>
+    </div>
+    @elseif(!$periodeAktif)
+    <div class="card mb-6" style="border-left:4px solid var(--text-dims);border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.04),0 4px 12px rgba(74,63,107,0.05)">
+        <div class="card-body flex items-center justify-between">
+            <div>
+                <p style="font-size:13px;color:var(--text-muted);margin-bottom:2px">Belum ada periode aktif</p>
+                <p style="font-size:15px;font-weight:600;color:var(--text)">
+                    Buat periode baru untuk mulai mencatat ritase dan menghitung gaji.
+                </p>
+            </div>
+            <a href="{{ route('periode.index') }}" class="btn btn-primary btn-sm flex-shrink-0">Buat Periode</a>
+        </div>
+    </div>
+    @endif
 
-    {{-- PROGRESS --}}
-    <div class="w-full border border-gray-200 rounded overflow-hidden bg-white">
-        <table class="w-full">
-            <thead>
-                <tr class="bg-gray-50 border-b border-gray-200">
-                    <th class="text-left text-sm font-semibold text-gray-600 uppercase tracking-wider px-5 py-3">Metrik</th>
-                    <th class="text-right text-sm font-semibold text-gray-600 uppercase tracking-wider px-5 py-3">Progress</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="border-b border-gray-100">
-                    <td class="px-5 py-3 text-base text-gray-700">Produktivitas</td>
-                    <td class="px-5 py-3">
-                        <div class="flex items-center justify-end gap-3">
-                            <span class="text-base font-medium text-gray-800">{{ rand(70, 95) }}%</span>
-                            <div class="w-40 bg-gray-200 h-2">
-                                <div class="bg-gray-800 h-2" style="width: {{ rand(70, 95) }}%"></div>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-                <tr class="border-b border-gray-100">
-                    <td class="px-5 py-3 text-base text-gray-700">Tingkat Validasi</td>
-                    <td class="px-5 py-3">
-                        <div class="flex items-center justify-end gap-3">
-                            <span class="text-base font-medium text-gray-800">{{ rand(75, 98) }}%</span>
-                            <div class="w-40 bg-gray-200 h-2">
-                                <div class="bg-gray-800 h-2" style="width: {{ rand(75, 98) }}%"></div>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="px-5 py-3 text-base text-gray-700">Ketepatan Waktu</td>
-                    <td class="px-5 py-3">
-                        <div class="flex items-center justify-end gap-3">
-                            <span class="text-base font-medium text-gray-800">{{ rand(60, 90) }}%</span>
-                            <div class="w-40 bg-gray-200 h-2">
-                                <div class="bg-gray-800 h-2" style="width: {{ rand(60, 90) }}%"></div>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    {{-- PROGRESS PERIODE -- goal gradient effect --}}
+    @if($periodeAktif)
+    <div class="card mb-6">
+        <div class="card-body">
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <p style="font-size:13px;font-weight:600;color:var(--text)">{{ $periodeAktif->nama_periode }}</p>
+                    <p style="font-size:12px;color:var(--text-muted)">
+                        {{ $periodeAktif->tanggal_mulai->format('d M') }} &mdash; {{ $periodeAktif->tanggal_selesai->format('d M Y') }}
+                        &middot; Sisa {{ $sisaHari }} hari
+                    </p>
+                </div>
+                <span style="font-size:24px;font-weight:700;color:var(--primary)">{{ $progressPeriode }}%</span>
+            </div>
+            <div style="height:6px;background:#e8e4de;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:{{ $progressPeriode }}%;background:linear-gradient(90deg,var(--primary),var(--accent));border-radius:3px;transition:width 0.5s ease"></div>
+            </div>
+            <div class="flex justify-between mt-2">
+                <span style="font-size:11px;color:var(--text-dims)">Mulai</span>
+                <span style="font-size:11px;color:var(--text-dims)">{{ $totalRitase }} ritase tercatat</span>
+                <span style="font-size:11px;color:var(--text-dims)">Selesai</span>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    {{-- 4 STAT CARDS dengan framing psikologis --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {{-- 4 stat: Armada, Ritase, Validasi, Gaji --}}
+        <div class="stat-card">
+            <p style="font-size:12px;color:var(--text-muted);font-weight:500">Sopir Siap</p>
+            <p style="font-size:28px;font-weight:700;color:var(--text);line-height:1">{{ $sopirAktif }}</p>
+            <p style="font-size:12px;color:var(--text-dims)">
+                @if($sopirAktif == $totalSopir) Seluruh armada aktif
+                @else {{ $totalSopir - $sopirAktif }} sopir nonaktif @endif
+            </p>
+        </div>
+        <div class="stat-card">
+            <p style="font-size:12px;color:var(--text-muted);font-weight:500">Ritase Valid</p>
+            <p style="font-size:28px;font-weight:700;color:var(--text);line-height:1">{{ number_format($ritaseValid) }}</p>
+            <p style="font-size:12px;color:var(--text-dims)">
+                @if($totalRitase > 0)
+                    {{ round(($ritaseValid / max($totalRitase,1)) * 100) }}% valid &middot; {{ number_format($ritaseGagal) }} gagal
+                @else Belum ada ritase @endif
+            </p>
+        </div>
+        <div class="stat-card">
+            <p style="font-size:12px;color:var(--text-muted);font-weight:500">Menunggu Validasi</p>
+            <p style="font-size:28px;font-weight:700;color:var(--text);line-height:1">{{ $validasiPending }}</p>
+            <p style="font-size:12px;color:var(--text-dims)">
+                @if($validasiHariIni > 0) {{ $validasiHariIni }} masuk hari ini
+                @elseif($validasiPending > 0) Segera review
+                @else Semua valid @endif
+            </p>
+        </div>
+        <div class="stat-card">
+            <p style="font-size:12px;color:var(--text-muted);font-weight:500">Total Gaji</p>
+            <p style="font-size:28px;font-weight:700;color:var(--text);line-height:1">
+                @if($totalGaji >= 1000000) Rp {{ number_format($totalGaji / 1000000, 1) }} Jt
+                @else Rp {{ number_format($totalGaji, 0, ',', '.') }} @endif
+            </p>
+            <p style="font-size:12px;color:var(--text-dims)">{{ strtolower($periodLabel) }}</p>
+        </div>
+    </div>
+
+    {{-- AKTIVITAS + PEMIMPIN (social proof + competition) --}}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        {{-- Aktivitas terbaru --}}
+        <div class="card lg:col-span-2">
+            <div class="card-header">
+                <span class="text-xs font-semibold uppercase" style="color:var(--text-muted)">Aktivitas Terbaru</span>
+                @if($recentRitase->count() > 0)
+                <a href="{{ route('ritase.index') }}" style="font-size:12px;color:var(--primary);text-decoration:none">Lihat Semua &rarr;</a>
+                @endif
+            </div>
+            <div style="padding:0">
+                @forelse($recentRitase as $rit)
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border);transition:background 0.15s"
+                     onmouseover="this.style.background='rgba(232,229,239,0.3)'" onmouseout="this.style.background=''">
+                    <div class="flex items-center gap-3">
+                        <span style="font-size:14px;font-weight:500;color:var(--text)">{{ $rit->sopir->nama ?? '-' }}</span>
+                        <span style="color:var(--text-dims);font-size:13px">&rarr;</span>
+                        <span style="font-size:13px;color:var(--text-muted)">{{ $rit->tujuan->nama ?? '-' }}</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span style="font-size:12px;color:var(--text-dims)">{{ $rit->tanggal->format('d/m') }}</span>
+                        <span class="badge
+                            {{ $rit->status == 'valid' ? 'badge-success' : '' }}
+                            {{ $rit->status == 'pending' ? 'badge-warning' : '' }}
+                            {{ $rit->status == 'gagal_produksi' ? 'badge-danger' : '' }}">
+                            {{ $rit->status == 'valid' ? 'Selesai' : ($rit->status == 'pending' ? 'Pending' : 'Gagal') }}
+                        </span>
+                    </div>
+                </div>
+                @empty
+                <div style="padding:32px 20px;text-align:center;color:var(--text-dims);font-size:14px">
+                    Belum ada aktivitas tercatat
+                </div>
+                @endforelse
+            </div>
+        </div>
+
+        {{-- Top sopir --}}
+        <div class="flex flex-col gap-4">
+            @if($topSopir->count() > 0)
+            <div class="card">
+                <div class="card-header">
+                    <span class="text-xs font-semibold uppercase" style="color:var(--text-muted)">Sopir Teraktif</span>
+                </div>
+                <div style="padding:8px 16px">
+                    @foreach($topSopir as $i => $ts)
+                    <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:{{ !$loop->last ? '1px solid var(--border)' : 'none' }}">
+                        <span style="width:20px;font-size:13px;font-weight:700;color:{{ $i == 0 ? 'var(--accent)' : 'var(--text-dims)' }}">{{ $i + 1 }}</span>
+                        <span style="flex:1;font-size:13px;font-weight:500;color:var(--text)">{{ $ts->sopir->nama ?? '-' }}</span>
+                        <span style="font-size:12px;font-weight:600;color:{{ $i == 0 ? 'var(--accent)' : 'var(--text-dims)' }}">{{ $ts->total }}x</span>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+        </div>
+    </div>
+
+    {{-- AKSES CEPAT -- mengurangi gesekan (friction) --}}
+    <div class="card">
+        <div class="card-header">
+            <span class="text-xs font-semibold uppercase" style="color:var(--text-muted)">Akses Cepat</span>
+        </div>
+        <div class="card-body flex flex-wrap gap-2">
+            <a href="{{ route('ritase.index') }}" class="btn btn-outline btn-sm">Input Ritase</a>
+            <a href="{{ route('gaji.index') }}" class="btn btn-outline btn-sm">Hitung Gaji</a>
+            <a href="{{ route('sopir.index') }}" class="btn btn-outline btn-sm">Kelola Sopir</a>
+            <a href="{{ route('periode.index') }}" class="btn btn-outline btn-sm">Kelola Periode</a>
+        </div>
     </div>
 
 </x-layouts.dashboard>
-
-<script>
-function ubahValidasi(status) {
-    var angka = document.getElementById('angkaValidasi');
-    var label = document.getElementById('labelValidasi');
-    var data = {
-        pending:  { count: {{ $validasiPending }}, text: 'butuh review' },
-        disetujui: { count: {{ $validasiDisetujui }}, text: 'total disetujui' },
-        ditolak:   { count: {{ $validasiDitolak }}, text: 'total ditolak' }
-    };
-    var d = data[status] || data.pending;
-    angka.textContent = d.count;
-    label.textContent = d.text;
-}
-</script>

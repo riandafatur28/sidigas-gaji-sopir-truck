@@ -1,7 +1,7 @@
 <x-layouts.dashboard
     :title="'Data Gaji'"
     :pageTitle="'Data Gaji'"
-    :user="auth()->user()">
+    >
 
     @push('styles')
 <style>
@@ -31,29 +31,29 @@
 @endpush
 
 {{-- HEADER --}}
-    <div class="border-b border-gray-200 pb-4 mb-6">
+    <div class="mb-8">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">Data Gaji</h1>
-                <p class="text-base text-gray-500 mt-1">Input BBM, Upah per tujuan, dan Kompensasi Gagal Produksi</p>
+                <h1 class="text-2xl font-bold" style="color:var(--text)">Data Gaji</h1>
+                <p class="text-sm mt-1" style="color:var(--text-muted)">Input BBM, Upah per tujuan, dan Kompensasi Gagal Produksi</p>
             </div>
         </div>
     </div>
 
     @if(session('success'))
-        <div class="border border-green-200 bg-green-50 text-green-700 px-4 py-3 rounded mb-4 text-sm">
+        <div class="alert alert-success mb-4">
             {{ session('success') }}
         </div>
     @endif
 
     @if(session('error'))
-        <div class="border border-red-200 bg-red-50 text-red-700 px-4 py-3 rounded mb-4 text-sm">
+        <div class="alert alert-error mb-4">
             {{ session('error') }}
         </div>
     @endif
 
     @if($errors->any())
-        <div class="border border-red-200 bg-red-50 text-red-700 px-4 py-3 rounded mb-4 text-sm">
+        <div class="alert alert-error mb-4">
             <ul class="list-disc list-inside">
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -66,17 +66,16 @@
     {{-- FORM INPUT PER TUJUAN --}}
     {{-- ============================================================ --}}
     <div id="formInputContainer" class="w-full border border-gray-200 rounded mb-6 overflow-hidden bg-white">
-        <div class="bg-gray-50 border-b border-gray-200 px-5 py-3">
+        <div class="card-header">
             <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Input Biaya Per Tujuan</p>
         </div>
 
         <form id="formGaji" action="{{ route('gaji.store') }}" method="POST">
             @csrf
-
-            <div class="px-5 py-4">
+            <div class="card-body">
                 <div class="mb-4">
-                    <label class="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">Pilih Periode <span class="text-red-500">*</span></label>
-                    <select name="periode_id" id="pilih_periode" class="w-full md:w-1/2 px-4 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-white">
+                    <label class="form-label">Pilih Periode <span class="text-red-500">*</span></label>
+                    <select name="periode" id="pilih_periode" class="form-input form-select w-full md:w-1/2" onchange="window.location.href='{{ route('gaji.index') }}?periode='+this.value">
                         <option value="">Pilih Periode</option>
                         @foreach($periodesForDropdown ?? [] as $periode)
                             <option value="{{ $periode->id }}" {{ isset($periodeId) && $periodeId == $periode->id ? 'selected' : '' }}>
@@ -92,12 +91,14 @@
 
                     <div class="overflow-x-auto">
                         <table class="w-full">
-                            <thead class="bg-gray-50 border-b border-gray-200">
+                            <thead style="background:rgba(255,253,252,0.6);border-bottom:1.5px solid var(--border)">
                                 <tr>
                                     <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Tujuan</th>
                                     <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">BBM/Rit</th>
                                     <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Upah/Rit</th>
                                     <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Kompensasi/Rit Gagal</th>
+                                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Tol</th>
+                                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Lembur</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
@@ -150,50 +151,128 @@
                                             <input type="hidden" name="detail[{{ $loop->index }}][kode_tujuan]" value="{{ $tujuan->kode_tujuan }}">
                                         </div>
                                     </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2 max-w-xs">
+                                            <input type="checkbox"
+                                                   data-tujuan="{{ $tujuan->kode_tujuan }}"
+                                                   data-field="tol_check"
+                                                   class="tol-checkbox w-4 h-4 rounded border-gray-300 cursor-pointer">
+                                            <input type="number"
+                                                   name="detail[{{ $loop->index }}][tol_per_rit]"
+                                                   data-tujuan="{{ $tujuan->kode_tujuan }}"
+                                                   data-field="tol_per_rit"
+                                                   min="0"
+                                                   step="0.01"
+                                                   value="0"
+                                                   placeholder="0"
+                                                   disabled
+                                                   class="tol-input w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-gray-100 opacity-50 cursor-not-allowed">
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-2.5">
+                                        <div class="flex items-center gap-2 max-w-xs">
+                                            <input type="checkbox"
+                                                   data-tujuan="{{ $tujuan->kode_tujuan }}"
+                                                   data-field="lembur_tujuan_check"
+                                                   class="lembur-tujuan-checkbox w-4 h-4 rounded border-gray-300 cursor-pointer">
+                                            <input type="number"
+                                                   name="detail[{{ $loop->index }}][lembur_per_rit]"
+                                                   data-tujuan="{{ $tujuan->kode_tujuan }}"
+                                                   data-field="lembur_per_rit"
+                                                   min="0" step="1"
+                                                   value="0"
+                                                   placeholder="0"
+                                                   disabled
+                                                   class="lembur-tujuan-input w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-gray-100 opacity-50 cursor-not-allowed">
+                                        </div>
+                                    </td>
                                 </tr>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
 
+
+
                     <div class="mt-4 flex justify-end gap-3">
                         <a href="{{ route('gaji.index') }}" class="border border-gray-300 rounded text-sm font-medium text-gray-700 px-4 py-2.5 hover:bg-gray-50 transition">Batal</a>
-                        <button type="button" onclick="showKonfirmasi()" class="bg-[#1a1a2e] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#2d2d44] transition">
+                        <button type="button" onclick="showKonfirmasi()" class="btn btn-primary">
                             Simpan Gaji
                         </button>
                     </div>
                 </div>
+
             </div>
+
+            <input type="hidden" name="periode_id" id="formPeriodeId" value="{{ $periodeId ?? '' }}">
         </form>
+    </div>
+
+    {{-- ============================================================ --}}
+    {{-- SUMMARY CARDS --}}
+    {{-- ============================================================ --}}
+    <div id="summaryContainer" class="hidden mb-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div class="bg-white rounded border border-gray-200 p-4">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Gaji</p>
+                <p id="summaryGrandTotal" class="text-lg font-bold text-gray-900 mt-1">Rp 0</p>
+            </div>
+            <div class="bg-white rounded border border-gray-200 p-4">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Upah</p>
+                <p id="summaryUpah" class="text-lg font-bold text-gray-900 mt-1">Rp 0</p>
+            </div>
+            <div class="bg-white rounded border border-gray-200 p-4">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Solar</p>
+                <p id="summarySolar" class="text-lg font-bold text-gray-900 mt-1">Rp 0</p>
+            </div>
+            <div class="bg-white rounded border border-gray-200 p-4">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total DT</p>
+                <p id="summaryDT" class="text-lg font-bold text-gray-900 mt-1">Rp 0</p>
+            </div>
+            <div class="bg-white rounded border border-gray-200 p-4">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Kompensasi</p>
+                <p id="summaryKompensasi" class="text-lg font-bold text-gray-900 mt-1">Rp 0</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3 mt-3">
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Filter Tanggal</span>
+                <input type="date" id="filterTanggal" class="px-3 py-2 border border-gray-200 rounded text-sm bg-white">
+                <button onclick="clearFilterTanggal()" class="px-3 py-2 border border-gray-200 rounded text-sm text-gray-600 hover:bg-gray-50 bg-white">Reset</button>
+            </div>
+            <p id="summarySopirCount" class="text-xs text-gray-400"></p>
+        </div>
     </div>
 
     {{-- ============================================================ --}}
     {{-- TABEL PER SOPIR --}}
     {{-- ============================================================ --}}
     <div id="tabelGajiContainer" class="hidden">
-        <div class="w-full border border-gray-200 rounded mb-6 overflow-hidden bg-white">
+        <div class="card mb-6">
             <table class="w-full">
                 <thead>
-                    <tr class="bg-gray-50 border-b border-gray-200">
-                        <th class="text-left text-sm font-semibold text-gray-600 uppercase tracking-wider px-5 py-3" colspan="7">
+                    <tr style="background:rgba(255,253,252,0.6);border-bottom:1.5px solid var(--border)">
+                        <th class="text-left text-xs font-semibold uppercase tracking-wider px-5 py-3" style="color:var(--text-muted)" colspan="8">
                             Rincian Gaji Per Sopir
                             <span class="font-normal text-gray-400 text-xs ml-2" id="periodeLabel">Periode: -</span>
                         </th>
-                        <th class="text-right text-sm font-semibold text-gray-600 uppercase tracking-wider px-5 py-3">
-                            <a id="downloadSlipBtn" href="#" class="text-xs text-gray-600 border border-gray-200 px-3 py-1.5 rounded hover:bg-gray-50 font-medium hidden">
+                        <th class="text-right text-xs font-semibold uppercase tracking-wider px-5 py-3" style="color:var(--text-muted)">
+                            <a id="downloadSlipBtn" href="{{ $periodeId ? url('/gaji/slip-pdf/' . $periodeId) : '#' }}" class="text-xs text-gray-600 border border-gray-200 px-3 py-1.5 rounded hover:bg-gray-50 font-medium {{ $periodeId ? '' : 'hidden' }}">
                                 Download Slip PDF
                             </a>
                         </th>
                     </tr>
                 </thead>
-                <thead class="bg-gray-50 border-b border-gray-200">
+                <thead style="background:rgba(255,253,252,0.6);border-bottom:1.5px solid var(--border)">
                     <tr>
                         <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Sopir</th>
                         <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Total Rit</th>
                         <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Total Solar</th>
                         <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Total Upah</th>
                         <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Total DT</th>
+                        <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Tol</th>
                         <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Kompensasi</th>
+                        <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Lembur</th>
                         <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Grand Total</th>
                         <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Aksi</th>
                     </tr>
@@ -201,86 +280,21 @@
                 <tbody id="tabelGajiBody" class="divide-y divide-gray-100">
                     <!-- Data akan diisi oleh JavaScript -->
                 </tbody>
-                <tfoot class="bg-gray-50 border-t border-gray-200">
+                <tfoot class="bg-gray-50 border-t border-gray-200" id="gajiTableFoot">
                     <tr>
-                        <td colspan="7" class="px-5 py-3 text-right text-sm font-semibold text-gray-700">TOTAL KESELURUHAN:</td>
+                        <td colspan="9" class="px-5 py-3 text-right text-sm font-semibold text-gray-700">TOTAL KESELURUHAN:</td>
                         <td class="px-5 py-3 text-right text-sm font-bold text-gray-900" id="grandTotalAll">Rp 0</td>
+                    </tr>
+                    <tr id="paginationGajiRow" class="border-t border-gray-200 hidden">
+                        <td colspan="8" class="px-5 py-3">
+                            <div id="paginationGaji" class="flex items-center justify-end"></div>
+                        </td>
                     </tr>
                 </tfoot>
             </table>
         </div>
     </div>
 
-    {{-- ============================================================ --}}
-    {{-- RIWAYAT GAJI --}}
-    {{-- ============================================================ --}}
-    <div class="w-full border border-gray-200 rounded overflow-hidden bg-white">
-        <table class="w-full">
-            <thead>
-                <tr class="bg-gray-50 border-b border-gray-200">
-                    <th class="text-left text-sm font-semibold text-gray-600 uppercase tracking-wider px-5 py-3" colspan="7">
-                        Riwayat Gaji
-                        <span class="font-normal text-gray-400 text-xs ml-2">Total: {{ count($periodes) }} periode</span>
-                    </th>
-                </tr>
-            </thead>
-            <thead class="bg-gray-50 border-b border-gray-200">
-                <tr>
-                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Periode</th>
-                    <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Total Ritase</th>
-                    <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Total Solar</th>
-                    <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Total Upah</th>
-                    <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Total DT</th>
-                    <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Grand Total</th>
-                    <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Aksi</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-                @forelse($periodes as $periode)
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-2.5 text-sm font-medium text-gray-800">{{ $periode['nama_periode'] }}</td>
-                        <td class="px-4 py-2.5 text-center text-sm text-gray-600">{{ $periode['total_ritase'] }}</td>
-                        <td class="px-4 py-2.5 text-right text-sm text-gray-800 font-medium">Rp {{ number_format($periode['total_solar'], 0, ',', '.') }}</td>
-                        <td class="px-4 py-2.5 text-right text-sm text-gray-800 font-medium">Rp {{ number_format($periode['total_sopir'], 0, ',', '.') }}</td>
-                        <td class="px-4 py-2.5 text-right text-sm text-gray-800 font-medium">Rp {{ number_format($periode['total_dt'], 0, ',', '.') }}</td>
-                        <td class="px-4 py-2.5 text-right text-sm font-bold text-gray-800">Rp {{ number_format($periode['grand_total'], 0, ',', '.') }}</td>
-                        <td class="px-4 py-2.5 text-center">
-                            <div class="flex justify-center gap-2">
-                                <a href="{{ route('gaji.edit', $periode['id']) }}"
-                                   class="text-xs text-gray-600 border border-gray-200 px-2.5 py-1.5 rounded hover:bg-gray-50 font-medium">
-                                    Edit
-                                </a>
-                                <button onclick="lihatSlipModal({{ $periode['id'] }})"
-                                   class="text-xs text-blue-600 border border-blue-200 px-2.5 py-1.5 rounded hover:bg-blue-50 font-medium"
-                                   title="Lihat Slip Gaji">
-                                    Lihat
-                                </button>
-                                <a href="{{ route('gaji.slip-pdf', $periode['id']) }}"
-                                   class="text-xs text-gray-600 border border-gray-200 px-2.5 py-1.5 rounded hover:bg-gray-50 font-medium"
-                                   title="Download Slip PDF">
-                                    Slip PDF
-                                </a>
-                                <form action="{{ route('gaji.destroy', $periode['id']) }}"
-                                      method="POST"
-                                      onsubmit="return confirm('Yakin hapus data gaji periode ini?')"
-                                      class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-xs text-red-600 border border-red-200 px-2.5 py-1.5 rounded hover:bg-red-50 font-medium">
-                                        Hapus
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="7" class="px-4 py-6 text-center text-sm text-gray-400">Belum ada data gaji. Silakan tambahkan data gaji baru.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
 
     {{-- ============================================================ --}}
     {{-- MODAL KONFIRMASI --}}
@@ -309,8 +323,11 @@
     <script>
         const allTujuans = @json($allTujuans ?? []);
         let gajiData = [];
+        let gajiDataAll = [];
         let formDataGaji = null;
         let periodeId = null;
+        let currentPage = 1;
+        const pageSize = 10;
 
         // ===== VALIDASI INPUT =====
         function validasiNominal(input) {
@@ -326,31 +343,57 @@
 
             if (periodeFromUrl) {
                 document.getElementById('pilih_periode').value = periodeFromUrl;
+                periodeId = periodeFromUrl;
+                var formPeriodeInput = document.getElementById('formPeriodeId');
+                if (formPeriodeInput) formPeriodeInput.value = periodeFromUrl;
             }
 
-            document.getElementById('pilih_periode').addEventListener('change', function() {
-                periodeId = this.value;
-                if (periodeId) {
-                    loadGajiData(periodeId);
-                    const downloadBtn = document.getElementById('downloadSlipBtn');
-                    downloadBtn.href = '{{ url("/gaji/slip-pdf") }}/' + periodeId;
-                    downloadBtn.classList.remove('hidden');
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('periode', periodeId);
-                    window.history.pushState({}, '', url);
-                } else {
-                    document.getElementById('tabelGajiContainer').classList.add('hidden');
-                    document.getElementById('downloadSlipBtn').classList.add('hidden');
-                    const url = new URL(window.location.href);
-                    url.searchParams.delete('periode');
-                    window.history.pushState({}, '', url);
-                }
+            document.getElementById('filterTanggal').addEventListener('change', function() {
+                if (periodeId) loadGajiData(periodeId);
             });
 
-            document.querySelectorAll('input[data-field="bbm_per_rit"], input[data-field="upah_per_rit"]').forEach(function(input) {
+            document.querySelectorAll('input[data-field="bbm_per_rit"], input[data-field="upah_per_rit"], input[data-field="tol_per_rit"]').forEach(function(input) {
                 input.addEventListener('input', function() {
                     if (gajiData.length > 0) {
                         renderTabelGaji(gajiData);
+                    }
+                });
+            });
+
+            // Tol checkbox toggle
+            document.querySelectorAll('.tol-checkbox').forEach(function(cb) {
+                cb.addEventListener('change', function() {
+                    const row = this.closest('tr');
+                    const input = row.querySelector('.tol-input');
+                    if (this.checked) {
+                        input.disabled = false;
+                        input.classList.remove('bg-gray-100', 'opacity-50', 'cursor-not-allowed');
+                        input.focus();
+                    } else {
+                        input.disabled = true;
+                        input.value = '0';
+                        input.classList.add('bg-gray-100', 'opacity-50', 'cursor-not-allowed');
+                        if (gajiData.length > 0) renderTabelGaji(gajiData);
+                    }
+                });
+            });
+
+            // Lembur tujuan checkbox toggle
+            document.querySelectorAll('.lembur-tujuan-checkbox').forEach(function(cb) {
+                cb.addEventListener('change', function() {
+                    const row = this.closest('tr');
+                    const input = row.querySelector('.lembur-tujuan-input');
+                    if (this.checked) {
+                        input.disabled = false;
+                        input.classList.remove('bg-gray-100', 'opacity-50', 'cursor-not-allowed');
+                        input.classList.add('bg-white');
+                        input.focus();
+                    } else {
+                        input.disabled = true;
+                        input.value = '0';
+                        input.classList.remove('bg-white');
+                        input.classList.add('bg-gray-100', 'opacity-50', 'cursor-not-allowed');
+                        if (gajiData.length > 0) renderTabelGaji(gajiData);
                     }
                 });
             });
@@ -359,25 +402,35 @@
             if (selectedPeriode) {
                 periodeId = selectedPeriode;
                 loadGajiData(selectedPeriode);
-                const downloadBtn = document.getElementById('downloadSlipBtn');
-                downloadBtn.href = '{{ url("/gaji/slip-pdf") }}/' + selectedPeriode;
-                downloadBtn.classList.remove('hidden');
             }
+
+            // Auto-refresh tabel saat input per-tujuan berubah
+            document.addEventListener('input', function(e) {
+                if (e.target.matches('input[data-field="bbm_per_rit"], input[data-field="upah_per_rit"], input[data-field="tol_per_rit"], input[data-field="lembur_per_rit"], input[data-field="kompensasi_gagal"]')) {
+                    if (gajiData.length > 0) renderTabelGaji(gajiData);
+                }
+            });
         })();
 
         function loadGajiData(periodeId) {
             const container = document.getElementById('tabelGajiContainer');
+            const sumContainer = document.getElementById('summaryContainer');
             const tbody = document.getElementById('tabelGajiBody');
             const periodeLabel = document.getElementById('periodeLabel');
 
             container.classList.remove('hidden');
+            sumContainer.classList.remove('hidden');
             tbody.innerHTML = renderSkeleton(6);
 
             const periodeSelect = document.getElementById('pilih_periode');
             const periodeText = periodeSelect.options[periodeSelect.selectedIndex].text;
             periodeLabel.textContent = 'Periode: ' + periodeText;
 
-            fetch(`/api/get-ritase-data?periode=${periodeId}`)
+            var tanggal = document.getElementById('filterTanggal').value;
+            var url = '/api/get-ritase-data?periode=' + periodeId;
+            if (tanggal) url += '&tanggal=' + encodeURIComponent(tanggal);
+
+            fetch(url)
                 .then(response => {
                     if (!response.ok) {
                         return response.json().then(err => { throw new Error(err.error || 'Server error'); });
@@ -393,6 +446,18 @@
                     }
 
                     gajiData = data.sopir;
+                    gajiDataAll = data.sopir;
+                    currentPage = 1;
+
+                    // Sync period dropdown if date filter changed the period
+                    if (data.detected_periode_id && data.detected_periode_id != periodeId) {
+                        document.getElementById('pilih_periode').value = data.detected_periode_id;
+                        periodeId = data.detected_periode_id;
+                        const sel = document.getElementById('pilih_periode');
+                        periodeLabel.textContent = 'Periode: ' + sel.options[sel.selectedIndex].text;
+                        var formPeriodeInput = document.getElementById('formPeriodeId');
+                        if (formPeriodeInput) formPeriodeInput.value = periodeId;
+                    }
 
                     document.getElementById('formInputContainer').classList.remove('hidden');
 
@@ -411,6 +476,17 @@
                                 upahInput.value = rate.upah_per_rit;
                                 ratesApplied = true;
                             }
+                            if (rate.tol_per_rit && parseFloat(rate.tol_per_rit) > 0) {
+                                const tolInput = document.querySelector(`input[data-tujuan="${kodeTujuan}"][data-field="tol_per_rit"]`);
+                                const tolCheck = document.querySelector(`input[data-tujuan="${kodeTujuan}"][data-field="tol_check"]`);
+                                if (tolInput && tolCheck) {
+                                    tolInput.value = rate.tol_per_rit;
+                                    tolCheck.checked = true;
+                                    tolInput.disabled = false;
+                                    tolInput.classList.remove('bg-gray-100', 'opacity-50', 'cursor-not-allowed');
+                                    ratesApplied = true;
+                                }
+                            }
                             if (rate.kompensasi_gagal) {
                                 const kompInput = document.querySelector(`input[data-tujuan="${kodeTujuan}"][data-field="kompensasi_gagal"]`);
                                 if (kompInput && parseFloat(kompInput.value) === 0) {
@@ -418,11 +494,22 @@
                                     ratesApplied = true;
                                 }
                             }
+                            const lemburTujuanVal = rate.lembur_per_rit || 0;
+                            const lemburTujuanInput = document.querySelector(`input[data-tujuan="${kodeTujuan}"][data-field="lembur_per_rit"]`);
+                            const lemburTujuanCheck = document.querySelector(`input[data-tujuan="${kodeTujuan}"][data-field="lembur_tujuan_check"]`);
+                            if (parseFloat(lemburTujuanVal) > 0 && lemburTujuanInput && lemburTujuanCheck) {
+                                lemburTujuanInput.value = lemburTujuanVal;
+                                lemburTujuanCheck.checked = true;
+                                lemburTujuanInput.disabled = false;
+                                lemburTujuanInput.classList.remove('bg-gray-100', 'opacity-50', 'cursor-not-allowed');
+                                ratesApplied = true;
+                            }
                         });
                     }
 
                     renderTabelGaji(data.sopir);
-                    if (ratesApplied) renderTabelGaji(data.sopir);
+                    updateSummary(data.sopir);
+                    if (ratesApplied) { renderTabelGaji(data.sopir); updateSummary(data.sopir); }
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -439,6 +526,7 @@
             const bbmByTujuan = {};
             const upahByTujuan = {};
             const kompensasiByTujuan = {};
+            const tolByTujuan = {};
             document.querySelectorAll('input[data-field="bbm_per_rit"]').forEach(function(inp) {
                 bbmByTujuan[inp.dataset.tujuan] = parseFloat(inp.value) || 0;
             });
@@ -447,6 +535,13 @@
             });
             document.querySelectorAll('input[data-field="kompensasi_gagal"]').forEach(function(inp) {
                 kompensasiByTujuan[inp.dataset.tujuan] = parseFloat(inp.value) || 0;
+            });
+            document.querySelectorAll('input[data-field="tol_per_rit"]').forEach(function(inp) {
+                tolByTujuan[inp.dataset.tujuan] = parseFloat(inp.value) || 0;
+            });
+            const lemburByTujuan = {};
+            document.querySelectorAll('input[data-field="lembur_per_rit"]').forEach(function(inp) {
+                lemburByTujuan[inp.dataset.tujuan] = parseFloat(inp.value) || 0;
             });
 
             const totalGagalByTujuan = {};
@@ -460,21 +555,35 @@
                 });
             });
 
-            data.forEach((sopir, index) => {
+            const totalPages = Math.ceil(data.length / pageSize);
+            if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
+            if (currentPage < 1) currentPage = 1;
+            const start = (currentPage - 1) * pageSize;
+            const end = Math.min(start + pageSize, data.length);
+            const pageData = data.slice(start, end);
+
+            pageData.forEach((sopir, idx) => {
+                const index = start + idx;
                 const totalRit = Object.values(sopir.rit_per_tujuan).reduce(function(s, item) { return s + item.total_rit; }, 0);
 
                 // Always preview from form inputs (live update saat user ketik)
                 let totalSolar = 0;
                 let totalUpah = 0;
+                let totalTol = 0;
+                let totalLembur = 0;
                 Object.keys(sopir.rit_per_tujuan).forEach(function(kodeTujuan) {
                     const rit = sopir.rit_per_tujuan[kodeTujuan].total_rit;
                     totalSolar += (bbmByTujuan[kodeTujuan] || 0) * rit;
                     totalUpah += (upahByTujuan[kodeTujuan] || 0) * rit;
+                    totalTol += (tolByTujuan[kodeTujuan] || 0) * rit;
+                    totalLembur += (lemburByTujuan[kodeTujuan] || 0) * rit;
                 });
                 // Fallback: if form has 0 but saved data has values, use saved
                 if (totalSolar === 0 && totalUpah === 0 && !sopir.belum_dihitung) {
                     totalSolar = sopir.total_solar || 0;
                     totalUpah = sopir.total_upah || 0;
+                    totalTol = sopir.total_tol || 0;
+                    if (totalLembur === 0) totalLembur = sopir.upah_lembur || 0;
                 }
 
                 const totalDT = sopir.total_dt || 0;
@@ -494,7 +603,7 @@
                 if (totalKompensasi === 0 && !sopir.belum_dihitung) {
                     totalKompensasi = sopir.total_kompensasi || 0;
                 }
-                const previewGrand = totalSolar + totalUpah + totalDT + totalKompensasi;
+                const previewGrand = totalSolar + totalUpah + totalDT + totalTol + totalKompensasi + totalLembur;
 
                 grandTotalAll += previewGrand;
 
@@ -521,25 +630,27 @@
                     <td class="px-4 py-3 text-right text-gray-800 font-medium">Rp ${formatRupiah(totalUpah)}</td>
                     <td class="px-4 py-3 text-right text-gray-800 font-medium">Rp ${formatRupiah(totalDT)}</td>
                     <td class="px-4 py-3 text-right">
+                        <span class="text-gray-800 font-medium" id="tolTotal_${sopir.kode_sopir}">Rp ${formatRupiah(totalTol)}</span>
+                    </td>
+                    <td class="px-4 py-3 text-right">
                         <span class="text-gray-800 font-medium" id="kompTotal_${sopir.kode_sopir}">Rp ${formatRupiah(totalKompensasi)}</span>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                        <span class="text-gray-800 font-medium" id="lemburTotal_${sopir.kode_sopir}">Rp ${formatRupiah(totalLembur)}</span>
                     </td>
                     <td class="px-4 py-3 text-right font-bold text-gray-900" id="grandTotal_${sopir.kode_sopir}">Rp ${formatRupiah(previewGrand)}</td>
                     <td class="px-4 py-3 text-center">
-                        <div class="flex justify-center gap-1">
-                            <button onclick="showDetail(${index})" class="text-xs text-gray-600 border border-gray-200 px-2.5 py-1.5 rounded hover:bg-gray-50 font-medium">
-                                Detail
-                            </button>
-                            <a href="/gaji/slip/${periodeId}/${sopir.kode_sopir}" target="_blank"
-                               class="text-xs text-gray-600 border border-gray-200 px-2.5 py-1.5 rounded hover:bg-gray-50 font-medium">
-                                Slip
-                            </a>
-                        </div>
+                        <button onclick="showDetail(${index})" class="text-xs text-gray-600 border border-gray-200 px-2.5 py-1.5 rounded hover:bg-gray-50 font-medium">
+                            Detail &amp; Slip
+                        </button>
                     </td>
                 `;
                 tbody.appendChild(row);
             });
 
             document.getElementById('grandTotalAll').textContent = 'Rp ' + formatRupiah(grandTotalAll);
+            renderPagination(totalPages);
+            updateSummary(gajiData);
         }
 
         function renderSkeleton(rows) {
@@ -572,12 +683,102 @@
             return Math.round(angka).toLocaleString('id-ID');
         }
 
+
+
+        function goToPage(page) {
+            currentPage = page;
+            renderTabelGaji(gajiData);
+        }
+
+        function renderPagination(totalPages) {
+            const container = document.getElementById('paginationGaji');
+            if (!container) return;
+            if (totalPages <= 1) { container.innerHTML = ''; return; }
+
+            let html = '<div class="flex items-center justify-between">';
+            html += '<p class="text-sm text-gray-600">Halaman ' + currentPage + ' dari ' + totalPages + '</p>';
+            html += '<div class="flex items-center space-x-1.5">';
+
+            if (currentPage <= 1) {
+                html += '<span class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 rounded cursor-not-allowed">Sebelumnya</span>';
+            } else {
+                html += '<a href="#" onclick="goToPage(' + (currentPage - 1) + '); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded hover:bg-gray-50 font-medium">Sebelumnya</a>';
+            }
+
+            const w = 2;
+            let ss = Math.max(1, currentPage - w);
+            let ee = Math.min(totalPages, currentPage + w);
+
+            if (ss > 1) {
+                html += '<a href="#" onclick="goToPage(1); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">1</a>';
+                if (ss > 2) html += '<span class="px-3 py-1.5 text-sm text-gray-400">...</span>';
+            }
+
+            for (let p = ss; p <= ee; p++) {
+                if (p == currentPage) {
+                    html += '<span class="px-3 py-1.5 text-sm font-bold text-white bg-[#1a1a2e] border border-[#1a1a2e] rounded">' + p + '</span>';
+                } else {
+                    html += '<a href="#" onclick="goToPage(' + p + '); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">' + p + '</a>';
+                }
+            }
+
+            if (ee < totalPages) {
+                if (ee < totalPages - 1) html += '<span class="px-3 py-1.5 text-sm text-gray-400">...</span>';
+                html += '<a href="#" onclick="goToPage(' + totalPages + '); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">' + totalPages + '</a>';
+            }
+
+            if (currentPage >= totalPages) {
+                html += '<span class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 rounded cursor-not-allowed">Selanjutnya</span>';
+            } else {
+                html += '<a href="#" onclick="goToPage(' + (currentPage + 1) + '); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded hover:bg-gray-50 font-medium">Selanjutnya</a>';
+            }
+
+            html += '</div></div>';
+            container.innerHTML = html;
+            document.getElementById('paginationGajiRow').classList.toggle('hidden', totalPages <= 1);
+        }
+
+        function updateSummary(data) {
+            var totalGrand = 0, totalUpah = 0, totalSolar = 0, totalDT = 0, totalKomp = 0;
+            data.forEach(function(s) {
+                const row = document.getElementById('row_' + s.kode_sopir);
+                if (row) {
+                    const cells = row.querySelectorAll('td');
+                    const gt = document.getElementById('grandTotal_' + s.kode_sopir);
+                    totalGrand += gt ? (parseFloat(gt.textContent.replace(/[^0-9]/g, '')) || 0) : (s.grand_total || 0);
+                    totalSolar += parseFloat(cells[2]?.textContent?.replace(/[^0-9]/g, '')) || 0;
+                    totalUpah += parseFloat(cells[3]?.textContent?.replace(/[^0-9]/g, '')) || 0;
+                    totalDT += parseFloat(cells[4]?.textContent?.replace(/[^0-9]/g, '')) || 0;
+                    totalKomp += parseFloat(cells[6]?.textContent?.replace(/[^0-9]/g, '')) || 0;
+                } else {
+                    totalGrand += s.grand_total || 0;
+                    totalUpah += s.total_upah || 0;
+                    totalSolar += s.total_solar || 0;
+                    totalDT += s.total_dt || 0;
+                    totalKomp += s.total_kompensasi || 0;
+                }
+            });
+            document.getElementById('summaryGrandTotal').textContent = 'Rp ' + formatRupiah(totalGrand);
+            document.getElementById('summaryUpah').textContent = 'Rp ' + formatRupiah(totalUpah);
+            document.getElementById('summarySolar').textContent = 'Rp ' + formatRupiah(totalSolar);
+            document.getElementById('summaryDT').textContent = 'Rp ' + formatRupiah(totalDT);
+            document.getElementById('summaryKompensasi').textContent = 'Rp ' + formatRupiah(totalKomp);
+            document.getElementById('summarySopirCount').textContent = data.length + ' sopir';
+        }
+
+        function clearFilterTanggal() {
+            document.getElementById('filterTanggal').value = '';
+            if (periodeId) loadGajiData(periodeId);
+        }
+
+
+
         function showDetail(index) {
             const sopir = gajiData[index];
             const modal = document.createElement('div');
             modal.className = 'fixed inset-0 bg-black/40 z-50 flex items-center justify-center';
             modal.innerHTML = `
-                <div class="bg-white rounded border border-gray-200 w-full max-w-4xl max-h-[90vh] overflow-y-auto p-4">
+                <div class="bg-white rounded border border-gray-200 w-full max-w-4xl max-h-[90vh] overflow-y-auto p-4" onclick="event.stopPropagation()">
                     <div class="flex justify-between items-center mb-3">
                         <h3 class="text-lg font-semibold text-gray-900">Slip Gaji ${sopir.nama_sopir}</h3>
                         <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
@@ -598,7 +799,17 @@
                     const doc = parser.parseFromString(html, 'text/html');
                     const styles = doc.querySelectorAll('style');
                     let styleHtml = '';
-                    styles.forEach(s => styleHtml += s.outerHTML);
+                    styles.forEach(s => {
+                        let css = s.textContent;
+                        // Strip global selectors that leak to the dashboard
+                        css = css.replace(/@page\s*\{[^}]*\}/g, '');
+                        css = css.replace(/(?:^|\n)\s*\*\s*\{[^}]*\}/g, '');
+                        css = css.replace(/(?:^|\n)\s*html\s*\{[^}]*\}/g, '');
+                        css = css.replace(/(?:^|\n)\s*body\s*\{[^}]*\}/g, '');
+                        if (css.trim()) {
+                            styleHtml += '<style>' + css + '</style>';
+                        }
+                    });
                     const containers = doc.querySelectorAll('.slip-container');
                     let slipHtml = '';
                     containers.forEach(c => slipHtml += c.outerHTML);
@@ -623,6 +834,7 @@
                 all += parseInt(el.textContent.replace(/[^0-9]/g, '')) || 0;
             });
             document.getElementById('grandTotalAll').textContent = 'Rp ' + formatRupiah(all);
+            updateSummary(gajiData);
         }
 
         function showKonfirmasi() {
@@ -711,16 +923,28 @@
                 const bbm = input.value || '0';
                 const upahInput = document.querySelector(`input[data-tujuan="${kodeTujuan}"][data-field="upah_per_rit"]`);
                 const upah = upahInput ? upahInput.value || '0' : '0';
+                const tolInput = document.querySelector(`input[data-tujuan="${kodeTujuan}"][data-field="tol_per_rit"]`);
+                const tol = tolInput ? tolInput.value || '0' : '0';
                 const kompInput = document.querySelector(`input[data-tujuan="${kodeTujuan}"][data-field="kompensasi_gagal"]`);
                 const komp = kompInput ? kompInput.value || '0' : '0';
+                const lemburTujuanInput = document.querySelector(`input[data-tujuan="${kodeTujuan}"][data-field="lembur_per_rit"]`);
+                const lemburTujuan = lemburTujuanInput ? lemburTujuanInput.value || '0' : '0';
                 let line = `${namaTujuan}`;
                 line += ` <span class="text-gray-600">BBM: Rp ${formatRupiah(bbm)} | Upah: Rp ${formatRupiah(upah)}`;
+                if (parseFloat(tol) > 0) {
+                    line += ` | Tol: Rp ${formatRupiah(tol)}`;
+                }
                 if (parseFloat(komp) > 0) {
                     line += ` | Kompensasi: Rp ${formatRupiah(komp)}`;
+                }
+                if (parseFloat(lemburTujuan) > 0) {
+                    line += ` | Lembur: Rp ${formatRupiah(lemburTujuan)}`;
                 }
                 line += '</span>';
                 detailHtml += `<div class="flex justify-between text-sm">${line}</div>`;
             });
+
+
 
             detailHtml += `
                     </div>
@@ -763,7 +987,7 @@
             const modal = document.createElement('div');
             modal.className = 'fixed inset-0 bg-black/40 z-50 flex items-center justify-center';
             modal.innerHTML = `
-                <div class="bg-white rounded border border-gray-200 w-full max-w-6xl max-h-[95vh] overflow-y-auto p-4">
+                <div class="bg-white rounded border border-gray-200 w-full max-w-6xl max-h-[95vh] overflow-y-auto p-4" onclick="event.stopPropagation()">
                     <div class="flex justify-between items-center mb-3">
                         <h3 class="text-lg font-semibold text-gray-900">Slip Gaji</h3>
                         <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
@@ -784,7 +1008,16 @@
                     const doc = parser.parseFromString(html, 'text/html');
                     const styles = doc.querySelectorAll('style');
                     let styleHtml = '';
-                    styles.forEach(s => styleHtml += s.outerHTML);
+                    styles.forEach(s => {
+                        let css = s.textContent;
+                        css = css.replace(/@page\s*\{[^}]*\}/g, '');
+                        css = css.replace(/(?:^|\n)\s*\*\s*\{[^}]*\}/g, '');
+                        css = css.replace(/(?:^|\n)\s*html\s*\{[^}]*\}/g, '');
+                        css = css.replace(/(?:^|\n)\s*body\s*\{[^}]*\}/g, '');
+                        if (css.trim()) {
+                            styleHtml += '<style>' + css + '</style>';
+                        }
+                    });
                     const blocks = doc.querySelectorAll('.slip-block');
                     let slipHtml = '';
                     blocks.forEach(b => slipHtml += b.outerHTML);

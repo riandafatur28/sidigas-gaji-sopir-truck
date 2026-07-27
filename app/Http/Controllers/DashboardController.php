@@ -19,7 +19,8 @@ class DashboardController extends Controller
         \App\Models\Tujuan::syncActiveStatus();
 
         $user = Auth::user();
-        $filter = $request->get('periode', 'semua');
+        $filter = $request->get('periode', 'periode_ini');
+        $tanggal = $request->get('tanggal', '');
 
         $totalSopir = Sopir::count();
         $sopirAktif = Sopir::where('status', 'aktif')->count();
@@ -30,7 +31,15 @@ class DashboardController extends Controller
 
         $startDate = null;
         $endDate = now();
-        $periodLabel = 'Semua Waktu';
+        $periodLabel = 'Periode Ini';
+        if ($filter == 'semua') $periodLabel = 'Semua Waktu';
+
+        // If specific date is set, override everything
+        if ($tanggal) {
+            $startDate = \Carbon\Carbon::parse($tanggal);
+            $endDate = \Carbon\Carbon::parse($tanggal);
+            $periodLabel = $tanggal;
+        }
 
         switch ($filter) {
             case 'periode_ini':
@@ -113,12 +122,39 @@ class DashboardController extends Controller
         $validasiDitolak = (int) ($validasiCounts->ditolak ?? 0);
         $validasiHariIni = ValidasiBukti::whereDate('created_at', today())->count();
 
-        // Aktivitas terbaru (pindah dari view ke controller)
+        // Aktivitas terbaru
         $recentRitase = \App\Models\Ritase::with(['sopir:id,kode_sopir,nama', 'tujuan:id,kode_tujuan,nama']);
         if ($startDate) {
             $recentRitase->whereBetween('tanggal', [$startDate, $endDate]);
         }
-        $recentRitase = $recentRitase->latest()->limit(6)->get();
+        $recentRitase = $recentRitase->latest()->limit(8)->get();
+
+        // Data pendukung psikologi
+        $periodeAktif = \App\Models\Periode::where('status', 'aktif')->first();
+        $sisaHari = 0;
+        $progressPeriode = 0;
+        if ($periodeAktif) {
+            $mulai = \Carbon\Carbon::parse($periodeAktif->tanggal_mulai);
+            $selesai = \Carbon\Carbon::parse($periodeAktif->tanggal_selesai);
+            $totalHari = $mulai->diffInDays($selesai) ?: 1;
+            $hariTerpakai = $mulai->diffInDays(now()->min($selesai));
+            $progressPeriode = min(100, round(($hariTerpakai / $totalHari) * 100));
+            $sisaHari = (int) max(0, today()->diffInDays($selesai));
+        }
+
+        $hariIniRitase = \App\Models\Ritase::whereDate('tanggal', today())->count();
+        $hariIniValidasi = \App\Models\ValidasiBukti::whereDate('created_at', today())->count();
+
+        // Peringkat sopir (top 5 by total ritase dalam rentang filter)
+        $topSopir = \App\Models\Ritase::selectRaw('kode_sopir, COUNT(*) as total')
+            ->with('sopir');
+        if ($startDate) {
+            $topSopir->whereBetween('tanggal', [$startDate, $endDate]);
+        }
+        $topSopir = $topSopir->groupBy('kode_sopir')->orderByDesc('total')->limit(5)->get();
+
+        // Jumlah validasi yang ditolak (untuk learning effect)
+        $validasiHariIni = $hariIniValidasi;
 
         return view('dashboard.index', compact(
             'user',
@@ -138,7 +174,14 @@ class DashboardController extends Controller
             'filter',
             'periodLabel',
             'startDate',
-            'endDate'
+            'endDate',
+            'tanggal',
+            'periodeAktif',
+            'sisaHari',
+            'progressPeriode',
+            'hariIniRitase',
+            'hariIniValidasi',
+            'topSopir'
         ));
     }
 }

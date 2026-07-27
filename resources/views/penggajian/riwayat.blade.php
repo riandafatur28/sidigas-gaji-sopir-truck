@@ -1,28 +1,28 @@
 <x-layouts.dashboard
     :title="'Riwayat Gaji'"
     :pageTitle="'Riwayat Gaji'"
-    :user="auth()->user()">
+    >
 
-    <div class="border-b border-gray-200 pb-4 mb-6">
+    <div class="mb-8">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">Riwayat Gaji</h1>
-                <p class="text-base text-gray-500 mt-1">Daftar semua periode gaji yang telah dihitung</p>
+                <h1 class="text-2xl font-bold" style="color:var(--text)">Riwayat Gaji</h1>
+                <p class="text-sm mt-1" style="color:var(--text-muted)">Daftar semua periode gaji yang telah dihitung</p>
             </div>
         </div>
     </div>
 
-    <div class="w-full border border-gray-200 rounded overflow-hidden bg-white">
+    <div class="card mb-6">
         <table class="w-full">
             <thead>
-                <tr class="bg-gray-50 border-b border-gray-200">
-                    <th class="text-left text-sm font-semibold text-gray-600 uppercase tracking-wider px-5 py-3" colspan="8">
+                <tr style="background:rgba(255,253,252,0.6);border-bottom:1.5px solid var(--border)">
+                    <th class="text-left text-xs font-semibold uppercase tracking-wider px-5 py-3" style="color:var(--text-muted)" colspan="8">
                         Riwayat Gaji
-                        <span class="font-normal text-gray-400 text-xs ml-2">Total: {{ count($periodes) }} periode</span>
+                        <span class="text-xs ml-2" style="color:var(--text-dims);font-weight:400">Total: {{ $periodes->total() }} periode</span>
                     </th>
                 </tr>
             </thead>
-            <thead class="bg-gray-50 border-b border-gray-200">
+            <thead style="background:rgba(255,253,252,0.6);border-bottom:1.5px solid var(--border)">
                 <tr>
                     <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Periode</th>
                     <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Sopir</th>
@@ -57,13 +57,13 @@
                                    class="inline-flex items-center px-2.5 py-1.5 bg-blue-50 text-blue-700 rounded text-xs font-medium hover:bg-blue-100 transition">
                                     Detail
                                 </a>
-                                <button onclick="lihatSlipModal({{ $periode['id'] }})"
-                                   class="inline-flex items-center px-2.5 py-1.5 bg-blue-50 text-blue-700 rounded text-xs font-medium hover:bg-blue-100 transition border-0 cursor-pointer">
+                                <button onclick="lihatSlipModal('{{ $periode['id'] }}')"
+                                   class="inline-flex items-center px-2.5 py-1.5 bg-gray-50 text-gray-700 rounded text-xs font-medium hover:bg-gray-100 transition cursor-pointer">
                                     Lihat
                                 </button>
                                 <a href="{{ route('gaji.slip-pdf', $periode['id']) }}"
                                    class="inline-flex items-center px-2.5 py-1.5 bg-gray-50 text-gray-700 rounded text-xs font-medium hover:bg-gray-100 transition">
-                                    Slip
+                                    Slip PDF
                                 </a>
                                 <a href="{{ route('gaji.laporan-pdf', $periode['id']) }}"
                                    class="inline-flex items-center px-2.5 py-1.5 bg-green-50 text-green-700 rounded text-xs font-medium hover:bg-green-100 transition">
@@ -79,13 +79,19 @@
                 @endforelse
             </tbody>
         </table>
+        @if($periodes->hasPages())
+        <div class="px-4 py-3 border-t border-gray-100">
+            {{ $periodes->links() }}
+        </div>
+        @endif
     </div>
 <script>
 function lihatSlipModal(periodeId) {
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black/40 z-50 flex items-center justify-center';
+    modal.onclick = function(e) { if(e.target === this) this.remove(); };
     modal.innerHTML = `
-        <div class="bg-white rounded border border-gray-200 w-full max-w-6xl max-h-[95vh] overflow-y-auto p-4">
+        <div class="bg-white rounded border border-gray-200 w-full max-w-6xl max-h-[95vh] overflow-y-auto p-4" onclick="event.stopPropagation()">
             <div class="flex justify-between items-center mb-3">
                 <h3 class="text-lg font-semibold text-gray-900">Slip Gaji</h3>
                 <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
