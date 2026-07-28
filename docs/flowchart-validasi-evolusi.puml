@@ -10,40 +10,44 @@ skinparam partitionFontStyle bold
 
 title Evolusi Fitur Validasi Bukti dari Kebutuhan Mitra
 
-partition "Iterasi 1 - Sudah Jalan" {
+partition "Iterasi 1 - Input Manual" {
   start
-  :Sopir foto bukti pengiriman;
-  :Admin login, buka daftar bukti;
-  :Admin setujui atau tolak manual;
+  :Sopir buka form validasi;
+  :Ketik manual nama sopir;
+  :Ketik manual nama tujuan;
+  :Ambil foto;
+  :Kirim;
   stop
   note right
-    **Masalah dari Mitra:**
-    - Setiap bukti harus di-setujui satu-satu
-    - Ritase harus diinput ulang terpisah
+    **Keluhan Mitra:**
+    - Sopir sering salah ketik nama
+    - Nama ga konsisten (Adib vs Adieb)
+    - Minta: "Biar tinggal pilih aja"
   end note
 }
 
-partition "Iterasi 2 - Ditingkatkan" {
+partition "Iterasi 2 - Pilih Dropdown" {
   start
-  :Admin aktifkan aturan otomatis;
-  :Setujui bukti -> otomatis\nritase langsung terbuat;
+  :Sopir buka form validasi;
+  :Pilih nama sopir dari dropdown;
+  :Pilih nama tujuan dari dropdown;
+  :(kecuali sopir/tujuan baru,\nbaru ngetik manual);
+  :Ambil foto;
+  :Kirim;
   stop
   note right
-    **Perbaikan dari keluhan Mitra:**
-    - Sekali klik, ritase langsung jadi
-    - Ga perlu input ulang
+    **Yang didapat Mitra:**
+    - Tinggal pilih, ga perlu ngetik
+    - Nama pasti konsisten
+    - Kalaupun ada sopir baru,\nmasih bisa input manual
   end note
 }
 
 partition "Final - Lengkap" {
   start
-  :Tambah ritase manual dari bukti;\n(bisa ditambah catatan mitra);
+  :Admin bisa toggle aturan otomatis;\n(setujui -> ritase langsung jadi);
+  :Bisa tambah catatan mitra;
   stop
-  note right
-    **Tambahan dari Mitra:**
-    - Fleksibel: otomatis atau manual
-    - Ada catatan mitra
-  end note
 }
 
 @enduml

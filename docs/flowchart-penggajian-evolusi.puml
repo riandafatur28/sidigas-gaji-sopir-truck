@@ -10,45 +10,42 @@ skinparam partitionFontStyle bold
 
 title Evolusi Fitur Penggajian dari Kebutuhan Mitra
 
-partition "Iterasi 1 - Sudah Jalan" {
+partition "Iterasi 1 - Sederhana" {
   start
   :Input biaya solar & upah;
   :Klik Hitung Gaji;
   :Total gaji tampil;
-  :Download slip & laporan PDF;
+  :Download slip PDF;
+  :Download laporan PDF;
   stop
   note right
-    **Masalah dari Mitra:**
-    - Riwayat gaji numpuk, susah cari
-    - Slip kebuka di tab baru
-    - Tampilan masih mentah
+    **Keluhan Mitra:**
+    - Riwayat gaji numpuk ke bawah
+    - Susah cari periode lama
+    - Slip buka tab baru
   end note
 }
 
-partition "Iterasi 2 - Ditingkatkan" {
+partition "Iterasi 2 - Filter & Modal" {
   start
-  :Filter riwayat gaji\n(pilih bulan, tahun, urut);
-  :Lihat hasil gaji periode tertentu;
+  :Filter riwayat per bulan & tahun;
+  :Urutkan terbaru / terlama;
   :Lihat slip di modal\n(ga buka tab baru);
+  :Download slip & laporan PDF;
   stop
   note right
-    **Perbaikan dari keluhan Mitra:**
-    - Riwayat gampang dicari pake filter
-    - Slip liat di modal, ga ganggu
+    **Yang didapat Mitra:**
+    - Riwayat gampang dicari
+    - Slip liat di modal, praktis
   end note
 }
 
 partition "Final - Polish" {
   start
-  :Slip gaji 4 per halaman F4\n(ukuran pas, gak terlalu kecil);
+  :Slip 4 per halaman F4\n(ukuran pas, gak terlalu kecil);
   :Dark mode buat pemakaian malam;
-  :Download laporan dengan tabel rapi;
+  :Download laporan dengan tabel rapi;\n(border 1.5px);
   stop
-  note right
-    **Tambahan dari Mitra:**
-    - Slip diperbesar biar jelas
-    - Enak dipake di tempat gelap
-  end note
 }
 
 @enduml

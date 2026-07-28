@@ -10,53 +10,49 @@ skinparam partitionFontStyle bold
 
 title Evolusi Fitur Ritase dari Kebutuhan Mitra
 
-partition "Iterasi 1 - Sudah Jalan" {
+partition "Iterasi 1 - Input Manual" {
   start
-  :Paste teks ritase;
-  :Klik Parse;
-  :Hasil parsing muncul\n(beberapa menit, kadang berubah-ubah);
-  :Simpan ritase;
+  :Klik Tambah Ritase;
+  :Pilih sopir dari dropdown;
+  :Pilih tujuan dari dropdown;
+  :Input tanggal, waktu, DT;
+  :Simpan;
+  :Ulang untuk setiap ritase\n(satu per satu);
   stop
   note right
-    **Masalah dari Mitra:**
-    - Loading lama (tunggu beberapa menit)
-    - Hasil kadang beda walau teks sama
-    - Nama sopir kadang salah cocok
+    **Keluhan Mitra:**
+    - Capek input satu-satu
+    - Butuh waktu lama kalau ritase banyak
+    - Minta: "Bisa dari teks WA aja?"
   end note
 }
 
-partition "Iterasi 2 - Ditingkatkan" {
+partition "Iterasi 2 - Otomatis dari WA" {
   start
-  :Paste teks ritase;
+  :Paste teks grup WA\n(berisi semua ritase hari itu);
   :Klik Parse;
-  :Hasil parsing muncul\n(dalam hitungan detik, konsisten);
-  :Sopir & tujuan baru otomatis terdaftar;
-  :Ritase gagal produksi otomatis terdeteksi;
+  :Sistem cocokkan nama sopir & tujuan\notomatis;
+  :Sopir & tujuan baru auto-terdaftar;
+  :Ritase gagal produksi otomatis;
+  :Preview hasil;
+  :Simpan semua sekaligus;
   stop
   note right
-    **Perbaikan dari keluhan Mitra:**
-    - Loading cepat (detik, bukan menit)
-    - Hasil tetap sama tiap parse
-    - Nama sopir cocok otomatis
-    - Sopir/tujuan baru gausah diinput manual
+    **Yang didapat Mitra:**
+    - Tinggal copy paste dari WA
+    - Semua ritase langsung jadi
+    - Ga perlu input satu-satu
   end note
 }
 
 partition "Final - Lengkap" {
   start
-  :Paste teks ritase;
+  :Paste teks grup WA;
   :Klik Parse;
-  :Hasil parsing cepat & akurat;
   :Otomatis mapping kecamatan ke kabupaten;
-  :Filter & cek DT;
-  :Lihat detail pivot + PDF;\n(bisa dark mode);
+  :Cek DT per sopir per tujuan;
+  :Detail pivot + PDF dengan dark mode;
   stop
-  note right
-    **Tambahan dari Mitra:**
-    - Kota asal otomatis terisi
-    - Bisa cek DT langsung
-    - Tampilan detail lebih rapi
-  end note
 }
 
 @enduml
