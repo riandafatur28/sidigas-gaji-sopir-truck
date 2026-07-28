@@ -1,0 +1,50 @@
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+skinparam partitionBackgroundColor #f0f5ff
+skinparam partitionBorderColor #2b6cb0
+skinparam partitionFontSize 13
+skinparam partitionFontStyle bold
+
+title Evolusi Fitur Ritase per Iterasi
+
+partition "Iterasi 1 - Parser LLM + Manual" {
+  start
+  :Input ritase manual;
+  :Parser LLM + Rule (paste teks);
+  :Preview hasil parsing;
+  if (Setuju?) then (ya)
+    :Simpan ritase ke DB;
+  endif
+  stop
+}
+
+partition "Iterasi 2 - NER Hybrid + Auto" {
+  start
+  :Parser NER Hybrid\n(Metaphone + JaroWinkler);
+  :Auto-Create sopir & tujuan baru;
+  :Handle gagal produksi\n+ combined route;
+  :Input manual + filter tujuan;
+  stop
+}
+
+partition "Final - Lengkap" {
+  start
+  :Parser NER Hybrid + Word Boundary;
+  :Auto-Create sopir & tujuan;
+  :Handle gagal produksi + combined route;
+  :Kabupaten mapping (75 kecamatan -> 9 kota);
+  :Input manual + filter tujuan;
+  :Cek DT per sopir per tujuan;
+  :Detail pivot (tabel sopir x tanggal);
+  if (Download PDF?) then (ya)
+    :Generate PDF DomPDF;
+  else (tidak)
+    :Tampilkan di iframe\ndengan dark mode;
+  endif
+  stop
+}
+
+@enduml

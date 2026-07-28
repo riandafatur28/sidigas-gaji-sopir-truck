@@ -1,0 +1,40 @@
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+skinparam partitionBackgroundColor #f0f5ff
+skinparam partitionBorderColor #2b6cb0
+skinparam partitionFontSize 13
+skinparam partitionFontStyle bold
+
+title Evolusi Fitur Validasi Bukti per Iterasi
+
+partition "Iterasi 1 - Submit + Setujui/Tolak" {
+  start
+  :Sopir input nama + tujuan + foto\n(dapat lokasi & waktu otomatis);
+  :Simpan status = pending;
+  :Admin lihat daftar bukti;
+  if (Aksi?) then (Setujui)
+    :Update status = disetujui;
+  else (Tolak)
+    :Update status = ditolak;
+  endif
+  stop
+}
+
+partition "Iterasi 2 - Aturan Otomatis" {
+  start
+  :Toggle aturan otomatis\n(AturanAktif helper);
+  :Setujui + otomatis\nbuat ritase baru;
+  stop
+}
+
+partition "Final - Tambah Ritase Manual" {
+  start
+  :Tambah ritase manual\ndari bukti yang disetujui;
+  :Catatan mitra opsional;
+  stop
+}
+
+@enduml

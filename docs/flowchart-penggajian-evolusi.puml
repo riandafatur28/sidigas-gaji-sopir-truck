@@ -1,0 +1,39 @@
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+skinparam partitionBackgroundColor #f0f5ff
+skinparam partitionBorderColor #2b6cb0
+skinparam partitionFontSize 13
+skinparam partitionFontStyle bold
+
+title Evolusi Fitur Penggajian per Iterasi
+
+partition "Iterasi 1 - Hitung + PDF" {
+  start
+  :Input biaya\n(solar, upah, sewa DT, tol);
+  :Klik Hitung Gaji;
+  :Kalkulasi total per sopir;
+  :Simpan ke penggajian + details;
+  :Download Slip PDF (layout mentah);
+  :Download Laporan PDF;
+  stop
+}
+
+partition "Iterasi 2 - Riwayat + Modal" {
+  start
+  :Filter & urut riwayat\n(bulan, tahun, terbaru/terlama);
+  :Lihat slip via modal\n(AJAX + stripping CSS);
+  stop
+}
+
+partition "Final - Polish" {
+  start
+  :Slip 4 per F4\n(font 8.5pt, padding 0.8mm);
+  :Laporan PDF grid 1.5px;
+  :Dark mode pure black;
+  stop
+}
+
+@enduml
