@@ -1,0 +1,142 @@
+@startuml
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+skinparam defaultFontName Arial
+
+left to right direction
+
+entity users {
+  *id : bigint
+  *name : string
+  *email : string
+  phone : string NULL
+  email_verified_at : timestamp NULL
+  password : string
+  remember_token : string NULL
+  timestamps
+}
+
+entity otps {
+  *id : bigint
+  *email : string
+  *otp : string(6)
+  *expires_at : timestamp
+  timestamps
+}
+
+entity sopirs {
+  *id : bigint
+  *kode_sopir : string UNIQUE
+  *nama : string
+  *status : enum(aktif/nonaktif)
+  timestamps
+}
+
+entity tujuans {
+  *id : bigint
+  *kode_tujuan : string UNIQUE
+  *nama : string
+  *status : enum(aktif/nonaktif)
+  latitude : decimal NULL
+  longitude : decimal NULL
+  timestamps
+}
+
+entity periodes {
+  *id : bigint
+  *kode_periode : string UNIQUE
+  *nama_periode : string
+  *tanggal_mulai : date
+  *tanggal_selesai : date
+  *status : enum(aktif/selesai)
+  timestamps
+}
+
+entity ritases {
+  *id : bigint
+  *kode_ritase : string UNIQUE
+  *periode_id : bigint FK
+  *kode_sopir : string FK
+  *kode_tujuan : string FK
+  *tanggal : date
+  *waktu : enum(pagi/malam)
+  *kabupaten : enum
+  *status : enum(valid/pending/gagal_produksi)
+  *upah_sopir : decimal
+  *dt : decimal
+  *nominal_kompensasi : decimal
+  is_lembur : boolean NULL
+  upah_lembur : decimal NULL
+  catatan : text NULL
+  timestamps
+}
+
+entity penggajian {
+  *id : bigint
+  *kode_sopir : string FK
+  *periode_id : bigint FK
+  *tanggal : date
+  *uang_solar : decimal
+  *upah_sopir : decimal
+  *dt : decimal
+  *tol : decimal
+  *upah_lembur : decimal
+  *total : decimal
+  *kompensasi_gagal : decimal
+  timestamps
+}
+
+entity penggajian_details {
+  *id : bigint
+  *penggajian_id : bigint FK
+  *kode_tujuan : string FK
+  *jumlah_rit : integer
+  *solar_per_rit : decimal
+  *upah_per_rit : decimal
+  *total_solar : decimal
+  *total_upah : decimal
+  *sewa_dt : decimal
+  *tol_per_rit : decimal
+  *total_tol : decimal
+  *subtotal : decimal
+  timestamps
+}
+
+entity validasi_bukti {
+  *id : bigint
+  kode_sopir : string FK NULL
+  *nama_sopir : string
+  *sopir_baru : boolean
+  kode_tujuan : string FK NULL
+  *nama_tujuan : string
+  *tujuan_baru : boolean
+  *foto : string
+  latitude : decimal NULL
+  longitude : decimal NULL
+  lokasi : string NULL
+  *waktu_foto : datetime
+  *tanggal : date
+  periode_id : bigint FK NULL
+  catatan : text NULL
+  *status : enum(pending/disetujui/ditolak)
+  catatan_mitra : text NULL
+  timestamps
+}
+
+' ========== RELATIONSHIPS ==========
+
+periodes ||..|{ ritases
+sopirs ||..|{ ritases
+tujuans ||..|{ ritases
+
+sopirs ||..|{ penggajian
+periodes ||..|{ penggajian
+
+penggajian ||..|{ penggajian_details
+tujuans ||..|{ penggajian_details
+
+sopirs ||..|{ validasi_bukti
+tujuans ||..|{ validasi_bukti
+periodes ||..|{ validasi_bukti
+
+@enduml
