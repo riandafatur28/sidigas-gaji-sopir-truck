@@ -1,0 +1,43 @@
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 12
+skinparam defaultFontName Arial
+skinparam rectangleBorderColor #2b6cb0
+skinparam rectangleBackgroundColor #ebf8ff
+skinparam rectangleBorderThickness 2
+skinparam arrowColor #2d3748
+skinparam ArrowThickness 1.5
+
+title **Alur Sistem - Iterasi 2**
+
+rectangle "Login" as LOGIN
+rectangle "Auto-Sync\nStatus Periode" as SYNC
+rectangle "CRUD\nSopir / Tujuan / Periode" as CRUD
+rectangle "Parser NER Hybrid\n(Metaphone + JaroWinkler)" as NER
+rectangle "Auto-Create\nSopir & Tujuan" as AUTO
+rectangle "Gagal Produksi\n+ Combined Route" as GAGAL
+rectangle "Input Ritase\nManual" as RIT_MANUAL
+rectangle "Filter & Cek DT" as FILTER
+rectangle "Hitung Gaji" as GAJI
+rectangle "Riwayat\n(Filter & Urut)" as RIWAYAT
+rectangle "Slip Modal\n+ Stripping CSS" as SLIP
+rectangle "Slip & Laporan\nPDF" as PDF
+rectangle "Validasi Bukti\n+ Aturan Otomatis" as VALIDASI
+
+LOGIN --> SYNC
+SYNC --> CRUD
+SYNC --> NER
+SYNC --> RIT_MANUAL
+NER --> AUTO
+NER --> GAGAL
+AUTO --> RIT_MANUAL
+GAGAL --> RIT_MANUAL
+RIT_MANUAL --> FILTER
+FILTER --> GAJI
+GAJI --> RIWAYAT
+GAJI --> SLIP
+GAJI --> PDF
+SYNC --> VALIDASI
+
+@enduml

@@ -1,0 +1,62 @@
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 12
+skinparam defaultFontName Arial
+skinparam rectangleBorderColor #2b6cb0
+skinparam rectangleBackgroundColor #ebf8ff
+skinparam rectangleBorderThickness 2
+skinparam arrowColor #2d3748
+skinparam ArrowThickness 1.5
+
+title **Alur Sistem - Final**
+
+rectangle "Login" as LOGIN
+rectangle "Auto-Sync\nStatus Periode" as SYNC
+
+rectangle "CRUD\nSopir / Tujuan / Periode\n(redirect back)" as CRUD
+
+rectangle "Parser NER Hybrid\n(Metaphone + JaroWinkler\n+ Word Boundary)" as NER
+rectangle "Auto-Create\nSopir & Tujuan" as AUTO
+rectangle "Gagal Produksi\n+ Combined Route" as GAGAL
+rectangle "Kabupaten Mapping\n(75 kec→9 kota)" as KAB
+rectangle "Input Ritase\nManual + Filter" as RIT_MANUAL
+rectangle "Cek DT\n(per sopir/tujuan)" as DT
+
+rectangle "Hitung Gaji\n(Input Biaya)" as GAJI
+rectangle "Riwayat\n(Filter Bulan/Tahun)" as RIWAYAT
+rectangle "Slip Modal\n+ CSS Stripping" as SLIP
+rectangle "Slip PDF\n(4 per F4)" as SLIPPDF
+rectangle "Laporan PDF" as LAPPDF
+rectangle "Detail Pivot\n+ PDF / iFrame\n+ Dark Mode" as DETAIL
+
+rectangle "Validasi Bukti\n(Publik + Admin)" as VALIDASI
+rectangle "Toggle Aturan\nOtomatis" as ATURAN
+
+LOGIN --> SYNC
+SYNC --> CRUD
+SYNC --> NER
+SYNC --> RIT_MANUAL
+SYNC --> GAJI
+SYNC --> VALIDASI
+
+NER --> AUTO
+NER --> GAGAL
+NER --> KAB
+AUTO --> RIT_MANUAL
+GAGAL --> RIT_MANUAL
+KAB --> RIT_MANUAL
+RIT_MANUAL --> DT
+RIT_MANUAL --> DETAIL
+DT --> GAJI
+
+GAJI --> RIWAYAT
+GAJI --> SLIP
+GAJI --> SLIPPDF
+GAJI --> LAPPDF
+GAJI --> DETAIL
+
+VALIDASI --> ATURAN
+VALIDASI --> RIT_MANUAL
+
+@enduml
