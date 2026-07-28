@@ -1,0 +1,246 @@
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+skinparam partitionBackgroundColor #f0f5ff
+skinparam partitionBorderColor #2b6cb0
+skinparam partitionFontSize 13
+skinparam partitionFontStyle bold
+
+title **Flowchart Aplikasi Distribusi Gaji**
+
+' ============================================
+partition "1. Autentikasi" {
+  :Buka halaman /login;
+  :Input Email & Password;
+  if (Valid?) then (ya)
+    :Redirect ke Dashboard;
+    stop
+  else (tidak)
+    :Tampilkan pesan error;
+  endif
+  :Kembali ke halaman login;
+  stop
+
+  start
+  :Klik "Lupa Password";
+  :Input email;
+  :Kirim OTP ke email;
+  if (OTP cocok?) then (ya)
+    :Input password baru;
+    :Simpan password;
+    :Redirect ke login;
+    stop
+  else (tidak)
+    :Tampilkan error "OTP salah";
+  endif
+  :Kembali ke form OTP;
+  stop
+}
+
+' ============================================
+partition "2. Dashboard" {
+  start
+  :Buka halaman dashboard;
+  :Hitung total ritase, gaji,\nsopir aktif, tujuan aktif;
+  :Tampilkan ringkasan\ndalam card & chart;
+  stop
+}
+
+' ============================================
+partition "3. CRUD Master Data\n(Sopir / Tujuan / Periode)" {
+  start
+  :Buka halaman index\n(/sopir, /tujuan, /periode);
+  :Tampilkan tabel data\ndengan pagination;
+  if (Pilih aksi?) as (aksi) elseif (Tambah) then
+    :Klik tombol "Tambah";
+    :Buka modal form;
+    :Isi data & submit;
+    if (Validasi lolos?) then (ya)
+      :Simpan ke DB;
+      :Redirect back\n(tetap di halaman yang sama);
+      :Tutup modal;
+    else (tidak)
+      :Tampilkan error validasi;
+    endif
+  elseif (Edit) then
+    :Klik tombol "Edit";
+    :Buka modal form\ndengan data lama;
+    :Ubah data & submit;
+    if (Validasi lolos?) then (ya)
+      :Update DB;
+      :Redirect back;
+      :Tutup modal;
+    else (tidak)
+      :Tampilkan error;
+    endif
+  elseif (Hapus) then
+    :Klik tombol "Hapus";
+    :Konfirmasi delete;
+    if (Yakin?) then (ya)
+      :Hapus dari DB;
+      :Redirect back;
+    endif
+  endif
+  ->aksi;
+  stop
+}
+
+' ============================================
+partition "4. Ritase" {
+  partition "4a. Parse Teks" {
+    start
+    :Buka halaman /ritase/parse;
+    :Pilih periode;
+    :Paste teks ritase;
+    :Klik "Parse";
+    :Sistem parsing\n(RitaseParserService);
+    if (Berhasil?) then (ya)
+      :Tampilkan tabel hasil\nsebagai preview;
+      if (Simpan?) then (ya)
+        :Simpan semua ritase ke DB;
+        :Redirect ke /ritase\n(index periode aktif);
+      endif
+    else (tidak)
+      :Tampilkan error\n(format teks salah);
+    endif
+    stop
+  }
+
+  partition "4b. CRUD Manual" {
+    start
+    :Buka halaman /ritase;\n(otomatis filter\nperiode aktif);
+    :Tampilkan tabel ritase;
+    if (Pilih aksi?) elseif (Tambah) then
+      :Klik "Tambah";
+      :Buka modal form\n(sopir, tujuan, tgl, waktu, dll);
+      :Isi & submit;
+      :Simpan ke DB;
+      :Redirect back;
+    elseif (Edit) then
+      :Klik "Edit";
+      :Ubah data;\n(submit via AJAX);
+      :Update DB;
+    elseif (Hapus) then
+      :Konfirmasi → hapus;
+    elseif (Cek DT) then
+      :Klik "Cek DT";
+      :Tampilkan ringkasan DT\nper sopir per tujuan;
+    endif
+    ->Tambah/Edit;
+    stop
+  }
+
+  partition "4c. Detail Pivot & PDF" {
+    start
+    :Klik "Detail" pada baris ritase;
+    :Tampilkan modal/iframe\ndengan tabel pivot\n(sopir x tanggal);
+    if (Lihat di browser?) then (ya)
+      :Tampilkan detail-html\n(iframe, dark-mode aware);
+    else (tidak / Download PDF)
+      :Cetak via DomPDF;
+      :Download file .pdf;
+    endif
+    stop
+  }
+}
+
+' ============================================
+partition "5. Penggajian" {
+  partition "5a. Hitung Gaji" {
+    start
+    :Buka halaman /gaji;
+    :Tampilkan tabel sopir\ndengan data ritase;\n(periode aktif otomatis);
+    :Input biaya solar & upah\nper rit per tujuan;
+    :Klik "Hitung Gaji";
+    :Sistem kalkulasi:\n- solar_per_rit x jumlah_rit\n- upah_per_rit x jumlah_rit\n- sewa_dt x jumlah_rit\n- tol_per_rit x jumlah_rit\n- + lembur, kompensasi\n- total per sopir;
+    :Simpan ke tabel\npenggajian + penggajian_details;
+    :Tampilkan hasil\ndengan grand total;
+    stop
+  }
+
+  partition "5b. Riwayat & Filter" {
+    start
+    :Buka halaman /gaji/riwayat;
+    :Tampilkan daftar periode\nyang sudah dihitung;
+    if (Filter?) then (ya)
+      :Pilih bulan / tahun;
+      :Pilih urutan\n(terbaru / terlama);
+      :Submit filter via GET;
+    endif
+    :Tampilkan hasil filter;
+    if (Klik periode?) then (ya)
+      :Lihat detail gaji\nperiode tersebut;
+    endif
+    stop
+  }
+
+  partition "5c. Slip Gaji" {
+    start
+    :Dari halaman gaji / riwayat;
+    :Klik "Lihat Slip";
+    :Fetch data slip\nvia AJAX;
+    if (Tampilkan?) then (ya)
+      :Sisipkan HTML slip\ndalam modal;
+      :Stripping global CSS\n(cegah style leak);
+      :Tampilkan slip per sopir;\n(rincian per tujuan);
+    endif
+    :Klik "Download Slip";
+    :Generate PDF via DomPDF;\n(chunk 4 slip per F4);
+    :Download file;
+    stop
+  }
+
+  partition "5d. Laporan PDF" {
+    start
+    :Dari halaman gaji;
+    :Klik "Download Laporan";
+    :Generate PDF via DomPDF;\n(semua sopir, semua tujuan);
+    :Download file\n(laporan-pdf.pdf);
+    stop
+  }
+}
+
+' ============================================
+partition "6. Validasi Bukti" {
+  partition "6a. Submit Bukti\n(oleh Sopir - Publik)" {
+    start
+    :Buka /validasi-bukti\n(tanpa login);
+    :Pilih atau input nama sopir;
+    :Pilih atau input tujuan;
+    :Ambil foto\n(otomatis dapat lokasi & waktu);
+    :Klik "Kirim";
+    if (Valid?) then (ya)
+      :Simpan ke tabel\nvalidasi_bukti;\nstatus = pending;
+      :Tampilkan\n"Bukti berhasil dikirim";
+    else (tidak)
+      :Tampilkan error;
+    endif
+    stop
+  }
+
+  partition "6b. Kelola Validasi\n(oleh Admin)" {
+    start
+    :Buka /validasi-bukti/kelola\n(login required);
+    :Tampilkan daftar bukti\n(filter status: pending/semua);
+    if (Pilih aksi?) elseif (Setujui) then
+      :Update status → disetujui;
+      :Catatan mitra opsional;
+      :(Otomatis tambah ritase\njika enabled);
+    elseif (Tolak) then
+      :Input catatan mitra\n(alasan penolakan);
+      :Update status → ditolak;
+    elseif (Tambah Ritase) then
+      :Klik "Tambah ke Ritase";
+      :Buat entri ritase baru\ndari data bukti;
+      :Redirect ke /ritase;
+    elseif (Toggle Aturan) then
+      :Aktifkan/nonaktifkan\natur otomatis\n(AturanAktif helper);
+    endif
+    ->Setujui/Tolak;
+    stop
+  }
+}
+
+@enduml
