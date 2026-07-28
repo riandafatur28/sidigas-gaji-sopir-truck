@@ -343,7 +343,7 @@ class PenggajianController extends Controller
             $this->processPenggajian($periodeId, $request, $detailTujuanMap);
 
             DB::commit();
-            return redirect()->route('gaji.index', ['periode' => $periodeId])
+            return redirect()->back()
                 ->with('success', 'Data gaji berhasil disimpan!');
 
         } catch (\Exception $e) {
@@ -600,7 +600,7 @@ class PenggajianController extends Controller
             $this->processPenggajian($periodeId, $request, $detailTujuanMap);
 
             DB::commit();
-            return redirect()->route('gaji.index', ['periode' => $periodeId])
+            return redirect()->back()
                 ->with('success', 'Data gaji berhasil diupdate!');
 
         } catch (\Exception $e) {
@@ -613,7 +613,7 @@ class PenggajianController extends Controller
     {
         try {
             Penggajian::where('periode_id', $id)->delete();
-            return redirect()->route('gaji.index')->with('success', 'Data gaji berhasil dihapus!');
+            return redirect()->back()->with('success', 'Data gaji berhasil dihapus!');
         } catch (\Exception $e) {
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }

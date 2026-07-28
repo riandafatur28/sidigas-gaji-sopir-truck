@@ -47,7 +47,7 @@ class TujuanController extends Controller
             'status' => 'aktif',
         ]);
 
-        return redirect()->route('tujuan.index')
+        return redirect()->back()
             ->with('success', "Tujuan berhasil ditambahkan dengan kode otomatis!");
     }
 
@@ -67,7 +67,7 @@ class TujuanController extends Controller
             'status' => $request->status,
         ]);
 
-        return redirect()->route('tujuan.index')
+        return redirect()->back()
             ->with('success', 'Data tujuan berhasil diperbarui!');
     }
 
@@ -85,7 +85,7 @@ class TujuanController extends Controller
 
         $tujuan->delete();
 
-        return redirect()->route('tujuan.index')
+        return redirect()->back()
             ->with('success', 'Data tujuan berhasil dihapus!');
     }
 }

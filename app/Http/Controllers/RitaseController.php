@@ -170,7 +170,7 @@ class RitaseController extends Controller
             'upah_lembur' => $upahLembur,
         ]);
 
-        return redirect()->route('ritase.index')
+        return redirect()->back()
             ->with('success', 'Ritase berhasil ditambahkan! DT: Rp ' . number_format($dtValue, 0, ',', '.'));
     }
 
@@ -225,7 +225,7 @@ class RitaseController extends Controller
             'upah_lembur' => $upahLembur,
         ]);
 
-        return redirect()->route('ritase.index')
+        return redirect()->back()
             ->with('success', 'Data ritase berhasil diperbarui! DT: Rp ' . number_format($dtValue, 0, ',', '.'));
     }
 
@@ -235,10 +235,10 @@ class RitaseController extends Controller
             $ritase = Ritase::findOrFail($id);
             $ritase->delete();
 
-            return redirect()->route('ritase.index')
+            return redirect()->back()
                 ->with('success', 'Data ritase berhasil dihapus!');
         } catch (\Exception $e) {
-            return redirect()->route('ritase.index')
+            return redirect()->back()
                 ->with('error', 'Gagal menghapus data: ' . $e->getMessage());
         }
     }

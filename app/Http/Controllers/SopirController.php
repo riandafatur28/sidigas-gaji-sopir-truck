@@ -48,7 +48,7 @@ class SopirController extends Controller
             'status' => 'aktif',
         ]);
 
-        return redirect()->route('sopir.index')
+        return redirect()->back()
             ->with('success', "Sopir berhasil ditambahkan dengan kode otomatis!");
     }
 
@@ -68,7 +68,7 @@ class SopirController extends Controller
             'status' => $request->status,
         ]);
 
-        return redirect()->route('sopir.index')
+        return redirect()->back()
             ->with('success', 'Data sopir berhasil diperbarui!');
     }
 
@@ -86,7 +86,7 @@ class SopirController extends Controller
 
         $sopir->delete();
 
-        return redirect()->route('sopir.index')
+        return redirect()->back()
             ->with('success', 'Data sopir berhasil dihapus!');
     }
 }

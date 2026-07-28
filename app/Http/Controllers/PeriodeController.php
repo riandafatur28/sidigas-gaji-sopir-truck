@@ -71,7 +71,7 @@ class PeriodeController extends Controller
             'status' => 'aktif',
         ]);
 
-        return redirect()->route('periode.index')
+        return redirect()->back()
             ->with('success', 'Periode berhasil ditambahkan!');
     }
 
@@ -92,7 +92,7 @@ class PeriodeController extends Controller
             'status' => $request->status,
         ]);
 
-        return redirect()->route('periode.index')
+        return redirect()->back()
             ->with('success', 'Data periode berhasil diperbarui!');
     }
 
@@ -108,7 +108,7 @@ class PeriodeController extends Controller
 
         $periode->delete();
 
-        return redirect()->route('periode.index')
+        return redirect()->back()
             ->with('success', 'Data periode berhasil dihapus!');
     }
 }
