@@ -1,0 +1,61 @@
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+skinparam activityBorderColor #2b6cb0
+skinparam activityBackgroundColor #ebf8ff
+skinparam arrowColor #2d3748
+
+title **Activity Diagram - Kelola Periode**
+
+start
+repeat
+  :Admin buka /periode;
+  :Sistem query semua periode\n(ordered by tgl_mulai DESC);
+  :Tampilkan tabel periode;
+
+  if (Pilih aksi?) then (Tambah)
+    :Klik tombol "Tambah";
+    repeat
+      :Input nama_periode,\ntanggal_mulai, tanggal_selesai;
+      :Submit form;
+      if (Validasi:\ntgl_selesai >= tgl_mulai\n& tidak overlap?) then (ya)
+        :Simpan ke tabel periodes;\n(auto-generate kode_periode);
+        :Redirect back;
+      else (tidak)
+        :Tampilkan error;
+      endif
+    repeat while (Ada error?) is (ya)
+    ->tidak;
+
+  elseif (Edit) then
+    :Klik tombol "Edit";
+    repeat
+      :Ubah data di modal;
+      :Submit form;
+      if (Validasi lolos?) then (ya)
+        :Update tabel periodes;
+        :Redirect back;
+      else (tidak)
+        :Tampilkan error;
+      endif
+    repeat while (Ada error?) is (ya)
+    ->tidak;
+
+  elseif (Hapus) then
+    :Klik "Hapus";
+    if (Konfirmasi?) then (ya)
+      :Hapus dari tabel periodes\n(CASCADE ke ritase,\npenggajian, validasi_bukti);
+      :Redirect back;
+    endif
+
+  else (Navigasi halaman)
+    :Klik pagination;
+  endif
+
+repeat while (Masih di halaman periode?) is (ya)
+->tidak;
+stop
+
+@enduml

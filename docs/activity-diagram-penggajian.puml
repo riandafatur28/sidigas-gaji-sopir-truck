@@ -1,0 +1,71 @@
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+skinparam activityBorderColor #2b6cb0
+skinparam activityBackgroundColor #ebf8ff
+skinparam arrowColor #2d3748
+
+title **Activity Diagram - Penggajian**
+
+start
+:Admin buka /gaji;
+:Sistem load periode aktif;
+:Query sopir + ritase\nperiode aktif;
+:Tampilkan tabel input\n(sopir, total rit, input biaya);
+
+if (Aksi?) then (Hitung Gaji)
+  :Admin input biaya:\n- uang_solar per rit\n- upah_sopir per rit\n- sewa_dt per rit\n- tol per rit;
+  :Klik "Hitung Gaji";
+
+  :Sistem kalkulasi\ntiap detail per tujuan:
+  - total_solar = jumlah_rit x solar_per_rit
+  - total_upah = jumlah_rit x upah_per_rit
+  - total_tol = jumlah_rit x tol_per_rit
+  - subtotal = total_solar + total_upah + sewa_dt + total_tol;
+
+  :Sistem kalkulasi header:
+  - uang_solar (sum detail)
+  - upah_sopir (sum detail)
+  - dt (sum detail)
+  - tol (sum detail)
+  - kompensasi_gagal (dari ritase gagal)
+  - upah_lembur (dari ritase is_lembur)
+  - total = solar + upah + dt + tol + kompensasi + lembur;
+
+  :Simpan ke tabel penggajian\n+ penggajian_details;
+  :Tampilkan hasil\ndengan grand total;
+
+elseif (Riwayat) then
+  :Buka /gaji/riwayat;
+  if (Filter?) then (ya)
+    :Pilih bulan / tahun;
+    :Pilih urutan\nerbaru/terlama;
+    :Submit GET;
+  endif
+  :Tampilkan daftar periode\nyang sudah dihitung;
+  if (Klik periode?) then (ya)
+    :Tampilkan detail gaji\nperiode tsb;
+  endif
+
+elseif (Lihat Slip) then
+  :Klik "Lihat Slip"\npada baris sopir;
+  :Fetch data slip via AJAX;
+  :Sisipkan HTML slip\ndalam modal\n(strip global CSS);
+  :Tampilkan slip per sopir;
+
+elseif (Download Slip) then
+  :Klik "Download Slip";
+  :Generate PDF via DomPDF\n(4 slip per F4 page);
+  :Download file;
+
+elseif (Download Laporan) then
+  :Klik "Download Laporan";
+  :Generate PDF laporan\n(semua sopir + tujuan);
+  :Download file;
+
+endif
+stop
+
+@enduml

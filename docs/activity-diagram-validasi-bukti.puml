@@ -1,0 +1,56 @@
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+skinparam activityBorderColor #2b6cb0
+skinparam activityBackgroundColor #ebf8ff
+skinparam arrowColor #2d3748
+
+title **Activity Diagram - Validasi Bukti**
+
+start
+if (Actor?) then (Sopir - Publik)
+  :Buka /validasi-bukti\n(tanpa login);
+  :Pilih / input nama sopir;
+  :Pilih / input nama tujuan;
+  :Ambil foto via camera\n(otomatis dapat lokasi\n& waktu dari EXIF);
+  :Klik "Kirim";
+  :Simpan ke validasi_bukti\n(status = pending);
+  :Tampilkan\n"Bukti berhasil dikirim";
+  stop
+
+else (Admin - Login)
+  :Buka /validasi-bukti/kelola;
+  :Query semua bukti\n(filter status);
+  :Tampilkan tabel bukti\n(foto, sopir, tujuan, status);
+
+  if (Pilih aksi?) then (Setujui)
+    :Klik "Setujui";
+    if (AturanAktif?) then (ya)
+      :Otomatis buat ritase\ndari data bukti;\n(cek duplikasi);
+    endif
+    :Update status = disetujui;
+    :Catatan mitra opsional;
+    :Redirect back;
+
+  elseif (Tolak) then
+    :Input catatan mitra\nalasan penolakan;
+    :Update status = ditolak;
+    :Redirect back;
+
+  elseif (Tambah Ritase) then
+    :Klik "Tambah ke Ritase";
+    :Sistem buat entri ritase baru\ndari data validasi_bukti;
+    :Hapus/tandai bukti\ndiproses;
+    :Redirect ke /ritase;
+
+  elseif (Toggle Aturan) then
+    :Klik toggle;\n(helper AturanAktif);
+    :Update status aturan\ndi session/config;
+  endif
+
+endif
+stop
+
+@enduml

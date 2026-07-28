@@ -1,0 +1,64 @@
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+skinparam activityBorderColor #2b6cb0
+skinparam activityBackgroundColor #ebf8ff
+skinparam arrowColor #2d3748
+
+title **Activity Diagram - Kelola Sopir**
+
+start
+repeat
+  :Admin buka /sopir;
+  :Sistem query semua sopir\n(paginated 10/halaman);
+  :Tampilkan tabel sopir\ndengan pagination;
+
+  if (Pilih aksi?) then (Tambah)
+    :Klik tombol "Tambah";
+    repeat
+      :Input data sopir\n(kode_sopir, nama);
+      :Submit form via AJAX;
+      if (Validasi lolos?) then (ya)
+        :Simpan ke tabel sopirs;
+        :Redirect back (page sama);
+        :Tutup modal;
+      else (tidak)
+        :Tampilkan error validasi;
+      endif
+    repeat while (Ada error?) is (ya)
+    ->tidak;
+
+  elseif (Edit) then
+    :Klik tombol "Edit";
+    repeat
+      :Ubah data di modal\n(kode_sopir, nama, status);
+      :Submit form via AJAX;
+      if (Validasi lolos?) then (ya)
+        :Update tabel sopirs;
+        :Redirect back;
+        :Tutup modal;
+      else (tidak)
+        :Tampilkan error;
+      endif
+    repeat while (Ada error?) is (ya)
+    ->tidak;
+
+  elseif (Hapus) then
+    :Klik tombol "Hapus";
+    if (Konfirmasi "Yakin?") then (ya)
+      :Hapus dari tabel sopirs\n(CASCADE ke ritase,\npenggajian, validasi_bukti);
+      :Redirect back;
+    endif
+
+  else (Lihat halaman lain)
+    :Klik nomor pagination;
+    :Sistem query halaman berikutnya;
+  endif
+
+repeat while (Masih di halaman sopir?) is (ya)
+->tidak;
+stop
+
+@enduml

@@ -1,0 +1,62 @@
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+skinparam activityBorderColor #2b6cb0
+skinparam activityBackgroundColor #ebf8ff
+skinparam arrowColor #2d3748
+
+title **Activity Diagram - Kelola Tujuan**
+
+start
+repeat
+  :Admin buka /tujuan;
+  :Sistem query semua tujuan\n(paginated);
+  :Tampilkan tabel tujuan;
+
+  if (Pilih aksi?) then (Tambah)
+    :Klik tombol "Tambah";
+    repeat
+      :Input data tujuan\n(kode_tujuan, nama);
+      :Submit form;
+      if (Validasi lolos?) then (ya)
+        :Simpan ke tabel tujuans;
+        :Redirect back;
+        :Tutup modal;
+      else (tidak)
+        :Tampilkan error;
+      endif
+    repeat while (Ada error?) is (ya)
+    ->tidak;
+
+  elseif (Edit) then
+    :Klik tombol "Edit";
+    repeat
+      :Ubah data di modal\n(kode_tujuan, nama, status);
+      :Submit form;
+      if (Validasi lolos?) then (ya)
+        :Update tabel tujuans;
+        :Redirect back;
+      else (tidak)
+        :Tampilkan error;
+      endif
+    repeat while (Ada error?) is (ya)
+    ->tidak;
+
+  elseif (Hapus) then
+    :Klik tombol "Hapus";
+    if (Konfirmasi?) then (ya)
+      :Hapus dari tabel tujuans\n(CASCADE ke ritase,\npenggajian_details, validasi_bukti);
+      :Redirect back;
+    endif
+
+  else (Navigasi halaman)
+    :Klik pagination;
+  endif
+
+repeat while (Masih di halaman tujuan?) is (ya)
+->tidak;
+stop
+
+@enduml
