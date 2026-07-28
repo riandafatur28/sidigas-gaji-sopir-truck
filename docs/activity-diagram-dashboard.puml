@@ -3,20 +3,21 @@
 skinparam backgroundColor #ffffff
 skinparam defaultFontSize 11
 skinparam defaultFontName Arial
-skinparam activityBorderColor #2b6cb0
-skinparam activityBackgroundColor #ebf8ff
-skinparam arrowColor #2d3748
 
-title **Activity Diagram - Dashboard**
-
+|Admin|
 start
-:Admin login & buka /dashboard;
-:Sistem query data periode aktif;
-:Sistem hitung total ritase\n(periode aktif);
-:Sistem hitung total gaji\n(periode aktif);
-:Sistem hitung jumlah\nsopir & tujuan aktif;
-:Sistem hitung statistik\nper sopir (total rit, gaji, DT);
-:Tampilkan card statistik\ndan chart ringkasan;
+:Buka /dashboard;
+
+|Sistem|
+:Query periode aktif\n(syncActiveStatus);
+:Query total ritase\n(periode aktif);
+:Query total gaji\n(periode aktif);
+:Query jumlah sopir & tujuan aktif;
+:Query statistik per sopir\n(total rit, gaji, DT);
+:Rendering data\nke card & chart;
+
+|Admin|
+:Lihat ringkasan dashboard\n(total rit, gaji, sopir\nterbaik, chart);
 stop
 
 @enduml

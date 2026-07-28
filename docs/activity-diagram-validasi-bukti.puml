@@ -3,53 +3,63 @@
 skinparam backgroundColor #ffffff
 skinparam defaultFontSize 11
 skinparam defaultFontName Arial
-skinparam activityBorderColor #2b6cb0
-skinparam activityBackgroundColor #ebf8ff
-skinparam arrowColor #2d3748
 
-title **Activity Diagram - Validasi Bukti**
-
+|Sopir (Publik)|
 start
-if (Actor?) then (Sopir - Publik)
-  :Buka /validasi-bukti\n(tanpa login);
-  :Pilih / input nama sopir;
-  :Pilih / input nama tujuan;
-  :Ambil foto via camera\n(otomatis dapat lokasi\n& waktu dari EXIF);
-  :Klik "Kirim";
+:Buka /validasi-bukti\n(tanpa login);
+:Pilih / input nama sopir;
+:Pilih / input nama tujuan;
+:Ambil foto\n(otomatis dapat\nlokasi & waktu);
+:Klik "Kirim";
+
+|Sistem|
+:Validasi input;
+if (Lengkap?) then (ya)
   :Simpan ke validasi_bukti\n(status = pending);
   :Tampilkan\n"Bukti berhasil dikirim";
+  |Sopir (Publik)|
   stop
+else (tidak)
+  :Tampilkan error;
+  stop
+endif
 
-else (Admin - Login)
-  :Buka /validasi-bukti/kelola;
-  :Query semua bukti\n(filter status);
-  :Tampilkan tabel bukti\n(foto, sopir, tujuan, status);
+|Admin|
+start
+:Buka /validasi-bukti/kelola;
 
-  if (Pilih aksi?) then (Setujui)
-    :Klik "Setujui";
-    if (AturanAktif?) then (ya)
-      :Otomatis buat ritase\ndari data bukti;\n(cek duplikasi);
-    endif
-    :Update status = disetujui;
-    :Catatan mitra opsional;
-    :Redirect back;
+|Sistem|
+:Query semua bukti\n(filter status);
+:Tampilkan tabel\ndaftar bukti;
 
-  elseif (Tolak) then
-    :Input catatan mitra\nalasan penolakan;
-    :Update status = ditolak;
-    :Redirect back;
-
-  elseif (Tambah Ritase) then
-    :Klik "Tambah ke Ritase";
-    :Sistem buat entri ritase baru\ndari data validasi_bukti;
-    :Hapus/tandai bukti\ndiproses;
-    :Redirect ke /ritase;
-
-  elseif (Toggle Aturan) then
-    :Klik toggle;\n(helper AturanAktif);
-    :Update status aturan\ndi session/config;
+|Admin|
+if (Pilih aksi?) then (Setujui)
+  :Klik "Setujui";
+  |Sistem|
+  if (AturanAktif?) then (ya)
+    :Cek duplikasi;
+    :Buat ritase dari bukti;
   endif
+  :Update status = disetujui;
+  :Redirect back;
 
+elseif (Tolak) then
+  :Input catatan penolakan;
+  :Klik "Tolak";
+  |Sistem|
+  :Update status = ditolak;
+  :Redirect back;
+
+elseif (Tambah Ritase) then
+  :Klik "Tambah ke Ritase";
+  |Sistem|
+  :Buat entri ritase baru\ndari data bukti;
+  :Redirect ke /ritase;
+
+elseif (Toggle Aturan) then
+  :Klik toggle aturan;
+  |Sistem|
+  :Update status aturan\ndi session;
 endif
 stop
 

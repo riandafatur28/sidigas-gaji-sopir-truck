@@ -3,26 +3,26 @@
 skinparam backgroundColor #ffffff
 skinparam defaultFontSize 11
 skinparam defaultFontName Arial
-skinparam activityBorderColor #2b6cb0
-skinparam activityBackgroundColor #ebf8ff
-skinparam arrowColor #2d3748
 
-title **Activity Diagram - Autentikasi**
-
+|Admin|
 start
-:Admin buka /login;
+:Buka halaman /login;
 :Input email & password;
-:Kirim POST ke /login;
+:Klik tombol "Login";
 
-if (Email & password valid?) then (ya)
-  :Simpan session;
+|Sistem|
+:Validasi email & password;
+if (Data cocok?) then (ya)
+  :Buat session login;
   :Redirect ke /dashboard;
+  |Admin|
+  :Lihat halaman dashboard;
   stop
 else (tidak)
-  :Tampilkan error\n"Email atau password salah";
-  :Kembali ke form login;
+  :Redirect kembali ke /login\ndengan error;
+  |Admin|
+  :Lihat pesan error\n"Email/password salah";
   stop
 endif
-
 
 @enduml
