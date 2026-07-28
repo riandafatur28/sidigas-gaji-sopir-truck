@@ -1,0 +1,78 @@
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+skinparam partitionBackgroundColor #f0f5ff
+skinparam partitionBorderColor #2b6cb0
+skinparam partitionFontSize 13
+skinparam partitionFontStyle bold
+
+title **Flowchart Kelola Periode**
+
+partition "Lihat Periode" {
+  start
+  :Buka /periode;
+  :Query semua periode\n(ordered by tanggal_mulai desc);
+  :Tampilkan tabel\n(kode, nama, tgl_mulai, tgl_selesai, status);
+  stop
+}
+
+partition "Tambah Periode" {
+  start
+  :Klik tombol "Tambah";
+  :Buka modal form;
+  :Input nama_periode,\ntanggal_mulai, tanggal_selesai;
+  :Submit form;
+  if (Validasi lolos?\n- tgl_selesai >= tgl_mulai\n- tidak overlap?) then (ya)
+    :Simpan ke tabel periodes;\n(auto-generate kode_periode);
+    :Redirect back;
+    :Tutup modal;
+  else (tidak)
+    :Tampilkan error;
+  endif
+  stop
+}
+
+partition "Edit Periode" {
+  start
+  :Klik tombol "Edit";
+  :Buka modal form\ndengan data lama;
+  :Ubah nama_periode / tgl / status;
+  :Submit form;
+  if (Validasi lolos?) then (ya)
+    :Update tabel periodes;
+    :Redirect back;
+    :Tutup modal;
+  else (tidak)
+    :Tampilkan error;
+  endif
+  stop
+}
+
+partition "Hapus Periode" {
+  start
+  :Klik tombol "Hapus";
+  :Konfirmasi delete;
+  if (Dikonfirmasi?) then (ya)
+    :Hapus dari tabel periodes\n(cascade ke ritase,\npenggajian, validasi terkait);
+    :Redirect back;
+  endif
+  stop
+}
+
+partition "Sync Status Periode" {
+  start
+  :Setiap request\nyang butuh periode aktif;
+  :Cek tanggal hari ini;
+  if (Ada periode yang\nmencakup hari ini?) then (ya)
+    :Set status = aktif\npada periode tersebut;
+    :Set status = selesai\npada periode lain;
+  else (tidak)
+    :Set semua = selesai;
+  endif
+  :Kembalikan periode aktif\n(atau null jika tidak ada);
+  stop
+}
+
+@enduml
