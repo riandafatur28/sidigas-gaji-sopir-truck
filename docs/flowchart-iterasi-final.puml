@@ -1,62 +1,47 @@
 @startuml
 !theme plain
 skinparam backgroundColor #ffffff
-skinparam defaultFontSize 12
+skinparam defaultFontSize 11
 skinparam defaultFontName Arial
-skinparam rectangleBorderColor #2b6cb0
-skinparam rectangleBackgroundColor #ebf8ff
-skinparam rectangleBorderThickness 2
-skinparam arrowColor #2d3748
-skinparam ArrowThickness 1.5
+skinparam partitionBackgroundColor #f0f5ff
+skinparam partitionBorderColor #2b6cb0
+skinparam partitionFontSize 13
+skinparam partitionFontStyle bold
 
-title **Alur Sistem - Final**
+title Final - Lengkap (Semua Permintaan Terpenuhi)
 
-rectangle "Login" as LOGIN
-rectangle "Auto-Sync\nStatus Periode" as SYNC
+partition "Ritase - Paste WA + Lengkap" {
+  start
+  :Paste teks WA;
+  :Parse otomatis;
+  :Mapping kecamatan ke kabupaten;
+  :Cek DT;
+  :Detail pivot + PDF dark mode;
+  stop
+}
 
-rectangle "CRUD\nSopir / Tujuan / Periode\n(redirect back)" as CRUD
+partition "Validasi Bukti - Pilih Dropdown" {
+  start
+  :Sopir buka form validasi;
+  :Pilih nama dari dropdown;
+  :Pilih tujuan dari dropdown;
+  :(kecuali sopir/tujuan baru,\nbaru ngetik manual);
+  :Ambil foto;
+  :Kirim;
+  stop
+  note right
+    **Mitra minta:**
+    "Biar tinggal pilih aja,
+    biar ga salah ketik"
+  end note
+}
 
-rectangle "Parser NER Hybrid\n(Metaphone + JaroWinkler\n+ Word Boundary)" as NER
-rectangle "Auto-Create\nSopir & Tujuan" as AUTO
-rectangle "Gagal Produksi\n+ Combined Route" as GAGAL
-rectangle "Kabupaten Mapping\n(75 kec→9 kota)" as KAB
-rectangle "Input Ritase\nManual + Filter" as RIT_MANUAL
-rectangle "Cek DT\n(per sopir/tujuan)" as DT
-
-rectangle "Hitung Gaji\n(Input Biaya)" as GAJI
-rectangle "Riwayat\n(Filter Bulan/Tahun)" as RIWAYAT
-rectangle "Slip Modal\n+ CSS Stripping" as SLIP
-rectangle "Slip PDF\n(4 per F4)" as SLIPPDF
-rectangle "Laporan PDF" as LAPPDF
-rectangle "Detail Pivot\n+ PDF / iFrame\n+ Dark Mode" as DETAIL
-
-rectangle "Validasi Bukti\n(Publik + Admin)" as VALIDASI
-rectangle "Toggle Aturan\nOtomatis" as ATURAN
-
-LOGIN --> SYNC
-SYNC --> CRUD
-SYNC --> NER
-SYNC --> RIT_MANUAL
-SYNC --> GAJI
-SYNC --> VALIDASI
-
-NER --> AUTO
-NER --> GAGAL
-NER --> KAB
-AUTO --> RIT_MANUAL
-GAGAL --> RIT_MANUAL
-KAB --> RIT_MANUAL
-RIT_MANUAL --> DT
-RIT_MANUAL --> DETAIL
-DT --> GAJI
-
-GAJI --> RIWAYAT
-GAJI --> SLIP
-GAJI --> SLIPPDF
-GAJI --> LAPPDF
-GAJI --> DETAIL
-
-VALIDASI --> ATURAN
-VALIDASI --> RIT_MANUAL
+partition "Penggajian - Polish" {
+  start
+  :Slip 4 per halaman F4;
+  :Dark mode;
+  :Laporan grid rapi (1.5px);
+  stop
+}
 
 @enduml

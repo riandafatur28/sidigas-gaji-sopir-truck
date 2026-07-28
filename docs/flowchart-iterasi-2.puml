@@ -1,43 +1,44 @@
 @startuml
 !theme plain
 skinparam backgroundColor #ffffff
-skinparam defaultFontSize 12
+skinparam defaultFontSize 11
 skinparam defaultFontName Arial
-skinparam rectangleBorderColor #2b6cb0
-skinparam rectangleBackgroundColor #ebf8ff
-skinparam rectangleBorderThickness 2
-skinparam arrowColor #2d3748
-skinparam ArrowThickness 1.5
+skinparam partitionBackgroundColor #f0f5ff
+skinparam partitionBorderColor #2b6cb0
+skinparam partitionFontSize 13
+skinparam partitionFontStyle bold
 
-title **Alur Sistem - Iterasi 2**
+title Iterasi 2 - Otomatis dari WA (Permintaan Mitra)
 
-rectangle "Login" as LOGIN
-rectangle "Auto-Sync\nStatus Periode" as SYNC
-rectangle "CRUD\nSopir / Tujuan / Periode" as CRUD
-rectangle "Parser NER Hybrid\n(Metaphone + JaroWinkler)" as NER
-rectangle "Auto-Create\nSopir & Tujuan" as AUTO
-rectangle "Gagal Produksi\n+ Combined Route" as GAGAL
-rectangle "Input Ritase\nManual" as RIT_MANUAL
-rectangle "Filter & Cek DT" as FILTER
-rectangle "Hitung Gaji" as GAJI
-rectangle "Riwayat\n(Filter & Urut)" as RIWAYAT
-rectangle "Slip Modal\n+ Stripping CSS" as SLIP
-rectangle "Slip & Laporan\nPDF" as PDF
-rectangle "Validasi Bukti\n+ Aturan Otomatis" as VALIDASI
+partition "Ritase - Paste Teks WA" {
+  start
+  :Copy teks grup WA\n(berisi semua ritase hari itu);
+  :Buka halaman parse;
+  :Paste teks;
+  :Klik Parse;
+  :Sistem cocokkan sopir & tujuan\notomatis;
+  :Preview hasil;
+  :Simpan semua sekaligus;
+  stop
+  note right
+    **Mitra minta:**
+    "Bisa dari teks WA aja?
+    capek input satu-satu"
+  end note
+}
 
-LOGIN --> SYNC
-SYNC --> CRUD
-SYNC --> NER
-SYNC --> RIT_MANUAL
-NER --> AUTO
-NER --> GAGAL
-AUTO --> RIT_MANUAL
-GAGAL --> RIT_MANUAL
-RIT_MANUAL --> FILTER
-FILTER --> GAJI
-GAJI --> RIWAYAT
-GAJI --> SLIP
-GAJI --> PDF
-SYNC --> VALIDASI
+partition "Validasi Bukti - Masih Manual" {
+  start
+  :Sopir ketik manual\nnama & tujuan;
+  :(belum ada dropdown);
+  stop
+}
+
+partition "Penggajian - Ditambah Filter" {
+  start
+  :Filter riwayat per bulan/tahun;
+  :Lihat slip di modal;
+  stop
+}
 
 @enduml

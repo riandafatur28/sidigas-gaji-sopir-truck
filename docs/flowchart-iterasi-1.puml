@@ -1,32 +1,44 @@
 @startuml
 !theme plain
 skinparam backgroundColor #ffffff
-skinparam defaultFontSize 12
+skinparam defaultFontSize 11
 skinparam defaultFontName Arial
-skinparam rectangleBorderColor #2b6cb0
-skinparam rectangleBackgroundColor #ebf8ff
-skinparam rectangleBorderThickness 2
-skinparam arrowColor #2d3748
-skinparam ArrowThickness 1.5
+skinparam partitionBackgroundColor #f0f5ff
+skinparam partitionBorderColor #2b6cb0
+skinparam partitionFontSize 13
+skinparam partitionFontStyle bold
 
-title **Alur Sistem - Iterasi 1**
+title Iterasi 1 - Input Manual (Semua)
 
-rectangle "Login" as LOGIN
-rectangle "CRUD\nSopir / Tujuan / Periode" as CRUD
-rectangle "Input Ritase\nManual" as RIT_MANUAL
-rectangle "Parser Ritase\n(LLM + Rule)" as RIT_LLM
-rectangle "Preview\nHasil Parsing" as PREVIEW
-rectangle "Hitung Gaji\n(Input Biaya)" as GAJI
-rectangle "Slip & Laporan\nPDF" as PDF
-rectangle "Validasi Bukti\n(Manual)" as VALIDASI
+partition "Ritase - Manual" {
+  start
+  :Buka halaman ritase;
+  :Klik Tambah;
+  :Pilih sopir dari dropdown;
+  :Pilih tujuan dari dropdown;
+  :Input tanggal & waktu;
+  :Input nominal DT;
+  :Simpan;
+  :Ulang untuk setiap ritase\n(satu per satu, hari itu bisa\n10-20 ritase);
+  stop
+}
 
-LOGIN --> CRUD
-LOGIN --> RIT_MANUAL
-LOGIN --> RIT_LLM
-RIT_LLM --> PREVIEW
-PREVIEW --> RIT_MANUAL
-RIT_MANUAL --> GAJI
-GAJI --> PDF
-LOGIN --> VALIDASI
+partition "Validasi Bukti - Manual" {
+  start
+  :Sopir buka form validasi;
+  :Ketik manual nama sopir;
+  :Ketik manual nama tujuan;
+  :Ambil foto;
+  :Kirim;
+  stop
+}
+
+partition "Penggajian - Sederhana" {
+  start
+  :Input biaya solar & upah;
+  :Hitung gaji;
+  :Download PDF;
+  stop
+}
 
 @enduml
