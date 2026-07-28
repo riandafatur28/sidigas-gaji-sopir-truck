@@ -8,33 +8,42 @@ skinparam partitionBorderColor #2b6cb0
 skinparam partitionFontSize 13
 skinparam partitionFontStyle bold
 
-title Evolusi Fitur Validasi Bukti per Iterasi
+title Evolusi Fitur Validasi Bukti dari Kebutuhan Mitra
 
-partition "Iterasi 1 - Submit + Setujui/Tolak" {
+partition "Iterasi 1 - Sudah Jalan" {
   start
-  :Sopir input nama + tujuan + foto\n(dapat lokasi & waktu otomatis);
-  :Simpan status = pending;
-  :Admin lihat daftar bukti;
-  if (Aksi?) then (Setujui)
-    :Update status = disetujui;
-  else (Tolak)
-    :Update status = ditolak;
-  endif
+  :Sopir foto bukti pengiriman;
+  :Admin login, buka daftar bukti;
+  :Admin setujui atau tolak manual;
   stop
+  note right
+    **Masalah dari Mitra:**
+    - Setiap bukti harus di-setujui satu-satu
+    - Ritase harus diinput ulang terpisah
+  end note
 }
 
-partition "Iterasi 2 - Aturan Otomatis" {
+partition "Iterasi 2 - Ditingkatkan" {
   start
-  :Toggle aturan otomatis\n(AturanAktif helper);
-  :Setujui + otomatis\nbuat ritase baru;
+  :Admin aktifkan aturan otomatis;
+  :Setujui bukti -> otomatis\nritase langsung terbuat;
   stop
+  note right
+    **Perbaikan dari keluhan Mitra:**
+    - Sekali klik, ritase langsung jadi
+    - Ga perlu input ulang
+  end note
 }
 
-partition "Final - Tambah Ritase Manual" {
+partition "Final - Lengkap" {
   start
-  :Tambah ritase manual\ndari bukti yang disetujui;
-  :Catatan mitra opsional;
+  :Tambah ritase manual dari bukti;\n(bisa ditambah catatan mitra);
   stop
+  note right
+    **Tambahan dari Mitra:**
+    - Fleksibel: otomatis atau manual
+    - Ada catatan mitra
+  end note
 }
 
 @enduml

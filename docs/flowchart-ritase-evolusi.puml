@@ -8,43 +8,55 @@ skinparam partitionBorderColor #2b6cb0
 skinparam partitionFontSize 13
 skinparam partitionFontStyle bold
 
-title Evolusi Fitur Ritase per Iterasi
+title Evolusi Fitur Ritase dari Kebutuhan Mitra
 
-partition "Iterasi 1 - Parser LLM + Manual" {
+partition "Iterasi 1 - Sudah Jalan" {
   start
-  :Input ritase manual;
-  :Parser LLM + Rule (paste teks);
-  :Preview hasil parsing;
-  if (Setuju?) then (ya)
-    :Simpan ritase ke DB;
-  endif
+  :Paste teks ritase;
+  :Klik Parse;
+  :Hasil parsing muncul\n(beberapa menit, kadang berubah-ubah);
+  :Simpan ritase;
   stop
+  note right
+    **Masalah dari Mitra:**
+    - Loading lama (tunggu beberapa menit)
+    - Hasil kadang beda walau teks sama
+    - Nama sopir kadang salah cocok
+  end note
 }
 
-partition "Iterasi 2 - NER Hybrid + Auto" {
+partition "Iterasi 2 - Ditingkatkan" {
   start
-  :Parser NER Hybrid\n(Metaphone + JaroWinkler);
-  :Auto-Create sopir & tujuan baru;
-  :Handle gagal produksi\n+ combined route;
-  :Input manual + filter tujuan;
+  :Paste teks ritase;
+  :Klik Parse;
+  :Hasil parsing muncul\n(dalam hitungan detik, konsisten);
+  :Sopir & tujuan baru otomatis terdaftar;
+  :Ritase gagal produksi otomatis terdeteksi;
   stop
+  note right
+    **Perbaikan dari keluhan Mitra:**
+    - Loading cepat (detik, bukan menit)
+    - Hasil tetap sama tiap parse
+    - Nama sopir cocok otomatis
+    - Sopir/tujuan baru gausah diinput manual
+  end note
 }
 
 partition "Final - Lengkap" {
   start
-  :Parser NER Hybrid + Word Boundary;
-  :Auto-Create sopir & tujuan;
-  :Handle gagal produksi + combined route;
-  :Kabupaten mapping (75 kecamatan -> 9 kota);
-  :Input manual + filter tujuan;
-  :Cek DT per sopir per tujuan;
-  :Detail pivot (tabel sopir x tanggal);
-  if (Download PDF?) then (ya)
-    :Generate PDF DomPDF;
-  else (tidak)
-    :Tampilkan di iframe\ndengan dark mode;
-  endif
+  :Paste teks ritase;
+  :Klik Parse;
+  :Hasil parsing cepat & akurat;
+  :Otomatis mapping kecamatan ke kabupaten;
+  :Filter & cek DT;
+  :Lihat detail pivot + PDF;\n(bisa dark mode);
   stop
+  note right
+    **Tambahan dari Mitra:**
+    - Kota asal otomatis terisi
+    - Bisa cek DT langsung
+    - Tampilan detail lebih rapi
+  end note
 }
 
 @enduml
