@@ -1,0 +1,137 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam usecaseBorderColor #2b6cb0
+skinparam usecaseBackgroundColor #ebf4ff
+skinparam actorBorderColor #2d3748
+skinparam actorBackgroundColor #e2e8f0
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+skinparam package {
+  BorderColor #4a5568
+  BackgroundColor #f7fafc
+  FontColor #1a202c
+  FontSize 12
+  FontStyle bold
+}
+
+left to right direction
+
+' ========== ACTORS ==========
+actor Admin as "Admin/Operator"
+actor Guest as "Pengunjung\n(Guest)"
+
+' ========== PACKAGES ==========
+
+package "Autentikasi" {
+  (UC01) as "Login\n(Email/Password)"
+  (UC02) as "Login Google"
+  (UC03) as "Lupa Password\n(OTP Email)"
+  (UC04) as "Reset Password"
+  (UC05) as "Logout"
+  (UC06) as "Lihat/Edit Profil"
+}
+
+package "Kelola Sopir" {
+  (UC10) as "Lihat Daftar Sopir"
+  (UC11) as "Tambah Sopir"
+  (UC12) as "Edit Sopir"
+  (UC13) as "Hapus Sopir"
+}
+
+package "Kelola Tujuan" {
+  (UC20) as "Lihat Daftar Tujuan"
+  (UC21) as "Tambah Tujuan"
+  (UC22) as "Edit Tujuan"
+  (UC23) as "Hapus Tujuan"
+}
+
+package "Kelola Periode" {
+  (UC30) as "Lihat Periode"
+  (UC31) as "Tambah Periode"
+  (UC32) as "Edit Periode"
+  (UC33) as "Hapus Periode"
+}
+
+package "Kelola Ritase" {
+  (UC40) as "Parse dari Teks"
+  (UC41) as "Lihat Tabel Ritase"
+  (UC42) as "Tambah Manual"
+  (UC43) as "Edit Ritase"
+  (UC44) as "Hapus Ritase"
+  (UC45) as "Detail Pivot\n(Sopir x Tanggal)"
+  (UC46) as "Download PDF Detail"
+  (UC47) as "Cek Aturan DT"
+}
+
+package "Penggajian" {
+  (UC50) as "Input Biaya &\nHitung Gaji"
+  (UC51) as "Edit/Hapus Gaji"
+  (UC52) as "Riwayat Gaji\n(Filter/Sort)"
+  (UC53) as "Lihat Slip Modal"
+  (UC54) as "Download Slip PDF"
+  (UC55) as "Download Laporan PDF"
+}
+
+package "Validasi Bukti" {
+  (UC60) as "Submit Bukti\n(Foto/Teks)"
+  (UC61) as "Kelola Validasi"
+  (UC62) as "Setujui/Tolak"
+  (UC63) as "Tambah Ritase\ndari Bukti"
+  (UC64) as "Toggle Aturan"
+}
+
+(UC70) as "Lihat Dashboard"
+
+' ========== RELATIONS ==========
+
+Guest --> UC01 : extends
+Guest --> UC02
+Guest --> UC03
+Guest --> UC04
+Guest --> UC60
+
+Admin --> UC01 : extends
+Admin --> UC02
+Admin --> UC05
+Admin --> UC06
+Admin --> UC10
+Admin --> UC11
+Admin --> UC12
+Admin --> UC13
+Admin --> UC20
+Admin --> UC21
+Admin --> UC22
+Admin --> UC23
+Admin --> UC30
+Admin --> UC31
+Admin --> UC32
+Admin --> UC33
+Admin --> UC40
+Admin --> UC41
+Admin --> UC42
+Admin --> UC43
+Admin --> UC44
+Admin --> UC45
+Admin --> UC46
+Admin --> UC47
+Admin --> UC50
+Admin --> UC51
+Admin --> UC52
+Admin --> UC53
+Admin --> UC54
+Admin --> UC55
+Admin --> UC61
+Admin --> UC62
+Admin --> UC63
+Admin --> UC64
+Admin --> UC70
+
+' ========== INCLUDE ==========
+UC52 ..> UC50 : <<include>>\nriwayat dari\nhasil hitung
+UC53 ..> UC50 : <<include>>\nslip dari\ndata gaji
+UC45 ..> UC41 : <<include>>\ndetail dari\ntabel
+UC62 ..> UC61 : <<include>>\naksi dari\nkelola
+UC63 ..> UC61 : <<include>>
+
+@enduml
