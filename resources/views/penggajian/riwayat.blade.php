@@ -13,42 +13,30 @@
     </div>
 
     {{-- Filter Bar --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="GET" class="flex flex-wrap items-end gap-3">
-                <div>
-                    <label class="form-label text-xs">Urutkan</label>
-                    <select name="sort" class="form-input form-select text-sm" onchange="this.form.submit()">
-                        <option value="terbaru" {{ $sort == 'terbaru' ? 'selected' : '' }}>Terbaru</option>
-                        <option value="terlama" {{ $sort == 'terlama' ? 'selected' : '' }}>Terlama</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="form-label text-xs">Bulan</label>
-                    <select name="bulan" class="form-input form-select text-sm" onchange="this.form.submit()">
-                        <option value="">Semua Bulan</option>
-                        @foreach(['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'] as $i => $nama)
-                            <option value="{{ $i + 1 }}" {{ $bulan == $i + 1 ? 'selected' : '' }}>{{ $nama }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label class="form-label text-xs">Tahun</label>
-                    <select name="tahun" class="form-input form-select text-sm" onchange="this.form.submit()">
-                        <option value="">Semua Tahun</option>
-                        @foreach($availableYears as $th)
-                            <option value="{{ $th }}" {{ $tahun == $th ? 'selected' : '' }}>{{ $th }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                @if($bulan || $tahun || $sort != 'terbaru')
-                    <div>
-                        <a href="{{ route('gaji.riwayat') }}" class="inline-flex items-center px-3 py-2 text-sm border border-gray-200 rounded hover:bg-gray-50 transition">Reset</a>
-                    </div>
-                @endif
-            </form>
-        </div>
-    </div>
+    <form method="GET" class="flex flex-wrap items-center gap-3 mb-4">
+        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Urutkan</label>
+        <select name="sort" class="px-3 py-2 border border-gray-200 rounded text-sm bg-white" onchange="this.form.submit()">
+            <option value="terbaru" {{ $sort == 'terbaru' ? 'selected' : '' }}>Terbaru</option>
+            <option value="terlama" {{ $sort == 'terlama' ? 'selected' : '' }}>Terlama</option>
+        </select>
+        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Bulan</label>
+        <select name="bulan" class="px-3 py-2 border border-gray-200 rounded text-sm bg-white" onchange="this.form.submit()">
+            <option value="">Semua Bulan</option>
+            @foreach(['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'] as $i => $nama)
+                <option value="{{ $i + 1 }}" {{ $bulan == $i + 1 ? 'selected' : '' }}>{{ $nama }}</option>
+            @endforeach
+        </select>
+        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Tahun</label>
+        <select name="tahun" class="px-3 py-2 border border-gray-200 rounded text-sm bg-white" onchange="this.form.submit()">
+            <option value="">Semua Tahun</option>
+            @foreach($availableYears as $th)
+                <option value="{{ $th }}" {{ $tahun == $th ? 'selected' : '' }}>{{ $th }}</option>
+            @endforeach
+        </select>
+        @if($bulan || $tahun || $sort != 'terbaru')
+            <a href="{{ route('gaji.riwayat') }}" class="px-3 py-2 border border-gray-200 rounded text-sm text-gray-600 hover:bg-gray-50 bg-white">Reset</a>
+        @endif
+    </form>
 
     <div class="card mb-6">
         <table class="w-full">
