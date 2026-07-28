@@ -12,6 +12,44 @@
         </div>
     </div>
 
+    {{-- Filter Bar --}}
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="flex flex-wrap items-end gap-3">
+                <div>
+                    <label class="form-label text-xs">Urutkan</label>
+                    <select name="sort" class="form-input form-select text-sm" onchange="this.form.submit()">
+                        <option value="terbaru" {{ $sort == 'terbaru' ? 'selected' : '' }}>Terbaru</option>
+                        <option value="terlama" {{ $sort == 'terlama' ? 'selected' : '' }}>Terlama</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label text-xs">Bulan</label>
+                    <select name="bulan" class="form-input form-select text-sm" onchange="this.form.submit()">
+                        <option value="">Semua Bulan</option>
+                        @foreach(['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'] as $i => $nama)
+                            <option value="{{ $i + 1 }}" {{ $bulan == $i + 1 ? 'selected' : '' }}>{{ $nama }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label text-xs">Tahun</label>
+                    <select name="tahun" class="form-input form-select text-sm" onchange="this.form.submit()">
+                        <option value="">Semua Tahun</option>
+                        @foreach($availableYears as $th)
+                            <option value="{{ $th }}" {{ $tahun == $th ? 'selected' : '' }}>{{ $th }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                @if($bulan || $tahun || $sort != 'terbaru')
+                    <div>
+                        <a href="{{ route('gaji.riwayat') }}" class="inline-flex items-center px-3 py-2 text-sm border border-gray-200 rounded hover:bg-gray-50 transition">Reset</a>
+                    </div>
+                @endif
+            </form>
+        </div>
+    </div>
+
     <div class="card mb-6">
         <table class="w-full">
             <thead>
@@ -112,7 +150,16 @@ function lihatSlipModal(periodeId) {
             const doc = parser.parseFromString(html, 'text/html');
             const styles = doc.querySelectorAll('style');
             let styleHtml = '';
-            styles.forEach(s => styleHtml += s.outerHTML);
+            styles.forEach(s => {
+                let css = s.textContent;
+                css = css.replace(/@page\s*\{[^}]*\}/g, '');
+                css = css.replace(/(?:^|\n)\s*\*\s*\{[^}]*\}/g, '');
+                css = css.replace(/(?:^|\n)\s*html\s*\{[^}]*\}/g, '');
+                css = css.replace(/(?:^|\n)\s*body\s*\{[^}]*\}/g, '');
+                if (css.trim()) {
+                    styleHtml += '<style>' + css + '<\/style>';
+                }
+            });
             const blocks = doc.querySelectorAll('.slip-block');
             let slipHtml = '';
             blocks.forEach(b => slipHtml += b.outerHTML);

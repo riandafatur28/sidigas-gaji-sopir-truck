@@ -1204,7 +1204,33 @@ class PenggajianController extends Controller
     {
         Periode::syncActiveStatus();
 
-        $paginatedPeriodes = Periode::orderBy('id', 'desc')->paginate(10);
+        $sort = request('sort', 'terbaru');
+        $bulan = request('bulan');
+        $tahun = request('tahun');
+
+        $query = Periode::query();
+
+        // Filter by month
+        if ($bulan && $tahun) {
+            $query->whereMonth('tanggal_mulai', $bulan)
+                  ->whereYear('tanggal_mulai', $tahun);
+        } elseif ($bulan) {
+            $query->whereMonth('tanggal_mulai', $bulan);
+        }
+
+        // Filter by year
+        if ($tahun && !$bulan) {
+            $query->whereYear('tanggal_mulai', $tahun);
+        }
+
+        // Sort
+        if ($sort === 'terlama') {
+            $query->orderBy('tanggal_mulai', 'asc');
+        } else {
+            $query->orderBy('tanggal_mulai', 'desc');
+        }
+
+        $paginatedPeriodes = $query->paginate(10)->withQueryString();
         $periodeIds = $paginatedPeriodes->pluck('id');
 
         $ritaseSummary = Ritase::whereIn('periode_id', $periodeIds)
@@ -1219,6 +1245,12 @@ class PenggajianController extends Controller
             ->groupBy('periode_id')
             ->get()
             ->keyBy('periode_id');
+
+        // Available years & months for filter dropdowns
+        $availableYears = Periode::selectRaw('YEAR(tanggal_mulai) as tahun')
+            ->distinct()
+            ->orderBy('tahun', 'desc')
+            ->pluck('tahun');
 
         $periodes = $paginatedPeriodes->getCollection()->map(function ($periode) use ($ritaseSummary, $gajiSummary) {
             $rit = $ritaseSummary->get($periode->id);
@@ -1254,7 +1286,13 @@ class PenggajianController extends Controller
 
         $paginatedPeriodes->setCollection($periodes);
 
-        return view('penggajian.riwayat', ['periodes' => $paginatedPeriodes]);
+        return view('penggajian.riwayat', [
+            'periodes' => $paginatedPeriodes,
+            'sort' => $sort,
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+            'availableYears' => $availableYears,
+        ]);
     }
 
     public function downloadLaporanPdf($periodeId)
