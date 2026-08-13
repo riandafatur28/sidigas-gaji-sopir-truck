@@ -16,7 +16,7 @@ class RitaseController extends Controller
     private function cleanTujuan(?string $nama): string
     {
         if (!$nama) return '?';
-        $clean = preg_replace('/\b(paket|overlay|patching|cmm|kormuling)\b/i', '', $nama);
+        $clean = preg_replace('/\b(paket|overlay|patching|cmm|kormuling|rekon)\b/i', '', $nama);
         $clean = preg_replace('/\s{2,}/', ' ', trim($clean));
         return $clean ?: $nama;
     }

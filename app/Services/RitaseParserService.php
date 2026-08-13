@@ -106,7 +106,7 @@ class RitaseParserService
 
                 // Route type keywords — mark where route description starts
                 // Format: [sopir names] [keyword] [route details]
-                $routeKeywords = ['patching', 'paket', 'overlay', 'cmm', 'plimping'];
+                $routeKeywords = ['patching', 'paket', 'overlay', 'cmm', 'kormuling', 'rekon'];
 
                 $implicitDrivers = [];
                 $isRitKe2 = false;
@@ -379,7 +379,7 @@ class RitaseParserService
         $allTujuan = Tujuan::all(['id', 'nama', 'kode_tujuan']);
 
         // Known non-location prefixes to strip before matching
-        $stripPrefixes = ['paket cmm', 'paket', 'patching', 'bondan', 'gabungan', 'rombongan', 'cmm', 'plimping', 'overlay'];
+        $stripPrefixes = ['paket cmm', 'paket', 'patching', 'bondan', 'gabungan', 'rombongan', 'cmm', 'kormuling', 'rekon', 'overlay'];
 
         // Preprocess each tujuan: strip prefixes for comparison
         $processedTujuan = [];
