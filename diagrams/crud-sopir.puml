@@ -1,0 +1,68 @@
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+
+|Admin|
+start
+:Buka /sopir;
+
+|Sistem|
+:Query semua sopir (paginated 10/halaman);
+:Tampilkan tabel sopir;
+
+repeat
+  |Admin|
+  if (Pilih aksi?) then (Tambah)
+    :Klik "Tambah";
+    :Isi form data sopir;
+    :Submit;
+    |Sistem|
+    if (Validasi lolos?) then (ya)
+      :Generate kode SPR-NNN;
+      :Simpan ke sopirs;
+      :Sopir::syncActiveStatus();
+      :Redirect back;
+    else (tidak)
+      :Tampilkan error;
+    endif
+
+  elseif (Edit) then
+    :Klik "Edit" pada baris;
+    |Sistem|
+    :Load data sopir;
+    :Tampilkan modal form;
+    |Admin|
+    :Ubah data;
+    :Submit;
+    |Sistem|
+    if (Validasi lolos?) then (ya)
+      :Update sopirs;
+      :Redirect back;
+    else (tidak)
+      :Tampilkan error;
+    endif
+
+  elseif (Hapus) then
+    :Klik "Hapus";
+    if (Konfirmasi?) then (ya)
+      |Sistem|
+      if (Punya ritase?) then (ya)
+        :Tampilkan error\n"Tidak bisa hapus";
+      else (tidak)
+        :Hapus sopir;
+      endif
+      :Redirect back;
+    endif
+
+  else (Navigasi)
+    :Klik nomor halaman;
+    |Sistem|
+    :Query halaman berikutnya;
+  endif
+
+repeat while (Masih di halaman sopir?) is (ya)
+->tidak;
+stop
+@enduml

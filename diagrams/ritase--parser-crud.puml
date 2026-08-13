@@ -1,0 +1,73 @@
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+
+|Admin|
+start
+:Buka /ritase;
+|Sistem|
+:Filter periode aktif;
+:Query ritase periode aktif;
+:Tampilkan tabel;
+
+|Admin|
+if (Pilih aksi?) then (Parse Teks)
+  :Buka /ritase/parse;
+  :Pilih periode;
+  :Paste teks ritase;
+  :Klik "Parse";
+  |Sistem|
+  :Parse teks (RitaseParserService);
+  if (Berhasil?) then (ya)
+    :Tampilkan preview;
+    |Admin|
+    if (Setuju & auto_create?) then (ya)
+      :Klik "Simpan";
+      |Sistem|
+      :createRitases();
+      :Sync status sopir & tujuan;
+      :Redirect ke /ritase;
+    endif
+  else (tidak)
+    :Tampilkan error parse;
+  endif
+
+elseif (Tambah Manual) then
+  :Klik "Tambah";
+  :Isi form modal;
+  :Submit;
+  |Sistem|
+  :Simpan ke ritases;
+  :Redirect back;
+
+elseif (Edit) then
+  :Klik "Edit";
+  :Ubah data via modal;
+  :Submit;
+  |Sistem|
+  :Hitung ulang DT;
+  :Update ritases;
+  :Redirect back;
+
+elseif (Hapus) then
+  :Klik "Hapus";
+  :Konfirmasi;
+  |Sistem|
+  :Hapus ritase;
+  :Redirect back;
+
+elseif (Detail) then
+  :Klik "Detail";
+  |Sistem|
+  :Generate pivot sopir x tanggal;
+  if (View = HTML?) then (ya)
+    :Tampilkan detail-html di iframe;
+  else (tidak)
+    :Generate PDF via DomPDF;
+    :Download file;
+  endif
+endif
+stop
+@enduml

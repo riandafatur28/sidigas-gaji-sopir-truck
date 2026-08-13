@@ -1,0 +1,31 @@
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+
+start
+:Input nama rute (patching Nganjuk);
+:stripRoutePrefixes():\nHapus: paket, patching, overlay,\ncmm, kormuling, rekon,\nbondan, gabungan, rombongan;
+if (Exact match setelah strip?) then (ya)
+  :Score: 100%;
+else (tidak)
+  if (Substring?\n'Nganjuk' in tujuan) then (ya)
+    :Score: 95%;
+  else (tidak)
+    if (Word-set match bidirectional?) then (ya)
+      :Score: 90%;
+    else (tidak)
+      :Hitung Jaro-Winkler + first-letter;
+      if (Skor >= threshold?) then (ya)
+        :Score: similarity%;
+      else (tidak)
+        :Auto-create tujuan baru TUJ-NNN;
+        stop
+      endif
+    endif
+  endif
+endif
+:Tujuan ditemukan;
+stop
+@enduml

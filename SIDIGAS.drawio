@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile>
+  <diagram name="1. ERD - Database" id="page-erd">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="1654" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="@startuml&#10;skinparam backgroundColor #ffffff&#10;skinparam defaultFontSize 10&#10;skinparam defaultFontName Arial&#10;left to right direction&#10;&#10;entity users {&#10;  *id : bigint unsigned PK&#10;  *name : varchar(255)&#10;  *email : varchar(255)&#10;  phone : varchar(255) NULL&#10;  *password : varchar(255)&#10;  created_at : timestamp NULL&#10;  updated_at : timestamp NULL&#10;}&#10;&#10;entity otps {&#10;  *id : bigint unsigned PK&#10;  *email : varchar(255)&#10;  *otp : varchar(6)&#10;  *expires_at : timestamp&#10;  created_at : timestamp NULL&#10;  updated_at : timestamp NULL&#10;}&#10;&#10;entity sopirs {&#10;  *id : bigint unsigned PK&#10;  *kode_sopir : varchar(255) UNIQUE&#10;  *nama : varchar(255)&#10;  *status : enum(aktif,nonaktif) default=aktif&#10;  created_at : timestamp NULL&#10;  updated_at : timestamp NULL&#10;}&#10;&#10;entity tujuans {&#10;  *id : bigint unsigned PK&#10;  *kode_tujuan : varchar(255) UNIQUE&#10;  *nama : varchar(255)&#10;  latitude : decimal(10,7) NULL&#10;  longitude : decimal(10,7) NULL&#10;  *status : enum(aktif,nonaktif) default=aktif&#10;  created_at : timestamp NULL&#10;  updated_at : timestamp NULL&#10;}&#10;&#10;entity periodes {&#10;  *id : bigint unsigned PK&#10;  *kode_periode : varchar(255) UNIQUE&#10;  *nama_periode : varchar(255)&#10;  *tanggal_mulai : date&#10;  *tanggal_selesai : date&#10;  *status : enum(aktif,selesai) default=aktif&#10;  created_at : timestamp NULL&#10;  updated_at : timestamp NULL&#10;}&#10;&#10;entity ritases {&#10;  *id : bigint unsigned PK&#10;  *kode_ritase : varchar(255) UNIQUE&#10;  *periode_id : bigint unsigned FK&#10;  *kode_sopir : varchar(255) FK&#10;  *kode_tujuan : varchar(255) FK&#10;  *tanggal : date&#10;  *waktu : enum(pagi,malam)&#10;  *kabupaten : enum(Nganjuk,Kediri,Kota Kediri,Jombang,Blitar,Kota Blitar,Ngawi,Kota Ngawi,Lainnya)&#10;  *status : enum(valid,pending,gagal_produksi) default=pending&#10;  upah_sopir : decimal(15,2) default=0.00&#10;  dt : decimal(15,2) default=0.00&#10;  nominal_kompensasi : decimal(15,2) default=0.00&#10;  is_lembur : tinyint(1) default=0&#10;  upah_lembur : decimal(15,2) default=0.00&#10;  catatan : text NULL&#10;  created_at : timestamp NULL&#10;  updated_at : timestamp NULL&#10;}&#10;&#10;entity gajis {&#10;  *id : bigint unsigned PK&#10;  *kode_sopir : varchar(20) FK&#10;  *periode_id : bigint unsigned FK&#10;  total_solar : decimal(15,2) default=0.00&#10;  total_upah : decimal(15,2) default=0.00&#10;  total_sewa_dt : decimal(15,2) default=0.00&#10;  grand_total : decimal(15,2) default=0.00&#10;  created_at : timestamp NULL&#10;  updated_at : timestamp NULL&#10;}&#10;&#10;entity penggajian {&#10;  *id : bigint unsigned PK&#10;  *kode_sopir : varchar(255) FK&#10;  *periode_id : bigint unsigned FK&#10;  *tanggal : date&#10;  uang_solar : decimal(15,2) default=0.00&#10;  upah_sopir : decimal(15,2) default=0.00&#10;  upah_lembur : decimal(15,2) default=0.00&#10;  dt : decimal(15,2) default=0.00&#10;  tol : decimal(15,2) default=0.00&#10;  kompensasi_gagal : decimal(15,2) default=0.00&#10;  total : decimal(15,2) default=0.00&#10;  created_at : timestamp NULL&#10;  updated_at : timestamp NULL&#10;}&#10;&#10;entity penggajian_details {&#10;  *id : bigint unsigned PK&#10;  *penggajian_id : bigint unsigned FK&#10;  *kode_tujuan : varchar(255) FK&#10;  jumlah_rit : int default=0&#10;  solar_per_rit : decimal(15,2) default=0.00&#10;  upah_per_rit : decimal(15,2) default=0.00&#10;  total_solar : decimal(15,2) default=0.00&#10;  total_upah : decimal(15,2) default=0.00&#10;  sewa_dt : decimal(15,2) default=0.00&#10;  tol_per_rit : decimal(15,2) default=0.00&#10;  total_tol : decimal(15,2) default=0.00&#10;  subtotal : decimal(15,2) default=0.00&#10;  created_at : timestamp NULL&#10;  updated_at : timestamp NULL&#10;}&#10;&#10;entity validasi_bukti {&#10;  *id : bigint unsigned PK&#10;  kode_sopir : varchar(20) FK NULL&#10;  *nama_sopir : varchar(100)&#10;  sopir_baru : tinyint(1) default=0&#10;  kode_tujuan : varchar(20) FK NULL&#10;  *nama_tujuan : varchar(100)&#10;  tujuan_baru : tinyint(1) default=0&#10;  *foto : varchar(255)&#10;  latitude : decimal(10,7) NULL&#10;  longitude : decimal(10,7) NULL&#10;  lokasi : varchar(255) NULL&#10;  *waktu_foto : datetime&#10;  *tanggal : date&#10;  periode_id : bigint unsigned FK NULL&#10;  catatan : text NULL&#10;  *status : enum(pending,disetujui,ditolak) default=pending&#10;  catatan_mitra : text NULL&#10;  created_at : timestamp NULL&#10;  updated_at : timestamp NULL&#10;}&#10;&#10;periodes ||..|{ ritases : periode_id&#10;sopirs ||..|{ ritases : kode_sopir&#10;tujuans ||..|{ ritases : kode_tujuan&#10;sopirs ||..|{ gajis : kode_sopir&#10;periodes ||..|{ gajis : periode_id&#10;sopirs ||..|{ penggajian : kode_sopir&#10;periodes ||..|{ penggajian : periode_id&#10;penggajian ||..|{ penggajian_details : penggajian_id&#10;tujuans ||..|{ penggajian_details : kode_tujuan&#10;sopirs ||..|{ validasi_bukti : kode_sopir&#10;tujuans ||..|{ validasi_bukti : kode_tujuan&#10;periodes ||..|{ validasi_bukti : periode_id&#10;@enduml" style="shape=plantuml;whiteSpace=wrap;html=1;container=0;recursiveResize=0;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="10" y="10" width="1100" height="1600" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="2. Login (Email &amp; Google)" id="page-login">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="@startuml&#10;!theme plain&#10;skinparam backgroundColor #ffffff&#10;skinparam defaultFontSize 11&#10;skinparam defaultFontName Arial&#10;&#10;|Admin|&#10;start&#10;:Buka halaman /login;&#10;:Input email &amp; password;&#10;:Klik tombol &quot;Login&quot;;&#10;&#10;|Sistem|&#10;:Validasi email &amp; password;&#10;if (Data cocok?) then (ya)&#10;  :Buat session login;&#10;  :Redirect ke /dashboard;&#10;  |Admin|&#10;  :Lihat halaman dashboard;&#10;  stop&#10;else (tidak)&#10;  :Redirect kembali ke /login\ndengan error;&#10;  |Admin|&#10;  :Lihat pesan error\n&quot;Email/password salah&quot;;&#10;  stop&#10;endif&#10;@enduml" style="shape=plantuml;whiteSpace=wrap;html=1;container=0;recursiveResize=0;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="10" y="10" width="780" height="500" as="geometry"/>
+        </mxCell>
+        <mxCell id="3" value="@startuml&#10;!theme plain&#10;skinparam backgroundColor #ffffff&#10;skinparam defaultFontSize 11&#10;skinparam defaultFontName Arial&#10;&#10;|Admin|&#10;start&#10;:Klik tombol &quot;Login dengan Google&quot;;&#10;&#10;|Sistem|&#10;:Redirect ke Google OAuth;&#10;&#10;|Google|&#10;:User login &amp; pilih akun Google;&#10;&#10;|Sistem|&#10;:Validasi email;&#10;if (Email terdaftar?) then (ya)&#10;  :Buat session login;&#10;  :Redirect ke /dashboard;&#10;  |Admin|&#10;  :Lihat halaman dashboard;&#10;  stop&#10;else (tidak)&#10;  :Tampilkan error\n&quot;Email tidak terdaftar&quot;;&#10;  stop&#10;endif&#10;@enduml" style="shape=plantuml;whiteSpace=wrap;html=1;container=0;recursiveResize=0;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="10" y="530" width="780" height="500" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="3. Lupa Password - OTP" id="page-otp">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="@startuml&#10;!theme plain&#10;skinparam backgroundColor #ffffff&#10;skinparam defaultFontSize 11&#10;skinparam defaultFontName Arial&#10;&#10;|Admin|&#10;start&#10;:Klik &quot;Lupa Password&quot;;&#10;:Input email;&#10;:Klik &quot;Kirim OTP&quot;;&#10;&#10;|Sistem|&#10;:Generate OTP 6 digit;&#10;:Simpan OTP ke tabel otps;&#10;:Kirim email berisi OTP;&#10;:Redirect ke form input OTP;&#10;&#10;|Admin|&#10;:Buka email;&#10;:Catat kode OTP;&#10;:Input OTP di form;&#10;:Klik &quot;Verifikasi&quot;;&#10;&#10;|Sistem|&#10;:Cari OTP berdasarkan email;&#10;if (OTP cocok &amp; belum expired?) then (ya)&#10;  :Redirect ke form password baru;&#10;  |Admin|&#10;  :Input password baru &amp; konfirmasi;&#10;  :Klik &quot;Reset Password&quot;;&#10;  |Sistem|&#10;  :Hash password baru;&#10;  :Update tabel users;&#10;  :Hapus OTP;&#10;  :Redirect ke /login dengan sukses;&#10;  |Admin|&#10;  :Login dengan password baru;&#10;  stop&#10;else (tidak)&#10;  :Tampilkan error\n&quot;OTP salah/kadaluarsa&quot;;&#10;  stop&#10;endif&#10;@enduml" style="shape=plantuml;whiteSpace=wrap;html=1;container=0;recursiveResize=0;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="10" y="10" width="780" height="750" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="4. Dashboard" id="page-dashboard">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="@startuml&#10;!theme plain&#10;skinparam backgroundColor #ffffff&#10;skinparam defaultFontSize 11&#10;skinparam defaultFontName Arial&#10;&#10;|Admin|&#10;start&#10;:Buka /dashboard;&#10;&#10;|Sistem|&#10;:Periode::syncActiveStatus();&#10;:Sopir::syncActiveStatus();&#10;:Tujuan::syncActiveStatus();&#10;:Query metrik dashboard:&#10;- total sopir (aktif/nonaktif)&#10;- total ritase (valid/pending/gagal)&#10;- total gaji periode aktif&#10;- validasi bukti;&#10;:Query psikologi:&#10;- progress periode (hari)&#10;- sisa hari periode&#10;- top 5 sopir&#10;- aktivitas hari ini;&#10;:Render data ke card &amp; chart;&#10;|Admin|&#10;:Lihat ringkasan dashboard;&#10;stop&#10;@enduml" style="shape=plantuml;whiteSpace=wrap;html=1;container=0;recursiveResize=0;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="10" y="10" width="780" height="700" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="5. CRUD Sopir" id="page-sopir">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="@startuml&#10;!theme plain&#10;skinparam backgroundColor #ffffff&#10;skinparam defaultFontSize 11&#10;skinparam defaultFontName Arial&#10;&#10;|Admin|&#10;start&#10;:Buka /sopir;&#10;&#10;|Sistem|&#10;:Query semua sopir (paginated 10/halaman);&#10;:Tampilkan tabel sopir;&#10;&#10;repeat&#10;  |Admin|&#10;  if (Pilih aksi?) then (Tambah)&#10;    :Klik &quot;Tambah&quot;;&#10;    :Isi form data sopir;&#10;    :Submit;&#10;    |Sistem|&#10;    if (Validasi lolos?) then (ya)&#10;      :Generate kode SPR-NNN;&#10;      :Simpan ke sopirs;&#10;      :Sopir::syncActiveStatus();&#10;      :Redirect back;&#10;    else (tidak)&#10;      :Tampilkan error;&#10;    endif&#10;&#10;  elseif (Edit) then&#10;    :Klik &quot;Edit&quot; pada baris;&#10;    |Sistem|&#10;    :Load data sopir;&#10;    :Tampilkan modal form;&#10;    |Admin|&#10;    :Ubah data;&#10;    :Submit;&#10;    |Sistem|&#10;    if (Validasi lolos?) then (ya)&#10;      :Update sopirs;&#10;      :Redirect back;&#10;    else (tidak)&#10;      :Tampilkan error;&#10;    endif&#10;&#10;  elseif (Hapus) then&#10;    :Klik &quot;Hapus&quot;;&#10;    if (Konfirmasi?) then (ya)&#10;      |Sistem|&#10;      if (Punya ritase?) then (ya)&#10;        :Tampilkan error\n&quot;Tidak bisa hapus&quot;;&#10;      else (tidak)&#10;        :Hapus sopir;&#10;      endif&#10;      :Redirect back;&#10;    endif&#10;&#10;  else (Navigasi)&#10;    :Klik nomor halaman;&#10;    |Sistem|&#10;    :Query halaman berikutnya;&#10;  endif&#10;&#10;repeat while (Masih di halaman sopir?) is (ya)&#10;-&gt;tidak;&#10;stop&#10;@enduml" style="shape=plantuml;whiteSpace=wrap;html=1;container=0;recursiveResize=0;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="10" y="10" width="780" height="900" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="6. CRUD Tujuan" id="page-tujuan">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="@startuml&#10;!theme plain&#10;skinparam backgroundColor #ffffff&#10;skinparam defaultFontSize 11&#10;skinparam defaultFontName Arial&#10;&#10;|Admin|&#10;start&#10;:Buka /tujuan;&#10;&#10;|Sistem|&#10;:Query semua tujuan (paginated);&#10;:Tampilkan tabel tujuan;&#10;&#10;repeat&#10;  |Admin|&#10;  if (Pilih aksi?) then (Tambah)&#10;    :Klik &quot;Tambah&quot;;&#10;    :Isi form data tujuan;&#10;    :Submit;&#10;    |Sistem|&#10;    if (Validasi lolos?) then (ya)&#10;      :Generate kode TUJ-NNN;&#10;      :Simpan ke tujuans;&#10;      :Tujuan::syncActiveStatus();&#10;      :Redirect back;&#10;    else (tidak)&#10;      :Tampilkan error;&#10;    endif&#10;&#10;  elseif (Edit) then&#10;    :Klik &quot;Edit&quot;;&#10;    |Sistem|&#10;    :Load data tujuan;&#10;    :Tampilkan modal;&#10;    |Admin|&#10;    :Ubah data;&#10;    :Submit;&#10;    |Sistem|&#10;    if (Validasi lolos?) then (ya)&#10;      :Update tujuans;&#10;      :Redirect back;&#10;    else (tidak)&#10;      :Tampilkan error;&#10;    endif&#10;&#10;  elseif (Hapus) then&#10;    :Klik &quot;Hapus&quot;;&#10;    if (Konfirmasi?) then (ya)&#10;      |Sistem|&#10;      if (Punya ritase?) then (ya)&#10;        :Tampilkan error\n&quot;Tidak bisa hapus&quot;;&#10;      else (tidak)&#10;        :Hapus tujuan;&#10;      endif&#10;      :Redirect back;&#10;    endif&#10;&#10;  else (Navigasi)&#10;    :Klik nomor halaman;&#10;    |Sistem|&#10;    :Query halaman berikutnya;&#10;  endif&#10;&#10;repeat while (Masih di halaman tujuan?) is (ya)&#10;-&gt;tidak;&#10;stop&#10;@enduml" style="shape=plantuml;whiteSpace=wrap;html=1;container=0;recursiveResize=0;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="10" y="10" width="780" height="900" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="7. CRUD Periode" id="page-periode">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="@startuml&#10;!theme plain&#10;skinparam backgroundColor #ffffff&#10;skinparam defaultFontSize 11&#10;skinparam defaultFontName Arial&#10;&#10;|Admin|&#10;start&#10;:Buka /periode;&#10;&#10;|Sistem|&#10;:Query semua periode (order DESC);&#10;:Tampilkan tabel periode;&#10;&#10;repeat&#10;  |Admin|&#10;  if (Pilih aksi?) then (Tambah)&#10;    :Input nama_periode,\ntgl_mulai, tgl_selesai;&#10;    :Submit;&#10;    |Sistem|&#10;    if (Validasi:\ntgl_selesai &gt;= tgl_mulai\n&amp; tidak overlap?) then (ya)&#10;      :Generate kode PER-NNN;&#10;      :Simpan ke periodes;&#10;      :Periode::syncActiveStatus();&#10;      :Redirect back;&#10;    else (tidak)&#10;      :Tampilkan error;&#10;    endif&#10;&#10;  elseif (Edit) then&#10;    :Klik &quot;Edit&quot;;&#10;    |Sistem|&#10;    :Load data periode;&#10;    :Tampilkan modal;&#10;    |Admin|&#10;    :Ubah data;&#10;    :Submit;&#10;    |Sistem|&#10;    if (Validasi lolos?) then (ya)&#10;      :Update periodes;&#10;      :Redirect back;&#10;    else (tidak)&#10;      :Tampilkan error;&#10;    endif&#10;&#10;  elseif (Hapus) then&#10;    :Klik &quot;Hapus&quot;;&#10;    if (Konfirmasi?) then (ya)&#10;      |Sistem|&#10;      if (Ada ritase?) then (ya)&#10;        :Tampilkan error\n&quot;Memiliki data ritase&quot;;&#10;      else (tidak)&#10;        :Hapus periode;&#10;      endif&#10;      :Redirect back;&#10;    endif&#10;&#10;  else (Navigasi)&#10;    :Klik nomor halaman;&#10;    |Sistem|&#10;    :Query halaman berikutnya;&#10;  endif&#10;&#10;repeat while (Masih di halaman periode?) is (ya)&#10;-&gt;tidak;&#10;stop&#10;@enduml" style="shape=plantuml;whiteSpace=wrap;html=1;container=0;recursiveResize=0;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="10" y="10" width="780" height="900" as="geometry"/>
+        </mxCell>
+        <mxCell id="3" value="@startuml&#10;!theme plain&#10;skinparam backgroundColor #ffffff&#10;skinparam defaultFontSize 11&#10;skinparam defaultFontName Arial&#10;&#10;start&#10;:Cek today() vs\ntanggal_mulai - tanggal_selesai;&#10;if (Today dalam rentang?) then (ya)&#10;  :Set status=aktif\n(nonaktifkan periode lain);&#10;  stop&#10;else (tidak)&#10;  :Set status=selesai;&#10;  stop&#10;endif&#10;@enduml" style="shape=plantuml;whiteSpace=wrap;html=1;container=0;recursiveResize=0;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="10" y="930" width="780" height="220" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="8. Ritase - Parser &amp; CRUD" id="page-ritase">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="@startuml&#10;!theme plain&#10;skinparam backgroundColor #ffffff&#10;skinparam defaultFontSize 11&#10;skinparam defaultFontName Arial&#10;&#10;|Admin|&#10;start&#10;:Buka /ritase;&#10;|Sistem|&#10;:Filter periode aktif;&#10;:Query ritase periode aktif;&#10;:Tampilkan tabel;&#10;&#10;|Admin|&#10;if (Pilih aksi?) then (Parse Teks)&#10;  :Buka /ritase/parse;&#10;  :Pilih periode;&#10;  :Paste teks ritase;&#10;  :Klik &quot;Parse&quot;;&#10;  |Sistem|&#10;  :Parse teks (RitaseParserService);&#10;  if (Berhasil?) then (ya)&#10;    :Tampilkan preview;&#10;    |Admin|&#10;    if (Setuju &amp; auto_create?) then (ya)&#10;      :Klik &quot;Simpan&quot;;&#10;      |Sistem|&#10;      :createRitases();&#10;      :Sync status sopir &amp; tujuan;&#10;      :Redirect ke /ritase;&#10;    endif&#10;  else (tidak)&#10;    :Tampilkan error parse;&#10;  endif&#10;&#10;elseif (Tambah Manual) then&#10;  :Klik &quot;Tambah&quot;;&#10;  :Isi form modal;&#10;  :Submit;&#10;  |Sistem|&#10;  :Simpan ke ritases;&#10;  :Redirect back;&#10;&#10;elseif (Edit) then&#10;  :Klik &quot;Edit&quot;;&#10;  :Ubah data via modal;&#10;  :Submit;&#10;  |Sistem|&#10;  :Hitung ulang DT;&#10;  :Update ritases;&#10;  :Redirect back;&#10;&#10;elseif (Hapus) then&#10;  :Klik &quot;Hapus&quot;;&#10;  :Konfirmasi;&#10;  |Sistem|&#10;  :Hapus ritase;&#10;  :Redirect back;&#10;&#10;elseif (Detail) then&#10;  :Klik &quot;Detail&quot;;&#10;  |Sistem|&#10;  :Generate pivot sopir x tanggal;&#10;  if (View = HTML?) then (ya)&#10;    :Tampilkan detail-html di iframe;&#10;  else (tidak)&#10;    :Generate PDF via DomPDF;&#10;    :Download file;&#10;  endif&#10;endif&#10;stop&#10;@enduml" style="shape=plantuml;whiteSpace=wrap;html=1;container=0;recursiveResize=0;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="10" y="10" width="780" height="950" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="9. Validasi Bukti" id="page-validasi">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="@startuml&#10;!theme plain&#10;skinparam backgroundColor #ffffff&#10;skinparam defaultFontSize 11&#10;skinparam defaultFontName Arial&#10;&#10;|Sopir (Publik)|&#10;start&#10;:Buka /validasi-bukti (tanpa login);&#10;:Input nama sopir;&#10;:Input nama tujuan;&#10;:Ambil foto (otomatis dapat\nlokasi &amp; waktu);&#10;:Klik &quot;Kirim&quot;;&#10;&#10;|Sistem|&#10;:Validasi: foto required\nmax 2MB, jpg/png;&#10;if (Lengkap?) then (tidak)&#10;  :Tampilkan error;&#10;  stop&#10;endif&#10;if (Aturan validasi diaktifkan?) then (tidak)&#10;  :Set status = disetujui;&#10;else (ya)&#10;  :Set status = pending;&#10;endif&#10;:Cocokkan nama sopir ke DB;&#10;if (Sopir cocok?) then (tidak)&#10;  :Tandai sopir_baru = true;&#10;endif&#10;:Cocokkan nama tujuan ke DB;&#10;if (Tujuan cocok?) then (tidak)&#10;  :Tandai tujuan_baru = true;&#10;endif&#10;:Simpan ke validasi_bukti;&#10;:Tampilkan &quot;Bukti berhasil dikirim&quot;;&#10;stop&#10;@enduml" style="shape=plantuml;whiteSpace=wrap;html=1;container=0;recursiveResize=0;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="10" y="10" width="780" height="700" as="geometry"/>
+        </mxCell>
+        <mxCell id="3" value="@startuml&#10;!theme plain&#10;skinparam backgroundColor #ffffff&#10;skinparam defaultFontSize 11&#10;skinparam defaultFontName Arial&#10;&#10;|Admin|&#10;start&#10;:Buka /validasi-bukti/kelola;&#10;|Sistem|&#10;:Query semua bukti (filter status);&#10;:Tampilkan tabel daftar bukti;&#10;|Admin|&#10;if (Pilih aksi?) then (Setujui)&#10;  :Klik &quot;Setujui&quot;;&#10;  |Sistem|&#10;  if (sopir_baru?) then (ya)&#10;    :Auto-create sopir;&#10;  endif&#10;  if (tujuan_baru?) then (ya)&#10;    :Auto-create tujuan;&#10;  endif&#10;  :Buat ritase: status=valid,\nhitungDt(), upah_sopir=0;&#10;  :Update status = disetujui;&#10;  :Redirect back;&#10;&#10;elseif (Tolak) then&#10;  :Input catatan penolakan;&#10;  :Klik &quot;Tolak&quot;;&#10;  |Sistem|&#10;  :Update status = ditolak;&#10;  :Redirect back;&#10;&#10;elseif (Tambah Ritase) then&#10;  :Klik &quot;Tambah ke Ritase&quot;;&#10;  |Sistem|&#10;  :Buat entri ritase baru\ndari data bukti;&#10;  :Redirect ke /ritase;&#10;&#10;elseif (Toggle Aturan) then&#10;  :Klik toggle aturan;&#10;  |Sistem|&#10;  :Update status aturan di cache;&#10;endif&#10;stop&#10;@enduml" style="shape=plantuml;whiteSpace=wrap;html=1;container=0;recursiveResize=0;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="10" y="740" width="780" height="750" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="10. Penggajian" id="page-penggajian">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="@startuml&#10;!theme plain&#10;skinparam backgroundColor #ffffff&#10;skinparam defaultFontSize 11&#10;skinparam defaultFontName Arial&#10;&#10;|Admin|&#10;start&#10;:Buka /gaji;&#10;&#10;|Sistem|&#10;:Load periode aktif;&#10;:Query sopir + ritase periode aktif;&#10;:Tampilkan tabel input biaya;&#10;&#10;|Admin|&#10;:Input biaya tiap tujuan:\n  uang_solar\n  upah_sopir\n  tol_per_rit;&#10;:Klik &quot;Hitung&quot;;&#10;&#10;|Sistem|&#10;:5 batch queries:\n  1. Count rit per sopir+tujuan\n  2. Sum DT per sopir\n  3. Sum kompensasi gagal\n  4. Sum upah lembur\n  5. Update upah_sopir;&#10;:Iterasi per sopir;&#10;:Iterasi per tujuan;&#10;:Hitung Total Solar, Upah, Tol;&#10;:Grand Total = Solar + Upah + DT\n+ Tol + Kompensasi + Lembur;&#10;:Create Penggajian + Detail;&#10;:Redirect ke halaman edit;&#10;stop&#10;@enduml" style="shape=plantuml;whiteSpace=wrap;html=1;container=0;recursiveResize=0;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="10" y="10" width="780" height="750" as="geometry"/>
+        </mxCell>
+        <mxCell id="3" value="@startuml&#10;!theme plain&#10;skinparam backgroundColor #ffffff&#10;skinparam defaultFontSize 11&#10;skinparam defaultFontName Arial&#10;&#10;|Admin|&#10;start&#10;:Buka /gaji/riwayat;&#10;&#10;|Sistem|&#10;:Query periode (pagination);&#10;:Tampilkan daftar periode;&#10;&#10;|Admin|&#10;:Klik periode - lihat rekap;&#10;&#10;|Sistem|&#10;:Rekap: total sopir, hari kerja,\ntotal per tujuan &amp; sopir, grand total;&#10;&#10;|Admin|&#10;if (Download PDF?) then (ya)&#10;  |Sistem|&#10;  :Generate PDF laporan;&#10;  :Download laporan.pdf;&#10;endif&#10;stop&#10;@enduml" style="shape=plantuml;whiteSpace=wrap;html=1;container=0;recursiveResize=0;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="10" y="780" width="780" height="400" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="11. Parser - Mekanisme" id="page-parser">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="2339" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="@startuml&#10;!theme plain&#10;skinparam backgroundColor #ffffff&#10;skinparam defaultFontSize 11&#10;skinparam defaultFontName Arial&#10;&#10;|Sistem|&#10;start&#10;:Terima teks input;&#10;:Split teks per baris (trim &amp; filter kosong);&#10;:Scan semua baris:\nRegex /DD MM YY/ atau /YYYY-MM-DD/;&#10;if (Tanggal ditemukan?) then (tidak)&#10;  :Return date=null;&#10;  stop&#10;endif&#10;:Deteksi header sebelum tanggal;\n- Waktu (pagi/malam)\n- Header rute;&#10;:Iterasi baris sisanya;&#10;repeat&#10;  if (Baris diawali angka + titik?) then (ya - sopir)&#10;    :Regex preg_match /^\d+\.(.*)$/;&#10;    :Ambil group 1 = nama;&#10;    :cleanDriverName():\n  hapus (mbah/pak/bu/ira)\n  hapus simbol (√✔✓🙏🙌);&#10;    :Deduplikasi nama per package;&#10;&#10;  else (tidak - rute)&#10;    :Deteksi keyword jenis kerja:\n  patching, paket, overlay,\n  cmm, kormuling, rekon;&#10;    if (Keyword di tengah?\n=sopir sebelum keyword) then (ya)&#10;      :Split: sopir = teks sebelum\nRoute = teks sejak keyword;&#10;    else (tidak)&#10;      :Route = seluruh teks;&#10;    endif&#10;    :Deteksi:\n  - Rit ke 2 (duplikat)\n  - Bongkar (muatan)\n  - Gagal produksi;&#10;  endif&#10;repeat while (Baris habis?) is (tidak)&#10;-&gt;(ya);&#10;:Merge package dgn route sama;&#10;:Post-processing:\n- Link bongkar ke non-bongkar\n- Gabung gagal + route berikutnya;&#10;:Return {date, packages};&#10;stop&#10;@enduml" style="shape=plantuml;whiteSpace=wrap;html=1;container=0;recursiveResize=0;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="10" y="10" width="780" height="950" as="geometry"/>
+        </mxCell>
+        <mxCell id="3" value="@startuml&#10;!theme plain&#10;skinparam backgroundColor #ffffff&#10;skinparam defaultFontSize 11&#10;skinparam defaultFontName Arial&#10;&#10;start&#10;:Input nama sopir dan tabel sopirs;&#10;if (Exact match case insensitive?) then (ya)&#10;  :Score: 100%;&#10;else (tidak)&#10;  if (Metaphone match? Toni-Tony) then (ya)&#10;    :Score: 95%;&#10;  else (tidak)&#10;    if (Substring match?\n'Eko' in 'Eko Wilangan') then (ya)&#10;      :Score: 90%;&#10;    else (tidak)&#10;      :Hitung Jaro-Winkler + first-letter;&#10;      if (Skor &gt;= 85%?) then (ya)&#10;        :Score: similarity%;&#10;      else (tidak)&#10;        :Auto-create sopir baru SPR-NNN;&#10;        stop&#10;      endif&#10;    endif&#10;  endif&#10;endif&#10;:Sopir ditemukan;&#10;stop&#10;@enduml" style="shape=plantuml;whiteSpace=wrap;html=1;container=0;recursiveResize=0;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="10" y="1000" width="780" height="600" as="geometry"/>
+        </mxCell>
+        <mxCell id="4" value="@startuml&#10;!theme plain&#10;skinparam backgroundColor #ffffff&#10;skinparam defaultFontSize 11&#10;skinparam defaultFontName Arial&#10;&#10;start&#10;:Input nama rute (patching Nganjuk);&#10;:stripRoutePrefixes():\nHapus: paket, patching, overlay,\ncmm, kormuling, rekon,\nbondan, gabungan, rombongan;&#10;if (Exact match setelah strip?) then (ya)&#10;  :Score: 100%;&#10;else (tidak)&#10;  if (Substring?\n'Nganjuk' in tujuan) then (ya)&#10;    :Score: 95%;&#10;  else (tidak)&#10;    if (Word-set match bidirectional?) then (ya)&#10;      :Score: 90%;&#10;    else (tidak)&#10;      :Hitung Jaro-Winkler + first-letter;&#10;      if (Skor &gt;= threshold?) then (ya)&#10;        :Score: similarity%;&#10;      else (tidak)&#10;        :Auto-create tujuan baru TUJ-NNN;&#10;        stop&#10;      endif&#10;    endif&#10;  endif&#10;endif&#10;:Tujuan ditemukan;&#10;stop&#10;@enduml" style="shape=plantuml;whiteSpace=wrap;html=1;container=0;recursiveResize=0;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="10" y="1650" width="780" height="650" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="12. Struktur File" id="page-struktur">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="2339" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="fc-arsitektur" value="&lt;h1&gt;Arsitektur Aplikasi&lt;/h1&gt;&lt;hr&gt;&lt;pre&gt;&#10;SIDIGAS - Laravel 13&#10;Frontend: Blade + Tailwind CSS + Vite&#10;Backend:  PHP 8.3, Laravel 13.x&#10;DB:       MySQL&#10;Auth:     Email/Password + Google OAuth&#10;PDF:      barryvdh/laravel-dompdf&#10;Excel:    phpoffice/phpspreadsheet&#10;&lt;/pre&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;" vertex="1" parent="1">
+          <mxGeometry x="10" y="10" width="780" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="fc-controllers" value="&lt;b&gt;Controllers (10)&lt;/b&gt;&lt;hr&gt;&#10;&amp;bull; AuthController - Login/logout/Google OAuth/OTP&#10;&amp;bull; DashboardController - Metrics&#10;&amp;bull; SopirController - CRUD sopir&#10;&amp;bull; TujuanController - CRUD tujuan&#10;&amp;bull; PeriodeController - CRUD periode&#10;&amp;bull; RitaseController - CRUD + parser + detail pivot&#10;&amp;bull; PenggajianController - Gaji + slip + laporan&#10;&amp;bull; ValidasiBuktiController - Public submit + admin&#10;&amp;bull; ProfileController - Edit profil user&#10;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#E65100;" vertex="1" parent="1">
+          <mxGeometry x="10" y="180" width="380" height="250" as="geometry"/>
+        </mxCell>
+        <mxCell id="fc-models" value="&lt;b&gt;Models (9)&lt;/b&gt;&lt;hr&gt;&#10;&amp;bull; Sopir&#10;&amp;bull; Tujuan&#10;&amp;bull; Periode&#10;&amp;bull; Ritase&#10;&amp;bull; Penggajian&#10;&amp;bull; PenggajianDetail&#10;&amp;bull; ValidasiBukti&#10;&amp;bull; User&#10;&amp;bull; Otp&#10;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;" vertex="1" parent="1">
+          <mxGeometry x="410" y="180" width="380" height="250" as="geometry"/>
+        </mxCell>
+        <mxCell id="fc-views" value="&lt;b&gt;Views (29)&lt;/b&gt;&lt;hr&gt;&#10;&amp;bull; auth/ (4) - login, forgot/reset password, verify-otp&#10;&amp;bull; dashboard/ (1) - index&#10;&amp;bull; sopir/ (1) - index&#10;&amp;bull; tujuan/ (1) - index&#10;&amp;bull; periode/ (1) - index&#10;&amp;bull; ritase/ (5) - parser, parser-result, index, detail-html, detail-pdf&#10;&amp;bull; penggajian/ (8) - index, edit, slip, slip-pdf, laporan, laporan-pdf, riwayat, pdf&#10;&amp;bull; validasi-bukti/ (3) - form, kelola, detail&#10;&amp;bull; profil/ (1) - index&#10;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="1">
+          <mxGeometry x="10" y="450" width="780" height="260" as="geometry"/>
+        </mxCell>
+        <mxCell id="fc-routes" value="&lt;b&gt;Routes (web.php)&lt;/b&gt;&lt;hr&gt;&#10;GET/POST /login, /logout, /auth/google&#10;GET/POST /forgot-password, /verify-otp, /reset-password&#10;GET /dashboard&#10;Resource: /sopir, /tujuan, /periode&#10;Resource: /ritase, /ritase/table, GET /ritase/parse, POST /ritase/parse, GET /ritase/detail-data&#10;Resource: /gaji, GET /gaji/slip/{periode}/{sopir}, GET /gaji/{periode}/pdf, GET /gaji/riwayat&#10;GET/POST /validasi-bukti, GET /validasi-bukti/kelola, POST /validasi-bukti/{id}/{action}&#10;GET /profil, PUT /profil&#10;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFDE7;strokeColor=#F9A825;" vertex="1" parent="1">
+          <mxGeometry x="10" y="730" width="780" height="270" as="geometry"/>
+        </mxCell>
+        <mxCell id="fc-components" value="&lt;b&gt;Services &amp; Mail&lt;/b&gt;&lt;hr&gt;&#10;&amp;bull; RitaseParserService - Parser teks (regex) + fuzzy matching (Metaphone, Jaro-Winkler)&#10;&amp;bull; OtpMail - Email OTP reset password&#10;&lt;br&gt;&lt;b&gt;Middleware&lt;/b&gt;&lt;hr&gt;&#10;&amp;bull; CacheControl - Disable cache&#10;&amp;bull; RoleMiddleware - Role check&#10;&amp;bull; SecurityHeaders - Security headers&#10;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0F7FA;strokeColor=#00838F;" vertex="1" parent="1">
+          <mxGeometry x="10" y="1020" width="780" height="180" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,68 @@
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+
+|Admin|
+start
+:Buka /tujuan;
+
+|Sistem|
+:Query semua tujuan (paginated);
+:Tampilkan tabel tujuan;
+
+repeat
+  |Admin|
+  if (Pilih aksi?) then (Tambah)
+    :Klik "Tambah";
+    :Isi form data tujuan;
+    :Submit;
+    |Sistem|
+    if (Validasi lolos?) then (ya)
+      :Generate kode TUJ-NNN;
+      :Simpan ke tujuans;
+      :Tujuan::syncActiveStatus();
+      :Redirect back;
+    else (tidak)
+      :Tampilkan error;
+    endif
+
+  elseif (Edit) then
+    :Klik "Edit";
+    |Sistem|
+    :Load data tujuan;
+    :Tampilkan modal;
+    |Admin|
+    :Ubah data;
+    :Submit;
+    |Sistem|
+    if (Validasi lolos?) then (ya)
+      :Update tujuans;
+      :Redirect back;
+    else (tidak)
+      :Tampilkan error;
+    endif
+
+  elseif (Hapus) then
+    :Klik "Hapus";
+    if (Konfirmasi?) then (ya)
+      |Sistem|
+      if (Punya ritase?) then (ya)
+        :Tampilkan error\n"Tidak bisa hapus";
+      else (tidak)
+        :Hapus tujuan;
+      endif
+      :Redirect back;
+    endif
+
+  else (Navigasi)
+    :Klik nomor halaman;
+    |Sistem|
+    :Query halaman berikutnya;
+  endif
+
+repeat while (Masih di halaman tujuan?) is (ya)
+->tidak;
+stop
+@enduml

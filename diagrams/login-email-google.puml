@@ -1,0 +1,27 @@
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+
+|Admin|
+start
+:Buka halaman /login;
+:Input email & password;
+:Klik tombol "Login";
+
+|Sistem|
+:Validasi email & password;
+if (Data cocok?) then (ya)
+  :Buat session login;
+  :Redirect ke /dashboard;
+  |Admin|
+  :Lihat halaman dashboard;
+  stop
+else (tidak)
+  :Redirect kembali ke /login\ndengan error;
+  |Admin|
+  :Lihat pesan error\n"Email/password salah";
+  stop
+endif
+@enduml

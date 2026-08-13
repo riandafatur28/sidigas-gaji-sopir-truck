@@ -1,0 +1,29 @@
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+
+|Admin|
+start
+:Klik tombol "Login dengan Google";
+
+|Sistem|
+:Redirect ke Google OAuth;
+
+|Google|
+:User login & pilih akun Google;
+
+|Sistem|
+:Validasi email;
+if (Email terdaftar?) then (ya)
+  :Buat session login;
+  :Redirect ke /dashboard;
+  |Admin|
+  :Lihat halaman dashboard;
+  stop
+else (tidak)
+  :Tampilkan error\n"Email tidak terdaftar";
+  stop
+endif
+@enduml

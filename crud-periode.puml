@@ -1,0 +1,67 @@
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+
+|Admin|
+start
+:Buka /periode;
+
+|Sistem|
+:Query semua periode (order DESC);
+:Tampilkan tabel periode;
+
+repeat
+  |Admin|
+  if (Pilih aksi?) then (Tambah)
+    :Input nama_periode,\ntgl_mulai, tgl_selesai;
+    :Submit;
+    |Sistem|
+    if (Validasi:\ntgl_selesai >= tgl_mulai\n& tidak overlap?) then (ya)
+      :Generate kode PER-NNN;
+      :Simpan ke periodes;
+      :Periode::syncActiveStatus();
+      :Redirect back;
+    else (tidak)
+      :Tampilkan error;
+    endif
+
+  elseif (Edit) then
+    :Klik "Edit";
+    |Sistem|
+    :Load data periode;
+    :Tampilkan modal;
+    |Admin|
+    :Ubah data;
+    :Submit;
+    |Sistem|
+    if (Validasi lolos?) then (ya)
+      :Update periodes;
+      :Redirect back;
+    else (tidak)
+      :Tampilkan error;
+    endif
+
+  elseif (Hapus) then
+    :Klik "Hapus";
+    if (Konfirmasi?) then (ya)
+      |Sistem|
+      if (Ada ritase?) then (ya)
+        :Tampilkan error\n"Memiliki data ritase";
+      else (tidak)
+        :Hapus periode;
+      endif
+      :Redirect back;
+    endif
+
+  else (Navigasi)
+    :Klik nomor halaman;
+    |Sistem|
+    :Query halaman berikutnya;
+  endif
+
+repeat while (Masih di halaman periode?) is (ya)
+->tidak;
+stop
+@enduml

@@ -1,0 +1,29 @@
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+
+|Admin|
+start
+:Buka /dashboard;
+
+|Sistem|
+:Periode::syncActiveStatus();
+:Sopir::syncActiveStatus();
+:Tujuan::syncActiveStatus();
+:Query metrik dashboard:
+- total sopir (aktif/nonaktif)
+- total ritase (valid/pending/gagal)
+- total gaji periode aktif
+- validasi bukti;
+:Query psikologi:
+- progress periode (hari)
+- sisa hari periode
+- top 5 sopir
+- aktivitas hari ini;
+:Render data ke card & chart;
+|Admin|
+:Lihat ringkasan dashboard;
+stop
+@enduml

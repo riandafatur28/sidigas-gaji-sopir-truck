@@ -1,0 +1,156 @@
+@startuml
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+skinparam defaultFontName Arial
+left to right direction
+
+entity users {
+  *id : bigint unsigned PK
+  *name : varchar(255)
+  *email : varchar(255)
+  phone : varchar(255) NULL
+  *password : varchar(255)
+  created_at : timestamp NULL
+  updated_at : timestamp NULL
+}
+
+entity otps {
+  *id : bigint unsigned PK
+  *email : varchar(255)
+  *otp : varchar(6)
+  *expires_at : timestamp
+  created_at : timestamp NULL
+  updated_at : timestamp NULL
+}
+
+entity sopirs {
+  *id : bigint unsigned PK
+  *kode_sopir : varchar(255) UNIQUE
+  *nama : varchar(255)
+  *status : enum(aktif,nonaktif) default=aktif
+  created_at : timestamp NULL
+  updated_at : timestamp NULL
+}
+
+entity tujuans {
+  *id : bigint unsigned PK
+  *kode_tujuan : varchar(255) UNIQUE
+  *nama : varchar(255)
+  latitude : decimal(10,7) NULL
+  longitude : decimal(10,7) NULL
+  *status : enum(aktif,nonaktif) default=aktif
+  created_at : timestamp NULL
+  updated_at : timestamp NULL
+}
+
+entity periodes {
+  *id : bigint unsigned PK
+  *kode_periode : varchar(255) UNIQUE
+  *nama_periode : varchar(255)
+  *tanggal_mulai : date
+  *tanggal_selesai : date
+  *status : enum(aktif,selesai) default=aktif
+  created_at : timestamp NULL
+  updated_at : timestamp NULL
+}
+
+entity ritases {
+  *id : bigint unsigned PK
+  *kode_ritase : varchar(255) UNIQUE
+  *periode_id : bigint unsigned FK
+  *kode_sopir : varchar(255) FK
+  *kode_tujuan : varchar(255) FK
+  *tanggal : date
+  *waktu : enum(pagi,malam)
+  *kabupaten : enum(Nganjuk,Kediri,Kota Kediri,Jombang,Blitar,Kota Blitar,Ngawi,Kota Ngawi,Lainnya)
+  *status : enum(valid,pending,gagal_produksi) default=pending
+  upah_sopir : decimal(15,2) default=0.00
+  dt : decimal(15,2) default=0.00
+  nominal_kompensasi : decimal(15,2) default=0.00
+  is_lembur : tinyint(1) default=0
+  upah_lembur : decimal(15,2) default=0.00
+  catatan : text NULL
+  created_at : timestamp NULL
+  updated_at : timestamp NULL
+}
+
+entity gajis {
+  *id : bigint unsigned PK
+  *kode_sopir : varchar(20) FK
+  *periode_id : bigint unsigned FK
+  total_solar : decimal(15,2) default=0.00
+  total_upah : decimal(15,2) default=0.00
+  total_sewa_dt : decimal(15,2) default=0.00
+  grand_total : decimal(15,2) default=0.00
+  created_at : timestamp NULL
+  updated_at : timestamp NULL
+}
+
+entity penggajian {
+  *id : bigint unsigned PK
+  *kode_sopir : varchar(255) FK
+  *periode_id : bigint unsigned FK
+  *tanggal : date
+  uang_solar : decimal(15,2) default=0.00
+  upah_sopir : decimal(15,2) default=0.00
+  upah_lembur : decimal(15,2) default=0.00
+  dt : decimal(15,2) default=0.00
+  tol : decimal(15,2) default=0.00
+  kompensasi_gagal : decimal(15,2) default=0.00
+  total : decimal(15,2) default=0.00
+  created_at : timestamp NULL
+  updated_at : timestamp NULL
+}
+
+entity penggajian_details {
+  *id : bigint unsigned PK
+  *penggajian_id : bigint unsigned FK
+  *kode_tujuan : varchar(255) FK
+  jumlah_rit : int default=0
+  solar_per_rit : decimal(15,2) default=0.00
+  upah_per_rit : decimal(15,2) default=0.00
+  total_solar : decimal(15,2) default=0.00
+  total_upah : decimal(15,2) default=0.00
+  sewa_dt : decimal(15,2) default=0.00
+  tol_per_rit : decimal(15,2) default=0.00
+  total_tol : decimal(15,2) default=0.00
+  subtotal : decimal(15,2) default=0.00
+  created_at : timestamp NULL
+  updated_at : timestamp NULL
+}
+
+entity validasi_bukti {
+  *id : bigint unsigned PK
+  kode_sopir : varchar(20) FK NULL
+  *nama_sopir : varchar(100)
+  sopir_baru : tinyint(1) default=0
+  kode_tujuan : varchar(20) FK NULL
+  *nama_tujuan : varchar(100)
+  tujuan_baru : tinyint(1) default=0
+  *foto : varchar(255)
+  latitude : decimal(10,7) NULL
+  longitude : decimal(10,7) NULL
+  lokasi : varchar(255) NULL
+  *waktu_foto : datetime
+  *tanggal : date
+  periode_id : bigint unsigned FK NULL
+  catatan : text NULL
+  *status : enum(pending,disetujui,ditolak) default=pending
+  catatan_mitra : text NULL
+  created_at : timestamp NULL
+  updated_at : timestamp NULL
+}
+
+periodes ||..|{ ritases : periode_id
+sopirs ||..|{ ritases : kode_sopir
+tujuans ||..|{ ritases : kode_tujuan
+sopirs ||..|{ gajis : kode_sopir
+periodes ||..|{ gajis : periode_id
+sopirs ||..|{ penggajian : kode_sopir
+periodes ||..|{ penggajian : periode_id
+penggajian ||..|{ penggajian_details : penggajian_id
+tujuans ||..|{ penggajian_details : kode_tujuan
+sopirs ||..|{ validasi_bukti : kode_sopir
+tujuans ||..|{ validasi_bukti : kode_tujuan
+periodes ||..|{ validasi_bukti : periode_id
+@enduml
