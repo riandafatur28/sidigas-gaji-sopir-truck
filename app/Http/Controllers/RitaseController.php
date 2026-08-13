@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Periode;
+use App\Models\PenggajianDetail;
 use App\Models\Ritase;
 use App\Models\Sopir;
 use App\Models\Tujuan;
@@ -20,6 +21,27 @@ class RitaseController extends Controller
         $clean = preg_replace('/\s{2,}/', ' ', trim($clean));
         return $clean ?: $nama;
     }
+
+    /**
+     * Resolve upah per rit untuk ritase manual dari rate PenggajianDetail
+     * periode yang sama; fallback ke detail terbaru lintas periode.
+     */
+    private function resolveUpahSopir($periodeId, $kodeTujuan)
+    {
+        $upah = PenggajianDetail::whereHas('penggajian', function ($q) use ($periodeId) {
+            $q->where('periode_id', $periodeId);
+        })
+            ->where('kode_tujuan', $kodeTujuan)
+            ->orderByDesc('id')
+            ->value('upah_per_rit');
+        if ($upah === null) {
+            $upah = PenggajianDetail::where('kode_tujuan', $kodeTujuan)
+                ->orderByDesc('id')
+                ->value('upah_per_rit');
+        }
+        return $upah ?? 0;
+    }
+
     public function index(Request $request)
     {
         // Auto-sync: periode yg mencakup hari ini jadi aktif, lainnya selesai
@@ -163,7 +185,7 @@ class RitaseController extends Controller
             'kabupaten' => $request->kabupaten,
             'status' => $request->status,
             'dt' => $dtValue,
-            'upah_sopir' => 0,
+            'upah_sopir' => $this->resolveUpahSopir($request->periode_id, $request->kode_tujuan),
             'nominal_kompensasi' => $validated['nominal_kompensasi'],
             'catatan' => $request->catatan,
             'is_lembur' => $isLembur,
