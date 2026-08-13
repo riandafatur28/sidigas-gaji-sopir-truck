@@ -1,555 +1,1411 @@
-# Flowchart Sistem — SIDIGAS
+# Flowchart Sistem — SIDIGAS (Sistem Distribusi Gaji Sopir)
 
-**Simbol:**
+## Simbol — Activity Diagram
 
-| Simbol Mermaid | Nama | Keterangan |
-|----------------|------|------------|
-| `(["..."])` | Terminal | Permulaan/akhir suatu proses |
-| `[/"..."/]` | Input/Output | Proses input/output data |
-| `["..."]` | Proses | Pelaksanaan pemrosesan komputer |
-| `[["..."]]` | Predefined Process | Penyimpanan penyediaan/pemberian harga awal |
-| `{"..."}` | Decision | Kondisi yang menghasilkan beberapa kemungkinan |
-| `-->` | Arus Pemrosesan | Arah aliran proses |
-| `-.->` | Off-Page Connector | Keluar/masuk proses di halaman lain |
+| Simbol | Nama | Keterangan |
+|--------|------|------------|
+| ![start] | **Terminal** (Start/Stop) | Permulaan atau akhir suatu proses |
+| ![process] | **Proses** (Action) | Activity/tindakan yang dilakukan |
+| ![decision] | **Decision** (Percabangan) | Kondisi yang menghasilkan beberapa kemungkinan (Ya/Tidak) |
+| ![swimlane] | **Swimlane** (Actor) | Pemisah aktor/user yang melakukan aktivitas |
+| ![flow] | **Flow** (Arus) | Aliran proses dari satu aktivitas ke aktivitas lain |
+| ![loop] | **Loop** (Perulangan) | Proses berulang selama kondisi terpenuhi |
+
+> **Catatan:** Simbol di atas mengacu pada standar **Activity Diagram UML** yang digunakan dalam seluruh diagram sistem ini.
+>
+> Diagram ditulis dalam format **PlantUML** — buka file `.puml` di `docs/` atau render dengan [PlantUML Online Server](https://www.plantuml.com/plantuml/uml/).
+
+---
+
+## Arsitektur Sistem
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    SIDIGAS — Laravel 13                      │
+├─────────────────────────────────────────────────────────────┤
+│  Frontend: Blade + Tailwind CSS + Vite                      │
+│  Backend:  PHP 8.3, Laravel 13.x                            │
+│  DB:       MySQL (via migrations)                           │
+│  Auth:     Email/Password + Google OAuth (Socialite)        │
+│  PDF:      barryvdh/laravel-dompdf                          │
+│  Excel:    phpoffice/phpspreadsheet                         │
+│  Queue:    Laravel Queue (sync driver)                      │
+├─────────────────────────────────────────────────────────────┤
+│  9 Models → 10 Controllers → 1 Service → 29 Views          │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Database Schema
+
+### Entity Relationship Diagram
+
+```plantuml
+@startuml
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+skinparam defaultFontName Arial
+left to right direction
+
+entity users {
+  *id : bigint unsigned PK
+  *name : varchar(255)
+  *email : varchar(255)
+  phone : varchar(255) NULL
+  *password : varchar(255)
+  created_at : timestamp NULL
+  updated_at : timestamp NULL
+}
+
+entity otps {
+  *id : bigint unsigned PK
+  *email : varchar(255)
+  *otp : varchar(6)
+  *expires_at : timestamp
+  created_at : timestamp NULL
+  updated_at : timestamp NULL
+}
+
+entity sopirs {
+  *id : bigint unsigned PK
+  *kode_sopir : varchar(255) UNIQUE
+  *nama : varchar(255)
+  *status : enum(aktif,nonaktif) default=aktif
+  created_at : timestamp NULL
+  updated_at : timestamp NULL
+}
+
+entity tujuans {
+  *id : bigint unsigned PK
+  *kode_tujuan : varchar(255) UNIQUE
+  *nama : varchar(255)
+  latitude : decimal(10,7) NULL
+  longitude : decimal(10,7) NULL
+  *status : enum(aktif,nonaktif) default=aktif
+  created_at : timestamp NULL
+  updated_at : timestamp NULL
+}
+
+entity periodes {
+  *id : bigint unsigned PK
+  *kode_periode : varchar(255) UNIQUE
+  *nama_periode : varchar(255)
+  *tanggal_mulai : date
+  *tanggal_selesai : date
+  *status : enum(aktif,selesai) default=aktif
+  created_at : timestamp NULL
+  updated_at : timestamp NULL
+}
+
+entity ritases {
+  *id : bigint unsigned PK
+  *kode_ritase : varchar(255) UNIQUE
+  *periode_id : bigint unsigned FK
+  *kode_sopir : varchar(255) FK
+  *kode_tujuan : varchar(255) FK
+  *tanggal : date
+  *waktu : enum(pagi,malam)
+  *kabupaten : enum(Nganjuk,Kediri,Kota Kediri,Jombang,Blitar,Kota Blitar,Ngawi,Kota Ngawi,Lainnya)
+  *status : enum(valid,pending,gagal_produksi) default=pending
+  upah_sopir : decimal(15,2) default=0.00
+  dt : decimal(15,2) default=0.00
+  nominal_kompensasi : decimal(15,2) default=0.00
+  is_lembur : tinyint(1) default=0
+  upah_lembur : decimal(15,2) default=0.00
+  catatan : text NULL
+  created_at : timestamp NULL
+  updated_at : timestamp NULL
+}
+
+entity gajis {
+  *id : bigint unsigned PK
+  *kode_sopir : varchar(20) FK
+  *periode_id : bigint unsigned FK
+  total_solar : decimal(15,2) default=0.00
+  total_upah : decimal(15,2) default=0.00
+  total_sewa_dt : decimal(15,2) default=0.00
+  grand_total : decimal(15,2) default=0.00
+  created_at : timestamp NULL
+  updated_at : timestamp NULL
+  ~~~ UNUSED : tabel legacy sebelum penggajian + detail
+}
+
+entity penggajian {
+  *id : bigint unsigned PK
+  *kode_sopir : varchar(255) FK
+  *periode_id : bigint unsigned FK
+  *tanggal : date
+  uang_solar : decimal(15,2) default=0.00
+  upah_sopir : decimal(15,2) default=0.00
+  upah_lembur : decimal(15,2) default=0.00
+  dt : decimal(15,2) default=0.00
+  tol : decimal(15,2) default=0.00
+  kompensasi_gagal : decimal(15,2) default=0.00
+  total : decimal(15,2) default=0.00
+  created_at : timestamp NULL
+  updated_at : timestamp NULL
+}
+
+entity penggajian_details {
+  *id : bigint unsigned PK
+  *penggajian_id : bigint unsigned FK
+  *kode_tujuan : varchar(255) FK
+  jumlah_rit : int default=0
+  solar_per_rit : decimal(15,2) default=0.00
+  upah_per_rit : decimal(15,2) default=0.00
+  total_solar : decimal(15,2) default=0.00
+  total_upah : decimal(15,2) default=0.00
+  sewa_dt : decimal(15,2) default=0.00
+  tol_per_rit : decimal(15,2) default=0.00
+  total_tol : decimal(15,2) default=0.00
+  subtotal : decimal(15,2) default=0.00
+  created_at : timestamp NULL
+  updated_at : timestamp NULL
+}
+
+entity validasi_bukti {
+  *id : bigint unsigned PK
+  kode_sopir : varchar(20) FK NULL
+  *nama_sopir : varchar(100)
+  sopir_baru : tinyint(1) default=0
+  kode_tujuan : varchar(20) FK NULL
+  *nama_tujuan : varchar(100)
+  tujuan_baru : tinyint(1) default=0
+  *foto : varchar(255)
+  latitude : decimal(10,7) NULL
+  longitude : decimal(10,7) NULL
+  lokasi : varchar(255) NULL
+  *waktu_foto : datetime
+  *tanggal : date
+  periode_id : bigint unsigned FK NULL
+  catatan : text NULL
+  *status : enum(pending,disetujui,ditolak) default=pending
+  catatan_mitra : text NULL
+  created_at : timestamp NULL
+  updated_at : timestamp NULL
+}
+
+' === RELATIONSHIPS ===
+periodes ||..|{ ritases : "periode_id"
+sopirs ||..|{ ritases : "kode_sopir"
+tujuans ||..|{ ritases : "kode_tujuan"
+
+sopirs ||..|{ gajis : "kode_sopir"
+periodes ||..|{ gajis : "periode_id"
+
+sopirs ||..|{ penggajian : "kode_sopir"
+periodes ||..|{ penggajian : "periode_id"
+
+penggajian ||..|{ penggajian_details : "penggajian_id"
+tujuans ||..|{ penggajian_details : "kode_tujuan"
+
+sopirs ||..|{ validasi_bukti : "kode_sopir"
+tujuans ||..|{ validasi_bukti : "kode_tujuan"
+periodes ||..|{ validasi_bukti : "periode_id"
+
+note as N
+  **Legenda:**
+  * = NOT NULL
+  PK = Primary Key
+  FK = Foreign Key
+  UNIQUE = Unique Index
+end note
+@enduml
+```
 
 ---
 
 ## 1. Login (Email & Password)
 
-```mermaid
-flowchart TD
-    START(["Mulai"])
-    START --> INPUT[/"Tampilkan form login / Email & Password"/]
-    INPUT --> ISI["User mengisi email & password"]
-    ISI --> C_VALID{Email & Password / terisi,<br/>email @gmail.com?}
-    C_VALID -- Tidak --> E_VALID[/"Tampilkan error validasi"/]
-    E_VALID --> ISI
-    C_VALID -- Ya --> PROSES["AuthController@login<br/>Auth::attempt(credentials)"]
-    PROSES --> C_COCOK{Email & Password / cocok?}
-    C_COCOK -- Tidak --> E_SALAH[/"Tampilkan error / 'Email atau password salah'"/]
-    E_SALAH --> ISI
-    C_COCOK -- Ya --> REGEN["Regenerasi session"]
-    REGEN --> REDIR["Redirect ke Dashboard"]
-    REDIR --> STOP(["Selesai"])
+```plantuml
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+
+|Admin|
+start
+:Buka halaman /login;
+:Input email & password;
+:Klik tombol "Login";
+
+|Sistem|
+:Validasi email & password;
+if (Data cocok?) then (ya)
+  :Buat session login;
+  :Redirect ke /dashboard;
+  |Admin|
+  :Lihat halaman dashboard;
+  stop
+else (tidak)
+  :Redirect kembali ke /login\ndengan error;
+  |Admin|
+  :Lihat pesan error\n"Email/password salah";
+  stop
+endif
+
+@enduml
 ```
 
 ---
 
 ## 2. Login Google
 
-```mermaid
-flowchart TD
-    START(["Mulai"])
-    START --> KLIK[/"User klik 'Masuk dengan Google'"/]
-    KLIK --> GOOGLE["Socialite::driver('google')<br/>redirect()"]
-    GOOGLE --> AUTH["Redirect ke halaman<br/>konsen Google OAuth"]
-    AUTH --> C_SETUJU{User setuju / memberi akses?}
-    C_SETUJU -- Tidak --> BATAL[/"Redirect ke login<br/>(Exception handle)"/]
-    BATAL --> STOP(["Selesai"])
-    C_SETUJU -- Ya --> CALLBACK["Google callback ke<br/>loginGoogleCallback()"]
-    CALLBACK --> C_EXIST{Email Google / terdaftar di users?}
-    C_EXIST -- Tidak --> E_REG[/"Tampilkan error / 'Email tidak terdaftar di sistem'"/]
-    E_REG --> STOP(["Selesai"])
-    C_EXIST -- Ya --> LOGIN["Auth::login(user)"]
-    LOGIN --> REGEN["Regenerasi session"]
-    REGEN --> DASH[/"Redirect ke Dashboard"/]
-    DASH --> STOP(["Selesai"])
+```plantuml
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+
+|Admin|
+start
+:Klik tombol "Login dengan Google";
+
+|Sistem|
+:Redirect ke Google OAuth;
+
+|Google|
+:User login & pilih akun Google;
+
+|Sistem|
+:Validasi email;
+if (Email terdaftar?) then (ya)
+  :Buat session login;
+  :Redirect ke /dashboard;
+  |Admin|
+  :Lihat halaman dashboard;
+  stop
+else (tidak)
+  :Tampilkan error\n"Email tidak terdaftar";
+  stop
+endif
+
+@enduml
 ```
 
 ---
 
-## 3. Lupa Password — Request OTP
+## 3. Lupa Password — OTP
 
-```mermaid
-flowchart TD
-    START(["Mulai"])
-    START --> FORM[/"Tampilkan form / masukkan email"/]
-    FORM --> ISI["User mengisi email"]
-    ISI --> C_VALID{Email valid, @gmail.com, / terdaftar?}
-    C_VALID -- Tidak --> E_VALID[/"Tampilkan error"/]
-    E_VALID --> ISI
-    C_VALID -- Ya --> HAPUS_OTP["Hapus OTP lama / untuk email ini"]
-    HAPUS_OTP --> GEN_OTP["Generate 6 digit OTP random"]
-    GEN_OTP --> SIMPAN["Simpan ke tabel otps / (email, otp, expires_at=+15min)"]
-    SIMPAN --> KIRIM["Kirim email OTP / via OtpMail"]
-    KIRIM --> REDIR[/"Redirect ke form / Verifikasi OTP"/]
-    REDIR --> STOP(["Selesai"])
+```plantuml
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+
+|Admin|
+start
+:Klik "Lupa Password";
+:Input email;
+:Klik "Kirim OTP";
+
+|Sistem|
+:Generate OTP 6 digit;
+:Simpan OTP ke tabel otps;
+:Kirim email berisi OTP;
+:Redirect ke form input OTP;
+
+|Admin|
+:Buka email;
+:Catat kode OTP;
+:Input OTP di form;
+:Klik "Verifikasi";
+
+|Sistem|
+:Cari OTP berdasarkan email;
+if (OTP cocok & belum expired?) then (ya)
+  :Redirect ke form\npassword baru;
+  |Admin|
+  :Input password baru\n& konfirmasi;
+  :Klik "Reset Password";
+  |Sistem|
+  :Hash password baru;
+  :Update tabel users;
+  :Hapus OTP;
+  :Redirect ke /login\ndengan sukses;
+  |Admin|
+  :Login dengan\npassword baru;
+  stop
+else (tidak)
+  :Tampilkan error\n"OTP salah/kadaluarsa";
+  stop
+endif
+
+@enduml
 ```
 
 ---
 
-## 4. Verifikasi OTP
+## 4. Dashboard
 
-```mermaid
-flowchart TD
-    START(["Mulai"])
-    START --> FORM[/"Tampilkan form / input 6 digit OTP"/]
-    FORM --> ISI["User memasukkan / kode OTP"]
-    ISI --> C_VALID{OTP 6 digit / numeric?}
-    C_VALID -- Tidak --> E_FORM[/"Validasi reject"/]
-    E_FORM --> ISI
-    C_VALID -- Ya --> CEK_OTP["Cari OTP di DB / (email, otp, expires_at >= now)"]
-    CEK_OTP --> C_DITEMUKAN{OTP ditemukan / & belum expired?}
-    C_DITEMUKAN -- Tidak --> E_OTP[/"Error 'OTP salah atau / sudah kedaluwarsa'"/]
-    E_OTP --> ISI
-    C_DITEMUKAN -- Ya --> HAPUS["Hapus OTP dari DB"]
-    HAPUS --> REDIR[/"Redirect ke form / Reset Password"/]
-    REDIR --> STOP(["Selesai"])
+```plantuml
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+
+|Admin|
+start
+:Buka /dashboard;
+
+|Sistem|
+:Periode::syncActiveStatus();
+:Sopir::syncActiveStatus();
+:Tujuan::syncActiveStatus();
+:Query metrik dashboard:
+- total sopir (aktif/nonaktif)
+- total ritase (valid/pending/gagal)
+- total gaji periode aktif
+- validasi bukti (pending/disetujui/ditolak);
+:Query psikologi:
+- progress periode (hari)
+- sisa hari periode
+- top 5 sopir
+- aktivitas hari ini;
+:Render data ke card & chart;
+|Admin|
+:Lihat ringkasan dashboard;
+stop
+
+@enduml
 ```
 
 ---
 
-## 5. Reset Password
+## 5. Kelola Sopir (CRUD)
 
-```mermaid
-flowchart TD
-    START(["Mulai"])
-    START --> FORM[/"Tampilkan form / Password Baru + Konfirmasi"/]
-    FORM --> ISI["User mengisi password / dan konfirmasi"]
-    ISI --> C_VALID{Password >= 6 / & konfirmasi cocok?}
-    C_VALID -- Tidak --> E_VALID[/"Validasi reject"/]
-    E_VALID --> ISI
-    C_VALID -- Ya --> UPDATE["User::whereEmail<br/>->update password<br/>Hash::make(password)"]
-    UPDATE --> REDIR[/"Redirect ke Login / dgn success message"/]
-    REDIR --> STOP(["Selesai"])
+```plantuml
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+
+|Admin|
+start
+:Buka /sopir;
+
+|Sistem|
+:Query semua sopir\n(paginated 10/halaman);
+:Tampilkan tabel sopir;
+
+repeat
+  |Admin|
+  if (Pilih aksi?) then (Tambah)
+    :Klik "Tambah";
+    :Isi form data sopir;
+    :Submit;
+    |Sistem|
+    if (Validasi lolos?) then (ya)
+      :Generate kode SPR-NNN;
+      :Simpan ke sopirs;
+      :Sopir::syncActiveStatus();
+      :Redirect back;
+    else (tidak)
+      :Tampilkan error;
+    endif
+
+  elseif (Edit) then
+    :Klik "Edit" pada baris;
+    |Sistem|
+    :Load data sopir;
+    :Tampilkan modal form;
+    |Admin|
+    :Ubah data;
+    :Submit;
+    |Sistem|
+    if (Validasi lolos?) then (ya)
+      :Update sopirs;
+      :Redirect back;
+    else (tidak)
+      :Tampilkan error;
+    endif
+
+  elseif (Hapus) then
+    :Klik "Hapus";
+    if (Konfirmasi?) then (ya)
+      |Sistem|
+      if (Punya ritase?) then (ya)
+        :Tampilkan error\n"Tidak bisa hapus";
+      else (tidak)
+        :Hapus sopir;
+      endif
+      :Redirect back;
+    endif
+
+  else (Navigasi)
+    :Klik nomor halaman;
+    |Sistem|
+    :Query halaman berikutnya;
+  endif
+
+repeat while (Masih di halaman sopir?) is (ya)
+->tidak;
+stop
+
+@enduml
 ```
 
 ---
 
-## 6. Dashboard
+## 6. Kelola Tujuan (CRUD)
 
-```mermaid
-flowchart TD
-    START(["Mulai"])
-    START --> LOAD["DashboardController@index"]
-    LOAD --> FILTER["Baca parameter ?periode="]
-    FILTER --> QUERY["Query data:<br/>- count sopir (aktif/total)<br/>- count ritase (total/valid/pending/gagal)<br/>- count validasi (pending/disetujui/ditolak)<br/>- sum total gaji<br/>- recent 6 ritase"]
-    QUERY --> DATA["Siapkan data ke view"]
-    DATA --> RENDER[/"Render dashboard/index.blade.php"/]
-    RENDER --> C_FILTER{User pilih / filter periode?}
-    C_FILTER -- Ya --> FILTER
-    C_FILTER -- Tidak --> C_DROPDOWN{User klik / dropdown Validasi?}
-    C_DROPDOWN -- Ya --> JS["JavaScript toggle / count validasi"]
-    JS --> RENDER
-    C_DROPDOWN -- Tidak --> STOP(["Selesai"])
+```plantuml
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+
+|Admin|
+start
+:Buka /tujuan;
+
+|Sistem|
+:Query semua tujuan\n(paginated);
+:Tampilkan tabel tujuan;
+
+repeat
+  |Admin|
+  if (Pilih aksi?) then (Tambah)
+    :Klik "Tambah";
+    :Isi form data tujuan;
+    :Submit;
+    |Sistem|
+    if (Validasi lolos?) then (ya)
+      :Generate kode TUJ-NNN;
+      :Simpan ke tujuans;
+      :Tujuan::syncActiveStatus();
+      :Redirect back;
+    else (tidak)
+      :Tampilkan error;
+    endif
+
+  elseif (Edit) then
+    :Klik "Edit";
+    |Sistem|
+    :Load data tujuan;
+    :Tampilkan modal;
+    |Admin|
+    :Ubah data;
+    :Submit;
+    |Sistem|
+    if (Validasi lolos?) then (ya)
+      :Update tujuans;
+      :Redirect back;
+    else (tidak)
+      :Tampilkan error;
+    endif
+
+  elseif (Hapus) then
+    :Klik "Hapus";
+    if (Konfirmasi?) then (ya)
+      |Sistem|
+      if (Punya ritase?) then (ya)
+        :Tampilkan error\n"Tidak bisa hapus";
+      else (tidak)
+        :Hapus tujuan;
+      endif
+      :Redirect back;
+    endif
+
+  else (Navigasi)
+    :Klik nomor halaman;
+    |Sistem|
+    :Query halaman berikutnya;
+  endif
+
+repeat while (Masih di halaman tujuan?) is (ya)
+->tidak;
+stop
+
+@enduml
 ```
 
 ---
 
-## 7. Profil — Lihat & Edit
+## 7. Kelola Periode (CRUD)
 
-```mermaid
-flowchart TD
-    START(["Mulai"])
-    START --> LIHAT[/"Tampilkan halaman Profil / (nama, email, avatar, join date)"/]
-    LIHAT --> FORM[/"Form edit: nama, email,<br/>password_lama, password_baru,<br/>password_baru_confirmation"/]
-    FORM --> ISI["User edit data & submit"]
-    ISI --> C_VALID{Nama >=3, <=100<br/>Email unique (kecuali milik sendiri)<br/>Fields valid?}
-    C_VALID -- Tidak --> E_FORM[/"Tampilkan error validasi"/]
-    E_FORM --> FORM
-    C_VALID -- Ya --> C_GANTI_PASS{password_baru / diisi?}
-    C_GANTI_PASS -- Tidak --> UPDATE_INFO["Update name & email"]
-    C_GANTI_PASS -- Ya --> C_LAMA_BENAR{password_lama / cocok dgn current?}
-    C_LAMA_BENAR -- Tidak --> E_PASS[/"Error 'Password lama tidak sesuai'"/]
-    E_PASS --> FORM
-    C_LAMA_BENAR -- Ya --> C_BARU_VALID{password_baru >=6 / & confirmed?}
-    C_BARU_VALID -- Tidak --> E_FORM
-    C_BARU_VALID -- Ya --> UPDATE_ALL["Update name, email,<br/>& password (Hash::make)"]
-    UPDATE_INFO --> SUCCESS[/"Success message"/]
-    UPDATE_ALL --> SUCCESS
-    SUCCESS --> LIHAT
+```plantuml
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+
+|Admin|
+start
+:Buka /periode;
+
+|Sistem|
+:Query semua periode\n(order by tgl_mulai DESC);
+:Tampilkan tabel periode;
+
+repeat
+  |Admin|
+  if (Pilih aksi?) then (Tambah)
+    :Input nama_periode,\ntgl_mulai, tgl_selesai;
+    :Submit;
+    |Sistem|
+    if (Validasi:\ntgl_selesai >= tgl_mulai\n& tidak overlap?) then (ya)
+      :Generate kode PER-NNN;
+      :Simpan ke periodes;
+      :Periode::syncActiveStatus();
+      :Redirect back;
+    else (tidak)
+      :Tampilkan error;
+    endif
+
+  elseif (Edit) then
+    :Klik "Edit";
+    |Sistem|
+    :Load data periode;
+    :Tampilkan modal;
+    |Admin|
+    :Ubah data;
+    :Submit;
+    |Sistem|
+    if (Validasi lolos?) then (ya)
+      :Update periodes;
+      :Redirect back;
+    else (tidak)
+      :Tampilkan error;
+    endif
+
+  elseif (Hapus) then
+    :Klik "Hapus";
+    if (Konfirmasi?) then (ya)
+      |Sistem|
+      if (Ada ritase?) then (ya)
+        :Tampilkan error\n"Memiliki data ritase";
+      else (tidak)
+        :Hapus periode;
+      endif
+      :Redirect back;
+    endif
+
+  else (Navigasi)
+    :Klik nomor halaman;
+    |Sistem|
+    :Query halaman berikutnya;
+  endif
+
+repeat while (Masih di halaman periode?) is (ya)
+->tidak;
+stop
+
+@enduml
+```
+
+### Auto-sync Status
+
+```plantuml
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+
+start
+:Cek today() vs\ntanggal_mulai - tanggal_selesai;
+if (Today dalam rentang?) then (ya)
+  :Set status=aktif\n(nonaktifkan periode lain);
+  stop
+else (tidak)
+  :Set status=selesai;
+  stop
+endif
+
+@enduml
 ```
 
 ---
 
-## 8. Sopir — CRUD
+## 8. Input Ritase — Parser Teks
 
-```mermaid
-flowchart TD
-    START(["Mulai"])
-    START --> INDEX[/"Tampilkan daftar sopir / (10/page, search, stats)"/]
+### Flowchart Utama
 
-    INDEX --> C_ACTION{Pilih aksi?}
+```plantuml
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
 
-    C_ACTION -- Cari --> SEARCH["Input search keyword"]
-    SEARCH --> QUERY["Query sopir where<br/>nama/kode_sopir like %keyword%"]
-    QUERY --> INDEX
+|Admin|
+start
+:Buka /ritase;
+|Sistem|
+:Filter periode aktif;
+:Query ritase periode aktif;
+:Tampilkan tabel;
 
-    C_ACTION -- Tambah --> ADD_FORM[/"Modal form input nama"/]
-    ADD_FORM --> ADD_ISI["User input nama"]
-    ADD_ISI --> C_ADD_VALID{Nama >=3, <=255?}
-    C_ADD_VALID -- Tidak --> E_ADD[/"Validasi reject"/]
-    E_ADD --> ADD_FORM
-    C_ADD_VALID -- Ya --> STORE["Simpan: generate kode SPR-XXX,<br/>status='aktif'"]
-    STORE --> ADD_CLOSE[/"Tutup modal, success"/]
-    ADD_CLOSE --> INDEX
+|Admin|
+if (Pilih aksi?) then (Parse Teks)
+  :Buka /ritase/parse;
+  :Pilih periode;
+  :Paste teks ritase;
+  :Klik "Parse";
+  |Sistem|
+  :Parse teks\n(RitaseParserService);
+  if (Berhasil?) then (ya)
+    :Tampilkan preview parser;
+    |Admin|
+    if (Setuju & auto_create?) then (ya)
+      :Klik "Simpan";
+      |Sistem|
+      :RitaseParserService@createRitases();
+      :Sopir::syncActiveStatus();
+      :Tujuan::syncActiveStatus();
+      :Redirect ke /ritase;
+    else (tidak)
+      :Lihat preview\ndan sesuaikan;
+    endif
+  else (tidak)
+    :Tampilkan error parse;
+  endif
 
-    C_ACTION -- Edit --> EDIT_FORM[/"Modal form edit nama & status"/]
-    EDIT_FORM --> EDIT_ISI["User ubah nama/status"]
-    EDIT_ISI --> C_EDIT_VALID{Nama valid,<br/>status in [aktif/nonaktif]?}
-    C_EDIT_VALID -- Tidak --> E_EDIT[/"Validasi reject"/]
-    E_EDIT --> EDIT_FORM
-    C_EDIT_VALID -- Ya --> UPDATE["Update sopir"]
-    UPDATE --> EDIT_CLOSE[/"Tutup modal, success"/]
-    EDIT_CLOSE --> INDEX
+elseif (Tambah Manual) then
+  :Klik "Tambah";
+  :Isi form modal;
+  :Submit;
+  |Sistem|
+  :Simpan ke ritases;
+  :Redirect back;
 
-    C_ACTION -- Hapus --> C_PUNYA_RITASE{Sopir punya / data ritase?}
-    C_PUNYA_RITASE -- Ya --> E_HAPUS[/"Error 'Tidak bisa hapus, / ada data ritase'"/]
-    E_HAPUS --> INDEX
-    C_PUNYA_RITASE -- Tidak --> KONFIRM[/"Modal konfirmasi hapus"/]
-    KONFIRM --> C_YAKIN{Yakin hapus?}
-    C_YAKIN -- Tidak --> INDEX
-    C_YAKIN -- Ya --> DESTROY["Delete sopir"]
-    DESTROY --> HAPUS_CLOSE[/"Tutup modal, success"/]
-    HAPUS_CLOSE --> INDEX
+elseif (Edit) then
+  :Klik "Edit";
+  :Ubah data via modal;
+  :Submit;
+  |Sistem|
+  :Hitung ulang DT;
+  :Update ritases;
+  :Redirect back;
+
+elseif (Hapus) then
+  :Klik "Hapus";
+  :Konfirmasi;
+  |Sistem|
+  :Hapus ritase;
+  :Redirect back;
+
+elseif (Detail) then
+  :Klik "Detail";
+  |Sistem|
+  :Generate pivot\nsopir x tanggal;
+  if (View = HTML?) then (ya)
+    :Tampilkan detail-html\ndi iframe;
+  else (tidak)
+    :Generate PDF via DomPDF;
+    :Download file;
+  endif
+endif
+stop
+
+@enduml
+```
+
+### 8.1. Mekanisme Parsing (REGEX)
+
+```plantuml
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+
+|Sistem|
+start
+:Terima teks input;
+:Split teks per baris\n(trim & filter kosong);
+
+:Scan semua baris:\nRegex /'DD MM YY'/ atau /'YYYY-MM-DD'/;
+if (Tanggal ditemukan?) then (tidak)
+  :Return date=null;
+  stop
+endif
+
+:Deteksi header sebelum tanggal:\n- Waktu (pagi/malam)\n- Header rute;
+
+:Iterasi baris sisanya;
+repeat
+  if (Baris diawali angka + titik?) then (ya - sopir)
+    :Regex preg_match\n'/^\d+\.(.*)$/';
+    :Ambil group 1 = nama;
+    :cleanDriverName():\n  hapus (mbah/pak/bu/ira)\n  hapus simbol (√✔✓🙏🙌);
+    :Deduplikasi nama\nper package;
+
+  else (tidak - rute)
+    :Deteksi keyword jenis kerja:\n  patching, paket, overlay,\n  cmm, kormuling, rekon;
+    if (Keyword di tengah?\n=sopir sebelum keyword) then (ya)
+      :Split: sopir = teks sebelum\nRoute = teks sejak keyword;
+    else (tidak)
+      :Route = seluruh teks;
+    endif
+    :Deteksi:\n  - Rit ke 2 (duplikat)\n  - Bongkar (muatan)\n  - Gagal produksi;
+  endif
+
+repeat while (Baris habis?) is (tidak)
+-> (ya);
+
+:Merge package dgn route sama\n(gabung driver per route);
+
+:Post-processing:\n- Link bongkar ke non-bongkar\n- Gabung gagal + route berikutnya;
+
+:Return {date, packages};
+stop
+
+@enduml
+```
+
+### 8.2. Pencocokan Driver (Fuzzy Matching)
+
+```plantuml
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+
+start
+:Input nama sopir\ndan tabel sopirs;
+
+if (Exact match\ncase insensitive?) then (ya)
+  :Score: 100%;
+else (tidak)
+  if (Metaphone match?\nToni ↔ Tony) then (ya)
+    :Score: 95%;
+  else (tidak)
+    if (Substring match?\n'Eko' in 'Eko Wilangan') then (ya)
+      :Score: 90%;
+    else (tidak)
+      :Hitung Jaro-Winkler\n+ first-letter check;
+      if (Skor ≥ 85%?) then (ya)
+        :Score: similarity%;
+      else (tidak)
+        :Tidak cocok;
+        :Auto-create sopir baru\nSPR-NNN;
+        stop
+      endif
+    endif
+  endif
+endif
+
+:Sopir ditemukan;
+stop
+
+@enduml
+```
+
+### 8.3. Pencocokan Rute (String Similarity)
+
+```plantuml
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+
+start
+:Input nama rute\n(patching Nganjuk);
+
+:stripRoutePrefixes():\nHapus: paket, patching, overlay,\ncmm, kormuling, rekon,\nbondan, gabungan, rombongan;
+
+if (Exact match\nsetelah strip?) then (ya)
+  :Score: 100%;
+else (tidak)
+  if (Substring?\n'Nganjuk' in tujuan) then (ya)
+    :Score: 95%;
+  else (tidak)
+    if (Word-set match\nbidirectional?) then (ya)
+      :Score: 90%;
+    else (tidak)
+      :Hitung Jaro-Winkler\n+ first-letter;
+      if (Skor ≥ threshold?) then (ya)
+        :Score: similarity%;
+      else (tidak)
+        :Tidak cocok;
+        :Auto-create tujuan baru\nTUJ-NNN;
+        stop
+      endif
+    endif
+  endif
+endif
+
+:Tujuan ditemukan;
+stop
+
+@enduml
+```
+
+### 8.4. Alur Simpan Hasil Parse
+
+```plantuml
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+
+start
+:Hasil parse: {date, packages};
+:matchDrivers():\n  cocokin nama → tabel sopir\n  Exact → Metaphone → Substring → Jaro-Winkler;
+:matchRoutes():\n  cocokin rute → tabel tujuan\n  Exact → Substring → Word-set → Jaro-Winkler;
+:Preview:\n  driver_match[] + route_match[];
+
+if (auto_create?) then (ya)
+  :createRitases();
+  foreach (Package in packages)
+    :Cari driver match;
+    if (Driver unmatched?) then (ya)
+      :Auto-create sopir baru;
+    endif
+    :Cari route match;
+    if (Route unmatched?) then (ya)
+      :Auto-create tujuan baru;
+    endif
+    if (Status gagal_produksi?) then (ya)
+      :Update ritase valid sebelumnya\njadi gagal_produksi, dt=0;
+    else (tidak)
+      if (is_rit_ke_2?) then (ya)
+        :Create duplikat ritase\n(hari & sopir sama);
+      else (tidak)
+        if (is_bongkar?) then (ya)
+          :Tandai bongkar,\nasosiasi ke non-bongkar;
+        else (tidak)
+          :Simpan ritase baru\n(status: pending, dt: dihitung);
+        endif
+      endif
+    endif
+  endforeach
+  :Sync status sopir & tujuan;
+  :Return {created, skipped, errors};
+endif
+stop
+
+@enduml
 ```
 
 ---
 
-## 9. Tujuan — CRUD
+## 9. Detail Ritase (Pivot Sopir × Tanggal)
 
-*(Pola sama seperti Sopir, ganti Sopir → Tujuan, kode TUJ-XXX)*
+```plantuml
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
 
-```mermaid
-flowchart TD
-    START(["Mulai"])
-    START --> INDEX[/"Tampilkan daftar tujuan / (10/page, search, stats)"/]
+|Admin|
+start
+:Klik "Detail";
 
-    INDEX --> C_ACTION{Pilih aksi?}
+|Sistem|
+:Query semua ritase di periode;
+:Group by sopir + tanggal + waktu;
+:Build pivot table:
+- Baris: sopir (kode + nama)
+- Kolom: P1, P2... M1, M2... per tanggal
+- Sel: jumlah rit + status;
 
-    C_ACTION -- Cari --> SEARCH["Input search keyword"]
-    SEARCH --> QUERY["Query tujuan where<br/>nama/kode_tujuan like %keyword%"]
-    QUERY --> INDEX
+:Render pivot HTML;
 
-    C_ACTION -- Tambah --> ADD_FORM[/"Modal form input nama"/]
-    ADD_FORM --> ADD_ISI["User input nama"]
-    ADD_ISI --> C_ADD_VALID{Nama >=3, <=255?}
-    C_ADD_VALID -- Tidak --> E_ADD[/"Validasi reject"/]
-    E_ADD --> ADD_FORM
-    C_ADD_VALID -- Ya --> STORE["Simpan: generate kode TUJ-XXX,<br/>status='aktif'"]
-    STORE --> ADD_CLOSE[/"Tutup modal, success"/]
-    ADD_CLOSE --> INDEX
+:Hitung per sopir:
+- Total rit
+- Total upah
+- Total DT
+- Eligible count;
 
-    C_ACTION -- Edit --> EDIT_FORM[/"Modal form edit nama & status"/]
-    EDIT_FORM --> EDIT_ISI["User ubah nama/status"]
-    EDIT_ISI --> C_EDIT_VALID{Nama valid,<br/>status in [aktif/nonaktif]?}
-    C_EDIT_VALID -- Tidak --> E_EDIT[/"Validasi reject"/]
-    E_EDIT --> EDIT_FORM
-    C_EDIT_VALID -- Ya --> UPDATE["Update tujuan"]
-    UPDATE --> EDIT_CLOSE[/"Tutup modal, success"/]
-    EDIT_CLOSE --> INDEX
+if (Download PDF?) then (ya)
+  :Generate PDF via DomPDF;
+  :Download file;
+endif
+stop
 
-    C_ACTION -- Hapus --> C_PUNYA_RITASE{Tujuan punya / data ritase?}
-    C_PUNYA_RITASE -- Ya --> E_HAPUS[/"Error 'Tidak bisa hapus, / ada data ritase'"/]
-    E_HAPUS --> INDEX
-    C_PUNYA_RITASE -- Tidak --> KONFIRM[/"Modal konfirmasi hapus"/]
-    KONFIRM --> C_YAKIN{Yakin hapus?}
-    C_YAKIN -- Tidak --> INDEX
-    C_YAKIN -- Ya --> DESTROY["Delete tujuan"]
-    DESTROY --> HAPUS_CLOSE[/"Tutup modal, success"/]
-    HAPUS_CLOSE --> INDEX
+@enduml
+```
+
+**Aturan DT:**
+- Kabupaten `Nganjuk`, `Kediri`, `Kota Kediri`, `Jombang` → maks 1 DT/hari/sopir (rit ke-2 = 0)
+- Kabupaten `Blitar`, `Kota Blitar`, `Ngawi`, `Kota Ngawi`, `Lainnya` → tiap rit dapat DT penuh
+- Rit `gagal_produksi` → DT = 0
+
+---
+
+## 10. Validasi Bukti — Public Submit
+
+```plantuml
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+
+|Sopir (Publik)|
+start
+:Buka /validasi-bukti\n(tanpa login);
+:Input nama sopir;
+:Input nama tujuan;
+:Ambil foto\n(otomatis dapat\nlokasi & waktu);
+:Klik "Kirim";
+
+|Sistem|
+:Validasi: foto required\nmax 2MB, jpg/png;
+if (Lengkap?) then (tidak)
+  :Tampilkan error;
+  stop
+endif
+
+if (Aturan validasi\ndiaktifkan?) then (tidak)
+  :Set status = disetujui;
+else (ya)
+  :Set status = pending;
+endif
+
+:Cocokkan nama sopir\nke DB (fuzzy match);
+if (Sopir cocok?) then (tidak)
+  :Tandai sopir_baru = true;
+endif
+
+:Cocokkan nama tujuan\nke DB (fuzzy match);
+if (Tujuan cocok?) then (tidak)
+  :Tandai tujuan_baru = true;
+endif
+
+:Simpan ke validasi_bukti;
+:Tampilkan\n"Bukti berhasil dikirim";
+stop
+
+@enduml
 ```
 
 ---
 
-## 10. Periode — CRUD
+## 11. Validasi Bukti — Admin Review
 
-```mermaid
-flowchart TD
-    START(["Mulai"])
-    START --> INDEX[/"Tampilkan daftar periode / (10/page, search)"/]
+```plantuml
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
 
-    INDEX --> C_ACTION{Pilih aksi?}
+|Admin|
+start
+:Buka /validasi-bukti/kelola;
 
-    C_ACTION -- Tambah --> ADD_FORM[/"Modal form: nama,<br/>tgl_mulai, tgl_selesai"/]
-    ADD_FORM --> ADD_ISI["User isi form"]
-    ADD_ISI --> C_VALID{Nama >=3,<br/>selesai >= mulai,<br/>no overlap?}
-    C_VALID -- Tidak --> E_ADD[/"Validasi reject / error overlap"/]
-    E_ADD --> ADD_FORM
-    C_VALID -- Ya --> STORE["Simpan: kode PER-XXX,<br/>status='aktif'"]
-    STORE --> ADD_CLOSE[/"Tutup modal, success"/]
-    ADD_CLOSE --> INDEX
+|Sistem|
+:Query semua bukti\n(filter status);
+:Tampilkan tabel\ndaftar bukti;
 
-    C_ACTION -- Edit --> EDIT_FORM[/"Modal form edit"/]
-    EDIT_FORM --> EDIT_ISI["User ubah data"]
-    EDIT_ISI --> C_EDIT_VALID{Valid?}
-    C_EDIT_VALID -- Tidak --> E_EDIT[/"Validasi reject"/]
-    E_EDIT --> EDIT_FORM
-    C_EDIT_VALID -- Ya --> UPDATE["Update periode"]
-    UPDATE --> EDIT_CLOSE[/"Tutup modal, success"/]
-    EDIT_CLOSE --> INDEX
+|Admin|
+if (Pilih aksi?) then (Setujui)
+  :Klik "Setujui";
+  |Sistem|
+  if (sopir_baru?) then (ya)
+    :Auto-create sopir\n(fuzzy match dulu);
+  endif
+  if (tujuan_baru?) then (ya)
+    :Auto-create tujuan\n(fuzzy match dulu);
+  endif
+  :Buat ritase:\nstatus=valid, hitungDt(),
+  upah_sopir=0 (dari gaji);
+  :Update status = disetujui;
+  :Redirect back;
 
-    C_ACTION -- Hapus --> C_PUNYA_RITASE{Periode punya / data ritase?}
-    C_PUNYA_RITASE -- Ya --> E_HAPUS[/"Error 'tidak bisa hapus, / ada data ritase'"/]
-    E_HAPUS --> INDEX
-    C_PUNYA_RITASE -- Tidak --> KONFIRM[/"Modal konfirmasi hapus"/]
-    KONFIRM --> DESTROY["Delete periode"]
-    DESTROY --> HAPUS_CLOSE[/"Tutup modal, success"/]
-    HAPUS_CLOSE --> INDEX
+elseif (Tolak) then
+  :Input catatan penolakan;
+  :Klik "Tolak";
+  |Sistem|
+  :Update status = ditolak;
+  :Redirect back;
+
+elseif (Tambah Ritase) then
+  :Klik "Tambah ke Ritase";
+  |Sistem|
+  :Auto-create sopir/tujuan\njika sopir_baru/tujuan_baru;
+  :Buat ritase baru\ndari data bukti;
+  :Redirect ke /ritase;
+
+elseif (Toggle Aturan) then
+  :Klik toggle aturan;
+  |Sistem|
+  :Update status aturan\ndi session/cache;
+endif
+stop
+
+@enduml
+```
+
+### Fungsi hitungDt()
+
+```php
+// Cek apakah sudah ada rit non-gagal dengan
+// sopir + tanggal + kabupaten + waktu SAMA
+$ritLain = Ritase::where(...)->first();
+
+if ($ritLain && in_array($kabupaten,
+    ['Nganjuk','Kediri','Kota Kediri','Jombang']))
+{
+    return 0;  // Rit ke-2 → tidak dapat DT
+}
+return 330000; // Dapat DT
 ```
 
 ---
 
-## 11. Ritase — CRUD + DT Logic
+## 12. Penggajian — Proses & Kalkulasi
 
-```mermaid
-flowchart TD
-    START(["Mulai"])
-    START --> INDEX[/"Tampilkan daftar ritase / (15/page, filter periode & sopir, stats)"/]
+```plantuml
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
 
-    INDEX --> C_ACTION{Pilih aksi?}
+|Admin|
+start
+:Buka /gaji;
 
-    C_ACTION -- Filter --> FILTER["Pilih periode / sopir"]
-    FILTER --> QUERY["Query dengan where<br/>periode_id / kode_sopir"]
-    QUERY --> INDEX
+|Sistem|
+:Load periode aktif;
+:Query sopir + ritase\nperiode aktif;
+:Tampilkan tabel\ninput biaya;
 
-    C_ACTION -- Tambah --> FORM[/"Modal form tambah ritase"/]
-    FORM --> ISI["User isi: periode, sopir, tujuan,<br/>tanggal, waktu (pagi/malam),<br/>kabupaten (Nganjuk/Kediri/Kota Kediri/Jombang/Lainnya),<br/>status (valid/pending/gagal_produksi),<br/>kompensasi (opsional), catatan (max:500)"]
-    ISI --> C_VALID{Semua field / valid?}
-    C_VALID -- Tidak --> E_FORM[/"Validasi reject"/]
-    E_FORM --> FORM
-    C_VALID -- Ya --> C_ATURAN{Aturan validasi / aktif?}
-    C_ATURAN -- Ya --> C_VALIDASI{Ada validasi_bukti / disetujui utk sopir+<br/>tanggal+tujuan?}
-    C_VALIDASI -- Tidak --> E_ATURAN[/"Error 'Harus validasi dulu'"/]
-    E_ATURAN --> FORM
-    C_VALIDASI -- Ya --> HITUNG_DT
-    C_ATURAN -- Tidak --> HITUNG_DT
+|Admin|
+:Input biaya tiap tujuan:\n  uang_solar\n  upah_sopir\n  tol_per_rit;
+:Klik "Hitung";
 
-    HITUNG_DT --> DT["[[hitungDT()]]"]
-    DT --> SIMPAN["Simpan ritase / (kode RIT-XXX)"]
-    SIMPAN --> CLOSE[/"Tutup modal, success"/]
-    CLOSE --> INDEX
+|Sistem|
+:5 batch queries:
+  1. Count rit per sopir+tujuan
+  2. Sum DT per sopir
+  3. Sum kompensasi gagal
+  4. Sum upah lembur
+  5. Update upah_sopir per tujuan;
 
-    C_ACTION -- Edit --> EDIT_FORM[/"Modal edit ritase"/]
-    EDIT_FORM --> EDIT_ISI["User ubah data"]
-    EDIT_ISI --> C_EDIT_VALID{Valid?}
-    C_EDIT_VALID -- Tidak --> E_EDIT[/"Validasi reject"/]
-    E_EDIT --> EDIT_FORM
-    C_EDIT_VALID -- Ya --> DT_EDIT["[[hitungDT(excludeId)]]"]
-    DT_EDIT --> UPDATE["Update ritase"]
-    UPDATE --> EDIT_CLOSE[/"Tutup modal, success"/]
-    EDIT_CLOSE --> INDEX
+:Iterasi per sopir;
 
-    C_ACTION -- Hapus --> KONFIRM[/"Modal konfirmasi hapus"/]
-    KONFIRM --> DESTROY["Delete ritase"]
-    DESTROY --> INDEX
+repeat
+  :Iterasi per tujuan;
+  repeat
+    if (Ada rit di sopir+tujuan?) then (ya)
+      :Total Solar   = BBM/rit × jumlah;
+      :Total Upah    = Upah/rit × jumlah;
+      :Total Tol     = Tol/rit × jumlah;
+    endif
+  repeat while (Semua tujuan?) is (tidak)
+  ->(ya);
+
+  :DT = Σ dt dari ritases;
+  :Kompensasi = Σ gagal;
+  :Lembur = Σ upah_lembur;
+
+  :Grand Total = Solar + Upah + DT\n+ Tol + Kompensasi + Lembur;
+
+  :Create Penggajian + Detail;
+repeat while (Semua sopir?) is (tidak)
+->(ya);
+
+:Tampilkan hasil\n(redirect ke halaman edit);
+stop
+
+@enduml
 ```
 
-### Subproses hitungDT()
+### Struktur Gaji Akhir
 
-```mermaid
-flowchart TD
-    START(["hitungDT()"])
-    START --> INPUT[/"Input: status, kabupaten,<br/>sopir, tanggal, waktu,<br/>excludeId (optional)"/]
-    INPUT --> C_GAGAL{Status = / gagal_produksi?}
-    C_GAGAL -- Ya --> DT0["return DT = 0"]
-    DT0 --> KEMBALI(["Kembali"])
-    C_GAGAL -- Tidak --> C_DUPLIKAT{Ada ritase lain<br/>sama sopir + tgl +<br/>kabupaten + waktu<br/>(exclude excludeId)?}
-    C_DUPLIKAT -- Ya --> DT0
-    C_DUPLIKAT -- Tidak --> DT330["return DT = 330000"]
-    DT330 --> KEMBALI(["Kembali"])
+```
+Grand Total = Total Solar + Total Upah + Total DT + Total Tol
+            + Kompensasi Gagal + Upah Lembur
+```
+
+| Komponen | Sumber |
+|----------|--------|
+| Total Solar | Σ (BBM/rit × jumlah rit per tujuan) |
+| Total Upah | Σ (upah/rit × jumlah rit per tujuan) |
+| Total DT | Σ dt dari tabel ritases |
+| Total Tol | Σ (tol/rit × jumlah rit per tujuan) |
+| Kompensasi Gagal | Σ nominal_kompensasi dari rit gagal_produksi |
+| Upah Lembur | Σ upah_lembur dari rit is_lembur=true |
+
+---
+
+## 13. Edit Gaji
+
+```plantuml
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+
+|Admin|
+start
+:Buka /gaji/{id}/edit;
+
+|Sistem|
+:Load Penggajian + Details;
+:Load Ritase per sopir per hari;
+:Tampilkan form edit;
+
+|Admin|
+:Ubah detail per tujuan\n(BBM, upah, tol);
+:Ubah DT, kompensasi, lembur;
+:Klik "Update";
+
+|Sistem|
+if (Ada tujuan dihapus?) then (ya)
+  :Hapus detail lama;
+endif
+:Update/insert detail baru;
+:Rekap ulang:
+  Total solar, upah, tol,
+  dt, kompensasi, lembur,
+  grand total;
+:Simpan penggajian;
+:Redirect ke index;
+stop
+
+@enduml
 ```
 
 ---
 
-## 12. Validasi Bukti — Submit (User/Sopir)
+## 14. Slip Gaji & PDF
 
-```mermaid
-flowchart TD
-    START(["Mulai"])
-    START --> FORM[/"Tampilkan form validasi / (kamera, GPS, selector)"/]
+```plantuml
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
 
-    FORM --> GPS["cariGPS()<br/>navigator.geolocation.getCurrentPosition<br/>(HTTPS + izin required)"]
-    GPS --> C_GPS{GPS berhasil / dalam 15 detik?}
-    C_GPS -- Ya --> SIMPAN_GPS["latitude, longitude = GPS"]
-    C_GPS -- Tidak --> COBA_LAGI{Retry / 5 detik?}
-    COBA_LAGI -- Ya --> GPS
-    COBA_LAGI -- Tidak --> EXIF["cariEXIF()<br/>exifr.parse(file)<br/>(baca GPS dari foto)"]
-    EXIF --> C_EXIF{EXIF ada / lat/long?}
-    C_EXIF -- Ya --> SIMPAN_GPS
-    C_EXIF -- Tidak --> IP["cariIP()<br/>ip-api.com → ipapi.co<br/>(fallback lokasi dari IP)"]
+|Admin|
+start
+:Klik "Lihat Slip";
+|Sistem|
+:Fetch data slip via AJAX:
+- Periode data
+- Sopir data
+- Penggajian + Details
+- Ritase per hari;
+:Sisipkan HTML ke modal\n(strip global CSS);
+:Tampilkan slip;
 
-    SIMPAN_GPS --> ISI["Pilih sopir (dari database)<br/>Pilih tujuan (dari database)<br/>Input tanggal, waktu_foto, catatan"]
-    ISI --> FOTO["User ambil foto via kamera<br/>(input type=file accept=image/* capture=environment)"]
-    FOTO --> WATERMARK["Canvas: gambar foto +<br/>watermark 5 baris di bawah:<br/>Sopir, Tujuan, Koordinat,<br/>Alamat, Tanggal & Waktu"]
-    WATERMARK --> PREVIEW[/"Tampilkan modal verifikasi / (preview foto, sopir, tujuan,<br/>koordinat, lokasi, waktu)"/]
-    PREVIEW --> C_YAKIN{User yakin / submit?}
-    C_YAKIN -- Tidak --> FORM
-    C_YAKIN -- Ya --> SUBMIT["POST /validasi-bukti<br/>(rate limit: 5x/3min)"]
+|Admin|
+if (Download?) then (ya)
+  |Sistem|
+  :Generate PDF via DomPDF\n(4 slip per F4);
+  :Download slip.pdf;
+endif
+stop
 
-    SUBMIT --> C_RATE{Melebihi / rate limit?}
-    C_RATE -- Ya --> E_429[/"Error 429 Too Many Requests"/]
-    E_429 --> STOP(["Selesai"])
-    C_RATE -- Tidak --> DECODE["Decode base64 foto<br/>(strip prefix data:image/...)"]
-    DECODE --> C_DECODE{Base64 valid?}
-    C_DECODE -- Tidak --> E_FOTO[/"Error 'Gagal menyimpan foto'"/]
-    E_FOTO --> FORM
-    C_DECODE -- Ya --> STORE_FOTO["Simpan foto ke / storage/bukti/"]
-    STORE_FOTO --> DETEC_PERIODE["Deteksi periode aktif / (tanggal di dalam range)"] 
-    DETEC_PERIODE --> SAVE["Simpan ke tabel<br/>validasi_bukti<br/>status='pending'"]
-    SAVE --> SUCCESS[/"Success, menunggu / verifikasi admin"/]
-    SUCCESS --> STOP(["Selesai"])
+@enduml
+```
+
+Slip per sopir: `GET /gaji/slip-pdf/{periode_id}` — download semua slip per sopir dalam 1 PDF.
+Laporan rekap: `GET /gaji/laporan-pdf/{periode_id}` — rekap per sopir + per tujuan, PDF.
+
+---
+
+## 15. Riwayat & Laporan
+
+```plantuml
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+
+|Admin|
+start
+:Buka /gaji/riwayat;
+
+|Sistem|
+:Query periode (pagination);
+:Tampilkan daftar periode;
+
+|Admin|
+:Klik periode → lihat rekap;
+
+|Sistem|
+:Rekap:
+- Total sopir
+- Hari kerja
+- Total per tujuan
+- Total per sopir
+- Grand total;
+
+|Admin|
+if (Download PDF?) then (ya)
+  |Sistem|
+  :Generate PDF laporan\n(semua sopir + tujuan);
+  :Download laporan.pdf;
+endif
+stop
+
+@enduml
 ```
 
 ---
 
-## 13. Validasi Bukti — Admin (Kelola, Approve, Reject, Tambah Ritase)
+## 16. Navigasi & Struktur File
 
-```mermaid
-flowchart TD
-    START(["Mulai"])
-    START --> KELOLA[/"Tampilkan daftar validasi / (20/page, tab filter status)"/]
+### Navigasi Utama
 
-    KELOLA --> C_TAB{User klik tab / status?}
-    C_TAB -- Ya --> FILTER["Query where status =<br/>pending/disetujui/ditolak/semua"]
-    FILTER --> KELOLA
-    C_TAB -- Tidak --> C_TOGGLE{User toggle / aturan validasi?}
-    C_TOGGLE -- Ya --> TOGGLE["Cache::toggle<br/>aturan_validasi_enabled"]
-    TOGGLE --> KELOLA
-    C_TOGGLE -- Tidak --> C_ITEM{User klik / salah satu item?}
-    C_ITEM -- Tidak --> KELOLA
-    C_ITEM -- Ya --> DETAIL[/"Tampilkan detail validasi<br/>(foto, lokasi, sopir, tujuan,<br/>status, catatan)"/]
+```plantuml
+@startuml
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
 
-    DETAIL --> C_ACTION{Aksi apa?}
+[[Guest]]
+start
+:Buka /validasi-bukti\n(public form);
+stop
 
-    C_ACTION -- Setujui --> C_SOPIR_BARU{sopir_baru / = true?}
-    C_SOPIR_BARU -- Ya --> CREATE_SOPIR["Buat Sopir baru<br/>(nama_sopir → SPR-XXX)"]
-    C_SOPIR_BARU -- Tidak --> C_TUJUAN_BARU
-    CREATE_SOPIR --> C_TUJUAN_BARU{tujuan_baru / = true?}
-    C_TUJUAN_BARU -- Ya --> CREATE_TUJUAN["Buat Tujuan baru<br/>(nama_tujuan → TUJ-XXX)"]
-    C_TUJUAN_BARU -- Tidak --> APPROVE["Update status = disetujui<br/>catatan_mitra = (nullable)"]
-    CREATE_TUJUAN --> APPROVE
-    APPROVE --> KELOLA
+[[Guest]]
+start
+:Buka /login;
+if (Login email) then (ya)
+  :AuthController@login;
+else (tidak)
+  :Login Google\n(hanya email terdaftar);
+endif
+if (Berhasil?) then (ya)
+  :Redirect ke /dashboard;
+endif
+stop
 
-    C_ACTION -- Tolak --> C_CATATAN{Catatan mitra / terisi & <=255?}
-    C_CATATAN -- Tidak --> E_CAT[/"Validasi reject"/]
-    E_CAT --> DETAIL
-    C_CATATAN -- Ya --> REJECT["Update status = ditolak<br/>catatan_mitra = ..."]
-    REJECT --> DETAIL
+[[Admin]]
+start
+:Buka /dashboard;
+if (Pilih menu?) then (Sopir)
+  :/sopir;
+elseif (Tujuan) then
+  :/tujuan;
+elseif (Periode) then
+  :/periode;
+elseif (Ritase) then
+  :/ritase (parser)
+  :/ritase/table (tabel)
+  :/ritase/detail-data (pivot);
+elseif (Validasi) then
+  :/validasi-bukti/kelola;
+elseif (Gaji) then
+  :/gaji (penggajian)
+  :/gaji/riwayat (laporan)
+  :/gaji/slip/{periode}/{sopir} (slip);
+elseif (Profil) then
+  :/profil;
+elseif (Logout) then
+  :AuthController@logout;
+endif
+stop
 
-    C_ACTION -- Tambah Ritase --> FORM_RIT[/"Form tambah ritase:<br/>sopir, tujuan, tanggal,<br/>waktu, kabupaten<br/>(Nganjuk/Kediri/Kota Kediri/Jombang/Lainnya)"/]
-    FORM_RIT --> ISI_RIT["User isi & submit"]
-    ISI_RIT --> C_RIT_VALID{Semua field / valid?}
-    C_RIT_VALID -- Tidak --> E_RIT[/"Validasi reject"/]
-    E_RIT --> FORM_RIT
-    C_RIT_VALID -- Ya --> DT["[[hitungDt(kodeSopir, tanggal, kabupaten, waktu)]]"]
-    DT --> SAVE_RIT["Buat ritase status=valid<br/>Update validasi status=disetujui"]
-    SAVE_RIT --> KELOLA
+@enduml
+```
+
+### Struktur File
+
+```
+app/
+├── Http/
+│   ├── Controllers/
+│   │   ├── AuthController.php          # Login/logout/Google OAuth/reset password
+│   │   ├── DashboardController.php     # Dashboard metrics
+│   │   ├── SopirController.php         # CRUD sopir
+│   │   ├── TujuanController.php        # CRUD tujuan
+│   │   ├── PeriodeController.php       # CRUD periode
+│   │   ├── RitaseController.php        # CRUD ritase + parser + detail pivot
+│   │   ├── PenggajianController.php    # Penggajian + edit + slip + laporan
+│   │   ├── ValidasiBuktiController.php # Validasi bukti public + admin
+│   │   ├── ProfileController.php       # Edit profil user
+│   │   └── Controller.php              # Base controller
+│   ├── Middleware/
+│   │   ├── CacheControl.php
+│   │   ├── RoleMiddleware.php
+│   │   └── SecurityHeaders.php
+├── Models/
+│   ├── Sopir.php                       # Sopir model
+│   ├── Tujuan.php                      # Tujuan model
+│   ├── Periode.php                     # Periode model
+│   ├── Ritase.php                      # Ritase model
+│   ├── Penggajian.php                  # Penggajian model
+│   ├── PenggajianDetail.php            # Detail per tujuan
+│   ├── ValidasiBukti.php               # Validasi bukti model
+│   ├── User.php                        # User auth model
+│   └── Otp.php                         # OTP model
+├── Services/
+│   └── RitaseParserService.php         # Parser teks (regex) + fuzzy matching
+├── Mail/
+│   └── OtpMail.php                     # Email OTP
+└── View/Components/
+    └── layouts.Auth.php
+resources/views/
+├── auth/                               # Login, forgot/reset password, verify OTP
+├── dashboard/                          # Dashboard
+├── sopir/                              # CRUD sopir
+├── tujuan/                             # CRUD tujuan
+├── periode/                            # CRUD periode
+├── ritase/                             # parser, parser-result, index, detail-html, detail-pdf
+├── penggajian/                         # index, edit, slip, slip-pdf, laporan, laporan-pdf, riwayat, pdf
+├── validasi-bukti/                     # form public, kelola (admin), detail
+├── profil/                             # Edit profil
+└── layouts/ + components/layouts/      # Layouts
+routes/
+└── web.php                             # Semua route
+docs/
+├── activity-diagram-*.puml            # Activity diagrams (PlantUML)
+└── erd.puml                            # Entity relationship diagram
 ```
 
 ---
 
-## 14. Penggajian — Hitung & Simpan
+## 17. Iterasi Pengembangan
 
-```mermaid
-flowchart TD
-    START(["Mulai"])
-    START --> INDEX[/"Tampilkan halaman gaji / per periode"/]
+### Iterasi 1 — CRUD Dasar
+- Sopir, Tujuan, Periode (CRUD manual via modal)
+- Ritase (input manual via form)
+- Penggajian (hitung manual)
+- Login email/password + Google OAuth
 
-    INDEX --> PILIH["Pilih periode"]
-    PILIH --> AJAX["AJAX GET /api/get-ritase-data<br/>(per-sopir data rit per tujuan,<br/>rates default dari periode sebelumnya,<br/>sopir dengan ritase belum digaji)"]
-    AJAX --> FORM[/"Tampilkan form input rates<br/>(bbm_per_rit, upah_per_rit,<br/>kompensasi_gagal per tujuan)"/]
+### Iterasi 2 — Parser Teks & Fuzzy Matching
+- **RitaseParserService**: input teks WhatsApp → parse otomatis
+- Regex untuk ekstraksi sopir (`^\d+\.`), **bukan NER**/AI
+- Fuzzy matching: Metaphone + Jaro-Winkler untuk cocokin driver & route
+- Auto-create sopir/tujuan baru jika tidak cocok
+- Deteksi `gagal produksi`, `bongkar`, `Rit ke 2`
 
-    FORM --> C_HITUNG{User klik / 'Hitung Gaji'?}
-    C_HITUNG -- Tidak --> FORM
-    C_HITUNG -- Ya --> C_ATURAN{Aturan validasi / aktif?}
-    C_ATURAN -- Ya --> C_VALIDASI{Semua ritase non-gagal punya / validasi_bukti disetujui?}
-    C_VALIDASI -- Tidak --> E_ATURAN[/"Error 'Harus validasi dulu'"/]
-    E_ATURAN --> FORM
-    C_VALIDASI -- Ya --> PROSES
-    C_ATURAN -- Tidak --> PROSES
+### Iterasi 3 — Validasi Bukti & Geolokasi
+- Public form submit: foto + geolokasi + nama sopir/tujuan
+- Admin review: setujui/tolak + auto-create sopir/tujuan
+- Aturan validasi (toggle on/off di session)
+- Hitung DT otomatis berdasarkan aturan kabupaten
 
-    PROSES["[[Hitung & Simpan Gaji]]"]
-    PROSES --> HAPUS_LAMA["Hapus data penggajian<br/>lama periode ini"]
-    HAPUS_LAMA --> LOOP_SOPIR["Loop per sopir:<br/>hitung rit per tujuan"]
-    LOOP_SOPIR --> LOOP_TUJUAN["Loop per tujuan:<br/>- jumlah rit (non-gagal)<br/>- total_solar = bbm_per_rit x jml_rit<br/>- total_upah = upah_per_rit x jml_rit<br/>- total DT (akumulasi dari ritase)<br/>- kompensasi_gagal (dari detail[])"]
-    LOOP_TUJUAN --> SIMPAN_DETAIL["Simpan PenggajianDetail"]
-    SIMPAN_DETAIL --> C_SELESAI{Semua sopir / selesai?}
-    C_SELESAI -- Tidak --> LOOP_SOPIR
-    C_SELESAI -- Ya --> UPDATE_RITASE["Update upah_sopir<br/>di tabel ritase"]
-    UPDATE_RITASE --> SUCCESS[/"Success message"/]
-    SUCCESS --> INDEX
-```
+### Iterasi 4 — Detail Ritase (Pivot) & PDF
+- Tabel pivot sopir × tanggal (P1/P2... M1/M2...)
+- PDF detail ritase per periode
+- Perbaikan aturan DT: kabupaten `Lainnya` dapat DT tiap rit
+- Index optimization (15 indexes ke tabel)
 
----
+### Iterasi 5 — Tol, Lembur, & Revisi Kabupaten
+- Tambah kolom `tol` di penggajian + `tol_per_rit` di detail
+- Tambah `is_lembur` + `upah_lembur` di ritase
+- Tambah `upah_lembur` di penggajian
+- Update enum kabupaten: +Blitar, Kota Blitar, Ngawi, Kota Ngawi
 
-## 15. Laporan & Riwayat
-
-```mermaid
-flowchart TD
-    START(["Mulai"])
-    START --> C_MENU{Pilih menu?}
-
-    C_MENU -- Laporan --> FORM_LAP["Pilih periode"]
-    FORM_LAP --> C_PILIH{Periode / dipilih?}
-    C_PILIH -- Tidak --> INFO[/"Pilih periode untuk melihat laporan"/]
-    INFO --> FORM_LAP
-    C_PILIH -- Ya --> LAPORAN[/"Tampilkan laporan grouped by tujuan<br/>(solar, upah, DT, gagal, subtotal)"/]
-    LAPORAN --> C_DOWNLOAD{Download PDF?}
-    C_DOWNLOAD -- Ya --> PDF_LAPORAN["DomPDF: folio landscape<br/>load laporan-pdf.blade.php"]
-    PDF_LAPORAN --> STREAM_LAP[/"Stream PDF laporan"/]
-    C_DOWNLOAD -- Tidak --> FORM_LAP
-
-    C_MENU -- Riwayat --> RIWAYAT[/"Tampilkan tabel history / semua periode"/]
-    RIWAYAT --> C_MENU
-
-    C_MENU -- Slip --> FORM_SLIP["Pilih periode + sopir"]
-    FORM_SLIP --> SLIP[/"Tampilkan slip per-hari:<br/>rit, tujuan, solar, upah, DT, jumlah"/]
-    SLIP --> C_DOWNLOAD_SLIP{Download PDF / slip?}
-    C_DOWNLOAD_SLIP -- Ya --> PDF_SLIP["DomPDF: load slip-pdf.blade.php"]
-    PDF_SLIP --> STREAM_SLIP[/"Stream PDF slip"/]
-    C_DOWNLOAD_SLIP -- Tidak --> FORM_SLIP
-```
-
----
-
-## 16. Logout
-
-```mermaid
-flowchart TD
-    START(["Mulai"])
-    START --> KLIK[/"User klik Logout / (POST /logout)"/]
-    KLIK --> LOGOUT["Auth::logout()"]
-    LOGOUT --> INVALIDATE["Session::invalidate()"]
-    INVALIDATE --> REGEN["Session::regenerateToken()"]
-    REGEN --> REDIR[/"Redirect ke halaman Login"/]
-    REDIR --> STOP(["Selesai"])
-```
-
----
-
-## 17. Navigasi Utama Guest → Login → Semua Fitur
-
-```mermaid
-flowchart TD
-    GUEST([Guest])
-    GUEST --> VALIDASI_PUBLIK["Validasi Bukti (Public Form)<br/>GET /validasi-bukti"]
-    VALIDASI_PUBLIK --> GUEST
-
-    GUEST --> FORM_LOGIN[/"Halaman Login"/]
-    FORM_LOGIN --> LOGIN["Login (Email dgn @gmail.com)"]
-    FORM_LOGIN --> GOOGLE["Login Google (hanya email terdaftar)"]
-    LOGIN --> DASH
-    GOOGLE --> DASH
-
-    DASH["Dashboard"] --> SOPIR["Sopir"]
-    DASH --> TUJUAN["Tujuan"]
-    DASH --> PERIODE["Periode"]
-    DASH --> RITASE["Ritase"]
-    DASH --> VALIDASI_ADMIN["Validasi Bukti (Admin)"]
-    DASH --> GAJI["Penggajian"]
-    DASH --> LAPORAN["Laporan & Riwayat"]
-    DASH --> PROFIL["Profil"]
-
-    SOPIR --> DASH
-    TUJUAN --> DASH
-    PERIODE --> DASH
-    RITASE --> DASH
-    VALIDASI_ADMIN --> DASH
-    GAJI --> DASH
-    LAPORAN --> DASH
-    PROFIL --> DASH
-
-    DASH --> LOGOUT["Logout"]
-    LOGOUT --> GUEST
-```
+### Iterasi Final — Stabilisasi
+- **Fix plimping**: dari keyword jenis kerja → nama daerah (dihapus dari routeKeywords & stripPrefixes)
+- Tambah `kormuling`, `rekon` sebagai jenis pekerjaan
+- Konsistensi strip prefix di semua titik (parser + controller)
+- Auto-sync status: sopir, tujuan, periode (by tanggal)
+- Dashboard dengan filter waktu & psikologi (progress %)
