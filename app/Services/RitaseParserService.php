@@ -326,8 +326,12 @@ class RitaseParserService
                 elseif ($inputMeta !== '' && $inputMeta === metaphone($sopir->nama)) {
                     $score = 95;
                 }
-                // 3) Substring match — "Eko" ↔ "Eko Wilangan", "Wilujeng" ↔ "Mbah Wilujeng"
-                elseif (str_contains($sopirLower, $lowerInput) || str_contains($lowerInput, $sopirLower)) {
+                // 3) Substring match SATU ARAH — hanya input yang merupakan bentuk
+                //    pendek dari nama sopir ("Eko" ↔ "Eko Wilangan", "Wilujeng" ↔ "Mbah Wilujeng").
+                //    Arah sebaliknya (input LEBIH PANJANG dari nama sopir, mis. "Agus toska"
+                //    vs "Agus") TIDAK di-match → "Agus toska" & "Agus kediri" jadi sopir baru,
+                //    bukan collapse ke SPR-043 "Agus" yang sama.
+                elseif (str_contains($sopirLower, $lowerInput)) {
                     // Avoid matching single-letter or 2-char substrings
                     if (strlen($lowerInput) > 2 || strlen($sopirLower) > 2) {
                         $score = 90;
@@ -335,11 +339,17 @@ class RitaseParserService
                 }
                 // 4) Jaro-Winkler fallback with strict 85% threshold + first-letter check
                 else {
-                    $similarity = $this->calculateStringSimilarity($driverName, $sopir->nama) * 100;
-                    if ($similarity >= 85) {
-                        $firstCharMatch = strtolower(substr($sopir->nama, 0, 1)) === strtolower(substr($driverName, 0, 1));
-                        if ($firstCharMatch) {
-                            $score = $similarity;
+                    // Skip relasi substring di sini — "Agus toska" vs "Agus" tetap
+                    // ~88% lewat prefix bonus Jaro-Winkler, padahal harus jadi sopir baru
+                    // (bukan collapse ke SPR-043 "Agus" yang sama).
+                    $isSubstringRelation = str_contains($sopirLower, $lowerInput) || str_contains($lowerInput, $sopirLower);
+                    if (!$isSubstringRelation) {
+                        $similarity = $this->calculateStringSimilarity($driverName, $sopir->nama) * 100;
+                        if ($similarity >= 85) {
+                            $firstCharMatch = strtolower(substr($sopir->nama, 0, 1)) === strtolower(substr($driverName, 0, 1));
+                            if ($firstCharMatch) {
+                                $score = $similarity;
+                            }
                         }
                     }
                 }
@@ -953,7 +963,10 @@ class RitaseParserService
             foreach ($matchedSopirs as $matchedSopir) {
                 $sopir = $matchedSopir['sopir'];
 
-                // Cek duplicate by kode_sopir + tanggal + waktu
+                // Cek duplicate by kode_sopir + tanggal + waktu + kode_tujuan
+                // Sopir SAH punya 2 ritase di hari & shift sama ke tujuan BERBEDA
+                // (mis. "Avit patching kedawung jombang" pagi + "Avit Paket Banjarejo ngawi" pagi)
+                // Duplicate hanya jika TIUJUAN sama (input ganda baris yang sama).
                 // Skip kalo is_rit_ke_2 — sengaja bikin ritase kedua
                 $isRitKe2 = !empty($package['is_rit_ke_2']);
                 if (!$isRitKe2) {
@@ -961,6 +974,7 @@ class RitaseParserService
                         ->where('kode_sopir', $sopir->kode_sopir)
                         ->where('tanggal', $parsed['date'])
                         ->where('waktu', $waktu)
+                        ->where('kode_tujuan', $kodeTujuan)
                         ->exists();
 
                     if ($duplicate) {
@@ -969,7 +983,7 @@ class RitaseParserService
                             'route' => $routeName,
                             'status' => 'Skipped',
                             'sopir' => $sopir->nama,
-                            'reason' => 'Duplicate (same sopir + date + waktu)',
+                            'reason' => 'Duplicate (same sopir + date + waktu + tujuan)',
                         ];
                         continue;
                     }
