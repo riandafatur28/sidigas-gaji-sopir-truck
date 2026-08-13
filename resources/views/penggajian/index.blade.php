@@ -234,11 +234,18 @@
                 <p id="summaryKompensasi" class="text-lg font-bold text-gray-900 mt-1">Rp 0</p>
             </div>
         </div>
-        <div class="flex items-center gap-3 mt-3">
+        <div class="flex items-center gap-3 mt-3 flex-wrap">
             <div class="flex items-center gap-2">
                 <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Filter Tanggal</span>
                 <input type="date" id="filterTanggal" class="px-3 py-2 border border-gray-200 rounded text-sm bg-white">
                 <button onclick="clearFilterTanggal()" class="px-3 py-2 border border-gray-200 rounded text-sm text-gray-600 hover:bg-gray-50 bg-white">Reset</button>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Cari</span>
+                <input type="text" id="searchSopirTujuan" placeholder="Nama sopir atau tujuan..."
+                    class="px-3 py-2 border border-gray-200 rounded text-sm bg-white w-64">
+                <button onclick="applySearch()" class="px-3 py-2 bg-[#1a1a2e] text-white rounded text-sm hover:opacity-90">Cari</button>
+                <button onclick="clearSearch()" class="px-3 py-2 border border-gray-200 rounded text-sm text-gray-600 hover:bg-gray-50 bg-white">Reset</button>
             </div>
             <p id="summarySopirCount" class="text-xs text-gray-400"></p>
         </div>
@@ -352,6 +359,10 @@
                 if (periodeId) loadGajiData(periodeId);
             });
 
+            document.getElementById('searchSopirTujuan').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') applySearch();
+            });
+
             document.querySelectorAll('input[data-field="bbm_per_rit"], input[data-field="upah_per_rit"], input[data-field="tol_per_rit"]').forEach(function(input) {
                 input.addEventListener('input', function() {
                     if (gajiData.length > 0) {
@@ -429,6 +440,8 @@
             var tanggal = document.getElementById('filterTanggal').value;
             var url = '/api/get-ritase-data?periode=' + periodeId;
             if (tanggal) url += '&tanggal=' + encodeURIComponent(tanggal);
+            var searchVal = document.getElementById('searchSopirTujuan').value.trim();
+            if (searchVal) url += '&search=' + encodeURIComponent(searchVal);
 
             fetch(url)
                 .then(response => {
@@ -768,6 +781,15 @@
 
         function clearFilterTanggal() {
             document.getElementById('filterTanggal').value = '';
+            if (periodeId) loadGajiData(periodeId);
+        }
+
+        function applySearch() {
+            if (periodeId) loadGajiData(periodeId);
+        }
+
+        function clearSearch() {
+            document.getElementById('searchSopirTujuan').value = '';
             if (periodeId) loadGajiData(periodeId);
         }
 

@@ -88,6 +88,7 @@ class PenggajianController extends Controller
         try {
             $periodeId = $request->get('periode');
             $tanggal = $request->get('tanggal'); // optional daily filter
+            $search = trim($request->get('search', '')); // optional nama sopir/tujuan
 
             // When tanggal is set, auto-detect the correct period that contains it
             if ($tanggal) {
@@ -104,6 +105,14 @@ class PenggajianController extends Controller
             $ritBase = Ritase::where('periode_id', $periodeId);
             if ($tanggal) {
                 $ritBase->whereDate('tanggal', $tanggal);
+            }
+            if ($search !== '') {
+                $sopirCodes = Sopir::where('nama', 'like', "%{$search}%")->pluck('kode_sopir');
+                $tujuanCodes = Tujuan::where('nama', 'like', "%{$search}%")->pluck('kode_tujuan');
+                $ritBase->where(function ($q) use ($sopirCodes, $tujuanCodes) {
+                    $q->whereIn('kode_sopir', $sopirCodes)
+                      ->orWhereIn('kode_tujuan', $tujuanCodes);
+                });
             }
             $ritCounts = (clone $ritBase)
                 ->selectRaw('kode_sopir, kode_tujuan, COUNT(*) as total')
