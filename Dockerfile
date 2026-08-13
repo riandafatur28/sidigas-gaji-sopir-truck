@@ -4,8 +4,8 @@
 FROM php:8.3-cli AS build
 
 RUN apt-get update && apt-get install -y \
-    git unzip zip libpng-dev libxml2-dev libonig-dev libcurl4-openssl-dev \
-    && docker-php-ext-install pdo pdo_mysql pdo_pgsql pdo_sqlite mbstring xml gd curl \
+    git unzip zip libpng-dev libxml2-dev libonig-dev libcurl4-openssl-dev libsqlite3-dev libzip-dev \
+    && docker-php-ext-install pdo pdo_mysql pdo_sqlite mbstring xml gd curl zip \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Composer
@@ -22,11 +22,11 @@ WORKDIR /app
 RUN echo "APP_KEY=base64:dummykeyforbuild" > /app/.env && echo "DB_CONNECTION=sqlite" >> /app/.env
 
 # Copy dependency manifests first (cache layer)
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+COPY composer.json composer.lock artisan ./
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
+RUN npm ci
 
 # Copy rest of app
 COPY . .
@@ -43,8 +43,8 @@ RUN rm -f /app/.env
 FROM php:8.3-cli
 
 RUN apt-get update && apt-get install -y \
-    libpng-dev libxml2-dev libonig-dev libcurl4-openssl-dev \
-    && docker-php-ext-install pdo pdo_mysql pdo_pgsql pdo_sqlite mbstring xml gd curl \
+    libpng-dev libxml2-dev libonig-dev libcurl4-openssl-dev libsqlite3-dev \
+    && docker-php-ext-install pdo pdo_mysql pdo_sqlite mbstring xml gd curl \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -60,7 +60,7 @@ EXPOSE ${PORT:-8080}
 
 RUN ln -sf /app/storage/app/public /app/public/storage 2>/dev/null || true
 
-CMD cp .env.example .env 2>/dev/null; \
+CMD if [ ! -f .env ]; then cp .env.example .env; fi; \
     php artisan key:generate --force \
     && php artisan migrate --force --isolated \
     && php artisan config:cache \
