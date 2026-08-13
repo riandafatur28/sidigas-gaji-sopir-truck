@@ -724,6 +724,17 @@ class PenggajianController extends Controller
                 });
         }
 
+        // Rate per-tujuan periode ini — fallback utk ritase yang ditambah SETELAH
+        // gaji disimpan (mis. ritase manual) sehingga tidak punya PenggajianDetail
+        // sendiri; pakai rate tujuan yang sama dari sopir lain di periode ini.
+        $periodRates = PenggajianDetail::whereHas('penggajian', function ($q) use ($periodeId) {
+            $q->where('periode_id', $periodeId);
+        })
+            ->orderBy('id', 'desc')
+            ->get()
+            ->groupBy('kode_tujuan')
+            ->map(fn($items) => $items->first());
+
         $startDate = \Carbon\Carbon::parse($periode->tanggal_mulai);
         $endDate = \Carbon\Carbon::parse($periode->tanggal_selesai);
         $hariList = [];
@@ -756,22 +767,15 @@ class PenggajianController extends Controller
                 });
 
                 $isGagal = $rit->status === 'gagal_produksi';
-                $solarPerRit = 0;
-                $upahPerRit = 0;
                 $kompensasiRit = 0;
-                $tolPerRit = 0;
+                [$solarPerRit, $upahPerRit, $tolPerRit] = [0, 0, 0];
 
                 if ($isGagal) {
                     $kompensasiRit = $rit->nominal_kompensasi ?? 0;
-                } elseif ($detail) {
-                    $jmlRit = $detail->jumlah_rit ?? 1;
-                    $solarPerRit = $jmlRit > 0 ? ($detail->solar_per_rit ?? $detail->total_solar / $jmlRit) : 0;
-                    $upahPerRit = $jmlRit > 0 ? ($detail->upah_per_rit ?? $detail->total_upah / $jmlRit) : ($rit->upah_sopir ?? 0);
-                    if (isset($detail->tol_per_rit)) {
-                        $tolPerRit = $jmlRit > 0 ? ($detail->tol_per_rit ?? $detail->total_tol / $jmlRit) : 0;
-                    }
                 } else {
-                    $upahPerRit = $rit->upah_sopir ?? 0;
+                    // Detail gaji sopir → rate periode (ritase manual yang ditambah
+                    // setelah gaji disimpan) → upah_sopir di tabel ritase.
+                    [$solarPerRit, $upahPerRit, $tolPerRit] = $this->slipRitRates($periodeId, $rit, $detail, $periodRates);
                 }
 
                 $tujuanNama = '-';
@@ -878,19 +882,28 @@ class PenggajianController extends Controller
                 $gagal = $gagalPerTujuan->get($kodeTujuan);
 
                 $dtTotal = floatval($nonGagal->total_dt ?? 0);
-                $rit = intval($detail ? $detail->total_rit : ($nonGagal->total_rit ?? 0));
+                $detailRit = intval($detail ? $detail->total_rit : 0);
+                $liveRit = intval($nonGagal->total_rit ?? 0);
+                $rit = max($detailRit, $liveRit);
                 $solarTotal = floatval($detail ? $detail->total_solar : 0);
                 $upahTotal = floatval($detail ? $detail->total_upah : 0);
+                $tolTotal = floatval($detail ? $detail->total_tol : 0);
                 $gagalQty = $gagal ? intval($gagal->jumlah_gagal) : 0;
                 $gagalTotal = $gagal ? floatval($gagal->total_kompensasi) : 0;
                 $gagalPerUnit = $gagalQty > 0 ? $gagalTotal / $gagalQty : 0;
 
-                $solarPerRit = $rit > 0 ? $solarTotal / $rit : 0;
-                $upahPerRit = $rit > 0 ? $upahTotal / $rit : 0;
+                // Rate per rit dari snapshot gaji; total diskalakan ke jumlah
+                // ritase LIVE di tabel ritase (ritase manual yang ditambah
+                // setelah gaji disimpan tidak ada di snapshot gaji).
+                $solarPerRit = $detailRit > 0 ? $solarTotal / $detailRit : 0;
+                $upahPerRit = $detailRit > 0 ? $upahTotal / $detailRit : 0;
+                $tolPerRit = $detailRit > 0 ? $tolTotal / $detailRit : 0;
+                if ($liveRit > $detailRit) {
+                    $solarTotal = $solarPerRit * $liveRit;
+                    $upahTotal = $upahPerRit * $liveRit;
+                    $tolTotal = $tolPerRit * $liveRit;
+                }
                 $dtPerRit = $rit > 0 ? $dtTotal / $rit : 0;
-
-                $tolTotal = floatval($detail ? $detail->total_tol : 0);
-                $tolPerRit = $rit > 0 ? $tolTotal / $rit : 0;
                 $subtotal = $solarTotal + $upahTotal + $dtTotal + $tolTotal + $gagalTotal;
                 $groupNo = $no++;
 
@@ -1102,6 +1115,17 @@ class PenggajianController extends Controller
             })->get();
         }
 
+        // Rate per-tujuan periode ini — fallback utk ritase yang ditambah SETELAH
+        // gaji disimpan (mis. ritase manual) sehingga tidak punya PenggajianDetail
+        // sendiri; pakai rate tujuan yang sama dari sopir lain di periode ini.
+        $periodRates = PenggajianDetail::whereHas('penggajian', function ($q) use ($periodeId) {
+            $q->where('periode_id', $periodeId);
+        })
+            ->orderBy('id', 'desc')
+            ->get()
+            ->groupBy('kode_tujuan')
+            ->map(fn($items) => $items->first());
+
         $ritasePerHari = Ritase::where('periode_id', $periodeId)
             ->where('kode_sopir', $kodeSopir)
             ->orderBy('tanggal', 'asc')
@@ -1139,18 +1163,15 @@ class PenggajianController extends Controller
                 });
 
                 $isGagal = $rit->status === 'gagal_produksi';
-                $solarPerRit = 0;
-                $upahPerRit = 0;
                 $kompensasiRit = 0;
+                [$solarPerRit, $upahPerRit, $tolPerRit] = [0, 0, 0];
 
                 if ($isGagal) {
                     $kompensasiRit = $rit->nominal_kompensasi ?? 0;
-                } elseif ($detail) {
-                    $jmlRit = $detail->jumlah_rit ?? 1;
-                    $solarPerRit = $jmlRit > 0 ? ($detail->solar_per_rit ?? $detail->total_solar / $jmlRit) : 0;
-                    $upahPerRit = $jmlRit > 0 ? ($detail->upah_per_rit ?? $detail->total_upah / $jmlRit) : ($rit->upah_sopir ?? 0);
                 } else {
-                    $upahPerRit = $rit->upah_sopir ?? 0;
+                    // Detail gaji sopir → rate periode (ritase manual yang ditambah
+                    // setelah gaji disimpan) → upah_sopir di tabel ritase.
+                    [$solarPerRit, $upahPerRit, $tolPerRit] = $this->slipRitRates($periodeId, $rit, $detail, $periodRates);
                 }
 
                 $tujuanNama = '-';
@@ -1160,12 +1181,6 @@ class PenggajianController extends Controller
                     $tujuanNama = $rit->tujuan->nama;
                 } else {
                     $tujuanNama = $rit->kode_tujuan;
-                }
-
-                $tolPerRit = 0;
-                if (!$isGagal && $detail && isset($detail->tol_per_rit)) {
-                    $jmlRit = $detail->jumlah_rit ?? 1;
-                    $tolPerRit = $jmlRit > 0 ? ($detail->tol_per_rit ?? $detail->total_tol / $jmlRit) : 0;
                 }
 
                 $dataPerHari[] = [
@@ -1207,6 +1222,46 @@ class PenggajianController extends Controller
             'totalKompensasiAll' => $totalKompensasiAll,
             'grandTotal' => $grandTotal,
         ];
+    }
+
+    /**
+     * Hitung solar/upah/tol per rit untuk satu ritase di slip.
+     * Prioritas rate:
+     *   1. Detail gaji sopir (PenggajianDetail dari Penggajian sopir tsb).
+     *   2. Rate per-tujuan periode ini (ritase manual yang ditambah SETELAH
+     *      gaji disimpan tidak punya detail sendiri — pakai rate tujuan yang
+     *      sama dari sopir lain di periode yang sama).
+     *   3. upah_sopir yang tersimpan di tabel ritase.
+     */
+    private function slipRitRates($periodeId, $rit, $detail, $periodRates)
+    {
+        $solarPerRit = 0;
+        $upahPerRit = 0;
+        $tolPerRit = 0;
+
+        if ($detail) {
+            $jmlRit = $detail->jumlah_rit ?? 1;
+            $solarPerRit = $jmlRit > 0 ? ($detail->solar_per_rit ?? $detail->total_solar / $jmlRit) : 0;
+            $upahPerRit = $jmlRit > 0 ? ($detail->upah_per_rit ?? $detail->total_upah / $jmlRit) : ($rit->upah_sopir ?? 0);
+            if (isset($detail->tol_per_rit)) {
+                $tolPerRit = $jmlRit > 0 ? ($detail->tol_per_rit ?? $detail->total_tol / $jmlRit) : 0;
+            }
+            return [$solarPerRit, $upahPerRit, $tolPerRit];
+        }
+
+        $rate = $periodRates->get($rit->kode_tujuan);
+        if ($rate) {
+            $jmlRit = $rate->jumlah_rit ?? 1;
+            $solarPerRit = $jmlRit > 0 ? ($rate->solar_per_rit ?? $rate->total_solar / $jmlRit) : 0;
+            $upahPerRit = $jmlRit > 0 ? ($rate->upah_per_rit ?? $rate->total_upah / $jmlRit) : ($rit->upah_sopir ?? 0);
+            if (isset($rate->tol_per_rit)) {
+                $tolPerRit = $jmlRit > 0 ? ($rate->tol_per_rit ?? $rate->total_tol / $jmlRit) : 0;
+            }
+        } else {
+            $upahPerRit = $rit->upah_sopir ?? 0;
+        }
+
+        return [$solarPerRit, $upahPerRit, $tolPerRit];
     }
 
     public function riwayat()
@@ -1369,7 +1424,9 @@ class PenggajianController extends Controller
             $gagal = $gagalPerTujuan->get($kodeTujuan);
 
             $dtTotal = floatval($nonGagal->total_dt ?? 0);
-            $rit = intval($detail ? $detail->total_rit : ($nonGagal->total_rit ?? 0));
+            $detailRit = intval($detail ? $detail->total_rit : 0);
+            $liveRit = intval($nonGagal->total_rit ?? 0);
+            $rit = max($detailRit, $liveRit);
             $solarTotal = floatval($detail ? $detail->total_solar : 0);
             $upahTotal = floatval($detail ? $detail->total_upah : 0);
             $tolTotal = floatval($detail ? $detail->total_tol : 0);
@@ -1377,10 +1434,18 @@ class PenggajianController extends Controller
             $gagalTotal = $gagal ? floatval($gagal->total_kompensasi) : 0;
             $gagalPerUnit = $gagalQty > 0 ? $gagalTotal / $gagalQty : 0;
 
-            $solarPerRit = $rit > 0 ? $solarTotal / $rit : 0;
-            $upahPerRit = $rit > 0 ? $upahTotal / $rit : 0;
+            // Rate per rit dari snapshot gaji; total diskalakan ke jumlah
+            // ritase LIVE di tabel ritase (ritase manual yang ditambah
+            // setelah gaji disimpan tidak ada di snapshot gaji).
+            $solarPerRit = $detailRit > 0 ? $solarTotal / $detailRit : 0;
+            $upahPerRit = $detailRit > 0 ? $upahTotal / $detailRit : 0;
+            $tolPerRit = $detailRit > 0 ? $tolTotal / $detailRit : 0;
+            if ($liveRit > $detailRit) {
+                $solarTotal = $solarPerRit * $liveRit;
+                $upahTotal = $upahPerRit * $liveRit;
+                $tolTotal = $tolPerRit * $liveRit;
+            }
             $dtPerRit = $rit > 0 ? $dtTotal / $rit : 0;
-            $tolPerRit = $rit > 0 ? $tolTotal / $rit : 0;
 
             $subtotal = $solarTotal + $upahTotal + $dtTotal + $tolTotal + $gagalTotal;
             $groupNo = $no++;
