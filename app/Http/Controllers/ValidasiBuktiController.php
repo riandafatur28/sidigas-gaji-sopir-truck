@@ -77,13 +77,41 @@ class ValidasiBuktiController extends Controller
     public function kelola(Request $request)
     {
         $status = $request->get('status', 'pending');
+        $search = trim($request->get('search', ''));
+
         $list = ValidasiBukti::with(['sopir', 'tujuan', 'periode'])
             ->when($status !== 'semua', fn($q) => $q->where('status', $status))
+            ->when($search !== '', function ($q) use ($search) {
+                $q->where(function ($q2) use ($search) {
+                    $q2->where('nama_sopir', 'like', "%{$search}%")
+                        ->orWhere('nama_tujuan', 'like', "%{$search}%");
+
+                    // Dukungan pencarian tanggal: YYYY-MM-DD atau DD/MM/YYYY atau DD-MM-YYYY
+                    $date = null;
+                    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $search)) {
+                        $date = $search;
+                    } elseif (preg_match('#^(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})$#', $search, $m)) {
+                        $date = sprintf('%04d-%02d-%02d', $m[3] > 99 ? $m[3] : 2000 + $m[3], $m[2], $m[1]);
+                    }
+                    if ($date) {
+                        $q2->orWhereDate('tanggal', $date);
+                    }
+                });
+            })
             ->orderBy('created_at', 'desc')
             ->paginate(10)
             ->withQueryString();
 
-        return view('validasi-bukti.kelola', compact('list', 'status'));
+        return view('validasi-bukti.kelola', compact('list', 'status', 'search'));
+    }
+
+    public function destroy($id)
+    {
+        $item = ValidasiBukti::findOrFail($id);
+        $item->delete();
+
+        return redirect()->back()
+            ->with('success', 'Permintaan validasi berhasil dihapus!');
     }
 
     public function detail($id)

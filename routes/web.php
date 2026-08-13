@@ -108,6 +108,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/validasi-bukti/{id}/setujui', [ValidasiBuktiController::class, 'setujui'])->name('validasi-bukti.setujui');
     Route::post('/validasi-bukti/{id}/tolak', [ValidasiBuktiController::class, 'tolak'])->name('validasi-bukti.tolak');
     Route::post('/validasi-bukti/{id}/ritase', [ValidasiBuktiController::class, 'tambahRitase'])->name('validasi-bukti.ritase');
+    Route::delete('/validasi-bukti/{id}', [ValidasiBuktiController::class, 'destroy'])->name('validasi-bukti.destroy');
 
     // Toggle aturan validasi
     Route::post('/settings/toggle-validasi', [ValidasiBuktiController::class, 'toggleAturan'])->name('settings.toggle-validasi');

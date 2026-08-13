@@ -21,13 +21,23 @@
 
     <div class="flex gap-2 mb-4">
         @foreach(['pending' => 'Pending', 'disetujui' => 'Disetujui', 'ditolak' => 'Ditolak', 'semua' => 'Semua'] as $val => $label)
-            <a href="{{ route('validasi-bukti.kelola', ['status' => $val]) }}"
+            <a href="{{ route('validasi-bukti.kelola', ['status' => $val, 'search' => $search ?? '']) }}"
                 class="px-4 py-2 rounded text-sm font-medium border transition
                     {{ $status === $val ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50' }}">
                 {{ $label }}
             </a>
         @endforeach
     </div>
+
+    <form method="GET" action="{{ route('validasi-bukti.kelola') }}" class="mb-4 flex flex-wrap items-center gap-2">
+        <input type="hidden" name="status" value="{{ $status }}">
+        <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari nama sopir, lokasi tujuan, atau tanggal"
+            class="px-3 py-2 border border-gray-200 rounded text-sm bg-white w-full md:w-96">
+        <button type="submit" class="px-4 py-2 rounded text-sm font-medium bg-[#1a1a2e] text-white hover:opacity-90 transition">Cari</button>
+        @if(!empty($search))
+            <a href="{{ route('validasi-bukti.kelola', ['status' => $status]) }}" class="px-3 py-2 border border-gray-200 rounded text-sm text-gray-600 hover:bg-gray-50 bg-white">Reset</a>
+        @endif
+    </form>
 
     <div class="mb-4 flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -97,6 +107,15 @@
                                 class="text-xs text-blue-600 border border-blue-200 px-2.5 py-1.5 rounded hover:bg-blue-50 font-medium">
                                 Detail
                             </a>
+                            <form method="POST" action="{{ route('validasi-bukti.destroy', $item->id) }}" class="inline"
+                                onsubmit="return confirm('Yakin ingin menghapus permintaan validasi ini?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                    class="text-xs text-red-600 border border-red-200 px-2.5 py-1.5 rounded hover:bg-red-50 font-medium">
+                                    Hapus
+                                </button>
+                            </form>
                         </td>
                     </tr>
                 @empty
