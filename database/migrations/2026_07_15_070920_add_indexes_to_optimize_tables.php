@@ -1,7 +1,8 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -36,7 +37,7 @@ return new class extends Migration
     private function addIdx(string $table, string $name, string $column): void
     {
         try {
-            DB::statement("ALTER TABLE `{$table}` ADD INDEX `{$name}` (`{$column}`)");
+            Schema::table($table, fn (Blueprint $b) => $b->index($column, $name));
         } catch (\Exception $e) {
             // skip if index already exists or FK constraint
         }
