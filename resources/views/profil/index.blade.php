@@ -70,12 +70,12 @@
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Nama</label>
                         <input type="text" name="name" value="{{ old('name', $user->name) }}" required
-                            class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-blue-500">
+                            class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-green-500">
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Email</label>
                         <input type="email" name="email" value="{{ old('email', $user->email) }}" required
-                            class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-blue-500">
+                            class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-green-500">
                     </div>
 
                     <hr class="border-gray-200">
@@ -85,7 +85,7 @@
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Password Lama</label>
                         <div class="relative">
                             <input type="password" name="password_lama" id="password_lama" placeholder="Password saat ini"
-                                class="w-full px-4 py-2.5 pr-10 border border-gray-200 rounded text-sm focus:outline-none focus:border-blue-500">
+                                class="w-full px-4 py-2.5 pr-10 border border-gray-200 rounded text-sm focus:outline-none focus:border-green-500">
                             <button type="button" onclick="togPass('password_lama',this)"
                                 class="toggle-pass absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -99,7 +99,7 @@
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Password Baru</label>
                         <div class="relative">
                             <input type="password" name="password_baru" id="password_baru" placeholder="Minimal 6 karakter"
-                                class="w-full px-4 py-2.5 pr-10 border border-gray-200 rounded text-sm focus:outline-none focus:border-blue-500">
+                                class="w-full px-4 py-2.5 pr-10 border border-gray-200 rounded text-sm focus:outline-none focus:border-green-500">
                             <button type="button" onclick="togPass('password_baru',this)"
                                 class="toggle-pass absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -113,7 +113,7 @@
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Konfirmasi Password Baru</label>
                         <div class="relative">
                             <input type="password" name="password_baru_confirmation" id="password_baru_confirmation" placeholder="Ketik ulang password baru"
-                                class="w-full px-4 py-2.5 pr-10 border border-gray-200 rounded text-sm focus:outline-none focus:border-blue-500">
+                                class="w-full px-4 py-2.5 pr-10 border border-gray-200 rounded text-sm focus:outline-none focus:border-green-500">
                             <button type="button" onclick="togPass('password_baru_confirmation',this)"
                                 class="toggle-pass absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -28,3 +28,5 @@ Thumbs.db
 *.pfx
 *.exe
 *.pem
+
+ngrok.exe

@@ -1,36 +1,31 @@
 <x-layouts.dashboard
     :title="'Data Gaji'"
     :pageTitle="'Data Gaji'"
-    >
+>
 
     @push('styles')
-<style>
-    /* Skeleton animation */
-    .skeleton-row td {
-        padding: 12px 16px !important;
-    }
-    .skeleton-box {
-        display: inline-block;
-        height: 14px;
-        border-radius: 4px;
-        background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
-        background-size: 200% 100%;
-        animation: shimmer 1.4s infinite ease-in-out;
-    }
-    @keyframes shimmer {
-        0% { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
-    }
-    .skeleton-avatar { width: 32px; height: 32px; border-radius: 9999px; }
-    .skeleton-name { width: 100px; }
-    .skeleton-code { width: 60px; height: 10px; margin-top: 4px; }
-    .skeleton-number { width: 50px; }
-    .skeleton-rit { width: 24px; }
-    .skeleton-btn { width: 48px; height: 24px; border-radius: 4px; display: inline-block; }
-</style>
-@endpush
+    <style>
+        .skeleton-row td { padding: 12px 16px !important; }
+        .skeleton-box {
+            display: inline-block; height: 14px; border-radius: 4px;
+            background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite ease-in-out;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .skeleton-avatar { width: 32px; height: 32px; border-radius: 9999px; }
+        .skeleton-name { width: 100px; }
+        .skeleton-code { width: 60px; height: 10px; margin-top: 4px; }
+        .skeleton-number { width: 50px; }
+        .skeleton-rit { width: 24px; }
+        .skeleton-btn { width: 48px; height: 24px; border-radius: 4px; display: inline-block; }
+    </style>
+    @endpush
 
-{{-- HEADER --}}
+    {{-- HEADER --}}
     <div class="mb-8">
         <div class="flex items-center justify-between">
             <div>
@@ -41,24 +36,21 @@
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success mb-4">
-            {{ session('success') }}
-        </div>
+        <div class="alert alert-success mb-4 p-4 bg-green-100 text-green-700 rounded">{{ session('success') }}</div>
     @endif
 
     @if(session('error'))
-        <div class="alert alert-error mb-4">
-            {{ session('error') }}
-        </div>
+        <div class="alert alert-error mb-4 p-4 bg-red-100 text-red-700 rounded">{{ session('error') }}</div>
     @endif
 
     @if($errors->any())
-        <div class="alert alert-error mb-4">
+        <div class="alert alert-error mb-4 p-4 bg-red-100 text-red-700 rounded">
             <ul class="list-disc list-inside">
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
+            <p class="text-xs mt-2 text-red-600 font-medium">⚠️ Isian yang sudah Anda masukkan di bawah tetap tersimpan. Cukup perbaiki bagian yang salah dan klik Simpan lagi.</p>
         </div>
     @endif
 
@@ -66,19 +58,22 @@
     {{-- FORM INPUT PER TUJUAN --}}
     {{-- ============================================================ --}}
     <div id="formInputContainer" class="w-full border border-gray-200 rounded mb-6 overflow-hidden bg-white">
-        <div class="card-header">
+        <div class="p-4 border-b border-gray-200 bg-gray-50">
             <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Input Biaya Per Tujuan</p>
         </div>
 
         <form id="formGaji" action="{{ route('gaji.store') }}" method="POST">
             @csrf
-            <div class="card-body">
+            <div class="p-4">
                 <div class="mb-4">
-                    <label class="form-label">Pilih Periode <span class="text-red-500">*</span></label>
-                    <select name="periode" id="pilih_periode" class="form-input form-select w-full md:w-1/2" onchange="window.location.href='{{ route('gaji.index') }}?periode='+this.value">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Periode <span class="text-red-500">*</span></label>
+                    @php
+                        $selectedPeriodeValue = old('periode', old('periode_id', $periodeId ?? ''));
+                    @endphp
+                    <select name="periode" id="pilih_periode" class="form-input form-select w-full md:w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#2d6a4f] focus:border-[#2d6a4f]" onchange="window.location.href='{{ route('gaji.index') }}?periode='+this.value">
                         <option value="">Pilih Periode</option>
                         @foreach($periodesForDropdown ?? [] as $periode)
-                            <option value="{{ $periode->id }}" {{ isset($periodeId) && $periodeId == $periode->id ? 'selected' : '' }}>
+                            <option value="{{ $periode->id }}" {{ (string) $selectedPeriodeValue === (string) $periode->id ? 'selected' : '' }}>
                                 {{ $periode->nama_periode }}
                             </option>
                         @endforeach
@@ -89,101 +84,75 @@
                 <div class="border-t border-gray-200 pt-4">
                     <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Detail Biaya Per Tujuan</p>
 
-                    <div class="overflow-x-auto">
+                    <div class="table-responsive border border-gray-200 rounded-lg">
                         <table class="w-full">
                             <thead style="background:rgba(255,253,252,0.6);border-bottom:1.5px solid var(--border)">
                                 <tr>
-                                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Tujuan</th>
-                                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">BBM/Rit</th>
-                                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Upah/Rit</th>
-                                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Kompensasi/Rit Gagal</th>
-                                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Tol</th>
-                                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Lembur</th>
+                                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 whitespace-nowrap">Tujuan</th>
+                                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 whitespace-nowrap">BBM/Rit</th>
+                                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 whitespace-nowrap">Upah/Rit</th>
+                                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 whitespace-nowrap">Kompensasi/Rit Gagal</th>
+                                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 whitespace-nowrap">Tol</th>
+                                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 whitespace-nowrap">Lembur</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
                                 @foreach($allTujuans as $tujuan)
+                                @php
+                                    $i = $loop->index;
+
+                                    // PERBAIKAN UTAMA: Ambil array 'detail' dari old(), fallback ke array kosong
+                                    $oldDetails = old('detail', []);
+
+                                    // Akses menggunakan array index, JAUH lebih stabil daripada dot notation
+                                    $oldBbm    = isset($oldDetails[$i]['bbm_per_rit']) ? $oldDetails[$i]['bbm_per_rit'] : 0;
+                                    $oldUpah   = isset($oldDetails[$i]['upah_per_rit']) ? $oldDetails[$i]['upah_per_rit'] : 0;
+                                    $oldKomp   = isset($oldDetails[$i]['kompensasi_gagal']) ? $oldDetails[$i]['kompensasi_gagal'] : 0;
+                                    $oldTol    = isset($oldDetails[$i]['tol_per_rit']) ? $oldDetails[$i]['tol_per_rit'] : 0;
+                                    $oldLembur = isset($oldDetails[$i]['lembur_per_rit']) ? $oldDetails[$i]['lembur_per_rit'] : 0;
+
+                                    $tolChecked = (float)$oldTol > 0 ? 'checked' : '';
+                                    $tolDisabled = (float)$oldTol > 0 ? '' : 'disabled';
+                                    $tolClass = (float)$oldTol > 0 ? 'bg-white' : 'bg-gray-100 opacity-50 cursor-not-allowed';
+
+                                    $lemburChecked = (float)$oldLembur > 0 ? 'checked' : '';
+                                    $lemburDisabled = (float)$oldLembur > 0 ? '' : 'disabled';
+                                    $lemburClass = (float)$oldLembur > 0 ? 'bg-white' : 'bg-gray-100 opacity-50 cursor-not-allowed';
+                                @endphp
                                 <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-2.5">
+                                    <td class="px-4 py-3 whitespace-nowrap">
                                         <p class="text-sm font-medium text-gray-800">{{ $tujuan->nama }}</p>
                                         <p class="text-xs text-gray-400">{{ $tujuan->kode_tujuan }}</p>
                                     </td>
-                                    <td class="px-4 py-2.5">
-                                        <div class="max-w-xs">
-                                            <input type="number"
-                                                   name="detail[{{ $loop->index }}][bbm_per_rit]"
-                                                   data-tujuan="{{ $tujuan->kode_tujuan }}"
-                                                   data-field="bbm_per_rit"
-                                                   min="0"
-                                                   step="0.01"
-                                                   value="0"
-                                                   placeholder="0"
-                                                   class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-white">
-                                            <p class="text-red-500 text-xs mt-1 hidden" id="error_bbm_{{ $loop->index }}">Harus angka positif.</p>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="w-32">
+                                            <input type="number" name="detail[{{ $i }}][bbm_per_rit]" data-tujuan="{{ $tujuan->kode_tujuan }}" data-field="bbm_per_rit" min="0" step="0.01" value="{{ $oldBbm }}" placeholder="0" class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 transition bg-white">
+                                            <p class="text-red-500 text-xs mt-1 hidden" id="error_bbm_{{ $i }}">Harus angka positif.</p>
                                         </div>
                                     </td>
-                                    <td class="px-4 py-2.5">
-                                        <div class="max-w-xs">
-                                            <input type="number"
-                                                   name="detail[{{ $loop->index }}][upah_per_rit]"
-                                                   data-tujuan="{{ $tujuan->kode_tujuan }}"
-                                                   data-field="upah_per_rit"
-                                                   min="0"
-                                                   step="0.01"
-                                                   value="0"
-                                                   placeholder="0"
-                                                   class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-white">
-                                            <p class="text-red-500 text-xs mt-1 hidden" id="error_upah_{{ $loop->index }}">Harus angka positif.</p>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="w-32">
+                                            <input type="number" name="detail[{{ $i }}][upah_per_rit]" data-tujuan="{{ $tujuan->kode_tujuan }}" data-field="upah_per_rit" min="0" step="0.01" value="{{ $oldUpah }}" placeholder="0" class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 transition bg-white">
+                                            <p class="text-red-500 text-xs mt-1 hidden" id="error_upah_{{ $i }}">Harus angka positif.</p>
                                         </div>
                                     </td>
-                                    <td class="px-4 py-2.5">
-                                        <div class="max-w-xs">
-                                            <input type="number"
-                                                   name="detail[{{ $loop->index }}][kompensasi_gagal]"
-                                                   data-tujuan="{{ $tujuan->kode_tujuan }}"
-                                                   data-field="kompensasi_gagal"
-                                                   min="0"
-                                                   step="0.01"
-                                                   value="0"
-                                                   placeholder="0"
-                                                   class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-white">
-                                            <p class="text-red-500 text-xs mt-1 hidden" id="error_komp_{{ $loop->index }}">Harus angka positif.</p>
-                                            <input type="hidden" name="detail[{{ $loop->index }}][kode_tujuan]" value="{{ $tujuan->kode_tujuan }}">
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="w-32">
+                                            <input type="number" name="detail[{{ $i }}][kompensasi_gagal]" data-tujuan="{{ $tujuan->kode_tujuan }}" data-field="kompensasi_gagal" min="0" step="0.01" value="{{ $oldKomp }}" placeholder="0" class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 transition bg-white">
+                                            <p class="text-red-500 text-xs mt-1 hidden" id="error_komp_{{ $i }}">Harus angka positif.</p>
+                                            <input type="hidden" name="detail[{{ $i }}][kode_tujuan]" value="{{ $tujuan->kode_tujuan }}">
                                         </div>
                                     </td>
-                                    <td class="px-4 py-2.5">
-                                        <div class="flex items-center gap-2 max-w-xs">
-                                            <input type="checkbox"
-                                                   data-tujuan="{{ $tujuan->kode_tujuan }}"
-                                                   data-field="tol_check"
-                                                   class="tol-checkbox w-4 h-4 rounded border-gray-300 cursor-pointer">
-                                            <input type="number"
-                                                   name="detail[{{ $loop->index }}][tol_per_rit]"
-                                                   data-tujuan="{{ $tujuan->kode_tujuan }}"
-                                                   data-field="tol_per_rit"
-                                                   min="0"
-                                                   step="0.01"
-                                                   value="0"
-                                                   placeholder="0"
-                                                   disabled
-                                                   class="tol-input w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-gray-100 opacity-50 cursor-not-allowed">
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="flex items-center gap-2 w-40">
+                                            <input type="checkbox" data-tujuan="{{ $tujuan->kode_tujuan }}" data-field="tol_check" class="tol-checkbox w-4 h-4 rounded border-gray-300 cursor-pointer" {{ $tolChecked }}>
+                                            <input type="number" name="detail[{{ $i }}][tol_per_rit]" data-tujuan="{{ $tujuan->kode_tujuan }}" data-field="tol_per_rit" min="0" step="0.01" value="{{ $oldTol }}" placeholder="0" {{ $tolDisabled }} class="tol-input w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 transition {{ $tolClass }}">
                                         </div>
                                     </td>
-                                    <td class="px-4 py-2.5">
-                                        <div class="flex items-center gap-2 max-w-xs">
-                                            <input type="checkbox"
-                                                   data-tujuan="{{ $tujuan->kode_tujuan }}"
-                                                   data-field="lembur_tujuan_check"
-                                                   class="lembur-tujuan-checkbox w-4 h-4 rounded border-gray-300 cursor-pointer">
-                                            <input type="number"
-                                                   name="detail[{{ $loop->index }}][lembur_per_rit]"
-                                                   data-tujuan="{{ $tujuan->kode_tujuan }}"
-                                                   data-field="lembur_per_rit"
-                                                   min="0" step="1"
-                                                   value="0"
-                                                   placeholder="0"
-                                                   disabled
-                                                   class="lembur-tujuan-input w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-gray-100 opacity-50 cursor-not-allowed">
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="flex items-center gap-2 w-40">
+                                            <input type="checkbox" data-tujuan="{{ $tujuan->kode_tujuan }}" data-field="lembur_tujuan_check" class="lembur-tujuan-checkbox w-4 h-4 rounded border-gray-300 cursor-pointer" {{ $lemburChecked }}>
+                                            <input type="number" name="detail[{{ $i }}][lembur_per_rit]" data-tujuan="{{ $tujuan->kode_tujuan }}" data-field="lembur_per_rit" min="0" step="1" value="{{ $oldLembur }}" placeholder="0" {{ $lemburDisabled }} class="lembur-tujuan-input w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 transition {{ $lemburClass }}">
                                         </div>
                                     </td>
                                 </tr>
@@ -192,19 +161,15 @@
                         </table>
                     </div>
 
-
-
                     <div class="mt-4 flex justify-end gap-3">
                         <a href="{{ route('gaji.index') }}" class="border border-gray-300 rounded text-sm font-medium text-gray-700 px-4 py-2.5 hover:bg-gray-50 transition">Batal</a>
-                        <button type="button" onclick="showKonfirmasi()" class="btn btn-primary">
+                        <button type="button" onclick="showKonfirmasi()" class="bg-[#2d6a4f] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#1b4332] transition">
                             Simpan Gaji
                         </button>
                     </div>
                 </div>
-
             </div>
-
-            <input type="hidden" name="periode_id" id="formPeriodeId" value="{{ $periodeId ?? '' }}">
+            <input type="hidden" name="periode_id" id="formPeriodeId" value="{{ $selectedPeriodeValue }}">
         </form>
     </div>
 
@@ -234,74 +199,87 @@
                 <p id="summaryKompensasi" class="text-lg font-bold text-gray-900 mt-1">Rp 0</p>
             </div>
         </div>
-        <div class="flex items-center gap-3 mt-3 flex-wrap">
-            <div class="flex items-center gap-2">
-                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Filter Tanggal</span>
-                <input type="date" id="filterTanggal" class="px-3 py-2 border border-gray-200 rounded text-sm bg-white">
-                <button onclick="clearFilterTanggal()" class="px-3 py-2 border border-gray-200 rounded text-sm text-gray-600 hover:bg-gray-50 bg-white">Reset</button>
-            </div>
-            <div class="flex items-center gap-2">
-                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Cari</span>
-                <input type="text" id="searchSopirTujuan" placeholder="Nama sopir atau tujuan..."
-                    class="px-3 py-2 border border-gray-200 rounded text-sm bg-white w-64">
-                <button onclick="applySearch()" class="px-3 py-2 bg-[#1a1a2e] text-white rounded text-sm hover:opacity-90">Cari</button>
-                <button onclick="clearSearch()" class="px-3 py-2 border border-gray-200 rounded text-sm text-gray-600 hover:bg-gray-50 bg-white">Reset</button>
+        <div class="flex items-center justify-end gap-3 mt-3">
+            <div class="relative" id="gajiFilterWrap">
+                <button onclick="toggleGajiFilter()" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium bg-white hover:bg-gray-50 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                    Filter
+                    <span class="hidden w-2 h-2 rounded-full bg-green-500" id="gajiFilterBadge"></span>
+                </button>
+                <div class="hidden absolute right-0 mt-2 w-72 bg-white border border-gray-200 rounded-xl shadow-lg z-50 p-4" id="gajiFilterPanel">
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Filter Tanggal</label>
+                            <input type="date" id="filterTanggal" class="w-full px-3 py-2 border border-gray-200 rounded text-sm bg-white mt-1">
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="applySearch()" class="flex-1 px-4 py-2 bg-[#2d6a4f] text-white rounded text-sm hover:opacity-90 transition">Terapkan</button>
+                            <button onclick="clearGajiFilter()" class="px-4 py-2 border border-gray-200 rounded text-sm text-gray-600 hover:bg-gray-50 transition">Reset</button>
+                        </div>
+                    </div>
+                </div>
             </div>
             <p id="summarySopirCount" class="text-xs text-gray-400"></p>
         </div>
+        <script>
+        function toggleGajiFilter(){const p=document.getElementById('gajiFilterPanel');p.classList.toggle('hidden');}
+        document.addEventListener('click',function(e){const w=document.getElementById('gajiFilterWrap');if(w&&!w.contains(e.target)){document.getElementById('gajiFilterPanel').classList.add('hidden');}});
+        function clearGajiFilter(){document.getElementById('filterTanggal').value='';applySearch();}
+        </script>
     </div>
 
     {{-- ============================================================ --}}
     {{-- TABEL PER SOPIR --}}
     {{-- ============================================================ --}}
     <div id="tabelGajiContainer" class="hidden">
-        <div class="card mb-6">
-            <table class="w-full">
-                <thead>
-                    <tr style="background:rgba(255,253,252,0.6);border-bottom:1.5px solid var(--border)">
-                        <th class="text-left text-xs font-semibold uppercase tracking-wider px-5 py-3" style="color:var(--text-muted)" colspan="8">
-                            Rincian Gaji Per Sopir
-                            <span class="font-normal text-gray-400 text-xs ml-2" id="periodeLabel">Periode: -</span>
-                        </th>
-                        <th class="text-right text-xs font-semibold uppercase tracking-wider px-5 py-3" style="color:var(--text-muted)">
-                            <a id="downloadSlipBtn" href="{{ $periodeId ? url('/gaji/slip-pdf/' . $periodeId) : '#' }}" class="text-xs text-gray-600 border border-gray-200 px-3 py-1.5 rounded hover:bg-gray-50 font-medium {{ $periodeId ? '' : 'hidden' }}">
-                                Download Slip PDF
-                            </a>
-                        </th>
-                    </tr>
-                </thead>
-                <thead style="background:rgba(255,253,252,0.6);border-bottom:1.5px solid var(--border)">
-                    <tr>
-                        <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Sopir</th>
-                        <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Total Rit</th>
-                        <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Total Solar</th>
-                        <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Total Upah</th>
-                        <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Total DT</th>
-                        <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Tol</th>
-                        <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Kompensasi</th>
-                        <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Lembur</th>
-                        <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Grand Total</th>
-                        <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="tabelGajiBody" class="divide-y divide-gray-100">
-                    <!-- Data akan diisi oleh JavaScript -->
-                </tbody>
-                <tfoot class="bg-gray-50 border-t border-gray-200" id="gajiTableFoot">
-                    <tr>
-                        <td colspan="9" class="px-5 py-3 text-right text-sm font-semibold text-gray-700">TOTAL KESELURUHAN:</td>
-                        <td class="px-5 py-3 text-right text-sm font-bold text-gray-900" id="grandTotalAll">Rp 0</td>
-                    </tr>
-                    <tr id="paginationGajiRow" class="border-t border-gray-200 hidden">
-                        <td colspan="8" class="px-5 py-3">
-                            <div id="paginationGaji" class="flex items-center justify-end"></div>
-                        </td>
-                    </tr>
-                </tfoot>
-            </table>
+        <div class="card mb-6 bg-white border border-gray-200 rounded-lg">
+            <div class="table-responsive">
+                <table class="w-full">
+                    <thead>
+                        <tr style="background:rgba(255,253,252,0.6);border-bottom:1.5px solid var(--border)">
+                            <th class="text-left text-xs font-semibold uppercase tracking-wider px-5 py-3 whitespace-nowrap" style="color:var(--text-muted)" colspan="8">
+                                Rincian Gaji Per Sopir
+                                <span class="font-normal text-gray-400 text-xs ml-2" id="periodeLabel">Periode: -</span>
+                            </th>
+                            <th class="text-right text-xs font-semibold uppercase tracking-wider px-5 py-3 whitespace-nowrap" style="color:var(--text-muted)">
+                                <a id="downloadSlipBtn" href="{{ $periodeId ? url('/gaji/slip-pdf/' . $periodeId) : '#' }}" class="text-xs text-gray-600 border border-gray-200 px-3 py-1.5 rounded hover:bg-gray-50 font-medium {{ $periodeId ? '' : 'hidden' }}">
+                                    Download Slip PDF
+                                </a>
+                            </th>
+                        </tr>
+                    </thead>
+                    <thead style="background:rgba(255,253,252,0.6);border-bottom:1.5px solid var(--border)">
+                        <tr>
+                            <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 whitespace-nowrap">Sopir</th>
+                            <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 whitespace-nowrap">Total Rit</th>
+                            <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 whitespace-nowrap">Total Solar</th>
+                            <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 whitespace-nowrap">Total Upah</th>
+                            <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 whitespace-nowrap">Total DT</th>
+                            <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 whitespace-nowrap">Tol</th>
+                            <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 whitespace-nowrap">Kompensasi</th>
+                            <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 whitespace-nowrap">Lembur</th>
+                            <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 whitespace-nowrap">Grand Total</th>
+                            <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 whitespace-nowrap">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelGajiBody" class="divide-y divide-gray-100">
+                        <!-- Data akan diisi oleh JavaScript -->
+                    </tbody>
+                    <tfoot class="bg-gray-50 border-t border-gray-200" id="gajiTableFoot">
+                        <tr>
+                            <td colspan="9" class="px-5 py-3 text-right text-sm font-semibold text-gray-700 whitespace-nowrap">TOTAL KESELURUHAN:</td>
+                            <td class="px-5 py-3 text-right text-sm font-bold text-gray-900 whitespace-nowrap" id="grandTotalAll">Rp 0</td>
+                        </tr>
+                        <tr id="paginationGajiRow" class="border-t border-gray-200 hidden">
+                            <td colspan="8" class="px-5 py-3">
+                                <div id="paginationGaji" class="flex items-center justify-between"></div>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
         </div>
     </div>
-
 
     {{-- ============================================================ --}}
     {{-- MODAL KONFIRMASI --}}
@@ -320,7 +298,7 @@
                 <div id="konfirmasiDetail" class="text-sm text-gray-600 mb-4 bg-gray-50 p-4 rounded max-h-60 overflow-y-auto"></div>
                 <div class="flex gap-3">
                     <button onclick="closeKonfirmasiModal()" class="flex-1 border border-gray-300 rounded text-sm font-medium text-gray-700 px-4 py-2.5 hover:bg-gray-50 transition">Batal</button>
-                    <button onclick="submitGaji()" class="flex-1 bg-[#1a1a2e] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#2d2d44] transition">Ya, Simpan</button>
+                    <button onclick="submitGaji()" class="flex-1 bg-[#2d6a4f] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#1b4332] transition">Ya, Simpan</button>
                 </div>
             </div>
         </div>
@@ -329,6 +307,10 @@
     @push('scripts')
     <script>
         const allTujuans = @json($allTujuans ?? []);
+
+        // PERBAIKAN JS: Cek apakah ada error validasi. Jika YA, JavaScript DILARANG mengubah nilai input.
+        const hasErrors = @json($errors->any() ? true : false);
+
         let gajiData = [];
         let gajiDataAll = [];
         let formDataGaji = null;
@@ -336,42 +318,49 @@
         let currentPage = 1;
         const pageSize = 10;
 
-        // ===== VALIDASI INPUT =====
         function validasiNominal(input) {
             return /^\d+(\.\d+)?$/.test(input) && parseFloat(input) >= 0;
         }
 
-        // Turbo-ready: run immediately (script at bottom of body)
+        function formatRupiah(angka) {
+            return Math.round(angka).toLocaleString('id-ID');
+        }
+
         (function() {
             'use strict';
-            // Ambil periode dari URL
             const urlParams = new URLSearchParams(window.location.search);
             const periodeFromUrl = urlParams.get('periode');
+            const periodeSelect = document.getElementById('pilih_periode');
 
-            if (periodeFromUrl) {
-                document.getElementById('pilih_periode').value = periodeFromUrl;
+            if (periodeFromUrl && !hasErrors && periodeSelect) {
+                periodeSelect.value = periodeFromUrl;
                 periodeId = periodeFromUrl;
-                var formPeriodeInput = document.getElementById('formPeriodeId');
+                const formPeriodeInput = document.getElementById('formPeriodeId');
                 if (formPeriodeInput) formPeriodeInput.value = periodeFromUrl;
+            } else if (periodeSelect && periodeSelect.value) {
+                periodeId = periodeSelect.value;
             }
 
-            document.getElementById('filterTanggal').addEventListener('change', function() {
-                if (periodeId) loadGajiData(periodeId);
-            });
-
-            document.getElementById('searchSopirTujuan').addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') applySearch();
-            });
-
-            document.querySelectorAll('input[data-field="bbm_per_rit"], input[data-field="upah_per_rit"], input[data-field="tol_per_rit"]').forEach(function(input) {
-                input.addEventListener('input', function() {
-                    if (gajiData.length > 0) {
-                        renderTabelGaji(gajiData);
-                    }
+            const filterTanggalEl = document.getElementById('filterTanggal');
+            if (filterTanggalEl) {
+                filterTanggalEl.addEventListener('change', function() {
+                    if (periodeId) loadGajiData(periodeId);
                 });
+            }
+
+            const searchSopirEl = document.getElementById('searchSopirTujuan');
+            if (searchSopirEl) {
+                searchSopirEl.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') applySearch();
+                });
+            }
+
+            document.addEventListener('input', function(e) {
+                if (e.target.matches('input[data-field="bbm_per_rit"], input[data-field="upah_per_rit"], input[data-field="tol_per_rit"], input[data-field="lembur_per_rit"], input[data-field="kompensasi_gagal"]')) {
+                    if (gajiData.length > 0) renderTabelGaji(gajiData);
+                }
             });
 
-            // Tol checkbox toggle
             document.querySelectorAll('.tol-checkbox').forEach(function(cb) {
                 cb.addEventListener('change', function() {
                     const row = this.closest('tr');
@@ -379,17 +368,18 @@
                     if (this.checked) {
                         input.disabled = false;
                         input.classList.remove('bg-gray-100', 'opacity-50', 'cursor-not-allowed');
+                        input.classList.add('bg-white');
                         input.focus();
                     } else {
                         input.disabled = true;
                         input.value = '0';
+                        input.classList.remove('bg-white');
                         input.classList.add('bg-gray-100', 'opacity-50', 'cursor-not-allowed');
                         if (gajiData.length > 0) renderTabelGaji(gajiData);
                     }
                 });
             });
 
-            // Lembur tujuan checkbox toggle
             document.querySelectorAll('.lembur-tujuan-checkbox').forEach(function(cb) {
                 cb.addEventListener('change', function() {
                     const row = this.closest('tr');
@@ -409,18 +399,9 @@
                 });
             });
 
-            const selectedPeriode = document.getElementById('pilih_periode').value;
-            if (selectedPeriode) {
-                periodeId = selectedPeriode;
-                loadGajiData(selectedPeriode);
+            if (periodeId) {
+                loadGajiData(periodeId);
             }
-
-            // Auto-refresh tabel saat input per-tujuan berubah
-            document.addEventListener('input', function(e) {
-                if (e.target.matches('input[data-field="bbm_per_rit"], input[data-field="upah_per_rit"], input[data-field="tol_per_rit"], input[data-field="lembur_per_rit"], input[data-field="kompensasi_gagal"]')) {
-                    if (gajiData.length > 0) renderTabelGaji(gajiData);
-                }
-            });
         })();
 
         function loadGajiData(periodeId) {
@@ -428,33 +409,35 @@
             const sumContainer = document.getElementById('summaryContainer');
             const tbody = document.getElementById('tabelGajiBody');
             const periodeLabel = document.getElementById('periodeLabel');
+            const periodeSelect = document.getElementById('pilih_periode');
+
+            if (!container || !tbody) return;
 
             container.classList.remove('hidden');
-            sumContainer.classList.remove('hidden');
+            if (sumContainer) sumContainer.classList.remove('hidden');
             tbody.innerHTML = renderSkeleton(6);
 
-            const periodeSelect = document.getElementById('pilih_periode');
-            const periodeText = periodeSelect.options[periodeSelect.selectedIndex].text;
-            periodeLabel.textContent = 'Periode: ' + periodeText;
+            if (periodeSelect && periodeSelect.options[periodeSelect.selectedIndex]) {
+                const periodeText = periodeSelect.options[periodeSelect.selectedIndex].text;
+                if (periodeLabel) periodeLabel.textContent = 'Periode: ' + periodeText;
+            }
 
-            var tanggal = document.getElementById('filterTanggal').value;
-            var url = '/api/get-ritase-data?periode=' + periodeId;
-            if (tanggal) url += '&tanggal=' + encodeURIComponent(tanggal);
-            var searchVal = document.getElementById('searchSopirTujuan').value.trim();
-            if (searchVal) url += '&search=' + encodeURIComponent(searchVal);
+            let url = '/api/get-ritase-data?periode=' + periodeId;
+            const filterTanggalEl = document.getElementById('filterTanggal');
+            if (filterTanggalEl && filterTanggalEl.value) {
+                url += '&tanggal=' + encodeURIComponent(filterTanggalEl.value);
+            }
 
             fetch(url)
                 .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(err => { throw new Error(err.error || 'Server error'); });
-                    }
+                    if (!response.ok) throw new Error('Gagal memuat data');
                     return response.json();
                 })
                 .then(data => {
-
                     if (data.sopir.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="8" class="px-4 py-8 text-center text-gray-500">Tidak ada data ritase untuk periode ini</td></tr>`;
-                        document.getElementById('grandTotalAll').textContent = 'Rp 0';
+                        tbody.innerHTML = `<tr><td colspan="10" class="px-4 py-8 text-center text-gray-500 whitespace-nowrap">Tidak ada data ritase untuk periode ini</td></tr>`;
+                        const grandTotalAllEl = document.getElementById('grandTotalAll');
+                        if (grandTotalAllEl) grandTotalAllEl.textContent = 'Rp 0';
                         return;
                     }
 
@@ -462,128 +445,86 @@
                     gajiDataAll = data.sopir;
                     currentPage = 1;
 
-                    // Sync period dropdown if date filter changed the period
-                    if (data.detected_periode_id && data.detected_periode_id != periodeId) {
-                        document.getElementById('pilih_periode').value = data.detected_periode_id;
-                        periodeId = data.detected_periode_id;
-                        const sel = document.getElementById('pilih_periode');
-                        periodeLabel.textContent = 'Periode: ' + sel.options[sel.selectedIndex].text;
-                        var formPeriodeInput = document.getElementById('formPeriodeId');
-                        if (formPeriodeInput) formPeriodeInput.value = periodeId;
-                    }
-
-                    document.getElementById('formInputContainer').classList.remove('hidden');
-
-                    // Pre-fill form inputs dengan default_rates dari periode sama/sebelumnya
-                    let ratesApplied = false;
-                    if (data.default_rates) {
+                    // PERBAIKAN JS: JANGAN timpa nilai form jika ada error validasi (hasErrors === true)
+                    if (data.default_rates && !hasErrors) {
                         Object.keys(data.default_rates).forEach(function(kodeTujuan) {
                             const rate = data.default_rates[kodeTujuan];
                             const bbmInput = document.querySelector(`input[data-tujuan="${kodeTujuan}"][data-field="bbm_per_rit"]`);
                             const upahInput = document.querySelector(`input[data-tujuan="${kodeTujuan}"][data-field="upah_per_rit"]`);
-                            if (bbmInput && parseFloat(bbmInput.value) === 0) {
-                                bbmInput.value = rate.bbm_per_rit;
-                                ratesApplied = true;
-                            }
-                            if (upahInput && parseFloat(upahInput.value) === 0) {
-                                upahInput.value = rate.upah_per_rit;
-                                ratesApplied = true;
-                            }
+
+                            if (bbmInput && parseFloat(bbmInput.value) === 0) bbmInput.value = rate.bbm_per_rit;
+                            if (upahInput && parseFloat(upahInput.value) === 0) upahInput.value = rate.upah_per_rit;
+
                             if (rate.tol_per_rit && parseFloat(rate.tol_per_rit) > 0) {
                                 const tolInput = document.querySelector(`input[data-tujuan="${kodeTujuan}"][data-field="tol_per_rit"]`);
                                 const tolCheck = document.querySelector(`input[data-tujuan="${kodeTujuan}"][data-field="tol_check"]`);
-                                if (tolInput && tolCheck) {
+                                if (tolInput && tolCheck && !tolCheck.checked) {
                                     tolInput.value = rate.tol_per_rit;
                                     tolCheck.checked = true;
                                     tolInput.disabled = false;
                                     tolInput.classList.remove('bg-gray-100', 'opacity-50', 'cursor-not-allowed');
-                                    ratesApplied = true;
+                                    tolInput.classList.add('bg-white');
                                 }
                             }
                             if (rate.kompensasi_gagal) {
                                 const kompInput = document.querySelector(`input[data-tujuan="${kodeTujuan}"][data-field="kompensasi_gagal"]`);
-                                if (kompInput && parseFloat(kompInput.value) === 0) {
-                                    kompInput.value = rate.kompensasi_gagal;
-                                    ratesApplied = true;
-                                }
+                                if (kompInput && parseFloat(kompInput.value) === 0) kompInput.value = rate.kompensasi_gagal;
                             }
                             const lemburTujuanVal = rate.lembur_per_rit || 0;
-                            const lemburTujuanInput = document.querySelector(`input[data-tujuan="${kodeTujuan}"][data-field="lembur_per_rit"]`);
-                            const lemburTujuanCheck = document.querySelector(`input[data-tujuan="${kodeTujuan}"][data-field="lembur_tujuan_check"]`);
-                            if (parseFloat(lemburTujuanVal) > 0 && lemburTujuanInput && lemburTujuanCheck) {
-                                lemburTujuanInput.value = lemburTujuanVal;
-                                lemburTujuanCheck.checked = true;
-                                lemburTujuanInput.disabled = false;
-                                lemburTujuanInput.classList.remove('bg-gray-100', 'opacity-50', 'cursor-not-allowed');
-                                ratesApplied = true;
+                            if (parseFloat(lemburTujuanVal) > 0) {
+                                const lemburTujuanInput = document.querySelector(`input[data-tujuan="${kodeTujuan}"][data-field="lembur_per_rit"]`);
+                                const lemburTujuanCheck = document.querySelector(`input[data-tujuan="${kodeTujuan}"][data-field="lembur_tujuan_check"]`);
+                                if (lemburTujuanInput && lemburTujuanCheck && !lemburTujuanCheck.checked) {
+                                    lemburTujuanInput.value = lemburTujuanVal;
+                                    lemburTujuanCheck.checked = true;
+                                    lemburTujuanInput.disabled = false;
+                                    lemburTujuanInput.classList.remove('bg-gray-100', 'opacity-50', 'cursor-not-allowed');
+                                    lemburTujuanInput.classList.add('bg-white');
+                                }
                             }
                         });
                     }
 
                     renderTabelGaji(data.sopir);
                     updateSummary(data.sopir);
-                    if (ratesApplied) { renderTabelGaji(data.sopir); updateSummary(data.sopir); }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    tbody.innerHTML = `<tr><td colspan="8" class="px-4 py-8 text-center text-red-500">${error.message || 'Gagal memuat data'}</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="10" class="px-4 py-8 text-center text-red-500 whitespace-nowrap">${error.message || 'Gagal memuat data'}</td></tr>`;
                 });
         }
 
         function renderTabelGaji(data) {
             const tbody = document.getElementById('tabelGajiBody');
+            if (!tbody) return;
             tbody.innerHTML = '';
-
             let grandTotalAll = 0;
 
-            const bbmByTujuan = {};
-            const upahByTujuan = {};
-            const kompensasiByTujuan = {};
-            const tolByTujuan = {};
-            document.querySelectorAll('input[data-field="bbm_per_rit"]').forEach(function(inp) {
-                bbmByTujuan[inp.dataset.tujuan] = parseFloat(inp.value) || 0;
-            });
-            document.querySelectorAll('input[data-field="upah_per_rit"]').forEach(function(inp) {
-                upahByTujuan[inp.dataset.tujuan] = parseFloat(inp.value) || 0;
-            });
-            document.querySelectorAll('input[data-field="kompensasi_gagal"]').forEach(function(inp) {
-                kompensasiByTujuan[inp.dataset.tujuan] = parseFloat(inp.value) || 0;
-            });
-            document.querySelectorAll('input[data-field="tol_per_rit"]').forEach(function(inp) {
-                tolByTujuan[inp.dataset.tujuan] = parseFloat(inp.value) || 0;
-            });
-            const lemburByTujuan = {};
-            document.querySelectorAll('input[data-field="lembur_per_rit"]').forEach(function(inp) {
-                lemburByTujuan[inp.dataset.tujuan] = parseFloat(inp.value) || 0;
-            });
+            const bbmByTujuan = {}, upahByTujuan = {}, kompensasiByTujuan = {}, tolByTujuan = {}, lemburByTujuan = {};
+            document.querySelectorAll('input[data-field="bbm_per_rit"]').forEach(inp => bbmByTujuan[inp.dataset.tujuan] = parseFloat(inp.value) || 0);
+            document.querySelectorAll('input[data-field="upah_per_rit"]').forEach(inp => upahByTujuan[inp.dataset.tujuan] = parseFloat(inp.value) || 0);
+            document.querySelectorAll('input[data-field="kompensasi_gagal"]').forEach(inp => kompensasiByTujuan[inp.dataset.tujuan] = parseFloat(inp.value) || 0);
+            document.querySelectorAll('input[data-field="tol_per_rit"]').forEach(inp => tolByTujuan[inp.dataset.tujuan] = parseFloat(inp.value) || 0);
+            document.querySelectorAll('input[data-field="lembur_per_rit"]').forEach(inp => lemburByTujuan[inp.dataset.tujuan] = parseFloat(inp.value) || 0);
 
-            const totalGagalByTujuan = {};
             const gagalCountsBySopir = {};
             data.forEach(function(sopir) {
                 gagalCountsBySopir[sopir.kode_sopir] = {};
                 (sopir.gagal_rits || []).forEach(function(rit) {
-                    const t = rit.kode_tujuan;
-                    totalGagalByTujuan[t] = (totalGagalByTujuan[t] || 0) + 1;
-                    gagalCountsBySopir[sopir.kode_sopir][t] = (gagalCountsBySopir[sopir.kode_sopir][t] || 0) + 1;
+                    gagalCountsBySopir[sopir.kode_sopir][rit.kode_tujuan] = (gagalCountsBySopir[sopir.kode_sopir][rit.kode_tujuan] || 0) + 1;
                 });
             });
 
             const totalPages = Math.ceil(data.length / pageSize);
             if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
-            if (currentPage < 1) currentPage = 1;
             const start = (currentPage - 1) * pageSize;
-            const end = Math.min(start + pageSize, data.length);
-            const pageData = data.slice(start, end);
+            const pageData = data.slice(start, start + pageSize);
 
             pageData.forEach((sopir, idx) => {
                 const index = start + idx;
-                const totalRit = Object.values(sopir.rit_per_tujuan).reduce(function(s, item) { return s + item.total_rit; }, 0);
+                const totalRit = Object.values(sopir.rit_per_tujuan).reduce((s, item) => s + item.total_rit, 0);
 
-                // Always preview from form inputs (live update saat user ketik)
-                let totalSolar = 0;
-                let totalUpah = 0;
-                let totalTol = 0;
-                let totalLembur = 0;
+                let totalSolar = 0, totalUpah = 0, totalTol = 0, totalLembur = 0;
                 Object.keys(sopir.rit_per_tujuan).forEach(function(kodeTujuan) {
                     const rit = sopir.rit_per_tujuan[kodeTujuan].total_rit;
                     totalSolar += (bbmByTujuan[kodeTujuan] || 0) * rit;
@@ -591,7 +532,7 @@
                     totalTol += (tolByTujuan[kodeTujuan] || 0) * rit;
                     totalLembur += (lemburByTujuan[kodeTujuan] || 0) * rit;
                 });
-                // Fallback: if form has 0 but saved data has values, use saved
+
                 if (totalSolar === 0 && totalUpah === 0 && !sopir.belum_dihitung) {
                     totalSolar = sopir.total_solar || 0;
                     totalUpah = sopir.total_upah || 0;
@@ -600,68 +541,53 @@
                 }
 
                 const totalDT = sopir.total_dt || 0;
-                // Always recalc kompensasi from form inputs (live preview)
                 let totalKompensasi = 0;
-                const sopirKode = sopir.kode_sopir;
                 Object.keys(kompensasiByTujuan).forEach(function(kodeTujuan) {
                     const kompPerRit = kompensasiByTujuan[kodeTujuan] || 0;
                     if (kompPerRit > 0) {
-                        const sopirGagal = (gagalCountsBySopir[sopirKode] || {})[kodeTujuan] || 0;
-                        if (sopirGagal > 0) {
-                            totalKompensasi += kompPerRit * sopirGagal;
-                        }
+                        const sopirGagal = (gagalCountsBySopir[sopir.kode_sopir] || {})[kodeTujuan] || 0;
+                        if (sopirGagal > 0) totalKompensasi += kompPerRit * sopirGagal;
                     }
                 });
-                // Fallback: if no form kompensasi, use saved value
-                if (totalKompensasi === 0 && !sopir.belum_dihitung) {
-                    totalKompensasi = sopir.total_kompensasi || 0;
-                }
+                if (totalKompensasi === 0 && !sopir.belum_dihitung) totalKompensasi = sopir.total_kompensasi || 0;
+
                 const previewGrand = totalSolar + totalUpah + totalDT + totalTol + totalKompensasi + totalLembur;
-
                 grandTotalAll += previewGrand;
-
                 const firstChar = sopir.nama_sopir ? sopir.nama_sopir.charAt(0).toUpperCase() : '?';
 
                 const row = document.createElement('tr');
                 row.className = 'hover:bg-gray-50';
                 row.id = `row_${sopir.kode_sopir}`;
                 row.innerHTML = `
-                    <td class="px-4 py-3">
+                    <td class="px-4 py-3 whitespace-nowrap">
                         <div class="flex items-center space-x-2">
-                            <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                            <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
                                 <span class="text-gray-700 font-bold text-xs">${firstChar}</span>
                             </div>
                             <div>
                                 <p class="text-sm font-semibold text-gray-900">${sopir.nama_sopir}</p>
                                 <p class="text-xs text-gray-500">${sopir.kode_sopir}</p>
-
                             </div>
                         </div>
                     </td>
-                    <td class="px-4 py-3 text-center font-semibold">${totalRit}</td>
-                    <td class="px-4 py-3 text-right text-gray-800 font-medium">Rp ${formatRupiah(totalSolar)}</td>
-                    <td class="px-4 py-3 text-right text-gray-800 font-medium">Rp ${formatRupiah(totalUpah)}</td>
-                    <td class="px-4 py-3 text-right text-gray-800 font-medium">Rp ${formatRupiah(totalDT)}</td>
-                    <td class="px-4 py-3 text-right">
-                        <span class="text-gray-800 font-medium" id="tolTotal_${sopir.kode_sopir}">Rp ${formatRupiah(totalTol)}</span>
-                    </td>
-                    <td class="px-4 py-3 text-right">
-                        <span class="text-gray-800 font-medium" id="kompTotal_${sopir.kode_sopir}">Rp ${formatRupiah(totalKompensasi)}</span>
-                    </td>
-                    <td class="px-4 py-3 text-right">
-                        <span class="text-gray-800 font-medium" id="lemburTotal_${sopir.kode_sopir}">Rp ${formatRupiah(totalLembur)}</span>
-                    </td>
-                    <td class="px-4 py-3 text-right font-bold text-gray-900" id="grandTotal_${sopir.kode_sopir}">Rp ${formatRupiah(previewGrand)}</td>
-                    <td class="px-4 py-3 text-center">
-                        <button onclick="showDetail(${index})" class="text-xs text-gray-600 border border-gray-200 px-2.5 py-1.5 rounded hover:bg-gray-50 font-medium">
-                            Detail &amp; Slip
-                        </button>
+                    <td class="px-4 py-3 text-center font-semibold whitespace-nowrap">${totalRit}</td>
+                    <td class="px-4 py-3 text-right text-gray-800 font-medium whitespace-nowrap">Rp ${formatRupiah(totalSolar)}</td>
+                    <td class="px-4 py-3 text-right text-gray-800 font-medium whitespace-nowrap">Rp ${formatRupiah(totalUpah)}</td>
+                    <td class="px-4 py-3 text-right text-gray-800 font-medium whitespace-nowrap">Rp ${formatRupiah(totalDT)}</td>
+                    <td class="px-4 py-3 text-right whitespace-nowrap"><span class="text-gray-800 font-medium" id="tolTotal_${sopir.kode_sopir}">Rp ${formatRupiah(totalTol)}</span></td>
+                    <td class="px-4 py-3 text-right whitespace-nowrap"><span class="text-gray-800 font-medium" id="kompTotal_${sopir.kode_sopir}">Rp ${formatRupiah(totalKompensasi)}</span></td>
+                    <td class="px-4 py-3 text-right whitespace-nowrap"><span class="text-gray-800 font-medium" id="lemburTotal_${sopir.kode_sopir}">Rp ${formatRupiah(totalLembur)}</span></td>
+                    <td class="px-4 py-3 text-right font-bold text-gray-900 whitespace-nowrap" id="grandTotal_${sopir.kode_sopir}">Rp ${formatRupiah(previewGrand)}</td>
+                    <td class="px-4 py-3 text-center whitespace-nowrap">
+                        <button onclick="showDetail(${index})" class="text-xs text-gray-600 border border-gray-200 px-2.5 py-1.5 rounded hover:bg-gray-50 font-medium">Detail &amp; Slip</button>
                     </td>
                 `;
                 tbody.appendChild(row);
             });
 
-            document.getElementById('grandTotalAll').textContent = 'Rp ' + formatRupiah(grandTotalAll);
+            const grandTotalAllEl = document.getElementById('grandTotalAll');
+            if (grandTotalAllEl) grandTotalAllEl.textContent = 'Rp ' + formatRupiah(grandTotalAll);
+
             renderPagination(totalPages);
             updateSummary(gajiData);
         }
@@ -671,32 +597,26 @@
             let h = '';
             for (let r = 0; r < rows; r++) {
                 h += `<tr class="skeleton-row">
-                    <td class="px-4 py-3">
+                    <td class="px-4 py-3 whitespace-nowrap">
                         <div class="flex items-center space-x-2">
-                            <div class="skeleton-box skeleton-avatar"></div>
+                            <div class="skeleton-box skeleton-avatar flex-shrink-0"></div>
                             <div>
                                 <div class="skeleton-box skeleton-name" style="width:${w(70,130)}px"></div>
                                 <div class="skeleton-box skeleton-code"></div>
                             </div>
                         </div>
                     </td>
-                    <td class="px-4 py-3 text-center"><div class="skeleton-box skeleton-rit" style="margin:0 auto"></div></td>
-                    <td class="px-4 py-3 text-right"><div class="skeleton-box skeleton-number" style="margin-left:auto"></div></td>
-                    <td class="px-4 py-3 text-right"><div class="skeleton-box skeleton-number" style="margin-left:auto"></div></td>
-                    <td class="px-4 py-3 text-right"><div class="skeleton-box skeleton-number" style="margin-left:auto"></div></td>
-                    <td class="px-4 py-3 text-right"><div class="skeleton-box skeleton-number" style="margin-left:auto"></div></td>
-                    <td class="px-4 py-3 text-right"><div class="skeleton-box skeleton-number" style="width:${w(60,90)}px;margin-left:auto"></div></td>
-                    <td class="px-4 py-3 text-center"><div class="skeleton-box skeleton-btn" style="margin:0 auto"></div></td>
+                    <td class="px-4 py-3 text-center whitespace-nowrap"><div class="skeleton-box skeleton-rit" style="margin:0 auto"></div></td>
+                    <td class="px-4 py-3 text-right whitespace-nowrap"><div class="skeleton-box skeleton-number" style="margin-left:auto"></div></td>
+                    <td class="px-4 py-3 text-right whitespace-nowrap"><div class="skeleton-box skeleton-number" style="margin-left:auto"></div></td>
+                    <td class="px-4 py-3 text-right whitespace-nowrap"><div class="skeleton-box skeleton-number" style="margin-left:auto"></div></td>
+                    <td class="px-4 py-3 text-right whitespace-nowrap"><div class="skeleton-box skeleton-number" style="margin-left:auto"></div></td>
+                    <td class="px-4 py-3 text-right whitespace-nowrap"><div class="skeleton-box skeleton-number" style="width:${w(60,90)}px;margin-left:auto"></div></td>
+                    <td class="px-4 py-3 text-center whitespace-nowrap"><div class="skeleton-box skeleton-btn" style="margin:0 auto"></div></td>
                 </tr>`;
             }
             return h;
         }
-
-        function formatRupiah(angka) {
-            return Math.round(angka).toLocaleString('id-ID');
-        }
-
-
 
         function goToPage(page) {
             currentPage = page;
@@ -706,17 +626,19 @@
         function renderPagination(totalPages) {
             const container = document.getElementById('paginationGaji');
             if (!container) return;
-            if (totalPages <= 1) { container.innerHTML = ''; return; }
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                const paginationRow = document.getElementById('paginationGajiRow');
+                if (paginationRow) paginationRow.classList.add('hidden');
+                return;
+            }
 
-            let html = '<div class="flex items-center justify-between">';
-            html += '<p class="text-sm text-gray-600">Halaman ' + currentPage + ' dari ' + totalPages + '</p>';
+            let html = '<div class="flex items-center justify-between w-full gap-3">';
+            html += '<p class="text-sm text-gray-600 whitespace-nowrap">Halaman ' + currentPage + ' dari ' + totalPages + '</p>';
             html += '<div class="flex items-center space-x-1.5">';
 
-            if (currentPage <= 1) {
-                html += '<span class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 rounded cursor-not-allowed">Sebelumnya</span>';
-            } else {
-                html += '<a href="#" onclick="goToPage(' + (currentPage - 1) + '); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded hover:bg-gray-50 font-medium">Sebelumnya</a>';
-            }
+            if (currentPage <= 1) html += '<span class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 rounded cursor-not-allowed">Sebelumnya</span>';
+            else html += '<a href="#" onclick="goToPage(' + (currentPage - 1) + '); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded hover:bg-gray-50 font-medium">Sebelumnya</a>';
 
             const w = 2;
             let ss = Math.max(1, currentPage - w);
@@ -728,11 +650,8 @@
             }
 
             for (let p = ss; p <= ee; p++) {
-                if (p == currentPage) {
-                    html += '<span class="px-3 py-1.5 text-sm font-bold text-white bg-[#1a1a2e] border border-[#1a1a2e] rounded">' + p + '</span>';
-                } else {
-                    html += '<a href="#" onclick="goToPage(' + p + '); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">' + p + '</a>';
-                }
+                if (p == currentPage) html += '<span class="px-3 py-1.5 text-sm font-bold text-white bg-[#2d6a4f] border border-[#2d6a4f] rounded">' + p + '</span>';
+                else html += '<a href="#" onclick="goToPage(' + p + '); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">' + p + '</a>';
             }
 
             if (ee < totalPages) {
@@ -740,15 +659,14 @@
                 html += '<a href="#" onclick="goToPage(' + totalPages + '); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">' + totalPages + '</a>';
             }
 
-            if (currentPage >= totalPages) {
-                html += '<span class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 rounded cursor-not-allowed">Selanjutnya</span>';
-            } else {
-                html += '<a href="#" onclick="goToPage(' + (currentPage + 1) + '); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded hover:bg-gray-50 font-medium">Selanjutnya</a>';
-            }
+            if (currentPage >= totalPages) html += '<span class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 rounded cursor-not-allowed">Selanjutnya</span>';
+            else html += '<a href="#" onclick="goToPage(' + (currentPage + 1) + '); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded hover:bg-gray-50 font-medium">Selanjutnya</a>';
 
             html += '</div></div>';
             container.innerHTML = html;
-            document.getElementById('paginationGajiRow').classList.toggle('hidden', totalPages <= 1);
+
+            const paginationRow = document.getElementById('paginationGajiRow');
+            if (paginationRow) paginationRow.classList.remove('hidden');
         }
 
         function updateSummary(data) {
@@ -771,42 +689,54 @@
                     totalKomp += s.total_kompensasi || 0;
                 }
             });
-            document.getElementById('summaryGrandTotal').textContent = 'Rp ' + formatRupiah(totalGrand);
-            document.getElementById('summaryUpah').textContent = 'Rp ' + formatRupiah(totalUpah);
-            document.getElementById('summarySolar').textContent = 'Rp ' + formatRupiah(totalSolar);
-            document.getElementById('summaryDT').textContent = 'Rp ' + formatRupiah(totalDT);
-            document.getElementById('summaryKompensasi').textContent = 'Rp ' + formatRupiah(totalKomp);
-            document.getElementById('summarySopirCount').textContent = data.length + ' sopir';
-        }
 
-        function clearFilterTanggal() {
-            document.getElementById('filterTanggal').value = '';
-            if (periodeId) loadGajiData(periodeId);
+            const elGrand = document.getElementById('summaryGrandTotal');
+            if (elGrand) elGrand.textContent = 'Rp ' + formatRupiah(totalGrand);
+            const elUpah = document.getElementById('summaryUpah');
+            if (elUpah) elUpah.textContent = 'Rp ' + formatRupiah(totalUpah);
+            const elSolar = document.getElementById('summarySolar');
+            if (elSolar) elSolar.textContent = 'Rp ' + formatRupiah(totalSolar);
+            const elDT = document.getElementById('summaryDT');
+            if (elDT) elDT.textContent = 'Rp ' + formatRupiah(totalDT);
+            const elKomp = document.getElementById('summaryKompensasi');
+            if (elKomp) elKomp.textContent = 'Rp ' + formatRupiah(totalKomp);
+            const elCount = document.getElementById('summarySopirCount');
+            if (elCount) elCount.textContent = data.length + ' sopir';
         }
 
         function applySearch() {
             if (periodeId) loadGajiData(periodeId);
         }
 
-        function clearSearch() {
-            document.getElementById('searchSopirTujuan').value = '';
-            if (periodeId) loadGajiData(periodeId);
+        function clearGajiFilter() {
+            const filterEl = document.getElementById('filterTanggal');
+            if (filterEl) filterEl.value = '';
+            applySearch();
         }
 
+        function toggleGajiFilter() {
+            const p = document.getElementById('gajiFilterPanel');
+            if (p) p.classList.toggle('hidden');
+        }
 
+        document.addEventListener('click', function(e) {
+            const w = document.getElementById('gajiFilterWrap');
+            if (w && !w.contains(e.target)) {
+                const p = document.getElementById('gajiFilterPanel');
+                if (p) p.classList.add('hidden');
+            }
+        });
 
         function showDetail(index) {
             const sopir = gajiData[index];
             const modal = document.createElement('div');
-            modal.className = 'fixed inset-0 bg-black/40 z-50 flex items-center justify-center';
+            modal.className = 'fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4';
             modal.innerHTML = `
                 <div class="bg-white rounded border border-gray-200 w-full max-w-4xl max-h-[90vh] overflow-y-auto p-4" onclick="event.stopPropagation()">
                     <div class="flex justify-between items-center mb-3">
                         <h3 class="text-lg font-semibold text-gray-900">Slip Gaji ${sopir.nama_sopir}</h3>
                         <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
                     <div id="slipContent" class="text-center text-gray-500 py-8">Loading slip...</div>
@@ -823,14 +753,8 @@
                     let styleHtml = '';
                     styles.forEach(s => {
                         let css = s.textContent;
-                        // Strip global selectors that leak to the dashboard
-                        css = css.replace(/@page\s*\{[^}]*\}/g, '');
-                        css = css.replace(/(?:^|\n)\s*\*\s*\{[^}]*\}/g, '');
-                        css = css.replace(/(?:^|\n)\s*html\s*\{[^}]*\}/g, '');
-                        css = css.replace(/(?:^|\n)\s*body\s*\{[^}]*\}/g, '');
-                        if (css.trim()) {
-                            styleHtml += '<style>' + css + '</style>';
-                        }
+                        css = css.replace(/@page\s*\{[^}]*\}/g, '').replace(/(?:^|\n)\s*\*\s*\{[^}]*\}/g, '').replace(/(?:^|\n)\s*html\s*\{[^}]*\}/g, '').replace(/(?:^|\n)\s*body\s*\{[^}]*\}/g, '');
+                        if (css.trim()) styleHtml += '<style>' + css + '</style>';
                     });
                     const containers = doc.querySelectorAll('.slip-container');
                     let slipHtml = '';
@@ -842,140 +766,44 @@
                 });
         }
 
-        function hitungKompensasiSopir(kodeSopir, value) {
-            const sum = parseFloat(value) || 0;
-            document.getElementById('kompTotal_' + kodeSopir).textContent = 'Rp ' + formatRupiah(sum);
-
-            const solar = parseInt(document.querySelector('#row_' + kodeSopir + ' td:nth-child(3)').textContent.replace(/[^0-9]/g, '')) || 0;
-            const upah = parseInt(document.querySelector('#row_' + kodeSopir + ' td:nth-child(4)').textContent.replace(/[^0-9]/g, '')) || 0;
-            const dt = parseInt(document.querySelector('#row_' + kodeSopir + ' td:nth-child(5)').textContent.replace(/[^0-9]/g, '')) || 0;
-            document.getElementById('grandTotal_' + kodeSopir).textContent = 'Rp ' + formatRupiah(solar + upah + dt + sum);
-
-            let all = 0;
-            document.querySelectorAll('[id^="grandTotal_"]').forEach(function(el) {
-                all += parseInt(el.textContent.replace(/[^0-9]/g, '')) || 0;
-            });
-            document.getElementById('grandTotalAll').textContent = 'Rp ' + formatRupiah(all);
-            updateSummary(gajiData);
-        }
-
         function showKonfirmasi() {
             const periode = document.getElementById('pilih_periode').value;
-            if (!periode) {
-                alert('Silakan pilih Periode terlebih dahulu!');
-                return;
-            }
+            if (!periode) { alert('Silakan pilih Periode terlebih dahulu!'); return; }
 
-            const bbmInputs = document.querySelectorAll('input[data-field="bbm_per_rit"]');
-            let hasEmpty = false;
-            let hasInvalid = false;
-            bbmInputs.forEach((input, i) => {
-                const errorEl = document.getElementById('error_bbm_' + i);
-                if (input.value === '' || parseFloat(input.value) < 0) {
-                    hasEmpty = true;
-                    input.classList.add('border-red-500');
-                    if (errorEl) { errorEl.textContent = 'Wajib diisi.'; errorEl.classList.remove('hidden'); }
-                } else if (!validasiNominal(input.value)) {
-                    hasInvalid = true;
-                    input.classList.add('border-red-500');
-                    if (errorEl) { errorEl.textContent = 'Harus angka positif.'; errorEl.classList.remove('hidden'); }
-                } else {
-                    input.classList.remove('border-red-500');
-                    if (errorEl) errorEl.classList.add('hidden');
-                }
+            let hasEmpty = false, hasInvalid = false;
+            ['bbm_per_rit', 'upah_per_rit'].forEach(field => {
+                document.querySelectorAll(`input[data-field="${field}"]`).forEach((input, i) => {
+                    const errorEl = document.getElementById(`error_${field.split('_')[0]}_${i}`);
+                    if (input.value === '' || parseFloat(input.value) < 0) {
+                        hasEmpty = true; input.classList.add('border-red-500');
+                        if (errorEl) { errorEl.textContent = 'Wajib diisi.'; errorEl.classList.remove('hidden'); }
+                    } else if (!validasiNominal(input.value)) {
+                        hasInvalid = true; input.classList.add('border-red-500');
+                        if (errorEl) { errorEl.textContent = 'Harus angka positif.'; errorEl.classList.remove('hidden'); }
+                    } else {
+                        input.classList.remove('border-red-500');
+                        if (errorEl) errorEl.classList.add('hidden');
+                    }
+                });
             });
 
-            const upahInputs = document.querySelectorAll('input[data-field="upah_per_rit"]');
-            upahInputs.forEach((input, i) => {
-                const errorEl = document.getElementById('error_upah_' + i);
-                if (input.value === '' || parseFloat(input.value) < 0) {
-                    hasEmpty = true;
-                    input.classList.add('border-red-500');
-                    if (errorEl) { errorEl.textContent = 'Wajib diisi.'; errorEl.classList.remove('hidden'); }
-                } else if (!validasiNominal(input.value)) {
-                    hasInvalid = true;
-                    input.classList.add('border-red-500');
-                    if (errorEl) { errorEl.textContent = 'Harus angka positif.'; errorEl.classList.remove('hidden'); }
-                } else {
-                    input.classList.remove('border-red-500');
-                    if (errorEl) errorEl.classList.add('hidden');
-                }
-            });
+            if (hasEmpty) { alert('Silakan isi BBM/Rit dan Upah/Rit untuk semua tujuan!'); return; }
+            if (hasInvalid) { alert('Nilai harus berupa angka positif!'); return; }
 
-            const kompInputs = document.querySelectorAll('input[data-field="kompensasi_gagal"]');
-            kompInputs.forEach((input, i) => {
-                const errorEl = document.getElementById('error_komp_' + i);
-                if (input.value && !validasiNominal(input.value)) {
-                    hasInvalid = true;
-                    input.classList.add('border-red-500');
-                    if (errorEl) { errorEl.textContent = 'Harus angka positif.'; errorEl.classList.remove('hidden'); }
-                } else {
-                    input.classList.remove('border-red-500');
-                    if (errorEl) errorEl.classList.add('hidden');
-                }
-            });
-
-            if (hasEmpty) {
-                alert('Silakan isi BBM/Rit dan Upah/Rit untuk semua tujuan!');
-                return;
-            }
-            if (hasInvalid) {
-                alert('Nilai harus berupa angka positif!');
-                return;
-            }
-
-            const form = document.getElementById('formGaji');
-            const formData = new FormData(form);
-            formDataGaji = formData;
-
+            formDataGaji = new FormData(document.getElementById('formGaji'));
             const periodeSelect = document.getElementById('pilih_periode');
             const periodeText = periodeSelect.options[periodeSelect.selectedIndex].text;
 
-            let detailHtml = `
-                <div class="space-y-2">
-                    <div class="flex justify-between"><span class="text-gray-500">Periode:</span><span class="font-semibold text-gray-900">${periodeText}</span></div>
-                    <div class="border-t pt-2 mt-2">
-                        <p class="text-xs text-gray-500">Detail Biaya per Tujuan:</p>
-            `;
+            let detailHtml = `<div class="space-y-2"><div class="flex justify-between"><span class="text-gray-500">Periode:</span><span class="font-semibold text-gray-900">${periodeText}</span></div><div class="border-t pt-2 mt-2"><p class="text-xs text-gray-500">Detail Biaya per Tujuan:</p>`;
 
-            const tujuanInputs = document.querySelectorAll('input[data-field="bbm_per_rit"]');
-            tujuanInputs.forEach(input => {
-                const kodeTujuan = input.dataset.tujuan;
-                const namaTujuan = allTujuans.find(t => t.kode_tujuan === kodeTujuan)?.nama || kodeTujuan;
+            document.querySelectorAll('input[data-field="bbm_per_rit"]').forEach(input => {
+                const kode = input.dataset.tujuan;
+                const nama = allTujuans.find(t => t.kode_tujuan === kode)?.nama || kode;
                 const bbm = input.value || '0';
-                const upahInput = document.querySelector(`input[data-tujuan="${kodeTujuan}"][data-field="upah_per_rit"]`);
-                const upah = upahInput ? upahInput.value || '0' : '0';
-                const tolInput = document.querySelector(`input[data-tujuan="${kodeTujuan}"][data-field="tol_per_rit"]`);
-                const tol = tolInput ? tolInput.value || '0' : '0';
-                const kompInput = document.querySelector(`input[data-tujuan="${kodeTujuan}"][data-field="kompensasi_gagal"]`);
-                const komp = kompInput ? kompInput.value || '0' : '0';
-                const lemburTujuanInput = document.querySelector(`input[data-tujuan="${kodeTujuan}"][data-field="lembur_per_rit"]`);
-                const lemburTujuan = lemburTujuanInput ? lemburTujuanInput.value || '0' : '0';
-                let line = `${namaTujuan}`;
-                line += ` <span class="text-gray-600">BBM: Rp ${formatRupiah(bbm)} | Upah: Rp ${formatRupiah(upah)}`;
-                if (parseFloat(tol) > 0) {
-                    line += ` | Tol: Rp ${formatRupiah(tol)}`;
-                }
-                if (parseFloat(komp) > 0) {
-                    line += ` | Kompensasi: Rp ${formatRupiah(komp)}`;
-                }
-                if (parseFloat(lemburTujuan) > 0) {
-                    line += ` | Lembur: Rp ${formatRupiah(lemburTujuan)}`;
-                }
-                line += '</span>';
-                detailHtml += `<div class="flex justify-between text-sm">${line}</div>`;
+                const upah = document.querySelector(`input[data-tujuan="${kode}"][data-field="upah_per_rit"]`)?.value || '0';
+                detailHtml += `<div class="flex justify-between text-sm py-1"><span class="font-medium">${nama}</span><span class="text-gray-600">BBM: Rp ${formatRupiah(bbm)} | Upah: Rp ${formatRupiah(upah)}</span></div>`;
             });
-
-
-
-            detailHtml += `
-                    </div>
-                    <div class="border-t pt-2 mt-2 text-xs text-gray-500">
-                        Data akan dihitung ulang berdasarkan ritase yang ada.
-                        ${gajiData.length > 0 ? 'Data lama akan ditimpa.' : ''}
-                    </div>
-                </div>
-            `;
+            detailHtml += `</div><div class="border-t pt-2 mt-2 text-xs text-gray-500">Data akan dihitung ulang berdasarkan ritase yang ada.</div></div>`;
 
             document.getElementById('konfirmasiDetail').innerHTML = detailHtml;
             const modal = document.getElementById('konfirmasiModal');
@@ -994,60 +822,6 @@
                 closeKonfirmasiModal();
                 document.getElementById('formGaji').submit();
             }
-        }
-
-        document.querySelectorAll('.overlay').forEach(overlay => {
-            overlay.addEventListener('click', function(e) {
-                if (e.target === this) {
-                    this.classList.remove('flex');
-                    this.classList.add('hidden');
-                }
-            });
-        });
-
-        function lihatSlipModal(periodeId) {
-            const modal = document.createElement('div');
-            modal.className = 'fixed inset-0 bg-black/40 z-50 flex items-center justify-center';
-            modal.innerHTML = `
-                <div class="bg-white rounded border border-gray-200 w-full max-w-6xl max-h-[95vh] overflow-y-auto p-4" onclick="event.stopPropagation()">
-                    <div class="flex justify-between items-center mb-3">
-                        <h3 class="text-lg font-semibold text-gray-900">Slip Gaji</h3>
-                        <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </div>
-                    <div id="slipViewContent" class="text-center text-gray-500 py-8">Loading slip...</div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-
-            fetch('/gaji/slip-view/' + periodeId)
-                .then(r => r.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    const styles = doc.querySelectorAll('style');
-                    let styleHtml = '';
-                    styles.forEach(s => {
-                        let css = s.textContent;
-                        css = css.replace(/@page\s*\{[^}]*\}/g, '');
-                        css = css.replace(/(?:^|\n)\s*\*\s*\{[^}]*\}/g, '');
-                        css = css.replace(/(?:^|\n)\s*html\s*\{[^}]*\}/g, '');
-                        css = css.replace(/(?:^|\n)\s*body\s*\{[^}]*\}/g, '');
-                        if (css.trim()) {
-                            styleHtml += '<style>' + css + '</style>';
-                        }
-                    });
-                    const blocks = doc.querySelectorAll('.slip-block');
-                    let slipHtml = '';
-                    blocks.forEach(b => slipHtml += b.outerHTML);
-                    document.getElementById('slipViewContent').innerHTML = styleHtml + (slipHtml || '<p class="text-gray-500">Tidak ada data slip</p>');
-                })
-                .catch(() => {
-                    document.getElementById('slipViewContent').innerHTML = '<p class="text-red-500">Gagal memuat slip</p>';
-                });
         }
     </script>
     @endpush

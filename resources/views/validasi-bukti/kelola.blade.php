@@ -9,35 +9,49 @@
                 <h1 class="text-3xl font-bold text-gray-900">Validasi Bukti</h1>
                 <p class="text-base text-gray-500 mt-1">Verifikasi bukti dari sopir sebelum menambah ritase</p>
             </div>
+            <div class="relative" id="valFilterWrap">
+                <button onclick="toggleValFilter()" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium bg-white hover:bg-gray-50 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                    Filter
+                    @if(!empty($search) || $status !== 'pending')
+                        <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                    @endif
+                    
+                </button>
+                <div class="hidden absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-xl shadow-lg z-50 p-4" id="valFilterPanel">
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</label>
+                            <div class="flex flex-wrap gap-2 mt-1">
+                                @foreach(['pending' => 'Pending', 'disetujui' => 'Disetujui', 'ditolak' => 'Ditolak', 'semua' => 'Semua'] as $val => $label)
+                                    <a href="{{ route('validasi-bukti.kelola', ['status' => $val, 'search' => $search ?? '']) }}"
+                                        class="px-3 py-1.5 rounded text-xs font-medium border transition
+                                            {{ $status === $val ? 'bg-green-600 text-white border-green-600' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50' }}">
+                                        {{ $label }}
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                        <form method="GET" action="{{ route('validasi-bukti.kelola') }}" class="space-y-3">
+                            <input type="hidden" name="status" value="{{ $status }}">
+                            <div>
+                                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Pencarian</label>
+                                <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari nama sopir, lokasi tujuan, atau tanggal" class="w-full px-3 py-2 border border-gray-200 rounded text-sm bg-white mt-1">
+                            </div>
+                            <button type="submit" class="w-full px-4 py-2 rounded text-sm font-medium bg-[#2d6a4f] text-white hover:opacity-90 transition">Cari</button>
+                        </form>
+                        @if(!empty($search))
+                            <a href="{{ route('validasi-bukti.kelola', ['status' => $status]) }}" class="block text-center px-3 py-2 border border-gray-200 rounded text-sm text-gray-600 hover:bg-gray-50">Reset</a>
+                        @endif
+                    </div>
+                </div>
+            </div>
         </div>
+        <script>
+        function toggleValFilter(){const p=document.getElementById('valFilterPanel'),c=document.getElementById('valChevron');p.classList.toggle('hidden');c.style.transform=p.classList.contains('hidden')?'':'rotate(180deg)';}
+        document.addEventListener('click',function(e){const w=document.getElementById('valFilterWrap');if(w&&!w.contains(e.target)){document.getElementById('valFilterPanel').classList.add('hidden');document.getElementById('valChevron').style.transform='';}});
+        </script>
     </div>
-
-    @if(session('success'))
-        <div class="border border-green-200 bg-green-50 text-green-700 px-4 py-3 rounded mb-4 text-sm">{{ session('success') }}</div>
-    @endif
-    @if(session('error'))
-        <div class="border border-red-200 bg-red-50 text-red-700 px-4 py-3 rounded mb-4 text-sm">{{ session('error') }}</div>
-    @endif
-
-    <div class="flex gap-2 mb-4">
-        @foreach(['pending' => 'Pending', 'disetujui' => 'Disetujui', 'ditolak' => 'Ditolak', 'semua' => 'Semua'] as $val => $label)
-            <a href="{{ route('validasi-bukti.kelola', ['status' => $val, 'search' => $search ?? '']) }}"
-                class="px-4 py-2 rounded text-sm font-medium border transition
-                    {{ $status === $val ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50' }}">
-                {{ $label }}
-            </a>
-        @endforeach
-    </div>
-
-    <form method="GET" action="{{ route('validasi-bukti.kelola') }}" class="mb-4 flex flex-wrap items-center gap-2">
-        <input type="hidden" name="status" value="{{ $status }}">
-        <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari nama sopir, lokasi tujuan, atau tanggal"
-            class="px-3 py-2 border border-gray-200 rounded text-sm bg-white w-full md:w-96">
-        <button type="submit" class="px-4 py-2 rounded text-sm font-medium bg-[#1a1a2e] text-white hover:opacity-90 transition">Cari</button>
-        @if(!empty($search))
-            <a href="{{ route('validasi-bukti.kelola', ['status' => $status]) }}" class="px-3 py-2 border border-gray-200 rounded text-sm text-gray-600 hover:bg-gray-50 bg-white">Reset</a>
-        @endif
-    </form>
 
     <div class="mb-4 flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -57,7 +71,7 @@
         <p class="text-xs text-gray-400">Sopir wajib kirim bukti sebelum ritase & gaji</p>
     </div>
 
-    <div class="w-full border border-gray-200 rounded overflow-hidden bg-white">
+    <div class="w-full border border-gray-200 rounded bg-white table-responsive">
         <table class="w-full">
             <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
@@ -104,14 +118,15 @@
                         </td>
                         <td class="px-4 py-2.5 text-right">
                             <a href="{{ route('validasi-bukti.detail', $item->id) }}"
-                                class="text-xs text-blue-600 border border-blue-200 px-2.5 py-1.5 rounded hover:bg-blue-50 font-medium">
+                                class="text-xs text-green-600 border border-green-200 px-2.5 py-1.5 rounded hover:bg-green-50 font-medium">
                                 Detail
                             </a>
                             <form method="POST" action="{{ route('validasi-bukti.destroy', $item->id) }}" class="inline"
-                                onsubmit="return confirm('Yakin ingin menghapus permintaan validasi ini?')">
+                                id="deleteValidasi_{{ $item->id }}">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit"
+                                <button type="button"
+                                    onclick="confirmDeleteValidasi({{ $item->id }})"
                                     class="text-xs text-red-600 border border-red-200 px-2.5 py-1.5 rounded hover:bg-red-50 font-medium">
                                     Hapus
                                 </button>
@@ -150,7 +165,7 @@
 
                     @for($page = $start; $page <= $end; $page++)
                         @if($page == $current)
-                            <span class="px-3 py-1.5 text-sm font-bold text-white bg-[#1a1a2e] border border-[#1a1a2e] rounded">{{ $page }}</span>
+                            <span class="px-3 py-1.5 text-sm font-bold text-white bg-[#2d6a4f] border border-[#2d6a4f] rounded">{{ $page }}</span>
                         @else
                             <a href="{{ $list->url($page) }}" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">{{ $page }}</a>
                         @endif
@@ -170,4 +185,18 @@
             </div>
         </div>
     @endif
+
+    <script>
+        function confirmDeleteValidasi(id) {
+            showConfirmModal({
+                title: 'Hapus Permintaan Validasi?',
+                message: 'Anda yakin ingin menghapus permintaan validasi ini? Tindakan ini tidak dapat dibatalkan.',
+                type: 'danger',
+                confirmText: 'Ya, Hapus',
+                onConfirm: function() {
+                    document.getElementById('deleteValidasi_' + id).submit();
+                }
+            });
+        }
+    </script>
 </x-layouts.dashboard>

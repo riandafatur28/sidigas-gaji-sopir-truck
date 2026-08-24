@@ -12,7 +12,7 @@
         th { background: #f3f4f6; font-weight: 600; }
         td.nama { text-align: left; font-weight: 600; min-width: 120px; }
         td.dt { text-align: center; font-weight: 600; }
-        tr.grand td { background: #dbeafe; font-weight: 700; }
+        tr.grand td { background: #dcfce7; font-weight: 700; }
         .tujuan-cell { font-size: 10pt; }
     </style>
     <style id="dark-theme">

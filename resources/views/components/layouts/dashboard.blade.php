@@ -27,6 +27,19 @@
             }
         }
     </script>
+    <script>
+        // Apply theme BEFORE paint — prevents flash gelap-terang
+        (function() {
+            var saved = localStorage.getItem('theme');
+            if (saved === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else if (!saved) {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.classList.add('dark');
+                }
+            }
+        })();
+    </script>
     <style>
         /* ============================================
            SIDIGAS DESIGN SYSTEM — hangat, modern, gak kaku
@@ -35,8 +48,8 @@
             --sidebar-w: 270px;
             --bg: #f6f3ee;
             --card-bg: #fffdfc;
-            --primary: #4a3f6b;
-            --primary-light: #e8e5ef;
+            --primary: #2d6a4f;
+            --primary-light: #e8f5e9;
             --accent: #c9774d;
             --accent-light: #f5ede7;
             --success: #5b8c6f;
@@ -60,7 +73,7 @@
         .dark {
             --bg: #000000;
             --card-bg: #111111;
-            --primary: #a89ccf;
+            --primary: #4ade80;
             --primary-light: #1a1a1a;
             --accent: #d4926a;
             --accent-light: #1a1a1a;
@@ -121,8 +134,8 @@
         .dark tr[style*="background"] { background: var(--card-bg) !important; }
         .dark tfoot[style*="background"] { background: var(--card-bg) !important; }
         /* Buttons */
-        .dark .btn-primary { background: #5a4d8a !important; }  /* deeper purple, not lillac */
-        .dark .btn-primary:hover { background: #4a3d78 !important; }
+        .dark .btn-primary { background: #2d6a4f !important; }  /* green primary */
+        .dark .btn-primary:hover { background: #1b4332 !important; }
         .dark .btn-secondary { background: rgba(255,255,255,0.08) !important; }
         .dark .btn-secondary:hover { background: rgba(255,255,255,0.12) !important; }
         /* Badges */
@@ -146,7 +159,7 @@
         .dark .slip-container .font-bold,
         .dark .slip-container .label-tujuan-nama { color: var(--text) !important; }
         .dark .page-break { border-color: var(--border) !important; }
-        .dark .slip-container .print-btn { background: #3a3650 !important; color: var(--text) !important; border: 1px solid var(--border) !important; }
+        .dark .slip-container .print-btn { background: #2d6a4f !important; color: var(--text) !important; border: 1px solid var(--border) !important; }
         /* Red utility — hapus button, error, required marker */
         .dark .text-red-500 { color: #f87171 !important; }
         .dark .text-red-600 { color: #f87171 !important; }
@@ -169,36 +182,36 @@
         .dark .bg-green-50,
         .dark .bg-green-100,
         .dark .bg-green-500,
-        .dark .bg-blue-50,
-        .dark .bg-blue-100,
+        .dark .bg-green-50,
+        .dark .bg-green-100,
         .dark .bg-amber-50,
         .dark .bg-amber-50\/30,
-        .dark .bg-indigo-50,
-        .dark .bg-indigo-100,
-        .dark .bg-indigo-50\/30,
+        .dark .bg-green-50,
+        .dark .bg-green-100,
+        .dark .bg-green-50\/30,
         .dark .bg-yellow-100,
         .dark .bg-orange-100 { background: transparent !important; }
         /* Semantic text — satu warna, pakai var(--text) */
         .dark .text-green-600,
         .dark .text-green-700,
         .dark .text-green-800,
-        .dark .text-blue-600,
-        .dark .text-blue-700,
-        .dark .text-blue-800,
+        .dark .text-green-600,
+        .dark .text-green-700,
+        .dark .text-green-800,
         .dark .text-amber-500,
         .dark .text-amber-600,
-        .dark .text-indigo-600,
-        .dark .text-indigo-700,
+        .dark .text-green-600,
+        .dark .text-green-700,
         .dark .text-yellow-600,
         .dark .text-yellow-700,
         .dark .text-orange-600,
         .dark .text-orange-700 { color: var(--text) !important; }
         /* Semantic borders */
         .dark .border-green-200,
-        .dark .border-blue-200 { border-color: var(--border) !important; }
+        .dark .border-green-200 { border-color: var(--border) !important; }
         /* Hover backgrounds — satu warna */
         .dark .hover\:bg-green-100:hover,
-        .dark .hover\:bg-blue-100:hover { background: var(--table-hover) !important; }
+        .dark .hover\:bg-green-100:hover { background: var(--table-hover) !important; }
         /* Ritase detail-table — semua gelap, satu warna */
         /* TomSelect dropdown — dark mode */
         .dark .ts-wrapper .ts-control {
@@ -262,7 +275,8 @@
             width: var(--sidebar-w);
             z-index: 50;
             overflow-y: auto;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.3s ease;
+            will-change: transform;
         }
         .sidebar-hidden { transform: translateX(-100%) !important; }
 
@@ -346,7 +360,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: margin-left 0.3s ease;
         }
         .main-content.full-width { margin-left: 0 !important; }
 
@@ -355,8 +369,6 @@
            ============================================ */
         .header-bar {
             background: var(--header-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border);
             position: sticky;
             top: 0;
@@ -436,8 +448,8 @@
             color: #fff;
         }
         .btn-primary:hover {
-            background: #3d3460;
-            box-shadow: 0 4px 14px rgba(74,63,107,0.25);
+            background: #1b4332;
+            box-shadow: 0 4px 14px rgba(45,106,79,0.25);
             transform: translateY(-1px);
         }
         .btn-secondary {
@@ -473,6 +485,17 @@
            ============================================ */
         .table-wrap {
             overflow-x: auto;
+        }
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            max-width: 100%;
+        }
+
+        /* Pagination responsive */
+        @media (max-width: 640px) {
+            .pagination-wrap .page-num { display: none !important; }
+            .pagination-wrap .page-ellipsis { display: none !important; }
         }
         .table-wrap table {
             width: 100%;
@@ -565,8 +588,8 @@
             color: #7a5e2a;
         }
         .alert-info {
-            background: #e8f0fe;
-            color: #1a4f7a;
+            background: #e8f5e9;
+            color: #2d6a4f;
         }
 
         /* ============================================
@@ -591,15 +614,18 @@
            HAMBURGER
            ============================================ */
         .hamburger-btn {
-            padding: 8px;
-            border-radius: 10px;
-            transition: background 0.2s ease;
+            padding: 6px;
+            border-radius: 8px;
+            transition: background 0.15s ease;
             cursor: pointer;
             background: transparent;
             border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .hamburger-btn:hover { background: rgba(74,63,107,0.06); }
-        .hamburger-btn svg { width: 24px; height: 24px; color: var(--text-muted); }
+        .hamburger-btn:hover { background: var(--primary-light); }
+        .hamburger-btn svg { width: 18px; height: 18px; color: var(--text-muted); }
 
         /* ============================================
            RESPONSIVE
@@ -625,35 +651,28 @@
         ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
 
         /* ============================================
-           SKELETON OVERLAY
-           ============================================ */
-        }
-
-        /* ============================================
            TOGGLER (sidebar desktop show/hide)
            ============================================ */
         .sidebar-toggler {
             position: fixed;
-            left: var(--sidebar-w);
+            left: 0;
             top: 50%;
             transform: translateY(-50%);
             z-index: 49;
-            width: 20px;
+            width: 24px;
             height: 48px;
-            background: var(--sidebar-bg);
+            background: var(--card-bg);
             border: 1px solid var(--border);
             border-left: none;
-            border-radius: 0 8px 8px 0;
+            border-radius: 0 10px 10px 0;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: left 0.3s ease, opacity 0.2s ease;
-            opacity: 0;
-            pointer-events: none;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.08);
             color: var(--text-muted);
         }
-        .sidebar-toggler:hover { opacity: 1; }
+        .sidebar-toggler:hover { background: var(--primary-light); color: var(--primary); }
         .sidebar-toggler svg { width: 14px; height: 14px; }
     </style>
     @stack('styles')
@@ -667,12 +686,20 @@
     {{-- ========================================= --}}
     <aside id="sidebar" class="sidebar">
         <div class="sidebar-logo">
-            <h1>SIDIGAS</h1>
-            <p>Sistem Distribusi Gaji</p>
+            <div class="flex items-center justify-between">
+                <div style="flex:1;min-width:0">
+                    <h1>SIDIGAS</h1>
+                    <p>Sistem Distribusi Gaji</p>
+                </div>
+                <button class="hamburger-btn hamburger-sidebar" onclick="(window.innerWidth>=1024?toggleSidebarDesktop():toggleSidebar())" aria-label="Toggle sidebar">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
         </div>
 
         <nav class="sidebar-nav">
-            <span class="sidebar-section">Menu</span>
 
             <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -728,6 +755,13 @@
 
             <span class="sidebar-section">Lainnya</span>
 
+            <a href="{{ route('validasi-bukti.kelola') }}" class="nav-item {{ request()->routeIs('validasi-bukti.*') ? 'active' : '' }}">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span>Validasi Bukti</span>
+            </a>
+
             <a href="{{ route('gaji.laporan') }}" class="nav-item {{ request()->routeIs('gaji.laporan') ? 'active' : '' }}">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -735,20 +769,33 @@
                 <span>Laporan Gaji</span>
             </a>
 
-            <a href="#" onclick="event.preventDefault(); document.getElementById('sidebarLogoutForm').submit();" class="nav-item logout">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                </svg>
-                <span>Keluar</span>
-            </a>
+            <div class="relative" id="userDropdownWrapper" style="margin-top:8px;border-top:1px solid var(--border);padding-top:14px;">
+                <button onclick="toggleUserDropdown()" class="nav-item w-full" style="justify-content:space-between">
+                    <span class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-[var(--primary)] text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">{{ substr(Auth::user()->name ?? 'A', 0, 1) }}</div>
+                        <span class="truncate">{{ Auth::user()->name ?? 'Admin' }}</span>
+                    </span>
+                    <svg id="userDropdownArrow" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <div id="userDropdownMenu" class="hidden absolute left-0 right-0 bottom-full mb-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-lg shadow-lg overflow-hidden z-50">
+                    <a href="{{ route('profil') }}" class="flex items-center gap-3 px-4 py-3 text-sm text-[var(--text)] hover:bg-[var(--primary-light)] transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                        Profil
+                    </a>
+                    <a href="#" onclick="event.preventDefault(); document.getElementById('sidebarLogoutForm').submit();" class="flex items-center gap-3 px-4 py-3 text-sm text-[var(--danger)] hover:bg-[var(--danger-light)] transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                        Keluar
+                    </a>
+                </div>
+            </div>
             <form id="sidebarLogoutForm" method="POST" action="{{ route('logout') }}" class="hidden">@csrf</form>
         </nav>
     </aside>
 
-    {{-- SIDEBAR TOGGLER (desktop) --}}
-    <div id="sidebarToggler" class="sidebar-toggler" onclick="toggleSidebarDesktop()" title="Toggle sidebar">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+    {{-- SIDEBAR TOGGLER (desktop) — shows when sidebar is hidden --}}
+    <div id="sidebarToggler" class="sidebar-toggler" onclick="toggleSidebarDesktop()" title="Toggle sidebar" style="display:none">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
         </svg>
     </div>
 
@@ -761,12 +808,13 @@
         <header class="header-bar px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between w-full">
                 <div class="flex items-center gap-3">
-                    <button class="hamburger-btn" onclick="(window.innerWidth>=1024?toggleSidebarDesktop():toggleSidebar())" aria-label="Toggle sidebar">
+                    {{-- Mobile hamburger --}}
+                    <button class="hamburger-btn lg:hidden" onclick="toggleSidebar()" aria-label="Buka menu">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
                     </button>
-                    <div>
+                    <div class="hidden sm:block">
                         <h2 class="text-base font-semibold text-[var(--text)]">{{ $pageTitle ?? $title ?? 'Dashboard' }}</h2>
                     </div>
                 </div>
@@ -783,14 +831,6 @@
                     <span id="liveDate" class="text-sm text-[var(--text)] font-medium">{{ \Carbon\Carbon::now()->locale('id')->translatedFormat('j F Y') }}</span>
                     <span class="text-sm text-[var(--text)]">|</span>
                     <span id="liveTime" class="text-sm text-[var(--text)] font-mono tabular-nums">00:00:00</span>
-                    <form method="POST" action="{{ route('logout') }}" class="inline">
-                        @csrf
-                        <button type="submit" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-[var(--primary-light)] transition text-sm" style="color:var(--text-muted)" title="Keluar">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                            </svg>
-                        </button>
-                    </form>
                 </div>
             </div>
         </header>
@@ -824,34 +864,37 @@
                 var sidebar = document.getElementById('sidebar');
                 var main = document.getElementById('mainContent');
                 var toggler = document.getElementById('sidebarToggler');
+                var hamburger = document.querySelector('.hamburger-sidebar');
                 sidebar.classList.toggle('hidden-desktop');
                 main.classList.toggle('full-width');
-                toggler.classList.toggle('collapsed');
                 if (sidebar.classList.contains('hidden-desktop')) {
-                    toggler.style.left = '0';
-                    toggler.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>';
+                    toggler.style.display = 'flex';
+                    if (hamburger) hamburger.style.display = 'none';
                 } else {
-                    toggler.style.left = 'var(--sidebar-w)';
-                    toggler.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>';
+                    toggler.style.display = 'none';
+                    if (hamburger) hamburger.style.display = 'flex';
                 }
             };
 
-            // Show toggler on hover at edge
-            var togglerEl = document.getElementById('sidebarToggler');
-            if (togglerEl) {
-                document.addEventListener('mousemove', function(e) {
-                    if (e.clientX <= 10) {
-                        togglerEl.style.opacity = '1';
-                        togglerEl.style.pointerEvents = 'auto';
-                    } else if (e.clientX > 40) {
-                        togglerEl.style.opacity = '0';
-                        togglerEl.style.pointerEvents = 'none';
-                    }
-                });
-            }
+            // (hover toggler removed — hamburger in sidebar handles toggle)
 
             // ===== USER DROPDOWN =====
-            // (removed — user menu replaced with inline logout)
+            window.toggleUserDropdown = function() {
+                var menu = document.getElementById('userDropdownMenu');
+                var arrow = document.getElementById('userDropdownArrow');
+                menu.classList.toggle('hidden');
+                if (arrow) arrow.style.transform = menu.classList.contains('hidden') ? '' : 'rotate(180deg)';
+            };
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                var wrapper = document.getElementById('userDropdownWrapper');
+                var menu = document.getElementById('userDropdownMenu');
+                var arrow = document.getElementById('userDropdownArrow');
+                if (wrapper && !wrapper.contains(e.target) && menu && !menu.classList.contains('hidden')) {
+                    menu.classList.add('hidden');
+                    if (arrow) arrow.style.transform = '';
+                }
+            });
 
             // ===== LIVE CLOCK =====
             function updateDateTime() {
@@ -909,19 +952,7 @@
             if (lightIcon) lightIcon.style.display = isDark ? 'none' : '';
             if (darkIcon) darkIcon.style.display = isDark ? '' : 'none';
         }
-        // Apply saved theme on load
-        (function() {
-            var saved = localStorage.getItem('theme');
-            if (saved === 'dark') {
-                document.documentElement.classList.add('dark');
-            } else if (!saved) {
-                // Check system preference
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    document.documentElement.classList.add('dark');
-                }
-            }
-            updateThemeIcons();
-        })();
+        // Theme already applied in <head> — no flash on load
 
         // Cegah browser autofill — paksa autocomplete=off di semua form
         document.addEventListener('DOMContentLoaded', function() {
@@ -929,6 +960,107 @@
                 f.setAttribute('autocomplete', 'off');
             });
         });
+    </script>
+
+    {{-- ========================================= --}}
+    {{-- SHARED CONFIRMATION MODAL --}}
+    {{-- ========================================= --}}
+    <div id="confirmModal" class="fixed inset-0 bg-black/40 z-[9999] hidden items-center justify-center">
+        <div class="bg-white rounded-lg border border-gray-200 w-full max-w-md mx-4 shadow-xl">
+            <div class="p-6">
+                <div class="flex items-center justify-center mb-4">
+                    <div id="confirmIcon" class="w-12 h-12 rounded-full flex items-center justify-center"></div>
+                </div>
+                <h3 id="confirmTitle" class="text-lg font-semibold text-gray-900 text-center mb-2"></h3>
+                <p id="confirmMessage" class="text-sm text-gray-600 text-center mb-6"></p>
+                <div class="flex gap-3">
+                    <button onclick="closeConfirmModal()" class="flex-1 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 px-4 py-2.5 hover:bg-gray-50 transition">Batal</button>
+                    <button id="confirmActionBtn" class="flex-1 rounded-lg text-sm font-semibold px-4 py-2.5 text-white transition"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- TOAST NOTIFICATION --}}
+    <div id="toast" class="fixed top-4 right-4 z-[9999] hidden">
+        <div id="toastBox" class="bg-white border rounded-lg shadow-lg px-4 py-3 flex items-center gap-3 max-w-sm">
+            <div id="toastIcon" class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"></div>
+            <p id="toastMessage" class="text-sm text-gray-700"></p>
+        </div>
+    </div>
+
+    <script>
+    // ===== SHARED CONFIRM MODAL =====
+    window._confirmCallback = null;
+
+    window.showConfirmModal = function(opts) {
+        var modal = document.getElementById('confirmModal');
+        var icon = document.getElementById('confirmIcon');
+        var title = document.getElementById('confirmTitle');
+        var msg = document.getElementById('confirmMessage');
+        var btn = document.getElementById('confirmActionBtn');
+
+        title.textContent = opts.title || 'Konfirmasi';
+        msg.textContent = opts.message || 'Apakah Anda yakin?';
+
+        if (opts.type === 'danger') {
+            icon.className = 'w-12 h-12 rounded-full flex items-center justify-center bg-red-100';
+            icon.innerHTML = '<svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>';
+            btn.className = 'flex-1 rounded-lg text-sm font-semibold px-4 py-2.5 bg-red-600 text-white hover:bg-red-700 transition';
+        } else if (opts.type === 'warning') {
+            icon.className = 'w-12 h-12 rounded-full flex items-center justify-center bg-amber-100';
+            icon.innerHTML = '<svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>';
+            btn.className = 'flex-1 rounded-lg text-sm font-semibold px-4 py-2.5 bg-amber-600 text-white hover:bg-amber-700 transition';
+        } else {
+            icon.className = 'w-12 h-12 rounded-full flex items-center justify-center bg-blue-100';
+            icon.innerHTML = '<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+            btn.className = 'flex-1 rounded-lg text-sm font-semibold px-4 py-2.5 bg-blue-600 text-white hover:bg-blue-700 transition';
+        }
+
+        btn.textContent = opts.confirmText || 'Ya, Lanjutkan';
+        window._confirmCallback = opts.onConfirm || null;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    };
+
+    window.closeConfirmModal = function() {
+        var modal = document.getElementById('confirmModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        window._confirmCallback = null;
+    };
+
+    document.getElementById('confirmActionBtn').addEventListener('click', function() {
+        if (window._confirmCallback) window._confirmCallback();
+        closeConfirmModal();
+    });
+
+    // ===== TOAST NOTIFICATION =====
+    window.showToast = function(message, type) {
+        var toast = document.getElementById('toast');
+        var icon = document.getElementById('toastIcon');
+        var box = document.getElementById('toastBox');
+        var msg = document.getElementById('toastMessage');
+
+        msg.textContent = message;
+
+        if (type === 'success') {
+            icon.className = 'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-green-100';
+            icon.innerHTML = '<svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
+            box.className = 'bg-white border border-green-200 rounded-lg shadow-lg px-4 py-3 flex items-center gap-3 max-w-sm';
+        } else if (type === 'error') {
+            icon.className = 'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-red-100';
+            icon.innerHTML = '<svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
+            box.className = 'bg-white border border-red-200 rounded-lg shadow-lg px-4 py-3 flex items-center gap-3 max-w-sm';
+        } else {
+            icon.className = 'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-amber-100';
+            icon.innerHTML = '<svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>';
+            box.className = 'bg-white border border-amber-200 rounded-lg shadow-lg px-4 py-3 flex items-center gap-3 max-w-sm';
+        }
+
+        toast.classList.remove('hidden');
+        setTimeout(function() { toast.classList.add('hidden'); }, 3000);
+    };
     </script>
 </body>
 </html>

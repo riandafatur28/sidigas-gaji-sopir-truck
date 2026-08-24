@@ -106,7 +106,7 @@ class RitaseParserService
 
                 // Route type keywords — mark where route description starts
                 // Format: [sopir names] [keyword] [route details]
-                $routeKeywords = ['patching', 'paket', 'overlay', 'cmm', 'kormuling', 'rekon'];
+                $routeKeywords = ['patching', 'paket', 'overlay', 'cmm', 'kormuling', 'rekon', 'bongkar'];
 
                 $implicitDrivers = [];
                 $isRitKe2 = false;
@@ -215,15 +215,24 @@ class RitaseParserService
         }
         $result["packages"] = array_values($merged);
 
-        // Post-processing: bongkar packages — pakai tujuan dari non-bongkar sebelumnya
+        // Post-processing: bongkar packages — extract tujuan setelah "ke"
+        // "Yanto bongkar primcoat ke jembatan kaliombo kediri" → tujuan = "jembatan kaliombo kediri"
+        // Bongkar = rit ke 2, bukan lembur.
         $lastNonBongkarPkg = null;
         $lastNonBongkarIdx = -1;
         foreach ($result['packages'] as $idx => $pkg) {
             $isBongkar = str_contains(strtolower($pkg['route_name']), 'bongkar');
             if ($isBongkar && $lastNonBongkarPkg !== null) {
                 $result['packages'][$idx]['is_bongkar'] = true;
+                $result['packages'][$idx]['is_rit_ke_2'] = true;
                 $result['packages'][$idx]['bongkar_source_idx'] = $lastNonBongkarIdx;
                 $result['packages'][$idx]['bongkar_source_route'] = $lastNonBongkarPkg['route_name'];
+
+                // Extract tujuan: "bongkar primcoat ke jembatan kaliombo kediri" → "jembatan kaliombo kediri"
+                $routeName = $pkg['route_name'];
+                if (preg_match('/\bke\s+(.+)$/i', $routeName, $m)) {
+                    $result['packages'][$idx]['route_name'] = trim($m[1]);
+                }
             }
             if (!$isBongkar) {
                 $lastNonBongkarPkg = $pkg;
@@ -423,13 +432,25 @@ class RitaseParserService
                     $type = 'exact';
                 }
                 // 2) All input words appear as contiguous substring within tujuan stripped name → 95%
-                elseif (str_contains($pt['stripped_lower'], $cleanLower)) {
+                // Tapi harus significant portion (bukan cuma 1 kata pendek)
+                elseif (str_contains($pt['stripped_lower'], $cleanLower)
+                    && mb_strlen($cleanRoute) >= mb_strlen($pt['stripped']) * 0.6
+                ) {
                     $score = 95;
                     $type = 'substring';
                 }
+                // 2b) Tujuan is substring of input (reverse) — hanya kalo tujuan cukup panjang
+                elseif (str_contains($cleanLower, $pt['stripped_lower'])
+                    && mb_strlen($pt['stripped']) >= mb_strlen($cleanRoute) * 0.6
+                ) {
+                    $score = 95;
+                    $type = 'substring-reverse';
+                }
                 // 3) Every word from one side found in the other (bidirectional) → 90%
+                // Harus minimal 2 kata cocok dari kedua sisi
                 else {
                     $inputInTujuan = !empty($cleanWords);
+                    $inputMatchCount = 0;
                     foreach ($cleanWords as $w) {
                         if (strlen($w) < 2) continue;
                         $found = false;
@@ -437,9 +458,11 @@ class RitaseParserService
                             if ($tw === $w) { $found = true; break; }
                         }
                         if (!$found) { $inputInTujuan = false; break; }
+                        $inputMatchCount++;
                     }
 
                     $tujuanInInput = !empty($pt['words']);
+                    $tujuanMatchCount = 0;
                     foreach ($pt['words'] as $tw) {
                         if (strlen($tw) < 2) continue;
                         $found = false;
@@ -447,9 +470,14 @@ class RitaseParserService
                             if ($w === $tw) { $found = true; break; }
                         }
                         if (!$found) { $tujuanInInput = false; break; }
+                        $tujuanMatchCount++;
                     }
 
-                    if ($inputInTujuan || $tujuanInInput) {
+                    // Harus minimal 2 kata dari input match, DAN minimal 1 dari tujuan
+                    if ($inputInTujuan && $inputMatchCount >= 2 && $tujuanMatchCount >= 1) {
+                        $score = 90;
+                        $type = 'bidirectional-words';
+                    } elseif ($tujuanInInput && $tujuanMatchCount >= 2 && $inputMatchCount >= 1) {
                         $score = 90;
                         $type = 'bidirectional-words';
                     }
@@ -462,15 +490,17 @@ class RitaseParserService
                 }
             }
 
-            // 4) Fallback: Jaro-Winkler ≥85% with first-letter match
+            // 4) Fallback: Jaro-Winkler ≥90% + shared word ≥1 (prevent long-prefix false positives)
             if ($bestScore < 85) {
                 foreach ($processedTujuan as $pt) {
                     $similarity = $this->calculateStringSimilarity($cleanRoute, $pt['stripped']);
                     $normalizedScore = $similarity * 100;
+                    $sharedWords = array_intersect($cleanWords, $pt['words']);
 
-                    if ($normalizedScore >= 85
+                    if ($normalizedScore >= 90
                         && !empty($cleanRoute) && !empty($pt['stripped'])
                         && $cleanLower[0] === $pt['stripped_lower'][0]
+                        && count($sharedWords) >= 1
                     ) {
                         if ($normalizedScore > $bestScore) {
                             $bestScore = $normalizedScore;
@@ -873,90 +903,17 @@ class RitaseParserService
             }
 
             // === BONGKAR PACKAGE ===
-            // Bukan rute baru, bukan ritase baru. Update ritase existing sopir
-            // di paket sebelumnya: kasih is_lembur=true + upah_lembur
+            // Bongkar = rit ke 2 (bukan lembur). Tujuan sudah di-extract di parse()
+            // ("bongkar primcoat ke jembatan kaliombo kediri" → "jembatan kaliombo kediri")
+            // is_rit_ke_2 sudah di-set, jadi duplicate check di-skip.
+            // Lanjut ke pembuatan ritase biasa di bawah.
             if (!empty($package['is_bongkar'])) {
                 $sourceIdx = $package['bongkar_source_idx'] ?? null;
                 $sourcePkg = $sourceIdx !== null ? ($parsed['packages'][$sourceIdx] ?? null) : null;
                 $sourceRouteMatch = $sourcePkg ? ($routeMatchesMap[$sourcePkg['route_name']] ?? null) : null;
-
-                if (!$sourceRouteMatch || !$sourceRouteMatch['matched']) {
-                    $skipped++;
-                    $details[] = [
-                        'route' => $routeName,
-                        'status' => 'Skipped (bongkar)',
-                        'reason' => 'Previous package route not matched',
-                    ];
-                    continue;
+                if ($sourceRouteMatch && $sourceRouteMatch['matched']) {
+                    $waktu = $this->guessWaktu($driverNames, $routeName);
                 }
-
-                $sourceTujuan = $sourceRouteMatch['tujuan'];
-                $sourceKodeTujuan = $sourceTujuan->kode_tujuan;
-
-                foreach ($matchedSopirs as $matchedSopir) {
-                    $sopir = $matchedSopir['sopir'];
-
-                    // Cari existing ritase sopir ini ke source tujuan di tanggal sama
-                    $existing = Ritase::where('periode_id', $periodeId)
-                        ->where('kode_sopir', $sopir->kode_sopir)
-                        ->where('tanggal', $parsed['date'])
-                        ->where('kode_tujuan', $sourceKodeTujuan)
-                        ->where('status', '!=', 'gagal_produksi')
-                        ->latest('id')
-                        ->first();
-
-                    if (!$existing) {
-                        $skipped++;
-                        $details[] = [
-                            'route' => $routeName,
-                            'status' => 'Skipped (bongkar)',
-                            'sopir' => $sopir->nama,
-                            'reason' => 'No existing ritase to update',
-                        ];
-                        continue;
-                    }
-
-                    // Cek apa sopir ini juga ada di source package → layak lembur
-                    $sourceDriverNames = $sourcePkg['drivers'] ?? [];
-                    $isInSource = false;
-                    foreach ($sourceDriverNames as $sdn) {
-                        if (strtolower(trim($sdn)) === strtolower(trim($sopir->nama))) {
-                            $isInSource = true;
-                            break;
-                        }
-                    }
-
-                    if (!$isInSource) {
-                        $skipped++;
-                        $details[] = [
-                            'route' => $routeName,
-                            'status' => 'Skipped (bongkar)',
-                            'sopir' => $sopir->nama,
-                            'reason' => 'Sopir not in source package, not eligible for lembur',
-                        ];
-                        continue;
-                    }
-
-                    try {
-                        $existing->is_lembur = true;
-                        $existing->upah_lembur = 50000;
-                        $existing->save();
-
-                        $details[] = [
-                            'route' => $routeName,
-                            'status' => 'Updated lembur',
-                            'sopir' => $sopir->nama,
-                            'kode_sopir' => $sopir->kode_sopir,
-                            'kode_tujuan' => $sourceKodeTujuan,
-                            'is_lembur' => true,
-                            'upah_lembur' => 50000,
-                            'reason' => "Lembur on existing ritase #{$existing->id}",
-                        ];
-                    } catch (\Exception $e) {
-                        $errors[] = "Failed to update lembur for {$sopir->nama}: {$e->getMessage()}";
-                    }
-                }
-                continue; // skip normal ritase creation
             }
 
             // Create one ritase per driver
@@ -990,16 +947,23 @@ class RitaseParserService
                 }
 
                 try {
-                    // DT: 330.000 default, kecuali ada rit lain utk sopir+date+kab+waktu yg sama
+                    // DT: 330.000 per rit
+                    // 1x per kabupaten per waktu HANYA untuk kabupaten special:
+                    //   Nganjuk, Jombang, Kediri, Kota Kediri
+                    // Sisanya (beda waktu / kab non-special) → DT 2x
                     $dtValue = 330000;
-                    $ritLain = Ritase::where('kode_sopir', $sopir->kode_sopir)
-                        ->where('tanggal', $parsed['date'])
-                        ->where('kabupaten', $kabupaten)
-                        ->where('waktu', $waktu)
-                        ->where('status', '!=', 'gagal_produksi')
-                        ->first();
-                    if ($ritLain) {
-                        $dtValue = 0;
+                    $kabNorm = strtolower(trim($kabupaten));
+                    $specialKabs = ['nganjuk', 'jombang', 'kediri', 'kota kediri'];
+                    if (in_array($kabNorm, $specialKabs)) {
+                        $ritLain = Ritase::where('kode_sopir', $sopir->kode_sopir)
+                            ->where('tanggal', $parsed['date'])
+                            ->where('kabupaten', $kabupaten)
+                            ->where('waktu', $waktu)
+                            ->where('status', '!=', 'gagal_produksi')
+                            ->first();
+                        if ($ritLain) {
+                            $dtValue = 0;
+                        }
                     }
 
                     $ritase = new Ritase();

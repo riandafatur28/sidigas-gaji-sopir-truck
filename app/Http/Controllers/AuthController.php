@@ -122,16 +122,18 @@ class AuthController extends Controller
     // ============ GOOGLE LOGIN ============
     public function loginGoogle()
     {
+        $redirectUrl = $this->getGoogleRedirectUrl();
         return Socialite::driver('google')
-            ->redirectUrl(route('google.callback'))
+            ->redirectUrl($redirectUrl)
             ->redirect();
     }
 
     public function loginGoogleCallback()
     {
+        $redirectUrl = $this->getGoogleRedirectUrl();
         try {
             $googleUser = Socialite::driver('google')
-                ->redirectUrl(route('google.callback'))
+                ->redirectUrl($redirectUrl)
                 ->user();
         } catch (\Exception $e) {
             return redirect()->route('login')
@@ -149,6 +151,16 @@ class AuthController extends Controller
         request()->session()->regenerate();
 
         return redirect()->route('dashboard');
+    }
+
+    private function getGoogleRedirectUrl()
+    {
+        // Auto-detect: if accessed via ngrok, use ngrok URL; otherwise use APP_URL
+        $host = request()->getHost();
+        if (str_contains($host, 'ngrok')) {
+            return 'https://' . $host . '/auth/google/callback';
+        }
+        return env('GOOGLE_REDIRECT_URL', config('services.google.redirect', route('google.callback')));
     }
 
     // ============ LOGOUT ============

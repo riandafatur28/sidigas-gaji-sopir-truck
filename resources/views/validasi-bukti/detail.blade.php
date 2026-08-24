@@ -101,17 +101,17 @@
                         <form method="POST" action="{{ route('validasi-bukti.setujui', $item->id) }}" class="border border-gray-200 rounded p-4 bg-gray-50">
                             @csrf
                             <label class="block text-sm font-medium text-gray-700 mb-1">Catatan (opsional)</label>
-                            <textarea name="catatan_mitra" rows="2" class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-blue-500"></textarea>
+                            <textarea name="catatan_mitra" rows="2" class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-green-500"></textarea>
                             <button type="submit" class="mt-2 w-full bg-green-600 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-green-700 transition">
                                 Setujui
                             </button>
                         </form>
 
-                        <form method="POST" action="{{ route('validasi-bukti.tolak', $item->id) }}" class="border border-red-200 rounded p-4 bg-red-50" onsubmit="return confirm('Yakin menolak bukti ini?')">
+                        <form method="POST" action="{{ route('validasi-bukti.tolak', $item->id) }}" class="border border-red-200 rounded p-4 bg-red-50" id="formTolak">
                             @csrf
                             <label class="block text-sm font-medium text-gray-700 mb-1">Alasan Penolakan <span class="text-red-500">*</span></label>
                             <textarea name="catatan_mitra" rows="2" required class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-red-500"></textarea>
-                            <button type="submit" class="mt-2 w-full bg-red-600 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-red-700 transition">
+                            <button type="button" onclick="confirmTolak()" class="mt-2 w-full bg-red-600 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-red-700 transition">
                                 Tolak
                             </button>
                         </form>
@@ -131,7 +131,7 @@
                             <input type="hidden" name="kode_tujuan" value="{{ $item->kode_tujuan }}">
                             <input type="hidden" name="tanggal" value="{{ $item->tanggal }}">
 
-                            <div class="border border-blue-200 bg-blue-50 text-blue-700 px-4 py-3 rounded text-sm">
+                            <div class="border border-green-200 bg-green-50 text-green-700 px-4 py-3 rounded text-sm">
                                 Sopir: <strong>{{ $item->nama_sopir }}</strong> ({{ $item->kode_sopir }})
                                 &middot; Tujuan: <strong>{{ $item->nama_tujuan }}</strong> ({{ $item->kode_tujuan }})
                             </div>
@@ -139,7 +139,7 @@
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Kabupaten <span class="text-red-500">*</span></label>
-                                    <select name="kabupaten" required class="w-full px-3 py-2 border border-gray-200 rounded text-sm bg-white focus:outline-none focus:border-blue-500">
+                                    <select name="kabupaten" required class="w-full px-3 py-2 border border-gray-200 rounded text-sm bg-white focus:outline-none focus:border-green-500">
                                         <option value="">Pilih</option>
                                         <option value="bangkalan">Bangkalan</option>
                                         <option value="sampang">Sampang</option>
@@ -150,7 +150,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Waktu <span class="text-red-500">*</span></label>
-                                    <select name="waktu" required class="w-full px-3 py-2 border border-gray-200 rounded text-sm bg-white focus:outline-none focus:border-blue-500">
+                                    <select name="waktu" required class="w-full px-3 py-2 border border-gray-200 rounded text-sm bg-white focus:outline-none focus:border-green-500">
                                         <option value="">Pilih</option>
                                         <option value="pagi">Pagi</option>
                                         <option value="malam">Malam</option>
@@ -158,7 +158,7 @@
                                 </div>
                             </div>
 
-                            <button type="submit" class="w-full bg-blue-600 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-blue-700 transition"
+                            <button type="submit" class="w-full bg-green-600 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-green-700 transition"
                                 onclick="return confirm('Pastikan data sudah benar. Lanjutkan?')">
                                 Simpan Ritase
                             </button>
@@ -175,4 +175,18 @@
             @endif
         </div>
     </div>
+
+    <script>
+        function confirmTolak() {
+            showConfirmModal({
+                title: 'Tolak Permintaan?',
+                message: 'Anda yakin ingin menolak permintaan validasi ini? Pastikan alasan penolakan sudah diisi.',
+                type: 'danger',
+                confirmText: 'Ya, Tolak',
+                onConfirm: function() {
+                    document.getElementById('formTolak').submit();
+                }
+            });
+        }
+    </script>
 </x-layouts.dashboard>

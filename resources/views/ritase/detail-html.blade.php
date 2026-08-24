@@ -17,8 +17,8 @@
         .dark .text-gray-400 { color: #6b6b6b !important; }
         .dark .text-gray-700 { color: #cccccc !important; }
         .dark .text-gray-900 { color: #e5e5e5 !important; }
-        .dark .text-blue-700, .dark .text-blue-800 { color: #e5e5e5 !important; }
-        .dark .text-amber-600, .dark .text-indigo-600 { color: #e5e5e5 !important; }
+        .dark .text-green-700, .dark .text-green-800 { color: #e5e5e5 !important; }
+        .dark .text-amber-600, .dark .text-green-600 { color: #e5e5e5 !important; }
         /* Red kept for gagal column */
         .dark .text-red-600 { color: #f87171 !important; }
         .dark .border-gray-200 { border-color: #333333 !important; }
@@ -40,7 +40,7 @@
             <p class="text-sm text-gray-500">{{ $periode->nama_periode }} ({{ \Carbon\Carbon::parse($periode->tanggal_mulai)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($periode->tanggal_selesai)->format('d/m/Y') }})</p>
         </div>
 
-        <div class="overflow-x-auto">
+        <div class="table-responsive">
             <table class="w-full text-sm border-collapse" style="min-width:100%">
                 <thead>
                     <tr>
@@ -63,7 +63,7 @@
                     <tr>
                         @foreach($columns as $col)
                             @php
-                                $warnClass = $col['waktu'] == 'P' ? 'text-amber-600 bg-amber-50/30' : 'text-indigo-600 bg-indigo-50/30';
+                                $warnClass = $col['waktu'] == 'P' ? 'text-amber-600 bg-amber-50/30' : 'text-green-600 bg-green-50/30';
                             @endphp
                             <th class="px-1 py-1 text-center text-[10px] font-semibold border border-gray-200 {{ $warnClass }}">{{ $col['label'] }}</th>
                         @endforeach
@@ -93,23 +93,23 @@
                                 @php
                                     $ritKey = $col['date'] . '_' . $col['waktu'];
                                     $val = isset($data[$sk][$ritKey][$col['rit_idx']]) ? $data[$sk][$ritKey][$col['rit_idx']] : '-';
-                                    $bgClass = $val !== '-' ? ($col['waktu'] == 'P' ? 'bg-amber-50/30' : 'bg-indigo-50/30') : '';
+                                    $bgClass = $val !== '-' ? ($col['waktu'] == 'P' ? 'bg-amber-50/30' : 'bg-green-50/30') : '';
                                     if ($val !== '-') $perDayTotals[$col['key']]++;
                                 @endphp
                                 <td class="px-1 py-2 text-center text-xs font-medium border border-gray-200 {{ $bgClass }}" style="color:var(--text,#374151)">{{ $val }}</td>
                             @endforeach
                             <td class="px-3 py-2 text-center text-sm font-bold border border-gray-200" style="color:var(--text,#111827)">{{ $total }}</td>
-                            <td class="px-3 py-2 text-center text-sm font-bold border border-gray-200" style="color:var(--text,#1d4ed8)">{{ $eligible }}</td>
+                            <td class="px-3 py-2 text-center text-sm font-bold border border-gray-200" style="color:var(--text,#16a34a)">{{ $eligible }}</td>
                             <td class="px-3 py-2 text-center text-sm font-bold text-red-600 border border-gray-200">{{ $gagal }}</td>
                         </tr>
                     @endforeach
                     <tr class="font-bold">
                         <td class="px-3 py-2 text-sm text-left border border-gray-200" style="color:var(--text,#374151)">Grand Total</td>
                         @foreach($columns as $col)
-                            <td class="px-1 py-1.5 text-center text-xs font-bold border border-gray-200" style="color:var(--text,#1e40af)">{{ $perDayTotals[$col['key']] }}</td>
+                            <td class="px-1 py-1.5 text-center text-xs font-bold border border-gray-200" style="color:var(--text,#15803d)">{{ $perDayTotals[$col['key']] }}</td>
                         @endforeach
                         <td class="px-3 py-2 text-center text-sm font-bold border border-gray-200" style="color:var(--text,#111827)">{{ $grandTotal }}</td>
-                        <td class="px-3 py-2 text-center text-sm font-bold border border-gray-200" style="color:var(--text,#1d4ed8)">{{ $grandEligible }}</td>
+                        <td class="px-3 py-2 text-center text-sm font-bold border border-gray-200" style="color:var(--text,#16a34a)">{{ $grandEligible }}</td>
                         <td class="px-3 py-2 text-center text-sm font-bold text-red-600 border border-gray-200">{{ $grandGagal }}</td>
                     </tr>
                 </tbody>

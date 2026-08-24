@@ -54,7 +54,7 @@
             gap: 12px;
         }
         .nav-item:hover { background: #f3f4f6; color: #1f2937; }
-        .nav-item.active { background: #eff6ff; color: #2563eb; font-weight: 600; }
+        .nav-item.active { background: #f0fdf4; color: #16a34a; font-weight: 600; }
         .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
         .header-bar {
             background: #ffffff;

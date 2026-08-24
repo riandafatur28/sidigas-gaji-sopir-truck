@@ -94,7 +94,7 @@
                 </div>
                 <div class="relative w-72">
                     <input type="text" id="liveSearch" value="{{ $search }}"
-                        class="w-full pl-10 pr-10 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-white"
+                        class="w-full pl-10 pr-10 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 transition bg-white"
                         placeholder="Cari nama atau kode..." autocomplete="off">
                     <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -108,7 +108,7 @@
             </div>
         </div>
 
-        <div class="overflow-x-auto">
+        <div class="table-responsive">
             <table class="w-full">
                 <thead style="background:rgba(255,253,252,0.6);border-bottom:1.5px solid var(--border)">
                     <tr>
@@ -209,7 +209,7 @@
 
                         @for($page = $start; $page <= $end; $page++)
                             @if($page == $current)
-                                <span class="px-3 py-1.5 text-sm font-bold text-white bg-[#1a1a2e] border border-[#1a1a2e] rounded">{{ $page }}</span>
+                                <span class="px-3 py-1.5 text-sm font-bold text-white bg-[#2d6a4f] border border-[#2d6a4f] rounded">{{ $page }}</span>
                             @else
                                 <a href="{{ $periodes->url($page) }}" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">{{ $page }}</a>
                             @endif
@@ -247,7 +247,7 @@
                 <div id="konfirmasiDetail" class="text-sm text-gray-600 mb-4 bg-gray-50 p-4 rounded"></div>
                 <div class="flex gap-3">
                     <button onclick="closeTambahModal()" class="flex-1 border border-gray-300 rounded text-sm font-medium text-gray-700 px-4 py-2.5 hover:bg-gray-50 transition">Batal</button>
-                    <button onclick="submitTambahPeriode()" class="flex-1 bg-[#1a1a2e] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#2d2d44] transition">Ya, Tambah</button>
+                    <button onclick="submitTambahPeriode()" class="flex-1 bg-[#2d6a4f] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#1b4332] transition">Ya, Tambah</button>
                 </div>
             </div>
         </div>
@@ -300,7 +300,7 @@
 
                     <div class="flex gap-3 pt-2">
                         <button type="button" onclick="closeEditModal()" class="flex-1 border border-gray-300 rounded text-sm font-medium text-gray-700 px-4 py-2.5 hover:bg-gray-50 transition">Batal</button>
-                        <button type="button" onclick="konfirmasiEditPeriode()" class="flex-1 bg-[#1a1a2e] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#2d2d44] transition">Simpan</button>
+                        <button type="button" onclick="konfirmasiEditPeriode()" class="flex-1 bg-[#2d6a4f] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#1b4332] transition">Simpan</button>
                     </div>
                 </form>
             </div>
@@ -322,28 +322,7 @@
                 <p class="text-sm text-gray-600 mb-4">Anda yakin ingin memperbarui data periode ini?</p>
                 <div class="flex gap-3">
                     <button onclick="closeKonfirmasiEditModal()" class="flex-1 border border-gray-300 rounded text-sm font-medium text-gray-700 px-4 py-2.5 hover:bg-gray-50 transition">Batal</button>
-                    <button onclick="submitEditPeriode()" class="flex-1 bg-[#1a1a2e] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#2d2d44] transition">Ya, Simpan</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- MODAL KONFIRMASI HAPUS --}}
-    <div id="deleteModal" class="fixed inset-0 bg-black/40 z-50 hidden items-center justify-center">
-        <div class="bg-white rounded shadow-xl w-full max-w-sm mx-4">
-            <div class="p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900">Hapus Data Periode?</h3>
-                    <button onclick="closeDeleteModal()" class="text-gray-400 hover:text-gray-600">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
-                <p id="delete_pesan" class="text-sm text-gray-600 mb-4"></p>
-                <div class="flex gap-3">
-                    <button onclick="closeDeleteModal()" class="flex-1 border border-gray-300 rounded text-sm font-medium text-gray-700 px-4 py-2.5 hover:bg-gray-50 transition">Batal</button>
-                    <button onclick="submitDelete()" class="flex-1 bg-red-600 text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-red-700 transition">Ya, Hapus</button>
+                    <button onclick="submitEditPeriode()" class="flex-1 bg-[#2d6a4f] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#1b4332] transition">Ya, Simpan</button>
                 </div>
             </div>
         </div>
@@ -362,6 +341,20 @@
 
         function validasiNominal(input) {
             return /^\d+$/.test(input) && parseInt(input) >= 0;
+        }
+
+        // ===== HAPUS PERIODE =====
+        function confirmDelete(id, nama) {
+            showConfirmModal({
+                title: 'Hapus Data Periode?',
+                message: 'Anda yakin ingin menghapus periode "' + nama + '"? Tindakan ini tidak dapat dibatalkan.',
+                type: 'danger',
+                confirmText: 'Ya, Hapus',
+                onConfirm: function() {
+                    document.getElementById('deleteForm').action = '{{ url("/periode") }}/' + id;
+                    document.getElementById('deleteForm').submit();
+                }
+            });
         }
 
         // ===== LIVE SEARCH =====

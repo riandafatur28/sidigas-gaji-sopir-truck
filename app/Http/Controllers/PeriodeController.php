@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Periode;
+use App\Models\Sopir;
+use App\Models\Tujuan;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -71,6 +73,10 @@ class PeriodeController extends Controller
             'status' => 'aktif',
         ]);
 
+        // Sync status sopir & tujuan berdasarkan periode aktif
+        Sopir::syncActiveStatus();
+        Tujuan::syncActiveStatus();
+
         return redirect()->back()
             ->with('success', 'Periode berhasil ditambahkan!');
     }
@@ -92,6 +98,10 @@ class PeriodeController extends Controller
             'status' => $request->status,
         ]);
 
+        // Sync status sopir & tujuan berdasarkan periode aktif
+        Sopir::syncActiveStatus();
+        Tujuan::syncActiveStatus();
+
         return redirect()->back()
             ->with('success', 'Data periode berhasil diperbarui!');
     }
@@ -107,6 +117,10 @@ class PeriodeController extends Controller
         }
 
         $periode->delete();
+
+        // Sync status sopir & tujuan berdasarkan periode aktif
+        Sopir::syncActiveStatus();
+        Tujuan::syncActiveStatus();
 
         return redirect()->back()
             ->with('success', 'Data periode berhasil dihapus!');

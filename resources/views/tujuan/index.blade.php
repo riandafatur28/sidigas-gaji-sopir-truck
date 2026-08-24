@@ -95,7 +95,8 @@
             </div>
         </div>
 
-        <table class="w-full">
+        <div class="table-responsive">
+            <table class="w-full">
             <thead style="background:rgba(255,253,252,0.6);border-bottom:1.5px solid var(--border)">
                 <tr>
                     <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">No</th>
@@ -160,6 +161,7 @@
                 @endif
             </tbody>
         </table>
+        </div>
 
         {{-- PAGINATION --}}
         @if($tujuans->hasPages())
@@ -197,7 +199,7 @@
 
                         @for($page = $start; $page <= $end; $page++)
                             @if($page == $current)
-                                <span class="px-3 py-1.5 text-sm font-bold text-white bg-[#1a1a2e] border border-[#1a1a2e] rounded">{{ $page }}</span>
+                                <span class="px-3 py-1.5 text-sm font-bold text-white bg-[#2d6a4f] border border-[#2d6a4f] rounded">{{ $page }}</span>
                             @else
                                 <a href="{{ $tujuans->url($page) }}" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">{{ $page }}</a>
                             @endif
@@ -243,7 +245,7 @@
                             Batal
                         </button>
                         <button onclick="submitTambah()"
-                            class="flex-1 px-4 py-2.5 bg-[#1a1a2e] text-white rounded text-sm font-semibold hover:bg-[#2d2d44] transition">
+                            class="flex-1 px-4 py-2.5 bg-[#2d6a4f] text-white rounded text-sm font-semibold hover:bg-[#1b4332] transition">
                             Ya, Tambah
                         </button>
                     </div>
@@ -298,7 +300,7 @@
                         Batal
                     </button>
                     <button type="button" onclick="konfirmasiEdit()"
-                        class="flex-1 px-4 py-2.5 bg-[#1a1a2e] text-white rounded text-sm font-semibold hover:bg-[#2d2d44] transition">
+                        class="flex-1 px-4 py-2.5 bg-[#2d6a4f] text-white rounded text-sm font-semibold hover:bg-[#1b4332] transition">
                         Simpan Perubahan
                     </button>
                 </div>
@@ -323,34 +325,8 @@
                             Batal
                         </button>
                         <button onclick="submitEdit()"
-                            class="flex-1 px-4 py-2.5 bg-[#1a1a2e] text-white rounded text-sm font-semibold hover:bg-[#2d2d44] transition">
+                            class="flex-1 px-4 py-2.5 bg-[#2d6a4f] text-white rounded text-sm font-semibold hover:bg-[#1b4332] transition">
                             Ya, Simpan
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- MODAL KONFIRMASI HAPUS --}}
-    <div id="deleteModal" class="fixed inset-0 bg-black/40 z-50 hidden items-center justify-center">
-        <div class="bg-white rounded border border-gray-200 w-full max-w-sm mx-4">
-            <div class="p-6">
-                <div class="text-center">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Hapus Data Tujuan?</h3>
-                    <p class="text-sm text-gray-600 mb-6">
-                        Anda yakin ingin menghapus <strong id="delete_nama" class="text-gray-900"></strong>?<br>
-                        <span class="text-xs text-red-500 mt-1 block">Tindakan ini tidak dapat dibatalkan.</span>
-                    </p>
-
-                    <div class="flex gap-3">
-                        <button onclick="closeDeleteModal()"
-                            class="flex-1 px-4 py-2.5 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 transition">
-                            Batal
-                        </button>
-                        <button onclick="submitDelete()"
-                            class="flex-1 px-4 py-2.5 bg-red-600 text-white rounded text-sm font-semibold hover:bg-red-700 transition">
-                            Ya, Hapus
                         </button>
                     </div>
                 </div>
@@ -368,6 +344,20 @@
         // ===== VALIDASI INPUT: Hanya huruf, angka, spasi, strip =====
         function validasiNama(input) {
             return /^[a-zA-Z0-9\s\-\.]+$/.test(input);
+        }
+
+        // ===== HAPUS TUJUAN =====
+        function confirmDelete(id, nama) {
+            showConfirmModal({
+                title: 'Hapus Data Tujuan?',
+                message: 'Anda yakin ingin menghapus tujuan "' + nama + '"? Tindakan ini tidak dapat dibatalkan.',
+                type: 'danger',
+                confirmText: 'Ya, Hapus',
+                onConfirm: function() {
+                    document.getElementById('deleteForm').action = '{{ url("/tujuan") }}/' + id;
+                    document.getElementById('deleteForm').submit();
+                }
+            });
         }
 
         // ===== LIVE SEARCH =====

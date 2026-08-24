@@ -61,8 +61,11 @@ EXPOSE ${PORT:-8080}
 RUN ln -sf /app/storage/app/public /app/public/storage 2>/dev/null || true
 
 CMD if [ ! -f .env ]; then cp .env.example .env; fi; \
-    php artisan key:generate --force \
-    && php artisan migrate --force --isolated \
+    sed -i "s/^APP_KEY=.*/APP_KEY=${APP_KEY}/" .env 2>/dev/null || echo "APP_KEY=${APP_KEY}" >> .env; \
+    sed -i "s/^APP_ENV=.*/APP_ENV=local/" .env 2>/dev/null || echo "APP_ENV=local" >> .env; \
+    sed -i "s/^APP_DEBUG=.*/APP_DEBUG=true/" .env 2>/dev/null || echo "APP_DEBUG=true" >> .env; \
+    sed -i "s/^LOG_CHANNEL=.*/LOG_CHANNEL=stderr/" .env 2>/dev/null || echo "LOG_CHANNEL=stderr" >> .env; \
+    php artisan migrate --force --isolated \
     && php artisan config:cache \
     && php artisan route:cache \
     && php artisan view:cache \

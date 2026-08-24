@@ -10,7 +10,36 @@
                 <h1 class="text-2xl font-bold" style="color:var(--text)">Kelola Data Ritase</h1>
                 <p class="text-sm mt-1" style="color:var(--text-muted)">Input dan kelola ritase dump-truck dengan aturan sewa DT otomatis.</p>
             </div>
-            {{-- parser button moved to form footer --}}
+            <div class="relative" id="ritFilterWrap">
+                <button onclick="toggleRitFilter()" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium bg-white hover:bg-gray-50 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                    Filter
+                    @if($tanggal || $filterPeriode)
+                        <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                    @endif
+                    
+                </button>
+                <div class="hidden absolute right-0 mt-2 w-72 bg-white border border-gray-200 rounded-xl shadow-lg z-50 p-4" id="ritFilterPanel">
+                    <form method="GET" action="{{ route('ritase.index') }}" id="filterForm" class="space-y-3">
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Periode</label>
+                            <select name="periode" id="filterPeriode" onchange="this.form.submit()" class="w-full px-3 py-2 border border-gray-200 rounded text-sm bg-white mt-1">
+                                <option value="">Semua Periode</option>
+                                @foreach($periodes as $periode)
+                                    <option value="{{ $periode->id }}" {{ $filterPeriode == $periode->id ? 'selected' : '' }}>{{ $periode->nama_periode }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Tanggal</label>
+                            <input type="date" name="tanggal" id="filterTanggal" value="{{ $tanggal }}" onchange="onTanggalChange(this)" class="w-full px-3 py-2 border border-gray-200 rounded text-sm bg-white mt-1">
+                        </div>
+                        @if($tanggal || $filterPeriode)
+                            <a href="{{ route('ritase.index') }}" class="block text-center px-3 py-2 border border-gray-200 rounded text-sm text-gray-600 hover:bg-gray-50">Reset</a>
+                        @endif
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -147,7 +176,7 @@
                         <div class="relative">
                             <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">Rp</span>
                             <input type="number" id="nominal_kompensasi" name="nominal_kompensasi" min="0"
-                                class="w-full pl-8 pr-3 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-white"
+                                class="w-full pl-8 pr-3 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 transition bg-white"
                                 placeholder="0">
                         </div>
                         <p class="text-red-500 text-xs mt-1 hidden" id="error_kompensasi">Nominal harus angka positif.</p>
@@ -169,7 +198,7 @@
                             <div class="relative">
                                 <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">Rp</span>
                                 <input type="number" id="upah_lembur" name="upah_lembur" min="0"
-                                    class="w-full pl-8 pr-3 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-white"
+                                    class="w-full pl-8 pr-3 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 transition bg-white"
                                     placeholder="0" value="0">
                             </div>
                         </div>
@@ -244,27 +273,10 @@
         </div>
     </div>
 
-    {{-- FILTER BAR --}}
-    <div class="flex flex-wrap items-center gap-3 mb-4">
-        <form method="GET" action="{{ route('ritase.index') }}" id="filterForm" class="flex flex-wrap items-center gap-3">
-            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Periode</label>
-            <select name="periode" id="filterPeriode" onchange="this.form.submit()" class="px-3 py-2 border border-gray-200 rounded text-sm bg-white">
-                <option value="">Semua Periode</option>
-                @foreach($periodes as $periode)
-                    <option value="{{ $periode->id }}" {{ $filterPeriode == $periode->id ? 'selected' : '' }}>{{ $periode->nama_periode }}</option>
-                @endforeach
-            </select>
-            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Tanggal</label>
-            <input type="date" name="tanggal" id="filterTanggal" value="{{ $tanggal }}" onchange="onTanggalChange(this)"
-                class="px-3 py-2 border border-gray-200 rounded text-sm bg-white">
-            @if($tanggal || $filterPeriode)
-                <a href="{{ route('ritase.index') }}" class="px-3 py-2 border border-gray-200 rounded text-sm text-gray-600 hover:bg-gray-50 bg-white">Reset</a>
-            @endif
-        </form>
-    </div>
-
     @push('scripts')
     <script>
+    function toggleRitFilter(){const p=document.getElementById('ritFilterPanel'),c=document.getElementById('ritChevron');p.classList.toggle('hidden');c.style.transform=p.classList.contains('hidden')?'':'rotate(180deg)';}
+    document.addEventListener('click',function(e){const w=document.getElementById('ritFilterWrap');if(w&&!w.contains(e.target)){document.getElementById('ritFilterPanel').classList.add('hidden');document.getElementById('ritChevron').style.transform='';}});
     // Period data for date-based period auto-detection
     const periodData = [
         @foreach($periodes as $periode)
@@ -338,7 +350,7 @@
                         </form>
                         <div class="relative w-full sm:w-64">
                             <input type="text" id="liveSearch" value="{{ $search }}"
-                                class="w-full pl-10 pr-10 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-white"
+                                class="w-full pl-10 pr-10 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 transition bg-white"
                                 placeholder="Cari kode, sopir, tujuan..." autocomplete="off">
                             <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style="color:var(--text-dims)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -353,7 +365,7 @@
                 </div>
             </div>
 
-            <div class="overflow-x-auto">
+            <div class="table-responsive">
                 @if($ritases->count() > 0)
                     <table class="w-full">
                         <thead style="background:rgba(255,253,252,0.6);border-bottom:1.5px solid var(--border)">
@@ -406,7 +418,7 @@
                                     </td>
                                     <td class="px-4 py-3 text-sm text-gray-600">{{ $ritase->tanggal->format('d M Y') }}</td>
                                     <td class="px-4 py-3">
-                                        <span class="inline-flex items-center px-2 py-1 rounded-full {{ $ritase->waktu == 'pagi' ? 'bg-yellow-100 text-yellow-700' : 'bg-indigo-100 text-indigo-700' }} text-xs font-semibold">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full {{ $ritase->waktu == 'pagi' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700' }} text-xs font-semibold">
                                             {{ ucfirst($ritase->waktu) }}
                                         </span>
                                     </td>
@@ -446,11 +458,12 @@
                                                 class="text-xs text-gray-600 border border-gray-200 px-2.5 py-1.5 rounded hover:bg-gray-50 font-medium">Edit</button>
                                             <form action="{{ route('ritase.destroy', $ritase->id) }}"
                                                   method="POST"
-                                                  onsubmit="return confirm('Yakin ingin menghapus ritase {{ $ritase->kode_ritase }}?\n\nData yang dihapus tidak dapat dikembalikan!')"
-                                                  class="inline">
+                                                  class="inline"
+                                                  id="deleteRitase_{{ $ritase->id }}">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit"
+                                                <button type="button"
+                                                    onclick="confirmDeleteRitase({{ $ritase->id }}, '{{ $ritase->kode_ritase }}')"
                                                     class="text-xs text-red-600 border border-red-200 px-2.5 py-1.5 rounded hover:bg-red-50 font-medium">Hapus</button>
                                             </form>
                                         </div>
@@ -498,7 +511,7 @@
 
                             @for($page = $start; $page <= $end; $page++)
                                 @if($page == $current)
-                                    <span class="px-3 py-1.5 text-sm font-bold text-white bg-[#1a1a2e] border border-[#1a1a2e] rounded">{{ $page }}</span>
+                                    <span class="px-3 py-1.5 text-sm font-bold text-white bg-[#2d6a4f] border border-[#2d6a4f] rounded">{{ $page }}</span>
                                 @else
                                     <a href="{{ $ritases->url($page) }}" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">{{ $page }}</a>
                                 @endif
@@ -538,7 +551,7 @@
                         </select>
                         <div class="relative w-full sm:w-64">
                             <input type="text" id="detailSearch"
-                                class="w-full pl-10 pr-10 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-white"
+                                class="w-full pl-10 pr-10 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 transition bg-white"
                                 placeholder="Cari nama sopir atau tujuan..." autocomplete="off">
                             <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style="color:var(--text-dims)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -572,11 +585,11 @@
             transition: all 0.15s ease;
         }
         .tab-btn:hover {
-            color: #4a3f6b;
+            color: #2d6a4f;
         }
         .tab-btn.active {
-            color: #4a3f6b;
-            border-bottom-color: #4a3f6b;
+            color: #2d6a4f;
+            border-bottom-color: #2d6a4f;
             font-weight: 600;
         }
         .tab-panel {
@@ -608,6 +621,19 @@
     </style>
 
     <script>
+        // ===== HAPUS RITASE =====
+        function confirmDeleteRitase(id, kode) {
+            showConfirmModal({
+                title: 'Hapus Data Ritase?',
+                message: 'Anda yakin ingin menghapus ritase ' + kode + '? Tindakan ini tidak dapat dibatalkan.',
+                type: 'danger',
+                confirmText: 'Ya, Hapus',
+                onConfirm: function() {
+                    document.getElementById('deleteRitase_' + id).submit();
+                }
+            });
+        }
+
         var activeTab = 1;
 
         function switchTab(tab) {
@@ -649,7 +675,7 @@
 
             container.innerHTML = '<div class="flex items-center justify-center py-16"><svg class="animate-spin h-8 w-8 text-gray-400" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/></svg><p class="text-sm text-gray-500 ml-3">Memuat data...</p></div>';
 
-            fetch('{{ route('ritase.detail-data') }}?periode=' + encodeURIComponent(periode) + '&search=' + encodeURIComponent(search) + '&page=' + detailCurrentPage)
+            fetch('/ritase/detail-data?periode=' + encodeURIComponent(periode) + '&search=' + encodeURIComponent(search) + '&page=' + detailCurrentPage)
                 .then(function(r) { return r.json(); })
                 .then(function(json) {
                     if (!json.sopirs || json.sopirs.length === 0) {
@@ -670,7 +696,7 @@
                     var sopirWidth = totalDays > 5 ? 'min-width:130px' : 'min-width:160px';
                     var colWidth = totalDays > 5 ? 'min-width:56px' : 'min-width:68px';
 
-                    var html = '<div class="overflow-x-auto" style="max-height:75vh;overflow-y:auto"><table class="detail-table" style="border-collapse:collapse;min-width:100%"><thead>';
+                    var html = '<div class="table-responsive" style="max-height:75vh;overflow-y:auto"><table class="detail-table" style="border-collapse:collapse;min-width:100%"><thead>';
 
                     var dayNames = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
 
@@ -697,7 +723,7 @@
                     // ROW 2: Pagi / Malam
                     html += '<tr>';
                     json.columns.forEach(function(col) {
-                        var cls = col.waktu === 'P' ? 'text-amber-600' : 'text-indigo-600';
+                        var cls = col.waktu === 'P' ? 'text-amber-600' : 'text-green-600';
                         var label = col.waktu === 'P' ? 'Pagi' : 'Malam';
                         html += '<th class="px-1 py-1.5 text-center text-[10px] font-semibold uppercase tracking-wider ' + cls + '" style="border:1px solid #e5e7eb;background:#f9fafb;' + colWidth + '">' + label + '</th>';
                     });
@@ -728,7 +754,7 @@
                                 var items = json.data[s.kode_sopir][col.key];
                                 cell = items.join('<br>');
                             }
-                            html += '<td class="text-center align-middle ' + cellClass + ' ' + (col.waktu === 'P' ? 'bg-amber-50/30' : 'bg-indigo-50/30') + ' text-gray-700" style="border:1px solid #e5e7eb;font-weight:500">';
+                            html += '<td class="text-center align-middle ' + cellClass + ' ' + (col.waktu === 'P' ? 'bg-amber-50/30' : 'bg-green-50/30') + ' text-gray-700" style="border:1px solid #e5e7eb;font-weight:500">';
                             html += cell || '<span class="text-gray-300">-</span>';
                             html += '</td>';
                         });
@@ -785,7 +811,7 @@
 
                         for (var p = ss; p <= ee; p++) {
                             if (p == pag.page) {
-                                html += '<span class="px-3 py-1.5 text-sm font-bold text-white bg-[#1a1a2e] border border-[#1a1a2e] rounded">' + p + '</span>';
+                                html += '<span class="px-3 py-1.5 text-sm font-bold text-white bg-[#2d6a4f] border border-[#2d6a4f] rounded">' + p + '</span>';
                             } else {
                                 html += '<a href="#" onclick="loadDetailPage(' + p + '); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">' + p + '</a>';
                             }
@@ -924,7 +950,7 @@ function escapeHtml(str) {
                             <div class="relative">
                                 <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">Rp</span>
                                 <input type="number" id="edit_nominal_kompensasi" name="nominal_kompensasi" min="0"
-                                    class="w-full pl-8 pr-3 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-white">
+                                    class="w-full pl-8 pr-3 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 transition bg-white">
                             </div>
                         </div>
                         <div class="md:col-span-2">
@@ -941,7 +967,7 @@ function escapeHtml(str) {
                                 <div class="relative">
                                     <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">Rp</span>
                                     <input type="number" id="edit_upah_lembur" name="upah_lembur" min="0"
-                                        class="w-full pl-8 pr-3 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-white"
+                                        class="w-full pl-8 pr-3 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 transition bg-white"
                                         placeholder="0" value="0">
                                 </div>
                             </div>
@@ -949,7 +975,7 @@ function escapeHtml(str) {
                     </div>
                     <div class="flex gap-3 pt-2">
                         <button type="button" onclick="closeEditModal()" class="flex-1 border border-gray-300 rounded text-sm font-medium text-gray-700 px-4 py-2.5 hover:bg-gray-50 transition">Batal</button>
-                        <button type="submit" class="flex-1 bg-[#1a1a2e] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#2d2d44] transition">Simpan Perubahan</button>
+                        <button type="submit" class="flex-1 bg-[#2d6a4f] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#1b4332] transition">Simpan Perubahan</button>
                     </div>
                 </form>
             </div>
@@ -985,7 +1011,7 @@ function escapeHtml(str) {
                 <div id="konfirmasiDetail" class="text-sm text-gray-600 mb-4 bg-gray-50 p-4 rounded max-h-60 overflow-y-auto"></div>
                 <div class="flex gap-3">
                     <button onclick="closeTambahModal()" class="flex-1 border border-gray-300 rounded text-sm font-medium text-gray-700 px-4 py-2.5 hover:bg-gray-50 transition">Batal</button>
-                    <button onclick="submitTambahRitase()" class="flex-1 bg-[#1a1a2e] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#2d2d44] transition">Ya, Tambah</button>
+                    <button onclick="submitTambahRitase()" class="flex-1 bg-[#2d6a4f] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#1b4332] transition">Ya, Tambah</button>
                 </div>
             </div>
         </div>
@@ -1176,7 +1202,7 @@ function escapeHtml(str) {
                 // Jika sopir dan tanggal dipilih, cek rit lain
                 if (sopir && tgl && kab && waktuVal) {
                     // Cek via AJAX ke server
-                    fetch('{{ route("ritase.cek.aturan") }}', {
+                    fetch('/ritase/cek-aturan', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

@@ -28,7 +28,7 @@
                     <div>
                         <label for="text" class="block text-sm font-medium text-gray-700 mb-2">Teks Jadwal Sopir</label>
                         <textarea name="text" id="text" rows="15"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 font-mono text-sm"
                             placeholder="Paste teks di sini...">{{ old('text') }}</textarea>
                         <p class="mt-1 text-xs text-gray-500">Maksimal 50.000 karakter</p>
                     </div>
@@ -36,10 +36,10 @@
                     <div>
                         <label for="periode_id" class="block text-sm font-medium text-gray-700 mb-2">Periode <span class="text-red-500">*</span></label>
                         <select name="periode_id" id="periode_id" required
-                            class="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            class="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
                             <option value="">-- Pilih Periode --</option>
                             @foreach ($periodes as $periode)
-                            <option value="{{ $periode->id }}" {{ old('periode_id') == $periode->id ? 'selected' : '' }}>
+                            <option value="{{ $periode->id }}" {{ old('periode_id', $activePeriode->id ?? '') == $periode->id ? 'selected' : '' }}>
                                 {{ $periode->nama_periode }} ({{ $periode->tanggal_mulai }} s/d {{ $periode->tanggal_selesai }})
                             </option>
                             @endforeach
@@ -48,7 +48,7 @@
 
                     <div class="flex gap-4">
                         <button type="submit"
-                            class="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            class="px-6 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                             <span class="flex items-center gap-2">
                                 <span>⚙️</span>
                                 Parse & Preview
@@ -89,7 +89,7 @@ Paket watualang ngawi
             <div class="bg-white shadow rounded-lg p-4">
                 <h3 class="font-medium text-gray-900 mb-2">Tentang Parser</h3>
                 <p class="text-sm text-gray-600">
-                    Menggunakan NER hybrid (exact → phonetic → substring → similarity) untuk mencocokkan nama sopir dan rute secara otomatis. Data baru langsung dibuat.
+                    Mem-parse teks jadwal sopir dan mencocokkan nama sopir serta rute secara otomatis. Data baru langsung dibuat.
                 </p>
             </div>
 

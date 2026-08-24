@@ -53,7 +53,7 @@
                            class="w-full md:w-1/2 px-4 py-2.5 border border-gray-200 rounded text-sm bg-gray-50 text-gray-500 cursor-not-allowed">
                 </div>
 
-                <div class="overflow-x-auto">
+                <div class="table-responsive">
                     <table class="w-full">
                         <thead class="bg-gray-50 border-b border-gray-200">
                             <tr>
@@ -79,7 +79,7 @@
                                                min="0" step="0.01"
                                                placeholder="0"
                                                value="{{ $detailPerTujuan[$tujuan->kode_tujuan]['bbm_per_rit'] ?? 0 }}"
-                                               class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 bg-white transition input-bbm">
+                                               class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 bg-white transition input-bbm">
                                         <p class="text-red-500 text-xs mt-1 hidden error-edit-bbm">Harus angka positif.</p>
                                     </div>
                                 </td>
@@ -90,7 +90,7 @@
                                                min="0" step="0.01"
                                                placeholder="0"
                                                value="{{ $detailPerTujuan[$tujuan->kode_tujuan]['upah_per_rit'] ?? 0 }}"
-                                               class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 bg-white transition input-upah">
+                                               class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 bg-white transition input-upah">
                                         <p class="text-red-500 text-xs mt-1 hidden error-edit-upah">Harus angka positif.</p>
                                     </div>
                                 </td>
@@ -101,7 +101,7 @@
                                                min="0" step="0.01"
                                                placeholder="0"
                                                value="{{ $detailPerTujuan[$tujuan->kode_tujuan]['kompensasi_gagal'] ?? 0 }}"
-                                               class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 bg-white transition">
+                                               class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 bg-white transition">
                                         <p class="text-red-500 text-xs mt-1 hidden error-edit-komp">Harus angka positif.</p>
                                         <input type="hidden" name="detail[{{ $loop->index }}][kode_tujuan]" value="{{ $tujuan->kode_tujuan }}">
                                     </div>
@@ -123,7 +123,7 @@
                                                placeholder="0"
                                                value="{{ $tolVal }}"
                                                {{ $tolVal > 0 ? '' : 'disabled' }}
-                                               class="tol-input w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition {{ $tolVal > 0 ? 'bg-white' : 'bg-gray-100 opacity-50 cursor-not-allowed' }}">
+                                               class="tol-input w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 transition {{ $tolVal > 0 ? 'bg-white' : 'bg-gray-100 opacity-50 cursor-not-allowed' }}">
                                     </div>
                                 </td>
                                 <td class="px-4 py-2.5">
@@ -143,7 +143,7 @@
                                                placeholder="0"
                                                value="{{ $lemburTujuanVal }}"
                                                {{ $lemburTujuanVal > 0 ? '' : 'disabled' }}
-                                               class="lembur-tujuan-input w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition {{ $lemburTujuanVal > 0 ? 'bg-white' : 'bg-gray-100 opacity-50 cursor-not-allowed' }}">
+                                               class="lembur-tujuan-input w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 transition {{ $lemburTujuanVal > 0 ? 'bg-white' : 'bg-gray-100 opacity-50 cursor-not-allowed' }}">
                                     </div>
                                 </td>
                             </tr>
@@ -152,6 +152,7 @@
                     </table>
                 </div>
             </div>
+            <div class="table-responsive">
         </div>
 
         {{-- RINCIAN PER SOPIR --}}
@@ -220,12 +221,13 @@
                     </tr>
                 </tfoot>
             </table>
+            </div>
         </div>
 
         {{-- ACTION BUTTONS --}}
         <div class="flex justify-end gap-3">
             <a href="{{ route('gaji.index') }}" class="border border-gray-300 rounded text-sm font-medium text-gray-700 px-4 py-2.5 hover:bg-gray-50 transition">Batal</a>
-            <button type="button" onclick="showKonfirmasiEdit()" class="bg-[#1a1a2e] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#2d2d44] transition">
+            <button type="button" onclick="showKonfirmasiEdit()" class="bg-[#2d6a4f] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#1b4332] transition">
                 Update Gaji
             </button>
         </div>
@@ -246,7 +248,7 @@
                 <div id="konfirmasiDetail" class="text-sm text-gray-600 mb-4 bg-gray-50 p-4 rounded max-h-60 overflow-y-auto"></div>
                 <div class="flex gap-3">
                     <button onclick="closeKonfirmasiEdit()" class="flex-1 border border-gray-300 rounded text-sm font-medium text-gray-700 px-4 py-2.5 hover:bg-gray-50 transition">Batal</button>
-                    <button onclick="submitEdit()" class="flex-1 bg-[#1a1a2e] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#2d2d44] transition">Ya, Update</button>
+                    <button onclick="submitEdit()" class="flex-1 bg-[#2d6a4f] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#1b4332] transition">Ya, Update</button>
                 </div>
             </div>
         </div>

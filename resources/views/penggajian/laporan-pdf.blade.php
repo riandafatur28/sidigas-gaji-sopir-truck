@@ -13,19 +13,19 @@
             text-align: center;
             margin-bottom: 4mm;
             padding-bottom: 3mm;
-            border-bottom: 2px solid #1a1a2e;
+            border-bottom: 2px solid #2d6a4f;
         }
         .header h1 {
             font-size: 14pt;
             font-weight: 800;
-            color: #1a1a2e;
+            color: #2d6a4f;
             text-transform: uppercase;
             letter-spacing: 1pt;
         }
         .header .periode-title {
             font-size: 11pt;
             font-weight: 700;
-            color: #1a1a2e;
+            color: #2d6a4f;
             margin-top: 2mm;
         }
         .header .date-range {
@@ -41,7 +41,7 @@
             table-layout: fixed;
         }
         table thead th {
-            background: #1a1a2e;
+            background: #2d6a4f;
             color: white;
             font-size: 7pt;
             font-weight: 700;
@@ -81,7 +81,7 @@
         table tbody tr.gagal-row td { color: #991b1b; }
 
         .grand-total-row td {
-            background: #1a1a2e;
+            background: #2d6a4f;
             color: white;
             font-size: 9.5pt;
             font-weight: 800;
@@ -179,15 +179,15 @@
             </tbody>
             <tfoot>
                 @php
-                    $potonganOp = ($data['total_ritase'] ?? 0) * 20000;
+                    $potonganOp = ($data['unique_kabupaten'] ?? $data['total_ritase'] ?? 0) * 20000;
                 @endphp
                 <tr style="background:#f3f4f6;">
-                    <td colspan="5" style="text-align:right;padding:2mm 1.5mm;font-size:8.5pt;font-weight:600;border-bottom:1px solid #d1d5db;">Pot. Operasional (20rb × {{ $data['total_ritase'] ?? 0 }} rit)</td>
+                    <td colspan="5" style="text-align:right;padding:2mm 1.5mm;font-size:8.5pt;font-weight:600;border-bottom:1px solid #d1d5db;">Pot. Operasional (20rb × {{ $data['unique_kabupaten'] ?? $data['total_ritase'] ?? 0 }} trip)</td>
                     <td style="padding:2mm 1.5mm;font-size:8.5pt;font-weight:600;text-align:center;border-bottom:1px solid #d1d5db;">Rp {{ number_format($potonganOp, 0, ',', '.') }}</td>
                 </tr>
                 <tr class="grand-total-row">
                     <td colspan="5" style="text-align:right;">GRAND TOTAL (termasuk pot. operasional)</td>
-                    <td>Rp {{ number_format($data['grand_total_all'] + ($data['total_ritase'] * 20000), 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format($data['grand_total_all'] + ($data['unique_kabupaten'] ?? $data['total_ritase'] ?? 0) * 20000, 0, ',', '.') }}</td>
                 </tr>
             </tfoot>
         </table>

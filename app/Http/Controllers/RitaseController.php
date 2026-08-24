@@ -480,7 +480,8 @@ class RitaseController extends Controller
     public function parserForm()
     {
         $periodes = Periode::orderBy('id', 'desc')->get();
-        return view('ritase.parser', compact('periodes'));
+        $activePeriode = Periode::where('status', 'aktif')->first();
+        return view('ritase.parser', compact('periodes', 'activePeriode'));
     }
 
     /**
@@ -507,7 +508,6 @@ class RitaseController extends Controller
         );
         $routeMatches = $parser->matchRoutes(
             collect($parsed['packages'])
-                ->reject(fn($p) => !empty($p['is_bongkar']))
                 ->pluck('route_name')->unique()->values()->all()
         );
 

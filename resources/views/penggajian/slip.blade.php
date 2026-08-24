@@ -103,7 +103,7 @@
                 Periode: {{ $periode->nama_periode }} | Sopir: {{ $sopir->nama }}
             </p>
             <div style="margin-top: 15px;">
-                <a href="{{ route('gaji.index') }}" class="print-btn" style="background: #1a1a2e; text-decoration: none; display: inline-block;">← Kembali ke Data Gaji</a>
+                <a href="{{ route('gaji.index') }}" class="print-btn" style="background: #2d6a4f; text-decoration: none; display: inline-block;">← Kembali ke Data Gaji</a>
             </div>
         </div>
     @else

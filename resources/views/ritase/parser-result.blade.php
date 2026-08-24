@@ -6,7 +6,7 @@
     <div class="mb-6 flex justify-between items-center">
         <div>
             <h1 class="text-2xl font-bold text-gray-900">Hasil Parsing Teks Ritase</h1>
-            <p class="text-sm text-gray-500 mt-1">NER-based matching (exact → phonetic → substring → similarity)</p>
+            <p class="text-sm text-gray-500 mt-1">Pencocokan otomatis nama sopir dan rute</p>
         </div>
         <a href="{{ route('ritase.parser') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">← Kembali</a>
     </div>
@@ -35,7 +35,7 @@
         </div>
         <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
             <p style="color:var(--text-muted);font-size:13px">Total Paket/Rute</p>
-            <p class="text-2xl font-bold text-blue-600">{{ count($results['packages'] ?? []) }}</p>
+            <p class="text-2xl font-bold text-green-600">{{ count($results['packages'] ?? []) }}</p>
         </div>
         <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
             <p style="color:var(--text-muted);font-size:13px">Total Sopir</p>
@@ -43,7 +43,7 @@
         </div>
         <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
             <p style="color:var(--text-muted);font-size:13px">Sopir Ter-match</p>
-            <p class="text-2xl font-bold text-purple-600">{{ $driverMatched }}</p>
+            <p class="text-2xl font-bold text-green-600">{{ $driverMatched }}</p>
         </div>
     </div>
 
@@ -52,7 +52,7 @@
         <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
             <h2 class="text-lg font-semibold text-gray-900">Pencocokan Sopir ({{ $driverMatched }}/{{ $totalDrivers }})</h2>
         </div>
-        <div class="overflow-x-auto">
+        <div class="table-responsive">
             <table class="w-full">
                 <thead class="bg-gray-50">
                     <tr>
@@ -97,7 +97,7 @@
         <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
             <h2 class="text-lg font-semibold text-gray-900">Pencocokan Rute ({{ $routeMatched }}/{{ count($results['route_matches']) }})</h2>
         </div>
-        <div class="overflow-x-auto">
+        <div class="table-responsive">
             <table class="w-full">
                 <thead class="bg-gray-50">
                     <tr>
@@ -148,7 +148,7 @@
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="text-md font-semibold text-gray-900">
                         @if (!empty($pkg['is_rit_ke_2']))
-                            <span class="inline-flex px-2 py-0.5 text-xs font-semibold rounded bg-purple-100 text-purple-800 mr-2">RIT KE 2</span>
+                            <span class="inline-flex px-2 py-0.5 text-xs font-semibold rounded bg-green-100 text-green-800 mr-2">RIT KE 2</span>
                         @elseif (!empty($pkg['is_bongkar']))
                             <span class="inline-flex px-2 py-0.5 text-xs font-semibold rounded bg-orange-100 text-orange-800 mr-2">BONGKAR</span>
                         @endif
@@ -157,7 +157,7 @@
                     <span style="color:var(--text-muted);font-size:13px">
                         {{ count($pkg['drivers']) }} sopir
                         @if (!empty($pkg['is_bongkar']) && !empty($pkg['bongkar_source_route']))
-                            · lembur from <strong>{{ $pkg['bongkar_source_route'] }}</strong>
+                            · rit ke 2 dari <strong>{{ $pkg['bongkar_source_route'] }}</strong>
                         @endif
                     </span>
                 </div>
@@ -195,7 +195,7 @@
                 @foreach ($results['details'] as $detail)
                 <li class="py-2 text-sm {{
                     $detail['status'] === 'Created' ? 'text-green-700' :
-                    ($detail['status'] === 'Updated lembur' ? 'text-blue-700' : 'text-yellow-700')
+                    ($detail['status'] === 'Updated lembur' ? 'text-green-700' : 'text-yellow-700')
                 }}">
                     <strong>{{ $detail['route'] }}</strong>: {{ $detail['status'] }}
                     @if (isset($detail['reason']))
@@ -217,7 +217,7 @@
         @endif
         <div class="mt-4 flex flex-wrap gap-3">
             <a href="{{ route('gaji.index', ['periode' => $periodeId]) }}"
-               class="inline-flex items-center px-5 py-2.5 bg-[#1a1a2e] text-white font-semibold rounded-md hover:bg-[#2d2d44] transition">
+               class="inline-flex items-center px-5 py-2.5 bg-[#2d6a4f] text-white font-semibold rounded-md hover:bg-[#1b4332] transition">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                 </svg>

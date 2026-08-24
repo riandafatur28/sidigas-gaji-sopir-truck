@@ -59,20 +59,30 @@ class Sopir extends Model
 
     /**
      * Sync status: sopir dgn ritase di periode aktif → aktif, sisanya → nonaktif.
+     * Jika tidak ada periode aktif → semua nonaktif.
      */
     public static function syncActiveStatus(): void
     {
         $activePeriode = Periode::where('status', 'aktif')->first();
-        if (!$activePeriode) return;
+
+        if (!$activePeriode) {
+            static::where('status', 'aktif')->update(['status' => 'nonaktif']);
+            return;
+        }
 
         $activeSopirs = Ritase::where('periode_id', $activePeriode->id)
             ->whereNotNull('kode_sopir')
             ->distinct()
             ->pluck('kode_sopir');
 
-        static::whereIn('kode_sopir', $activeSopirs)
-            ->where('status', '!=', 'aktif')
-            ->update(['status' => 'aktif']);
+        if ($activeSopirs->isNotEmpty()) {
+            static::whereIn('kode_sopir', $activeSopirs)
+                ->where('status', '!=', 'aktif')
+                ->update(['status' => 'aktif']);
+        }
 
+        static::whereNotIn('kode_sopir', $activeSopirs)
+            ->where('status', 'aktif')
+            ->update(['status' => 'nonaktif']);
     }
 }

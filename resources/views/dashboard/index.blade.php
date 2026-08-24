@@ -19,23 +19,43 @@
                 @endif
             </p>
         </div>
-        <div class="flex items-center gap-3">
-            <select id="periodeFilter" onchange="window.location.href='{{ route('dashboard') }}?periode='+this.value+(document.getElementById('tanggalFilter').value ? '&tanggal='+document.getElementById('tanggalFilter').value : '')"
-                class="form-input form-select text-sm px-3 py-1.5" style="width:auto;display:inline-block">
-                <option value="semua" {{ $filter == 'semua' ? 'selected' : '' }}>Semua Waktu</option>
-                <option value="periode_ini" {{ $filter == 'periode_ini' ? 'selected' : '' }}>Periode Ini</option>
-                <option value="periode_lalu" {{ $filter == 'periode_lalu' ? 'selected' : '' }}>Periode Lalu</option>
-                <option value="bulan_ini" {{ $filter == 'bulan_ini' ? 'selected' : '' }}>Bulan Ini</option>
-                <option value="3_bulan_lalu" {{ $filter == '3_bulan_lalu' ? 'selected' : '' }}>3 Bulan</option>
-                <option value="6_bulan_lalu" {{ $filter == '6_bulan_lalu' ? 'selected' : '' }}>6 Bulan</option>
-                <option value="1_tahun_lalu" {{ $filter == '1_tahun_lalu' ? 'selected' : '' }}>1 Tahun</option>
-            </select>
-            <input type="date" id="tanggalFilter" value="{{ $tanggal }}" onchange="window.location.href='{{ route('dashboard') }}?periode='+document.getElementById('periodeFilter').value+'&tanggal='+this.value"
-                class="px-3 py-2 border border-gray-200 rounded text-sm bg-white">
-            @if($tanggal)
-                <a href="{{ route('dashboard') }}?periode={{ $filter }}" class="px-3 py-2 border border-gray-200 rounded text-sm text-gray-600 hover:bg-gray-50 bg-white">Reset</a>
-            @endif
+        <div class="relative" id="dashFilterWrap">
+            <button onclick="toggleDashFilter()" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium bg-white hover:bg-gray-50 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                Filter
+                @if($filter != 'semua' || $tanggal)
+                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                @endif
+                
+            </button>
+            <div class="hidden absolute right-0 mt-2 w-72 bg-white border border-gray-200 rounded-xl shadow-lg z-50 p-4" id="dashFilterPanel">
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Periode</label>
+                        <select id="periodeFilter" onchange="window.location.href='{{ route('dashboard') }}?periode='+this.value+(document.getElementById('tanggalFilter').value ? '&tanggal='+document.getElementById('tanggalFilter').value : '')" class="w-full px-3 py-2 border border-gray-200 rounded text-sm bg-white mt-1">
+                            <option value="semua" {{ $filter == 'semua' ? 'selected' : '' }}>Semua Waktu</option>
+                            <option value="periode_ini" {{ $filter == 'periode_ini' ? 'selected' : '' }}>Periode Ini</option>
+                            <option value="periode_lalu" {{ $filter == 'periode_lalu' ? 'selected' : '' }}>Periode Lalu</option>
+                            <option value="bulan_ini" {{ $filter == 'bulan_ini' ? 'selected' : '' }}>Bulan Ini</option>
+                            <option value="3_bulan_lalu" {{ $filter == '3_bulan_lalu' ? 'selected' : '' }}>3 Bulan</option>
+                            <option value="6_bulan_lalu" {{ $filter == '6_bulan_lalu' ? 'selected' : '' }}>6 Bulan</option>
+                            <option value="1_tahun_lalu" {{ $filter == '1_tahun_lalu' ? 'selected' : '' }}>1 Tahun</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Tanggal</label>
+                        <input type="date" id="tanggalFilter" value="{{ $tanggal }}" onchange="window.location.href='{{ route('dashboard') }}?periode='+document.getElementById('periodeFilter').value+'&tanggal='+this.value" class="w-full px-3 py-2 border border-gray-200 rounded text-sm bg-white mt-1">
+                    </div>
+                    @if($tanggal)
+                        <a href="{{ route('dashboard') }}?periode={{ $filter }}" class="block text-center px-3 py-2 border border-gray-200 rounded text-sm text-gray-600 hover:bg-gray-50">Reset</a>
+                    @endif
+                </div>
+            </div>
         </div>
+        <script>
+        function toggleDashFilter(){document.getElementById('dashFilterPanel').classList.toggle('hidden');}
+        document.addEventListener('click',function(e){const w=document.getElementById('dashFilterWrap');if(w&&!w.contains(e.target)){document.getElementById('dashFilterPanel').classList.add('hidden');}});
+        </script>
     </div>
 
     {{-- NEXT ACTION -- satu action utama, kurangi decision fatigue --}}
@@ -49,7 +69,7 @@
                     sopir belum bisa melihat penghasilan mereka sampai Anda review.
                 </p>
             </div>
-            <a href="#" class="btn btn-primary btn-sm flex-shrink-0">Review Validasi &rarr;</a>
+            <a href="#" class="btn btn-primary btn-sm flex-shrink-0">Review Validasi</a>
         </div>
     </div>
     @elseif($sisaHari > 0 && $sisaHari <= 3 && $periodeAktif)
@@ -151,7 +171,7 @@
             <div class="card-header">
                 <span class="text-xs font-semibold uppercase" style="color:var(--text-muted)">Aktivitas Terbaru</span>
                 @if($recentRitase->count() > 0)
-                <a href="{{ route('ritase.index') }}" style="font-size:12px;color:var(--primary);text-decoration:none">Lihat Semua &rarr;</a>
+                <a href="{{ route('ritase.index') }}" style="font-size:12px;color:var(--primary);text-decoration:none">Lihat Semua</a>
                 @endif
             </div>
             <div style="padding:0">
@@ -160,7 +180,7 @@
                      onmouseover="this.style.background='rgba(232,229,239,0.3)'" onmouseout="this.style.background=''">
                     <div class="flex items-center gap-3">
                         <span style="font-size:14px;font-weight:500;color:var(--text)">{{ $rit->sopir->nama ?? '-' }}</span>
-                        <span style="color:var(--text-dims);font-size:13px">&rarr;</span>
+                        <span style="color:var(--text-dims);font-size:13px">ke</span>
                         <span style="font-size:13px;color:var(--text-muted)">{{ $rit->tujuan->nama ?? '-' }}</span>
                     </div>
                     <div class="flex items-center gap-3">

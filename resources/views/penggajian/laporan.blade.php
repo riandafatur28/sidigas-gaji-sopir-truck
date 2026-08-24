@@ -17,7 +17,7 @@
             <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Pilih Periode</p>
         </div>
         <div class="px-5 py-4">
-            <select onchange="window.location.href='{{ route('gaji.laporan') }}?periode='+this.value" class="w-full md:w-1/2 px-4 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-white">
+            <select onchange="window.location.href='{{ route('gaji.laporan') }}?periode='+this.value" class="w-full md:w-1/2 px-4 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 transition bg-white">
                 <option value="">Pilih Periode</option>
                 @foreach($periodes as $p)
                     <option value="{{ $p->id }}" {{ $periodeId == $p->id ? 'selected' : '' }}>
@@ -53,7 +53,7 @@
             </div>
         </div>
 
-        <div class="w-full border border-gray-200 rounded overflow-hidden bg-white">
+        <div class="table-responsive border border-gray-200 rounded bg-white">
             <table class="w-full">
                 <thead>
                     <tr class="bg-gray-50 border-b border-gray-200">
@@ -107,12 +107,12 @@
                 </tbody>
                 <tfoot>
                     <tr class="bg-white border-t border-gray-200">
-                        <td colspan="5" class="px-4 py-2.5 text-right text-sm font-medium text-gray-700 uppercase tracking-wider">Pot. Operasional (20rb × {{ $data['total_ritase'] }} rit)</td>
-                        <td class="px-4 py-2.5 text-right text-sm font-medium text-gray-700">Rp {{ number_format($data['total_ritase'] * 20000, 0, ',', '.') }}</td>
+                        <td colspan="5" class="px-4 py-2.5 text-right text-sm font-medium text-gray-700 uppercase tracking-wider">Pot. Operasional (20rb × {{ $data['unique_kabupaten'] }} trip)</td>
+                        <td class="px-4 py-2.5 text-right text-sm font-medium text-gray-700">Rp {{ number_format($data['unique_kabupaten'] * 20000, 0, ',', '.') }}</td>
                     </tr>
                     <tr class="bg-gray-100 border-t-2 border-gray-300">
                         <td colspan="5" class="px-4 py-3 text-right text-sm font-bold text-gray-900 text-base uppercase tracking-wider">Grand Total (dengan pot. operasional)</td>
-                        <td class="px-4 py-3 text-right text-sm font-bold text-gray-900 text-base">Rp {{ number_format($data['grand_total_all'] + ($data['total_ritase'] * 20000), 0, ',', '.') }}</td>
+                        <td class="px-4 py-3 text-right text-sm font-bold text-gray-900 text-base">Rp {{ number_format($data['grand_total_all'] + ($data['unique_kabupaten'] * 20000), 0, ',', '.') }}</td>
                     </tr>
                 </tfoot>
             </table>
@@ -120,7 +120,7 @@
 
         <div class="mt-4 flex justify-end">
             <a href="{{ route('gaji.laporan-pdf', $periode->id) }}"
-               class="bg-[#1a1a2e] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#2d2d44] transition inline-flex items-center gap-2">
+               class="bg-[#2d6a4f] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#1b4332] transition inline-flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
@@ -129,7 +129,7 @@
         </div>
     </div>
     @else
-    <div class="w-full border border-gray-200 rounded overflow-hidden bg-white">
+    <div class="table-responsive border border-gray-200 rounded bg-white">
         <div class="px-5 py-12 text-center">
             <svg class="mx-auto w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>

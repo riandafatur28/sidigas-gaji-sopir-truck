@@ -46,7 +46,7 @@
 
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Sopir</label>
-                <select id="sopir_select" class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm bg-white focus:outline-none focus:border-blue-500">
+                <select id="sopir_select" class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm bg-white focus:outline-none focus:border-green-500">
                     <option value="">-- Pilih Sopir --</option>
                     @foreach($sopirs as $s)
                         <option value="{{ $s->kode_sopir }}" data-nama="{{ $s->nama }}">{{ $s->kode_sopir }} - {{ $s->nama }}</option>
@@ -54,14 +54,14 @@
                     <option value="__baru__">+ Sopir Baru (tidak ada di daftar)</option>
                 </select>
                 <input type="text" id="sopir_baru_input" placeholder="Nama sopir baru..."
-                    class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm mt-2 hidden focus:outline-none focus:border-blue-500">
+                    class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm mt-2 hidden focus:outline-none focus:border-green-500">
                 <input type="text" id="sopir_nama_display" readonly
                     class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm mt-2 hidden bg-gray-50">
             </div>
 
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Tujuan</label>
-                <select id="tujuan_select" class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm bg-white focus:outline-none focus:border-blue-500">
+                <select id="tujuan_select" class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm bg-white focus:outline-none focus:border-green-500">
                     <option value="">-- Pilih Tujuan --</option>
                     @foreach($tujuans as $t)
                         <option value="{{ $t->kode_tujuan }}" data-nama="{{ $t->nama }}">{{ $t->kode_tujuan }} - {{ $t->nama }}</option>
@@ -69,7 +69,7 @@
                     <option value="__baru__">+ Tujuan Baru (tidak ada di daftar)</option>
                 </select>
                 <input type="text" id="tujuan_baru_input" placeholder="Nama tujuan baru..."
-                    class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm mt-2 hidden focus:outline-none focus:border-blue-500">
+                    class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm mt-2 hidden focus:outline-none focus:border-green-500">
                 <input type="text" id="tujuan_nama_display" readonly
                     class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm mt-2 hidden bg-gray-50">
             </div>
@@ -77,7 +77,7 @@
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Catatan</label>
                 <textarea name="catatan" rows="2" placeholder="Catatan tambahan (opsional)"
-                    class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-blue-500"></textarea>
+                    class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-green-500"></textarea>
             </div>
 
             <div>
@@ -96,7 +96,7 @@
                 </div>
                 <div class="flex gap-2 mt-3">
                     <button type="button" id="btnAmbilFoto"
-                        class="flex-1 bg-blue-600 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-blue-700 transition">
+                        class="flex-1 bg-green-600 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-green-700 transition">
                         Ambil Foto
                     </button>
                     <button type="button" id="btnUlang" class="flex-1 border border-gray-300 rounded text-sm font-medium text-gray-700 px-4 py-2.5 hover:bg-gray-50 transition hidden">
@@ -247,7 +247,7 @@
 
         function enableButtons() {
             btnAmbilFoto.disabled = false;
-            btnAmbilFoto.className = 'flex-1 bg-blue-600 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-blue-700 transition';
+            btnAmbilFoto.className = 'flex-1 bg-green-600 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-green-700 transition';
             btnAmbilFoto.textContent = 'Ambil Foto';
             var g = document.getElementById('btnGaleri');
             if (g) {
@@ -326,7 +326,7 @@
             btn.type = 'button';
             btn.id = 'btnRetryGps';
             btn.textContent = 'Coba GPS';
-            btn.className = 'ml-2 text-xs text-blue-600 underline hover:text-blue-800';
+            btn.className = 'ml-2 text-xs text-green-600 underline hover:text-green-800';
             btn.onclick = function() { this.remove(); cariGPS(false); };
             statusLokasi.appendChild(btn);
         }
@@ -339,7 +339,7 @@
             statusLokasi.className = 'text-xs text-red-600 mt-2 font-medium';
             var link = document.createElement('a');
             link.href = 'https://wispy-vacancy-smokeless.ngrok-free.dev/validasi-bukti';
-            link.className = 'text-blue-600 underline text-xs';
+            link.className = 'text-green-600 underline text-xs';
             link.textContent = 'Buka via HTTPS';
             statusLokasi.appendChild(link);
         }

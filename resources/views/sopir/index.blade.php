@@ -71,7 +71,7 @@
                 {{-- SEARCH --}}
                 <div class="relative w-full sm:w-72">
                     <input type="text" id="liveSearch" value="{{ $search }}"
-                        class="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#1a1a2e] focus:ring-1 focus:ring-[#1a1a2e]/20 transition bg-white"
+                        class="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 transition bg-white"
                         placeholder="Ketik untuk mencari..." autocomplete="off">
 
                     <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style="color:var(--text-dims)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,7 +94,7 @@
             </div>
         </div>
 
-        <div class="overflow-x-auto">
+        <div class="table-responsive">
             @if($sopirs->count() > 0)
                 <table class="w-full">
                     <thead style="background:rgba(255,253,252,0.6);border-bottom:1.5px solid var(--border)">
@@ -193,7 +193,7 @@
 
                         @for($page = $start; $page <= $end; $page++)
                             @if($page == $current)
-                                <span class="px-3 py-1.5 text-sm font-bold text-white bg-[#1a1a2e] border border-[#1a1a2e] rounded">{{ $page }}</span>
+                                <span class="px-3 py-1.5 text-sm font-bold text-white bg-[#2d6a4f] border border-[#2d6a4f] rounded">{{ $page }}</span>
                             @else
                                 <a href="{{ $sopirs->url($page) }}" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">{{ $page }}</a>
                             @endif
@@ -245,7 +245,7 @@
                         Batal
                     </button>
                     <button onclick="submitTambah()"
-                        class="flex-1 bg-[#1a1a2e] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#2d2d44] transition">
+                        class="flex-1 bg-[#2d6a4f] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#1b4332] transition">
                         Ya, Tambah
                     </button>
                 </div>
@@ -298,7 +298,7 @@
                             Batal
                         </button>
                         <button type="button" onclick="konfirmasiEdit()"
-                            class="flex-1 bg-[#1a1a2e] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#2d2d44] transition">
+                            class="flex-1 bg-[#2d6a4f] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#1b4332] transition">
                             Simpan Perubahan
                         </button>
                     </div>
@@ -330,39 +330,8 @@
                         Batal
                     </button>
                     <button onclick="submitEdit()"
-                        class="flex-1 bg-[#1a1a2e] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#2d2d44] transition">
+                        class="flex-1 bg-[#2d6a4f] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#1b4332] transition">
                         Ya, Simpan
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- MODAL KONFIRMASI HAPUS --}}
-    <div id="deleteModal" class="fixed inset-0 bg-black/40 z-50 hidden items-center justify-center">
-        <div class="bg-white rounded border border-gray-200 w-full max-w-md mx-4">
-            <div class="p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900">Hapus Data Sopir?</h3>
-                    <button onclick="closeDeleteModal()" class="text-gray-400 hover:text-gray-600">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
-                <p class="text-sm text-gray-600 mb-6">
-                    Anda yakin ingin menghapus <strong id="delete_nama" class="text-gray-900"></strong>?<br>
-                    <span class="text-xs text-red-500 mt-1 block">Tindakan ini tidak dapat dibatalkan.</span>
-                </p>
-
-                <div class="flex gap-3">
-                    <button onclick="closeDeleteModal()"
-                        class="flex-1 border border-gray-300 rounded text-sm font-medium text-gray-700 px-4 py-2.5 hover:bg-gray-50 transition">
-                        Batal
-                    </button>
-                    <button onclick="submitDelete()"
-                        class="flex-1 bg-red-600 text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-red-700 transition">
-                        Ya, Hapus
                     </button>
                 </div>
             </div>
@@ -373,6 +342,20 @@
         // ===== VALIDASI INPUT: Hanya huruf, angka, spasi, strip =====
         function validasiNama(input) {
             return /^[a-zA-Z0-9\s\-\.]+$/.test(input);
+        }
+
+        // ===== HAPUS SOPIR =====
+        function confirmDelete(id, nama) {
+            showConfirmModal({
+                title: 'Hapus Data Sopir?',
+                message: 'Anda yakin ingin menghapus sopir "' + nama + '"? Tindakan ini tidak dapat dibatalkan.',
+                type: 'danger',
+                confirmText: 'Ya, Hapus',
+                onConfirm: function() {
+                    document.getElementById('deleteForm').action = '{{ url("/sopir") }}/' + id;
+                    document.getElementById('deleteForm').submit();
+                }
+            });
         }
 
         // ===== TAMBAH SOPIR =====

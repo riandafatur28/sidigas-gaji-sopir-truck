@@ -20,10 +20,10 @@ class PenggajianController extends Controller
 
         $periodeId = $request->get('periode');
 
-        // Default ke periode aktif kalo gak pilih
+        // Default ke periode terbaru kalo gak pilih
         if (!$periodeId) {
-            $active = Periode::where('status', 'aktif')->first();
-            if ($active) $periodeId = $active->id;
+            $latest = Periode::orderBy('id', 'desc')->first();
+            if ($latest) $periodeId = $latest->id;
         }
 
         $allPeriodes = Periode::orderBy('id', 'desc')->get();
@@ -236,7 +236,7 @@ class PenggajianController extends Controller
                 if (empty($ritPerTujuan)) continue;
 
                 $totalDT = isset($dtSums[$kodeSopir]) ? (float)$dtSums[$kodeSopir]->total_dt : 0;
-            $upahLembur = $gaji ? (float)$gaji->upah_lembur : (float)($ritLemburSum->get($kodeSopir)?->total_lembur ?? 0);
+                $upahLembur = $gaji ? (float)$gaji->upah_lembur : (float)($ritLemburSum->get($kodeSopir)?->total_lembur ?? 0);
 
                 $gagalCollect = $allGagalRits->get($kodeSopir, collect());
                 $gagalRits = $gagalCollect->map(fn($rit) => [
@@ -302,7 +302,8 @@ class PenggajianController extends Controller
                         ->exists();
                     if (!$valid) {
                         DB::rollback();
-                        return back()->with('error', 'Ritase ' . $rit->kode_ritase . ' belum memiliki bukti validasi disetujui.');
+                        // PERBAIKAN 1: Ditambahkan ->withInput()
+                        return back()->withInput()->with('error', 'Ritase ' . $rit->kode_ritase . ' belum memiliki bukti validasi disetujui.');
                     }
                 }
             }
@@ -353,11 +354,13 @@ class PenggajianController extends Controller
 
             DB::commit();
             return redirect()->back()
-                ->with('success', 'Data gaji berhasil disimpan!');
+                ->with('success', 'Data gaji berhasil disimpan!')
+                ->withInput();
 
         } catch (\Exception $e) {
             DB::rollback();
-            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            // PERBAIKAN 2: Ditambahkan ->withInput()
+            return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 
@@ -558,7 +561,8 @@ class PenggajianController extends Controller
                         ->exists();
                     if (!$valid) {
                         DB::rollback();
-                        return back()->with('error', 'Ritase ' . $rit->kode_ritase . ' belum memiliki bukti validasi disetujui.');
+                        // PERBAIKAN 3: Ditambahkan ->withInput()
+                        return back()->withInput()->with('error', 'Ritase ' . $rit->kode_ritase . ' belum memiliki bukti validasi disetujui.');
                     }
                 }
             }
@@ -614,7 +618,8 @@ class PenggajianController extends Controller
 
         } catch (\Exception $e) {
             DB::rollback();
-            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            // PERBAIKAN 4: Ditambahkan ->withInput()
+            return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 
@@ -796,6 +801,7 @@ class PenggajianController extends Controller
                     'upah' => round($upahPerRit),
                     'jumlah' => $isGagal ? round($kompensasiRit) : round($solarPerRit + $upahPerRit + ($rit->upah_lembur ?? 0)),
                     'tujuan' => $tujuanNama,
+                    'kode_tujuan' => $rit->kode_tujuan,
                     'is_gagal' => $isGagal,
                     'is_lembur' => $rit->is_lembur ?? false,
                     'upah_lembur' => (float)($rit->upah_lembur ?? 0),
@@ -804,6 +810,9 @@ class PenggajianController extends Controller
                 ];
             }
         }
+
+        // Gabungkan rit yang sama hari + sama tujuan
+        $dataPerHari = $this->mergeDuplicateRitEntries($dataPerHari);
 
         return view('penggajian.slip', compact(
             'periode', 'sopir', 'gaji', 'dataPerHari', 'detailTujuan'
@@ -817,6 +826,14 @@ class PenggajianController extends Controller
 
         $data = null;
         $periode = null;
+
+        // Auto-select latest periode if none selected
+        if (!$periodeId) {
+            $latestPeriode = Periode::orderBy('id', 'desc')->first();
+            if ($latestPeriode) {
+                $periodeId = $latestPeriode->id;
+            }
+        }
 
         if ($periodeId) {
             $periode = Periode::findOrFail($periodeId);
@@ -833,6 +850,12 @@ class PenggajianController extends Controller
             $totalRitase = Ritase::where('periode_id', $periodeId)
                 ->where('status', '!=', 'gagal_produksi')
                 ->count();
+
+            // Unique trips per sopir+tanggal+tujuan for potongan operasional (20k per trip per tujuan per day)
+            $uniqueTripPerSopir = Ritase::where('periode_id', $periodeId)
+                ->where('status', '!=', 'gagal_produksi')
+                ->selectRaw('COUNT(DISTINCT CONCAT(kode_sopir, DATE(tanggal), kode_tujuan)) as total')
+                ->value('total');
 
             $totalRitaseGagal = Ritase::where('periode_id', $periodeId)
                 ->where('status', 'gagal_produksi')
@@ -947,6 +970,7 @@ class PenggajianController extends Controller
                 'hari_kerja' => $hariKerja,
                 'total_sopir' => $totalSopir,
                 'total_ritase' => $totalRitase,
+                'unique_kabupaten' => $uniqueTripPerSopir,
                 'total_ritase_gagal' => $totalRitaseGagal,
                 'detail_rows' => $detailRows,
                 'total_solar_all' => $totalSolarAll,
@@ -1011,7 +1035,9 @@ class PenggajianController extends Controller
             }
             $totalRitValid = 0;
             foreach ($slip['dataPerHari'] as $entry) {
-                if (!$entry['is_gagal']) $totalRitValid++;
+                if (!$entry['is_gagal']) {
+                    $totalRitValid += $entry['rit_count'] ?? 1;
+                }
             }
             $potonganOperasional = $totalRitValid * 20000;
 
@@ -1192,6 +1218,7 @@ class PenggajianController extends Controller
                     'upah' => round($upahPerRit),
                     'jumlah' => $isGagal ? round($kompensasiRit) : round($solarPerRit + $upahPerRit + ($rit->upah_lembur ?? 0)),
                     'tujuan' => $tujuanNama,
+                    'kode_tujuan' => $rit->kode_tujuan,
                     'is_gagal' => $isGagal,
                     'is_lembur' => $rit->is_lembur ?? false,
                     'upah_lembur' => (float)($rit->upah_lembur ?? 0),
@@ -1200,6 +1227,9 @@ class PenggajianController extends Controller
                 ];
             }
         }
+
+        // Gabungkan rit yang sama hari + sama tujuan
+        $dataPerHari = $this->mergeDuplicateRitEntries($dataPerHari);
 
         $totalSolarAll = array_sum(array_column($dataPerHari, 'solar'));
         $totalUpahAll = array_sum(array_column($dataPerHari, 'upah'));
@@ -1262,6 +1292,85 @@ class PenggajianController extends Controller
         }
 
         return [$solarPerRit, $upahPerRit, $tolPerRit];
+    }
+
+    /**
+     * Gabungkan rit entries yang sama hari + sama tujuan jadi 1 entry.
+     * Solar, upah, tol, dt dikali jumlah rit. Tujuan di-prefix "Nx ".
+     * Entry gagal produksi TIDAK digabung.
+     */
+    private function mergeDuplicateRitEntries(array $dataPerHari): array
+    {
+        if (count($dataPerHari) <= 1) return $dataPerHari;
+
+        // Pisahkan gagal dan non-gagal
+        $nonGagal = [];
+        $gagal = [];
+        foreach ($dataPerHari as $entry) {
+            if ($entry['is_gagal']) {
+                $gagal[] = $entry;
+            } else {
+                $nonGagal[] = $entry;
+            }
+        }
+
+        // Group non-gagal by tanggal + kode_tujuan
+        $groups = [];
+        foreach ($nonGagal as $entry) {
+            $key = $entry['tanggal'] . '|' . ($entry['kode_tujuan'] ?? $entry['tujuan']);
+            $groups[$key][] = $entry;
+        }
+
+        $merged = [];
+        foreach ($groups as $key => $entries) {
+            if (count($entries) === 1) {
+                $entries[0]['rit_count'] = 1;
+                $merged[] = $entries[0];
+                continue;
+            }
+
+            // Gabung: pakai entry pertama sebagai basis, kali jumlah
+            $base = $entries[0];
+            $count = count($entries);
+
+            $base['solar'] = $base['solar'] * $count;
+            $base['upah'] = $base['upah'] * $count;
+            $base['upah_lembur'] = $base['upah_lembur'] * $count;
+            $base['jumlah'] = $base['jumlah'] * $count;
+            $base['tol'] = $base['tol'] * $count;
+            $base['dt'] = array_sum(array_column($entries, 'dt'));
+            $base['tujuan'] = $count . 'x ' . $base['tujuan'];
+            $base['rit_count'] = $count;
+
+            $merged[] = $base;
+        }
+
+        // Tambahkan kembali entry gagal
+        foreach ($gagal as $g) {
+            $g['rit_count'] = 1;
+            $merged[] = $g;
+        }
+
+        // Sort by tanggal lalu rit_ke
+        usort($merged, fn($a, $b) => $a['tanggal'] <=> $b['tanggal'] ?: $a['rit_ke'] <=> $b['rit_ke']);
+
+        // Re-index rit_ke dan total_rit_hari per tanggal
+        $dateGroups = [];
+        foreach ($merged as $entry) {
+            $dateGroups[$entry['tanggal']][] = $entry;
+        }
+
+        $result = [];
+        foreach ($dateGroups as $tanggal => $entries) {
+            $totalForDate = count($entries);
+            foreach ($entries as $idx => $entry) {
+                $entry['rit_ke'] = $idx + 1;
+                $entry['total_rit_hari'] = $totalForDate;
+                $result[] = $entry;
+            }
+        }
+
+        return $result;
     }
 
     public function riwayat()
@@ -1375,6 +1484,12 @@ class PenggajianController extends Controller
         $totalRitase = Ritase::where('periode_id', $periodeId)
             ->where('status', '!=', 'gagal_produksi')
             ->count();
+
+            // Unique trips per sopir+tanggal+tujuan for potongan operasional
+            $uniqueTripPerSopir = Ritase::where('periode_id', $periodeId)
+                ->where('status', '!=', 'gagal_produksi')
+                ->selectRaw('COUNT(DISTINCT CONCAT(kode_sopir, DATE(tanggal), kode_tujuan)) as total')
+                ->value('total');
 
         $totalRitaseGagal = Ritase::where('periode_id', $periodeId)
             ->where('status', 'gagal_produksi')
@@ -1490,6 +1605,7 @@ class PenggajianController extends Controller
             'hari_kerja' => $hariKerja,
             'total_sopir' => $totalSopir,
             'total_ritase' => $totalRitase,
+            'unique_kabupaten' => $uniqueTripPerSopir,
             'total_ritase_gagal' => $totalRitaseGagal,
             'detail_rows' => $detailRows,
             'total_solar_all' => $totalSolarAll,
