@@ -56,11 +56,15 @@ RUN chmod -R 775 storage bootstrap/cache \
     && mkdir -p /app/database \
     && chmod -R 777 /app/database
 
+# Ensure public/storage exists (direct folder, not symlink — symlinks break in Docker)
+RUN mkdir -p /app/public/storage/bukti \
+    && cp -rn /app/storage/app/public/* /app/public/storage/ 2>/dev/null || true \
+    && chmod -R 777 /app/public/storage
+
 EXPOSE ${PORT:-8080}
 
-RUN ln -sf /app/storage/app/public /app/public/storage 2>/dev/null || true
-
-CMD if [ ! -f .env ]; then cp .env.example .env; fi; \
+CMD mkdir -p /app/public/storage/bukti && chmod -R 777 /app/public/storage; \
+    if [ ! -f .env ]; then cp .env.example .env; fi; \
     sed -i "s/^APP_KEY=.*/APP_KEY=${APP_KEY}/" .env 2>/dev/null || echo "APP_KEY=${APP_KEY}" >> .env; \
     sed -i "s/^APP_ENV=.*/APP_ENV=local/" .env 2>/dev/null || echo "APP_ENV=local" >> .env; \
     sed -i "s/^APP_DEBUG=.*/APP_DEBUG=true/" .env 2>/dev/null || echo "APP_DEBUG=true" >> .env; \
