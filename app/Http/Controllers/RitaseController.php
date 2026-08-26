@@ -91,12 +91,6 @@ class RitaseController extends Controller
 
         $dtValue = $this->ritaseService->hitungDT($request, null);
 
-        \Log::info('STORE - DT Value:', [
-            'dt' => $dtValue, 'status' => $request->status,
-            'kabupaten' => $request->kabupaten, 'kode_sopir' => $request->kode_sopir,
-            'tanggal' => $request->tanggal, 'waktu' => $request->waktu
-        ]);
-
         Ritase::create([
             'periode_id' => $request->periode_id,
             'kode_sopir' => $request->kode_sopir,
@@ -129,8 +123,6 @@ class RitaseController extends Controller
 
         $ritase = Ritase::findOrFail($id);
         $dtValue = $this->ritaseService->hitungDT($request, $id);
-
-        \Log::info('UPDATE - DT Value:', ['dt' => $dtValue, 'status' => $request->status, 'id' => $id]);
 
         $ritase->update([
             'periode_id' => $request->periode_id,
