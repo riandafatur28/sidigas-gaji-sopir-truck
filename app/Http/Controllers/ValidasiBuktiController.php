@@ -225,7 +225,7 @@ class ValidasiBuktiController extends Controller
             ->where('status', '!=', 'gagal_produksi')
             ->exists();
 
-        return $exists ? 0 : 330000;
+        return $exists ? 0 : config('dt.value', 330000);
     }
 
     public function toggleAturan()

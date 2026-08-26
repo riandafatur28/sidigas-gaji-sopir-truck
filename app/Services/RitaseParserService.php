@@ -947,13 +947,12 @@ class RitaseParserService
                 }
 
                 try {
-                    // DT: 330.000 per rit
-                    // 1x per kabupaten per waktu HANYA untuk kabupaten special:
-                    //   Nganjuk, Jombang, Kediri, Kota Kediri
+                    // DT: configurable per rit
+                    // 1x per kabupaten per waktu HANYA untuk kabupaten special
                     // Sisanya (beda waktu / kab non-special) → DT 2x
-                    $dtValue = 330000;
+                    $dtValue = config('dt.value', 330000);
                     $kabNorm = strtolower(trim($kabupaten));
-                    $specialKabs = ['nganjuk', 'jombang', 'kediri', 'kota kediri'];
+                    $specialKabs = array_map('strtolower', config('dt.single_dt_regencies'));
                     if (in_array($kabNorm, $specialKabs)) {
                         $ritLain = Ritase::where('kode_sopir', $sopir->kode_sopir)
                             ->where('tanggal', $parsed['date'])
