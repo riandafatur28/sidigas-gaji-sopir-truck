@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasUniqueKode;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Tujuan extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUniqueKode;
 
     protected $table = 'tujuans';
 
@@ -23,9 +24,7 @@ class Tujuan extends Model
 
         static::creating(function ($tujuan) {
             if (empty($tujuan->kode_tujuan)) {
-                $lastTujuan = static::orderBy('id', 'desc')->first();
-                $newNumber = $lastTujuan ? (int) substr($lastTujuan->kode_tujuan, 4) + 1 : 1;
-                $tujuan->kode_tujuan = 'TUJ-' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
+                $tujuan->kode_tujuan = $tujuan->generateUniqueKode('TUJ');
             }
         });
     }

@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasUniqueKode;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Ritase extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUniqueKode;
 
     protected $table = 'ritases';
 
@@ -43,16 +44,7 @@ class Ritase extends Model
 
         static::creating(function ($ritase) {
             if (empty($ritase->kode_ritase)) {
-                $lastRitase = static::orderBy('id', 'desc')->first();
-
-                if ($lastRitase) {
-                    $lastNumber = (int) substr($lastRitase->kode_ritase, 4);
-                    $newNumber = $lastNumber + 1;
-                } else {
-                    $newNumber = 1;
-                }
-
-                $ritase->kode_ritase = 'RIT-' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
+                $ritase->kode_ritase = $ritase->generateUniqueKode('RIT');
             }
         });
     }

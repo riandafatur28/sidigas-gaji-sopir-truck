@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasUniqueKode;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Sopir extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUniqueKode;
 
     protected $table = 'sopirs';
 
@@ -23,16 +24,7 @@ class Sopir extends Model
 
         static::creating(function ($sopir) {
             if (empty($sopir->kode_sopir)) {
-                $lastSopir = static::orderBy('id', 'desc')->first();
-
-                if ($lastSopir) {
-                    $lastNumber = (int) substr($lastSopir->kode_sopir, 4);
-                    $newNumber = $lastNumber + 1;
-                } else {
-                    $newNumber = 1;
-                }
-
-                $sopir->kode_sopir = 'SPR-' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
+                $sopir->kode_sopir = $sopir->generateUniqueKode('SPR');
             }
         });
     }

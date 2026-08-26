@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\HasUniqueKode;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Periode extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUniqueKode;
 
     protected $table = 'periodes';
 
@@ -30,9 +31,7 @@ class Periode extends Model
 
         static::creating(function ($periode) {
             if (empty($periode->kode_periode)) {
-                $lastPeriode = static::orderBy('id', 'desc')->first();
-                $newNumber = $lastPeriode ? (int) substr($lastPeriode->kode_periode, 4) + 1 : 1;
-                $periode->kode_periode = 'PER-' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
+                $periode->kode_periode = $periode->generateUniqueKode('PER');
             }
         });
     }
