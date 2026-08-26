@@ -21,8 +21,6 @@ class PenggajianController extends Controller
 
     public function index(Request $request)
     {
-        Periode::syncActiveStatus();
-
         $periodeId = $request->get('periode');
         if (!$periodeId) {
             $latest = Periode::orderBy('id', 'desc')->first();
@@ -349,8 +347,6 @@ class PenggajianController extends Controller
 
     public function riwayat()
     {
-        Periode::syncActiveStatus();
-
         $sort = request('sort', 'terbaru');
         $bulan = request('bulan');
         $tahun = request('tahun');

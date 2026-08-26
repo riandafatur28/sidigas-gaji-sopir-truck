@@ -215,9 +215,6 @@ class RitaseController extends Controller
             $results['skipped'] = $createResult['skipped'];
             $results['errors'] = array_merge($results['errors'], $createResult['errors']);
             $results['details'] = $createResult['details'];
-
-            \App\Models\Sopir::syncActiveStatus();
-            \App\Models\Tujuan::syncActiveStatus();
         }
 
         return view('ritase.parser-result', ['results' => $results, 'periodeId' => $request->periode_id]);

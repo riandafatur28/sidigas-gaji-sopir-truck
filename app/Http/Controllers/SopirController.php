@@ -13,9 +13,6 @@ class SopirController extends Controller
      */
     public function index(Request $request)
     {
-        \App\Models\Periode::syncActiveStatus();
-        Sopir::syncActiveStatus();
-
         $search = $request->get('search', '');
 
         // Urutan ASC (ID paling awal di atas) + Pagination 10 per halaman

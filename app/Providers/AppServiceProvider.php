@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Periode;
+use App\Models\Ritase;
+use App\Observers\PeriodeObserver;
+use App\Observers\RitaseObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Periode::observe(PeriodeObserver::class);
+        Ritase::observe(RitaseObserver::class);
     }
 }

@@ -13,9 +13,6 @@ class PeriodeController extends Controller
 {
     public function index(Request $request)
     {
-        // Auto-sync: periode yg mencakup hari ini jadi aktif, lainnya selesai
-        Periode::syncActiveStatus();
-
         $search = $request->get('search', '');
 
         $periodes = Periode::where('nama_periode', 'like', "%{$search}%")
@@ -62,10 +59,6 @@ class PeriodeController extends Controller
             'status' => 'aktif',
         ]);
 
-        // Sync status sopir & tujuan berdasarkan periode aktif
-        Sopir::syncActiveStatus();
-        Tujuan::syncActiveStatus();
-
         return redirect()->back()
             ->with('success', 'Periode berhasil ditambahkan!');
     }
@@ -87,10 +80,6 @@ class PeriodeController extends Controller
             'status' => $request->status,
         ]);
 
-        // Sync status sopir & tujuan berdasarkan periode aktif
-        Sopir::syncActiveStatus();
-        Tujuan::syncActiveStatus();
-
         return redirect()->back()
             ->with('success', 'Data periode berhasil diperbarui!');
     }
@@ -99,17 +88,12 @@ class PeriodeController extends Controller
     {
         $periode = Periode::findOrFail($id);
 
-        // Cek apakah periode sudah punya ritase
         if ($periode->ritase()->count() > 0) {
             return redirect()->back()
                 ->with('error', 'Periode tidak dapat dihapus karena sudah memiliki data ritase!');
         }
 
         $periode->delete();
-
-        // Sync status sopir & tujuan berdasarkan periode aktif
-        Sopir::syncActiveStatus();
-        Tujuan::syncActiveStatus();
 
         return redirect()->back()
             ->with('success', 'Data periode berhasil dihapus!');

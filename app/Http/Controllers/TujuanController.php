@@ -13,9 +13,6 @@ class TujuanController extends Controller
      */
     public function index(Request $request)
     {
-        \App\Models\Periode::syncActiveStatus();
-        Tujuan::syncActiveStatus();
-
         $search = $request->get('search', '');
 
         $tujuans = Tujuan::where('nama', 'like', "%{$search}%")

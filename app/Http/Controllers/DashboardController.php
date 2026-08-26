@@ -13,11 +13,6 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        // Auto-sync: periode yg mencakup hari ini jadi aktif, lainnya selesai
-        \App\Models\Periode::syncActiveStatus();
-        \App\Models\Sopir::syncActiveStatus();
-        \App\Models\Tujuan::syncActiveStatus();
-
         $user = Auth::user();
         $filter = $request->get('periode', 'periode_ini');
         $tanggal = $request->get('tanggal', '');
