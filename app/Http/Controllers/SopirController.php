@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Sopir;
+use App\Http\Requests\StoreSopirRequest;
 use Illuminate\Http\Request;
 
 class SopirController extends Controller
@@ -34,15 +35,8 @@ class SopirController extends Controller
     /**
      * Simpan sopir baru
      */
-    public function store(Request $request)
+    public function store(StoreSopirRequest $request)
     {
-        $request->validate([
-            'nama' => 'required|string|max:255|min:3',
-        ], [
-            'nama.required' => 'Nama sopir wajib diisi.',
-            'nama.min' => 'Nama minimal 3 karakter.',
-        ]);
-
         Sopir::create([
             'nama' => $request->nama,
             'status' => 'aktif',

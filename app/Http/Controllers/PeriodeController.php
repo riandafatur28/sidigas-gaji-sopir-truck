@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Periode;
 use App\Models\Sopir;
 use App\Models\Tujuan;
+use App\Http\Requests\StorePeriodeRequest;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -36,20 +37,8 @@ class PeriodeController extends Controller
         ));
     }
 
-    public function store(Request $request)
+    public function store(StorePeriodeRequest $request)
     {
-        $request->validate([
-            'nama_periode' => 'required|string|max:255|min:3',
-            'tanggal_mulai' => 'required|date',
-            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-        ], [
-            'nama_periode.required' => 'Nama periode wajib diisi.',
-            'nama_periode.min' => 'Nama minimal 3 karakter.',
-            'tanggal_mulai.required' => 'Tanggal mulai wajib diisi.',
-            'tanggal_selesai.required' => 'Tanggal selesai wajib diisi.',
-            'tanggal_selesai.after_or_equal' => 'Tanggal selesai harus sama atau setelah tanggal mulai.',
-        ]);
-
         // Cek overlap periode
         $overlap = Periode::where(function($q) use ($request) {
             $q->whereBetween('tanggal_mulai', [$request->tanggal_mulai, $request->tanggal_selesai])

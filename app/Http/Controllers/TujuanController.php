@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tujuan;
+use App\Http\Requests\StoreTujuanRequest;
 use Illuminate\Http\Request;
 
 class TujuanController extends Controller
@@ -33,15 +34,8 @@ class TujuanController extends Controller
     /**
      * Simpan tujuan baru
      */
-    public function store(Request $request)
+    public function store(StoreTujuanRequest $request)
     {
-        $request->validate([
-            'nama' => 'required|string|max:255|min:3',
-        ], [
-            'nama.required' => 'Nama tujuan wajib diisi.',
-            'nama.min' => 'Nama minimal 3 karakter.',
-        ]);
-
         Tujuan::create([
             'nama' => $request->nama,
             'status' => 'aktif',
