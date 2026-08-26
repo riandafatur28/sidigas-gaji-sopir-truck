@@ -357,4 +357,171 @@ class RitaseService
             'dayNames' => $dayNames,
         ];
     }
+
+    // =====================================================================
+    // Controller delegation methods
+    // =====================================================================
+
+    public function getIndexData(Request $request): array
+    {
+        $search = $request->get('search', '');
+        $filterPeriode = $request->get('periode', '');
+        $filterSopir = $request->get('sopir', '');
+        $filterTujuan = $request->get('tujuan', '');
+        $tanggal = $request->get('tanggal', '');
+
+        if (!$filterPeriode) {
+            $active = Periode::where('status', 'aktif')->first();
+            if ($active) $filterPeriode = $active->id;
+        }
+
+        $periodes = Periode::orderBy('id', 'asc')->get();
+        $sopirs = Sopir::orderBy('id', 'asc')->get();
+        $tujuans = Tujuan::orderBy('id', 'asc')->get();
+
+        $ritBase = Ritase::with(['periode', 'sopir', 'tujuan']);
+        if ($filterPeriode) $ritBase->where('periode_id', $filterPeriode);
+        if ($tanggal) $ritBase->whereDate('tanggal', $tanggal);
+
+        $ritases = (clone $ritBase)
+            ->when($filterSopir, fn($q) => $q->where('kode_sopir', $filterSopir))
+            ->when($filterTujuan, fn($q) => $q->where('kode_tujuan', $filterTujuan))
+            ->when($search, fn($q) => $q->where(function ($q2) use ($search) {
+                $q2->where('kode_ritase', 'like', "%{$search}%")
+                    ->orWhereHas('sopir', fn($sq) => $sq->where('nama', 'like', "%{$search}%"))
+                    ->orWhereHas('tujuan', fn($sq) => $sq->where('nama', 'like', "%{$search}%"));
+            }))
+            ->orderBy('id', 'asc')
+            ->paginate(10)
+            ->withQueryString();
+
+        $statBase = Ritase::query();
+        if ($filterPeriode) $statBase->where('periode_id', $filterPeriode);
+        if ($tanggal) $statBase->whereDate('tanggal', $tanggal);
+
+        return compact(
+            'ritases', 'periodes', 'sopirs', 'tujuans',
+            'search', 'filterPeriode', 'filterSopir', 'filterTujuan', 'tanggal',
+        ) + [
+            'totalRitase' => (clone $statBase)->count(),
+            'ritaseValid' => (clone $statBase)->where('status', 'valid')->count(),
+            'ritasePending' => (clone $statBase)->where('status', 'pending')->count(),
+            'ritaseGagal' => (clone $statBase)->where('status', 'gagal_produksi')->count(),
+            'sopirTerlibat' => (clone $statBase)->distinct('kode_sopir')->count('kode_sopir'),
+        ];
+    }
+
+    public function storeRitase($request): float
+    {
+        $validated = $request->validated();
+        $validated['nominal_kompensasi'] = is_numeric($validated['nominal_kompensasi'] ?? 0) ? (float) $validated['nominal_kompensasi'] : 0;
+        $isLembur = $request->boolean('is_lembur');
+        $upahLembur = $isLembur ? (float) ($request->upah_lembur ?? 0) : 0;
+
+        if (cache()->get('aturan_validasi_enabled', false)) {
+            $validasi = \App\Models\ValidasiBukti::where('kode_sopir', $request->kode_sopir)
+                ->where('tanggal', $request->tanggal)
+                ->where('kode_tujuan', $request->kode_tujuan)
+                ->where('status', 'disetujui')
+                ->exists();
+            if (!$validasi) {
+                throw new \Exception('Sopir ini belum memiliki bukti validasi yang disetujui untuk tanggal dan tujuan ini.');
+            }
+        }
+
+        Sopir::where('kode_sopir', $request->kode_sopir)->where('status', '!=', 'aktif')->update(['status' => 'aktif']);
+        Tujuan::where('kode_tujuan', $request->kode_tujuan)->where('status', '!=', 'aktif')->update(['status' => 'aktif']);
+
+        $dtValue = $this->hitungDT($request, null);
+
+        Ritase::create([
+            'periode_id' => $request->periode_id,
+            'kode_sopir' => $request->kode_sopir,
+            'kode_tujuan' => $request->kode_tujuan,
+            'tanggal' => $request->tanggal,
+            'waktu' => $request->waktu,
+            'kabupaten' => $request->kabupaten,
+            'status' => $request->status,
+            'dt' => $dtValue,
+            'upah_sopir' => $this->resolveUpahSopir($request->periode_id, $request->kode_tujuan),
+            'nominal_kompensasi' => $validated['nominal_kompensasi'],
+            'catatan' => $request->catatan,
+            'is_lembur' => $isLembur,
+            'upah_lembur' => $upahLembur,
+        ]);
+
+        return $dtValue;
+    }
+
+    public function updateRitase($request, $id): float
+    {
+        $validated = $request->validated();
+        $validated['nominal_kompensasi'] = is_numeric($validated['nominal_kompensasi'] ?? 0) ? (float) $validated['nominal_kompensasi'] : 0;
+        $isLembur = $request->boolean('is_lembur');
+        $upahLembur = $isLembur ? (float) ($request->upah_lembur ?? 0) : 0;
+
+        Sopir::where('kode_sopir', $request->kode_sopir)->where('status', '!=', 'aktif')->update(['status' => 'aktif']);
+        Tujuan::where('kode_tujuan', $request->kode_tujuan)->where('status', '!=', 'aktif')->update(['status' => 'aktif']);
+
+        $ritase = Ritase::findOrFail($id);
+        $dtValue = $this->hitungDT($request, $id);
+
+        $ritase->update([
+            'periode_id' => $request->periode_id,
+            'kode_sopir' => $request->kode_sopir,
+            'kode_tujuan' => $request->kode_tujuan,
+            'tanggal' => $request->tanggal,
+            'waktu' => $request->waktu,
+            'kabupaten' => $request->kabupaten,
+            'status' => $request->status,
+            'dt' => $dtValue,
+            'nominal_kompensasi' => $validated['nominal_kompensasi'],
+            'catatan' => $request->catatan,
+            'is_lembur' => $isLembur,
+            'upah_lembur' => $upahLembur,
+        ]);
+
+        return $dtValue;
+    }
+
+    public function getParserFormData(): array
+    {
+        return [
+            'periodes' => Periode::orderBy('id', 'desc')->get(),
+            'activePeriode' => Periode::where('status', 'aktif')->first(),
+        ];
+    }
+
+    public function processParser(Request $request): array
+    {
+        $parser = new \App\Services\RitaseParserService();
+        $parsed = $parser->parse($request->text);
+
+        if (empty($parsed['date'])) {
+            throw new \Exception('Tanggal tidak terdeteksi. Format: DD MM YY hari');
+        }
+
+        $driverMatches = $parser->matchDrivers(
+            collect($parsed['packages'])->pluck('drivers')->flatten()->unique()->values()->all()
+        );
+        $routeMatches = $parser->matchRoutes(
+            collect($parsed['packages'])->pluck('route_name')->unique()->values()->all()
+        );
+
+        $results = [
+            'date' => $parsed['date'], 'packages' => $parsed['packages'],
+            'driver_matches' => $driverMatches, 'route_matches' => $routeMatches,
+            'created' => 0, 'skipped' => 0, 'errors' => [], 'details' => [],
+        ];
+
+        if ($request->boolean('auto_create')) {
+            $createResult = $parser->createRitases($parsed, $request->periode_id, $driverMatches, $routeMatches);
+            $results['created'] = $createResult['created'];
+            $results['skipped'] = $createResult['skipped'];
+            $results['errors'] = array_merge($results['errors'], $createResult['errors']);
+            $results['details'] = $createResult['details'];
+        }
+
+        return $results;
+    }
 }

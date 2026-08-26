@@ -2,22 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Periode;
-use App\Models\Ritase;
-use App\Models\Sopir;
-use App\Models\Tujuan;
 use App\Models\ValidasiBukti;
+use App\Services\ValidasiBuktiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class ValidasiBuktiController extends Controller
 {
+    public function __construct(
+        private readonly ValidasiBuktiService $validasiService
+    ) {}
+
     public function form()
     {
-        $sopirs = Sopir::orderBy('nama')->get(['kode_sopir', 'nama']);
-        $tujuans = Tujuan::orderBy('nama')->get(['kode_tujuan', 'nama']);
-        return view('validasi-bukti.index', compact('sopirs', 'tujuans'));
+        return view('validasi-bukti.index', $this->validasiService->getFormData());
     }
 
     public function submit(Request $request)
@@ -38,81 +36,21 @@ class ValidasiBuktiController extends Controller
             'catatan' => 'nullable|string',
         ]);
 
-        $foto = $request->foto;
-        $ext = 'jpg';
-        if (str_starts_with($foto, 'data:image/png')) $ext = 'png';
-        $foto = preg_replace('/^data:image\/\w+;base64,/', '', $foto);
-        $foto = str_replace(' ', '+', $foto);
-        $fotoData = base64_decode($foto);
-
-        $fileName = 'bukti/' . uniqid() . '.' . $ext;
-        Storage::disk('public')->put($fileName, $fotoData);
-
-        $periode = Periode::where('tanggal_mulai', '<=', $request->tanggal)
-            ->where('tanggal_selesai', '>=', $request->tanggal)
-            ->first();
-
-        ValidasiBukti::create([
-            'kode_sopir' => $request->kode_sopir,
-            'nama_sopir' => $request->nama_sopir,
-            'sopir_baru' => $request->boolean('sopir_baru'),
-            'kode_tujuan' => $request->kode_tujuan,
-            'nama_tujuan' => $request->nama_tujuan,
-            'tujuan_baru' => $request->boolean('tujuan_baru'),
-            'foto' => $fileName,
-            'latitude' => $request->latitude,
-            'longitude' => $request->longitude,
-            'lokasi' => $request->lokasi,
-            'waktu_foto' => $request->waktu_foto,
-            'tanggal' => $request->tanggal,
-            'periode_id' => $periode?->id,
-            'catatan' => $request->catatan,
-            'status' => 'pending',
-        ]);
-
+        $this->validasiService->submit($request);
         return redirect()->route('validasi-bukti.form')
             ->with('success', 'Bukti berhasil dikirim! Menunggu verifikasi mitra.');
     }
 
     public function kelola(Request $request)
     {
-        $status = $request->get('status', 'pending');
-        $search = trim($request->get('search', ''));
-
-        $list = ValidasiBukti::with(['sopir', 'tujuan', 'periode'])
-            ->when($status !== 'semua', fn($q) => $q->where('status', $status))
-            ->when($search !== '', function ($q) use ($search) {
-                $q->where(function ($q2) use ($search) {
-                    $q2->where('nama_sopir', 'like', "%{$search}%")
-                        ->orWhere('nama_tujuan', 'like', "%{$search}%");
-
-                    // Dukungan pencarian tanggal: YYYY-MM-DD atau DD/MM/YYYY atau DD-MM-YYYY
-                    $date = null;
-                    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $search)) {
-                        $date = $search;
-                    } elseif (preg_match('#^(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})$#', $search, $m)) {
-                        $date = sprintf('%04d-%02d-%02d', $m[3] > 99 ? $m[3] : 2000 + $m[3], $m[2], $m[1]);
-                    }
-                    if ($date) {
-                        $q2->orWhereDate('tanggal', $date);
-                    }
-                });
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate(10)
-            ->withQueryString();
-
-        return view('validasi-bukti.kelola', compact('list', 'status', 'search'));
+        return view('validasi-bukti.kelola', $this->validasiService->getKelolaData($request));
     }
 
     public function destroy($id)
     {
         try {
-            $item = ValidasiBukti::findOrFail($id);
-            $item->delete();
-
-            return redirect()->back()
-                ->with('success', 'Permintaan validasi berhasil dihapus!');
+            ValidasiBukti::findOrFail($id)->delete();
+            return redirect()->back()->with('success', 'Permintaan validasi berhasil dihapus!');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Gagal menghapus data: ' . $e->getMessage());
         }
@@ -120,47 +58,19 @@ class ValidasiBuktiController extends Controller
 
     public function detail($id)
     {
-        $item = ValidasiBukti::with(['sopir', 'tujuan', 'periode'])->findOrFail($id);
-        $sopirs = Sopir::orderBy('nama')->get(['kode_sopir', 'nama']);
-        $tujuans = Tujuan::orderBy('nama')->get(['kode_tujuan', 'nama']);
-        return view('validasi-bukti.detail', compact('item', 'sopirs', 'tujuans'));
+        return view('validasi-bukti.detail', $this->validasiService->getDetailData($id));
     }
 
     public function setujui(Request $request, $id)
     {
-        $item = ValidasiBukti::findOrFail($id);
-
-        $kodeSopir = $item->kode_sopir;
-        $kodeTujuan = $item->kode_tujuan;
-
-        if ($item->sopir_baru && !$kodeSopir) {
-            $sopir = Sopir::create(['nama' => $item->nama_sopir, 'status' => 'aktif']);
-            $kodeSopir = $sopir->kode_sopir;
-        }
-
-        if ($item->tujuan_baru && !$kodeTujuan) {
-            $tujuan = Tujuan::create(['nama' => $item->nama_tujuan, 'status' => 'aktif']);
-            $kodeTujuan = $tujuan->kode_tujuan;
-        }
-
-        $item->update([
-            'kode_sopir' => $kodeSopir,
-            'kode_tujuan' => $kodeTujuan,
-            'status' => 'disetujui',
-            'catatan_mitra' => $request->catatan_mitra,
-        ]);
-
+        $this->validasiService->setujui($request, $id);
         return back()->with('success', 'Bukti disetujui. Silakan tambah ritase.');
     }
 
     public function tolak(Request $request, $id)
     {
         $request->validate(['catatan_mitra' => 'required|string|max:255']);
-        $item = ValidasiBukti::findOrFail($id);
-        $item->update([
-            'status' => 'ditolak',
-            'catatan_mitra' => $request->catatan_mitra,
-        ]);
+        $this->validasiService->tolak($request, $id);
         return back()->with('success', 'Bukti ditolak.');
     }
 
@@ -176,41 +86,7 @@ class ValidasiBuktiController extends Controller
 
         DB::beginTransaction();
         try {
-            $item = ValidasiBukti::findOrFail($id);
-
-            $periode = $item->periode_id
-                ? \App\Models\Periode::find($item->periode_id)
-                : \App\Models\Periode::where('tanggal_mulai', '<=', $request->tanggal)
-                    ->where('tanggal_selesai', '>=', $request->tanggal)
-                    ->first();
-
-            if (!$periode) {
-                return back()->with('error', 'Tidak ada periode yang mencakup tanggal ini. Buat periode terlebih dahulu.');
-            }
-
-            $lastRit = Ritase::orderBy('id', 'desc')->first();
-            $newNumber = $lastRit ? (int) substr($lastRit->kode_ritase, 4) + 1 : 1;
-            $kodeRitase = 'RIT-' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
-
-            $dt = $this->hitungDt($request->kode_sopir, $request->tanggal, $request->kabupaten, $request->waktu);
-
-            Ritase::create([
-                'kode_ritase' => $kodeRitase,
-                'periode_id' => $periode->id,
-                'kode_sopir' => $request->kode_sopir,
-                'kode_tujuan' => $request->kode_tujuan,
-                'tanggal' => $request->tanggal,
-                'waktu' => $request->waktu,
-                'kabupaten' => $request->kabupaten,
-                'status' => 'valid',
-                'dt' => $dt,
-                'upah_sopir' => 0,
-                'nominal_kompensasi' => 0,
-                'catatan' => $item->catatan,
-            ]);
-
-            $item->update(['status' => 'disetujui']);
-
+            $kodeRitase = $this->validasiService->tambahRitase($request, $id);
             DB::commit();
             return redirect()->route('validasi-bukti.kelola')
                 ->with('success', "Ritase $kodeRitase berhasil ditambahkan!");
@@ -218,18 +94,6 @@ class ValidasiBuktiController extends Controller
             DB::rollback();
             return back()->with('error', 'Gagal: ' . $e->getMessage());
         }
-    }
-
-    private function hitungDt($kodeSopir, $tanggal, $kabupaten, $waktu)
-    {
-        $exists = Ritase::where('kode_sopir', $kodeSopir)
-            ->where('tanggal', $tanggal)
-            ->where('kabupaten', $kabupaten)
-            ->where('waktu', $waktu)
-            ->where('status', '!=', 'gagal_produksi')
-            ->exists();
-
-        return $exists ? 0 : config('dt.value', 330000);
     }
 
     public function toggleAturan()

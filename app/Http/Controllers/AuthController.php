@@ -2,19 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\OtpMail;
-use App\Models\Otp;
 use App\Models\User;
-use Carbon\Carbon;
+use App\Services\AuthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
-    // ============ LOGIN ============
+    public function __construct(
+        private readonly AuthService $authService
+    ) {}
+
     public function showLogin()
     {
         return view('auth.login');
@@ -34,12 +33,9 @@ class AuthController extends Controller
             return redirect()->route('dashboard');
         }
 
-        return back()
-            ->withErrors(['email' => 'Email atau password salah.'])
-            ->onlyInput('email');
+        return back()->withErrors(['email' => 'Email atau password salah.'])->onlyInput('email');
     }
 
-    // ============ LUPA PASSWORD ============
     public function showForgotPassword()
     {
         return view('auth.forgot-password');
@@ -53,24 +49,11 @@ class AuthController extends Controller
             'email.ends_with' => 'Email harus menggunakan domain @gmail.com.',
         ]);
 
-        Otp::where('email', $request->email)->delete();
-
-        $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-
-        Otp::create([
-            'email'      => $request->email,
-            'otp'        => $otp,
-            'expires_at' => Carbon::now()->addMinutes(15),
-        ]);
-
-        Mail::to($request->email)->send(new OtpMail($otp, $request->email));
-
-        return redirect()
-            ->route('verify.otp.form', ['email' => $request->email])
+        $this->authService->sendOtp($request->email);
+        return redirect()->route('verify.otp.form', ['email' => $request->email])
             ->with('success', 'Kode OTP telah dikirim ke email Anda.');
     }
 
-    // ============ VERIFY OTP ============
     public function showVerifyOtp(Request $request)
     {
         return view('auth.verify-otp', ['email' => $request->query('email')]);
@@ -78,26 +61,15 @@ class AuthController extends Controller
 
     public function verifyOtp(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'otp'   => 'required|digits:6',
-        ]);
+        $request->validate(['email' => 'required|email', 'otp' => 'required|digits:6']);
 
-        $otpData = Otp::where('email', $request->email)
-            ->where('otp', $request->otp)
-            ->where('expires_at', '>=', Carbon::now())
-            ->first();
-
-        if (!$otpData) {
+        if (!$this->authService->verifyOtp($request->email, $request->otp)) {
             return back()->withErrors(['otp' => 'Kode OTP salah atau sudah kadaluarsa.']);
         }
-
-        $otpData->delete();
 
         return redirect()->route('reset.password.form', ['email' => $request->email]);
     }
 
-    // ============ RESET PASSWORD ============
     public function showResetPassword(Request $request)
     {
         return view('auth.reset-password', ['email' => $request->query('email')]);
@@ -106,70 +78,45 @@ class AuthController extends Controller
     public function updatePassword(Request $request)
     {
         $request->validate([
-            'email'                 => 'required|email|exists:users,email',
-            'password'              => 'required|min:6|confirmed',
+            'email'    => 'required|email|exists:users,email',
+            'password' => 'required|min:6|confirmed',
         ]);
 
-        $user = User::where('email', $request->email)->firstOrFail();
-        $user->password = Hash::make($request->password);
-        $user->save();
-
-        return redirect()
-            ->route('login')
-            ->with('success', 'Password berhasil diperbarui! Silakan login.');
+        $this->authService->resetPassword($request->email, $request->password);
+        return redirect()->route('login')->with('success', 'Password berhasil diperbarui! Silakan login.');
     }
 
-    // ============ GOOGLE LOGIN ============
     public function loginGoogle()
     {
-        $redirectUrl = $this->getGoogleRedirectUrl();
         return Socialite::driver('google')
-            ->redirectUrl($redirectUrl)
+            ->redirectUrl($this->authService->getGoogleRedirectUrl())
             ->redirect();
     }
 
     public function loginGoogleCallback()
     {
-        $redirectUrl = $this->getGoogleRedirectUrl();
         try {
             $googleUser = Socialite::driver('google')
-                ->redirectUrl($redirectUrl)
-                ->user();
+                ->redirectUrl($this->authService->getGoogleRedirectUrl())->user();
         } catch (\Exception $e) {
-            return redirect()->route('login')
-                ->withErrors(['email' => 'Gagal login dengan Google. Silakan coba lagi.']);
+            return redirect()->route('login')->withErrors(['email' => 'Gagal login dengan Google. Silakan coba lagi.']);
         }
 
         $user = User::where('email', $googleUser->email)->first();
-
         if (!$user) {
-            return redirect()->route('login')
-                ->withErrors(['email' => 'Email Google tidak terdaftar di sistem. Silakan login dengan email & password.']);
+            return redirect()->route('login')->withErrors(['email' => 'Email Google tidak terdaftar di sistem. Silakan login dengan email & password.']);
         }
 
         Auth::login($user);
         request()->session()->regenerate();
-
         return redirect()->route('dashboard');
     }
 
-    private function getGoogleRedirectUrl()
-    {
-        // Auto-detect: if accessed via ngrok, use ngrok URL; otherwise use APP_URL
-        $host = request()->getHost();
-        if (str_contains($host, 'ngrok')) {
-            return 'https://' . $host . '/auth/google/callback';
-        }
-        return env('GOOGLE_REDIRECT_URL', config('services.google.redirect', route('google.callback')));
-    }
-
-    // ============ LOGOUT ============
     public function logout(Request $request)
     {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
         return redirect()->route('login');
     }
 }
