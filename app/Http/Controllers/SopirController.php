@@ -68,16 +68,20 @@ class SopirController extends Controller
      */
     public function destroy($id)
     {
-        $sopir = Sopir::findOrFail($id);
+        try {
+            $sopir = Sopir::findOrFail($id);
 
-        if ($sopir->ritase()->count() > 0) {
+            if ($sopir->ritase()->count() > 0) {
+                return redirect()->back()
+                    ->with('error', 'Sopir tidak dapat dihapus karena sudah memiliki data ritase!');
+            }
+
+            $sopir->delete();
+
             return redirect()->back()
-                ->with('error', 'Sopir tidak dapat dihapus karena sudah memiliki data ritase!');
+                ->with('success', 'Data sopir berhasil dihapus!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menghapus data: ' . $e->getMessage());
         }
-
-        $sopir->delete();
-
-        return redirect()->back()
-            ->with('success', 'Data sopir berhasil dihapus!');
     }
 }

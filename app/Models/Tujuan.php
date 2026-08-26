@@ -29,7 +29,7 @@ class Tujuan extends Model
         });
     }
 
-    // ✅ RELATIONSHIP: Tujuan memiliki banyak Ritase
+    // RELATIONSHIP: Tujuan has many Ritase records
     public function ritase()
     {
         return $this->hasMany(Ritase::class, 'kode_tujuan', 'kode_tujuan');
@@ -46,8 +46,8 @@ class Tujuan extends Model
     }
 
     /**
-     * Sync status: tujuan dgn ritase di periode aktif → aktif, sisanya → nonaktif.
-     * Jika tidak ada periode aktif → semua nonaktif.
+     * Sync status: tujuan with ritase in active periode -> active, others -> inactive.
+     * If no active periode -> all inactive.
      */
     public static function syncActiveStatus(): void
     {

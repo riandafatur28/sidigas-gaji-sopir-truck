@@ -107,11 +107,15 @@ class ValidasiBuktiController extends Controller
 
     public function destroy($id)
     {
-        $item = ValidasiBukti::findOrFail($id);
-        $item->delete();
+        try {
+            $item = ValidasiBukti::findOrFail($id);
+            $item->delete();
 
-        return redirect()->back()
-            ->with('success', 'Permintaan validasi berhasil dihapus!');
+            return redirect()->back()
+                ->with('success', 'Permintaan validasi berhasil dihapus!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menghapus data: ' . $e->getMessage());
+        }
     }
 
     public function detail($id)

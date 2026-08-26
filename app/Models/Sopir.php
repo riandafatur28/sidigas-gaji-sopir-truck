@@ -50,8 +50,8 @@ class Sopir extends Model
     }
 
     /**
-     * Sync status: sopir dgn ritase di periode aktif → aktif, sisanya → nonaktif.
-     * Jika tidak ada periode aktif → semua nonaktif.
+     * Sync status: sopir with ritase in active periode -> active, others -> inactive.
+     * If no active periode -> all inactive.
      */
     public static function syncActiveStatus(): void
     {

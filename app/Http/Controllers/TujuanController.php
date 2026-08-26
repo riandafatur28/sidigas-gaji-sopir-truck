@@ -67,16 +67,20 @@ class TujuanController extends Controller
      */
     public function destroy($id)
     {
-        $tujuan = Tujuan::findOrFail($id);
+        try {
+            $tujuan = Tujuan::findOrFail($id);
 
-        if ($tujuan->ritase()->count() > 0) {
+            if ($tujuan->ritase()->count() > 0) {
+                return redirect()->back()
+                    ->with('error', 'Tujuan tidak dapat dihapus karena sudah memiliki data ritase!');
+            }
+
+            $tujuan->delete();
+
             return redirect()->back()
-                ->with('error', 'Tujuan tidak dapat dihapus karena sudah memiliki data ritase!');
+                ->with('success', 'Data tujuan berhasil dihapus!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menghapus data: ' . $e->getMessage());
         }
-
-        $tujuan->delete();
-
-        return redirect()->back()
-            ->with('success', 'Data tujuan berhasil dihapus!');
     }
 }

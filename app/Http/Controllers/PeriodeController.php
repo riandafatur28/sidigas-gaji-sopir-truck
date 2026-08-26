@@ -86,16 +86,20 @@ class PeriodeController extends Controller
 
     public function destroy($id)
     {
-        $periode = Periode::findOrFail($id);
+        try {
+            $periode = Periode::findOrFail($id);
 
-        if ($periode->ritase()->count() > 0) {
+            if ($periode->ritase()->count() > 0) {
+                return redirect()->back()
+                    ->with('error', 'Periode tidak dapat dihapus karena sudah memiliki data ritase!');
+            }
+
+            $periode->delete();
+
             return redirect()->back()
-                ->with('error', 'Periode tidak dapat dihapus karena sudah memiliki data ritase!');
+                ->with('success', 'Data periode berhasil dihapus!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menghapus data: ' . $e->getMessage());
         }
-
-        $periode->delete();
-
-        return redirect()->back()
-            ->with('success', 'Data periode berhasil dihapus!');
     }
 }

@@ -36,25 +36,25 @@ class Periode extends Model
         });
     }
 
-    // ✅ RELATIONSHIP: Periode memiliki banyak Ritase (nama: ritase - singular)
+    // RELATIONSHIP: Periode has many Ritase records
     public function ritase()
     {
         return $this->hasMany(Ritase::class, 'periode_id');
     }
 
-    // ✅ RELATIONSHIP: Periode memiliki banyak Gaji
+    // RELATIONSHIP: Periode has many Penggajian records
     public function gaji()
     {
         return $this->hasMany(Penggajian::class, 'periode_id');
     }
 
-    // ✅ SCOPE: Hanya periode aktif
+    // SCOPE: Only active periodes
     public function scopeAktif($query)
     {
         return $query->where('status', 'aktif');
     }
 
-    // ✅ Sync status based on current date — panggil tiap request yg butuh 'periode aktif'
+    // Sync status based on current date — call on every request that needs 'active periode'
     public static function syncActiveStatus(): ?self
     {
         $today = now()->startOfDay();
