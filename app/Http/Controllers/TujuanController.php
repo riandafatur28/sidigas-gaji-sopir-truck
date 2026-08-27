@@ -4,14 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Tujuan;
 use App\Http\Requests\StoreTujuanRequest;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class TujuanController extends Controller
 {
     /**
-     * Tampilkan halaman Kelola Tujuan
+     * Display tujuan index with search and stats.
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $search = $request->get('search', '');
 
@@ -29,43 +31,53 @@ class TujuanController extends Controller
     }
 
     /**
-     * Simpan tujuan baru
+     * Store a new tujuan.
      */
-    public function store(StoreTujuanRequest $request)
+    public function store(StoreTujuanRequest $request): RedirectResponse
     {
-        Tujuan::create([
-            'nama' => $request->nama,
-            'status' => 'aktif',
-        ]);
+        try {
+            Tujuan::create([
+                'nama' => $request->nama,
+                'status' => 'aktif',
+            ]);
 
-        return redirect()->back()
-            ->with('success', "Tujuan berhasil ditambahkan dengan kode otomatis!");
+            return redirect()->back()
+                ->with('success', "Tujuan berhasil ditambahkan dengan kode otomatis!");
+        } catch (\Exception $e) {
+            report($e);
+            return redirect()->back()->withInput()->with('error', 'Gagal menyimpan tujuan: ' . $e->getMessage());
+        }
     }
 
     /**
-     * Update tujuan
+     * Update an existing tujuan.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
         $request->validate([
             'nama' => 'required|string|max:255|min:3',
             'status' => 'required|in:aktif,nonaktif',
         ]);
 
-        $tujuan = Tujuan::findOrFail($id);
-        $tujuan->update([
-            'nama' => $request->nama,
-            'status' => $request->status,
-        ]);
+        try {
+            $tujuan = Tujuan::findOrFail($id);
+            $tujuan->update([
+                'nama' => $request->nama,
+                'status' => $request->status,
+            ]);
 
-        return redirect()->back()
-            ->with('success', 'Data tujuan berhasil diperbarui!');
+            return redirect()->back()
+                ->with('success', 'Data tujuan berhasil diperbarui!');
+        } catch (\Exception $e) {
+            report($e);
+            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui tujuan: ' . $e->getMessage());
+        }
     }
 
     /**
-     * Hapus tujuan
+     * Delete a tujuan (only if no ritase records exist).
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         try {
             $tujuan = Tujuan::findOrFail($id);
@@ -80,6 +92,7 @@ class TujuanController extends Controller
             return redirect()->back()
                 ->with('success', 'Data tujuan berhasil dihapus!');
         } catch (\Exception $e) {
+            report($e);
             return redirect()->back()->with('error', 'Gagal menghapus data: ' . $e->getMessage());
         }
     }

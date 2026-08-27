@@ -7,7 +7,9 @@ use App\Models\Ritase;
 use App\Http\Requests\StoreRitaseRequest;
 use App\Http\Requests\UpdateRitaseRequest;
 use App\Services\RitaseService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class RitaseController extends Controller
 {
@@ -15,12 +17,18 @@ class RitaseController extends Controller
         private readonly RitaseService $ritaseService
     ) {}
 
-    public function index(Request $request)
+    /**
+     * Display ritase index with filters.
+     */
+    public function index(Request $request): View
     {
         Periode::syncActiveStatus();
         return view('ritase.index', $this->ritaseService->getIndexData($request));
     }
 
+    /**
+     * Store a new ritase record.
+     */
     public function store(StoreRitaseRequest $request)
     {
         try {
@@ -28,42 +36,75 @@ class RitaseController extends Controller
             return redirect()->back()
                 ->with('success', 'Ritase berhasil ditambahkan! DT: Rp ' . number_format($dtValue, 0, ',', '.'));
         } catch (\Exception $e) {
-            return back()->withInput()->with('error', $e->getMessage());
+            report($e); // Log for debugging
+            return back()->withInput()->with('error', 'Gagal menyimpan ritase: ' . $e->getMessage());
         }
     }
 
-    public function update(UpdateRitaseRequest $request, $id)
+    /**
+     * Update an existing ritase record.
+     */
+    public function update(UpdateRitaseRequest $request, int $id)
     {
-        $dtValue = $this->ritaseService->updateRitase($request, $id);
-        return redirect()->back()
-            ->with('success', 'Data ritase berhasil diperbarui! DT: Rp ' . number_format($dtValue, 0, ',', '.'));
+        try {
+            $dtValue = $this->ritaseService->updateRitase($request, $id);
+            return redirect()->back()
+                ->with('success', 'Data ritase berhasil diperbarui! DT: Rp ' . number_format($dtValue, 0, ',', '.'));
+        } catch (\Exception $e) {
+            report($e);
+            return back()->withInput()->with('error', 'Gagal memperbarui ritase: ' . $e->getMessage());
+        }
     }
 
-    public function destroy($id)
+    /**
+     * Delete a ritase record.
+     */
+    public function destroy(int $id)
     {
         try {
             Ritase::findOrFail($id)->delete();
             return redirect()->back()->with('success', 'Data ritase berhasil dihapus!');
         } catch (\Exception $e) {
+            report($e);
             return redirect()->back()->with('error', 'Gagal menghapus data: ' . $e->getMessage());
         }
     }
 
-    public function cekAturanSewaDT(Request $request)
+    /**
+     * Check DT rental rules via AJAX.
+     */
+    public function cekAturanSewaDT(Request $request): JsonResponse
     {
-        return response()->json($this->ritaseService->cekAturanSewaDT($request));
+        try {
+            return response()->json($this->ritaseService->cekAturanSewaDT($request));
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
     }
 
-    public function detailData(Request $request)
+    /**
+     * Get detail data for pivot table via AJAX.
+     */
+    public function detailData(Request $request): JsonResponse
     {
-        return response()->json($this->ritaseService->detailData($request));
+        try {
+            return response()->json($this->ritaseService->detailData($request));
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
     }
 
-    public function parserForm()
+    /**
+     * Show parser form.
+     */
+    public function parserForm(): View
     {
         return view('ritase.parser', $this->ritaseService->getParserFormData());
     }
 
+    /**
+     * Process text parser input.
+     */
     public function parserProcess(Request $request)
     {
         $request->validate([
@@ -76,17 +117,26 @@ class RitaseController extends Controller
             $results = $this->ritaseService->processParser($request);
             return view('ritase.parser-result', ['results' => $results, 'periodeId' => $request->periode_id]);
         } catch (\Exception $e) {
+            report($e);
             return back()->withErrors(['text' => $e->getMessage()])->withInput();
         }
     }
 
+    /**
+     * Download or view detail PDF.
+     */
     public function detailPdf(Request $request)
     {
-        $result = $this->ritaseService->detailPdf($request);
-        if ($request->has('view')) {
-            return view('ritase.detail-html', $result);
+        try {
+            $result = $this->ritaseService->detailPdf($request);
+            if ($request->has('view')) {
+                return view('ritase.detail-html', $result);
+            }
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('ritase.detail-pdf', $result)->setPaper('A4', 'landscape');
+            return $pdf->download('detail-ritase-' . $result['periode']->nama_periode . '.pdf');
+        } catch (\Exception $e) {
+            report($e);
+            return back()->with('error', 'Gagal generate PDF: ' . $e->getMessage());
         }
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('ritase.detail-pdf', $result)->setPaper('A4', 'landscape');
-        return $pdf->download('detail-ritase-' . $result['periode']->nama_periode . '.pdf');
     }
 }

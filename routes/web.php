@@ -26,21 +26,21 @@ Route::middleware(['guest', 'throttle:10,3'])->group(function () {
     Route::get('/auth/google', [AuthController::class, 'loginGoogle'])->name('google.login');
     Route::get('/auth/google/callback', [AuthController::class, 'loginGoogleCallback'])->name('google.callback');
 
-    // Login
+    // Login — stricter rate limit (5 attempts per 3 minutes)
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,3');
 
-    // Lupa Password
+    // Lupa Password — stricter (3 per 5 minutes to prevent OTP spam)
     Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.request');
-    Route::post('/forgot-password', [AuthController::class, 'sendOtp'])->name('password.email');
+    Route::post('/forgot-password', [AuthController::class, 'sendOtp'])->name('password.email')->middleware('throttle:3,5');
 
     // Verify OTP
     Route::get('/verify-otp', [AuthController::class, 'showVerifyOtp'])->name('verify.otp.form');
-    Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('verify.otp');
+    Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('verify.otp')->middleware('throttle:5,3');
 
     // Reset Password
     Route::get('/reset-password', [AuthController::class, 'showResetPassword'])->name('reset.password.form');
-    Route::post('/reset-password', [AuthController::class, 'updatePassword'])->name('password.update');
+    Route::post('/reset-password', [AuthController::class, 'updatePassword'])->name('password.update')->middleware('throttle:3,5');
 });
 
 // ================= AUTHENTICATED ROUTES =================

@@ -4,18 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Sopir;
 use App\Http\Requests\StoreSopirRequest;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class SopirController extends Controller
 {
     /**
-     * Tampilkan halaman Kelola Sopir
+     * Display sopir index with search and stats.
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $search = $request->get('search', '');
 
-        // Urutan ASC (ID paling awal di atas) + Pagination 10 per halaman
         $sopirs = Sopir::where('nama', 'like', "%{$search}%")
             ->orWhere('kode_sopir', 'like', "%{$search}%")
             ->orderBy('id', 'asc')
@@ -30,43 +31,53 @@ class SopirController extends Controller
     }
 
     /**
-     * Simpan sopir baru
+     * Store a new sopir.
      */
-    public function store(StoreSopirRequest $request)
+    public function store(StoreSopirRequest $request): RedirectResponse
     {
-        Sopir::create([
-            'nama' => $request->nama,
-            'status' => 'aktif',
-        ]);
+        try {
+            Sopir::create([
+                'nama' => $request->nama,
+                'status' => 'aktif',
+            ]);
 
-        return redirect()->back()
-            ->with('success', "Sopir berhasil ditambahkan dengan kode otomatis!");
+            return redirect()->back()
+                ->with('success', "Sopir berhasil ditambahkan dengan kode otomatis!");
+        } catch (\Exception $e) {
+            report($e);
+            return redirect()->back()->withInput()->with('error', 'Gagal menyimpan sopir: ' . $e->getMessage());
+        }
     }
 
     /**
-     * Update sopir
+     * Update an existing sopir.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
         $request->validate([
             'nama' => 'required|string|max:255|min:3',
             'status' => 'required|in:aktif,nonaktif',
         ]);
 
-        $sopir = Sopir::findOrFail($id);
-        $sopir->update([
-            'nama' => $request->nama,
-            'status' => $request->status,
-        ]);
+        try {
+            $sopir = Sopir::findOrFail($id);
+            $sopir->update([
+                'nama' => $request->nama,
+                'status' => $request->status,
+            ]);
 
-        return redirect()->back()
-            ->with('success', 'Data sopir berhasil diperbarui!');
+            return redirect()->back()
+                ->with('success', 'Data sopir berhasil diperbarui!');
+        } catch (\Exception $e) {
+            report($e);
+            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui sopir: ' . $e->getMessage());
+        }
     }
 
     /**
-     * Hapus sopir
+     * Delete a sopir (only if no ritase records exist).
      */
-    public function destroy($id)
+    public function destroy(int $id): RedirectResponse
     {
         try {
             $sopir = Sopir::findOrFail($id);
@@ -81,6 +92,7 @@ class SopirController extends Controller
             return redirect()->back()
                 ->with('success', 'Data sopir berhasil dihapus!');
         } catch (\Exception $e) {
+            report($e);
             return redirect()->back()->with('error', 'Gagal menghapus data: ' . $e->getMessage());
         }
     }

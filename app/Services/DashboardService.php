@@ -7,16 +7,34 @@ use App\Models\Ritase;
 use App\Models\Sopir;
 use App\Models\ValidasiBukti;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 
 class DashboardService
 {
+    /**
+     * Get dashboard index data with caching for performance.
+     */
     public function getIndexData(Request $request): array
     {
         $user = \Illuminate\Support\Facades\Auth::user();
         $filter = $request->get('periode', 'periode_ini');
         $tanggal = $request->get('tanggal', '');
 
+        // Cache key based on user and filter
+        $cacheKey = "dashboard_{$user->id}_{$filter}_" . md5($tanggal);
+        $cacheMinutes = 5; // Cache for 5 minutes
+
+        return Cache::remember($cacheKey, $cacheMinutes, function () use ($user, $filter, $tanggal) {
+            return $this->computeDashboardData($user, $filter, $tanggal);
+        });
+    }
+
+    /**
+     * Compute actual dashboard data (called when cache is cold).
+     */
+    private function computeDashboardData(object $user, string $filter, string $tanggal): array
+    {
         $totalSopir = Sopir::count();
         $sopirAktif = Sopir::where('status', 'aktif')->count();
         $sopirNonaktif = Sopir::where('status', 'nonaktif')->count();
@@ -81,6 +99,9 @@ class DashboardService
         );
     }
 
+    /**
+     * Resolve date filter to start/end dates and label.
+     */
     private function resolveFilter(string $filter, string $tanggal): array
     {
         $startDate = null;
@@ -91,39 +112,46 @@ class DashboardService
             return [Carbon::parse($tanggal), Carbon::parse($tanggal), $tanggal];
         }
 
-        switch ($filter) {
-            case 'semua':
-                return [null, now(), 'Semua Waktu'];
-            case 'periode_ini':
-                $periode = \App\Models\Periode::where('status', 'aktif')
-                    ->where('tanggal_mulai', '<=', now())
-                    ->where('tanggal_selesai', '>=', now())
-                    ->first()
-                    ?? \App\Models\Periode::where('status', 'aktif')->first();
-                if ($periode) {
-                    return [Carbon::parse($periode->tanggal_mulai), Carbon::parse($periode->tanggal_selesai), 'Periode Ini'];
-                }
-                return [$startDate, $endDate, $periodLabel];
-            case 'periode_lalu':
-                $periodeLalu = \App\Models\Periode::where(fn($q) => $q->where('status', 'selesai')->orWhere('tanggal_selesai', '<', now()))
-                    ->latest('tanggal_selesai')->first();
-                if ($periodeLalu) {
-                    return [Carbon::parse($periodeLalu->tanggal_mulai), Carbon::parse($periodeLalu->tanggal_selesai), 'Periode Lalu'];
-                }
-                return [$startDate, $endDate, $periodLabel];
-            case 'bulan_ini':
-                return [now()->startOfMonth(), now(), 'Bulan Ini'];
-            case '3_bulan_lalu':
-                return [now()->subMonths(3)->startOfMonth(), now(), '3 Bulan Lalu'];
-            case '6_bulan_lalu':
-                return [now()->subMonths(6)->startOfMonth(), now(), '6 Bulan Lalu'];
-            case '1_tahun_lalu':
-                return [now()->subYear()->startOfYear(), now(), '1 Tahun Lalu'];
-        }
-
-        return [$startDate, $endDate, $periodLabel];
+        return match ($filter) {
+            'semua' => [null, now(), 'Semua Waktu'],
+            'periode_ini' => $this->resolvePeriodeAktif(),
+            'periode_lalu' => $this->resolvePeriodeLalu(),
+            'bulan_ini' => [now()->startOfMonth(), now(), 'Bulan Ini'],
+            '3_bulan_lalu' => [now()->subMonths(3)->startOfMonth(), now(), '3 Bulan Lalu'],
+            '6_bulan_lalu' => [now()->subMonths(6)->startOfMonth(), now(), '6 Bulan Lalu'],
+            '1_tahun_lalu' => [now()->subYear()->startOfYear(), now(), '1 Tahun Lalu'],
+            default => [$startDate, $endDate, $periodLabel],
+        };
     }
 
+    private function resolvePeriodeAktif(): array
+    {
+        $periode = \App\Models\Periode::where('status', 'aktif')
+            ->where('tanggal_mulai', '<=', now())
+            ->where('tanggal_selesai', '>=', now())
+            ->first()
+            ?? \App\Models\Periode::where('status', 'aktif')->first();
+
+        if ($periode) {
+            return [Carbon::parse($periode->tanggal_mulai), Carbon::parse($periode->tanggal_selesai), 'Periode Ini'];
+        }
+        return [null, now(), 'Periode Ini'];
+    }
+
+    private function resolvePeriodeLalu(): array
+    {
+        $periodeLalu = \App\Models\Periode::where(fn($q) => $q->where('status', 'selesai')->orWhere('tanggal_selesai', '<', now()))
+            ->latest('tanggal_selesai')->first();
+
+        if ($periodeLalu) {
+            return [Carbon::parse($periodeLalu->tanggal_mulai), Carbon::parse($periodeLalu->tanggal_selesai), 'Periode Lalu'];
+        }
+        return [null, now(), 'Periode Lalu'];
+    }
+
+    /**
+     * Get active period progress info.
+     */
     private function getPeriodeProgress(): array
     {
         $periodeAktif = \App\Models\Periode::where('status', 'aktif')->first();
