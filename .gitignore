@@ -1,5 +1,16 @@
 *.log
+*.exe
+*.pfx
+*.pem
+*.pdf
+*.png
+*.svg
+*.drawio
+*.drawio.png
+*.csv
+*.xlsx
 .DS_Store
+Thumbs.db
 .env
 .env.backup
 .env.production
@@ -24,9 +35,13 @@
 _ide_helper.php
 Homestead.json
 Homestead.yaml
-Thumbs.db
-*.pfx
-*.exe
-*.pem
-
 ngrok.exe
+test_parse_*
+test_pdf.php
+test-slip.pdf
+after(*
+all()
+dropColumn(*
+
+# Root-level PlantUML duplicates (real versions in diagrams/)
+/*.puml

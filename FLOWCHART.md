@@ -31,7 +31,7 @@
 │  Excel:    phpoffice/phpspreadsheet                         │
 │  Queue:    Laravel Queue (sync driver)                      │
 ├─────────────────────────────────────────────────────────────┤
-│  9 Models → 10 Controllers → 1 Service → 29 Views          │
+│  9 Models → 10 Controllers → 13 Services → 29 Views          │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -1334,6 +1334,7 @@ app/
 │   │   ├── CacheControl.php
 │   │   ├── RoleMiddleware.php
 │   │   └── SecurityHeaders.php
+│   ├── Requests/                       # Form request validation
 ├── Models/
 │   ├── Sopir.php                       # Sopir model
 │   ├── Tujuan.php                      # Tujuan model
@@ -1344,12 +1345,26 @@ app/
 │   ├── ValidasiBukti.php               # Validasi bukti model
 │   ├── User.php                        # User auth model
 │   └── Otp.php                         # OTP model
-├── Services/
-│   └── RitaseParserService.php         # Parser teks (regex) + fuzzy matching
+├── Services/                           # 13 service classes
+│   ├── AuthService.php                 # Login, OTP, password reset
+│   ├── DashboardService.php            # Dashboard metrics (cached 5 min)
+│   ├── PenggajianService.php           # Generate penggajian
+│   ├── PenggajianDataService.php       # Query & data penggajian
+│   ├── RitaseService.php               # CRUD ritase + pivot detail
+│   ├── RitaseDetailService.php         # Detail logic ritase
+│   ├── RitaseParserService.php         # Facade delegasi ke 3 parser services
+│   ├── RitaseTextParser.php            # Regex parsing teks WhatsApp
+│   ├── RitaseFuzzyMatcher.php          # Jaro-Winkler + Metaphone matching
+│   ├── RitaseCreator.php              # Insert ritase ke database
+│   ├── SlipBuilderService.php          # Build data slip gaji
+│   ├── LaporanBuilderService.php       # Build data laporan
+│   └── ValidasiBuktiService.php        # Submit & review validasi bukti
 ├── Mail/
 │   └── OtpMail.php                     # Email OTP
+├── Traits/
+│   └── HasUniqueKode.php              # Trait untuk kode unik otomatis
 └── View/Components/
-    └── layouts.Auth.php
+    └── layouts/Auth.php
 resources/views/
 ├── auth/                               # Login, forgot/reset password, verify OTP
 ├── dashboard/                          # Dashboard
