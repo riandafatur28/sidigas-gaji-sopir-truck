@@ -1,4 +1,5 @@
 {{-- Stat Cards --}}
+@aware(['totalRitase', 'ritaseValid', 'ritasePending', 'ritaseGagal', 'sopirTerlibat', 'tanggal', 'filterPeriode'])
 <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
     <div class="stat-card">
         <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Ritase</p>

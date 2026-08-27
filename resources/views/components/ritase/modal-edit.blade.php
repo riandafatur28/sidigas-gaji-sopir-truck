@@ -1,4 +1,5 @@
 {{-- Modal Edit Ritase --}}
+@aware(['periodes', 'sopirs'])
 <div id="editModal" class="fixed inset-0 bg-black/40 z-50 hidden items-center justify-center">
     <div class="bg-white rounded border border-gray-200 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
         <div class="p-6">
