@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Traits\HasUniqueKode;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Builder;
 
 class Sopir extends Model
 {
@@ -18,40 +22,39 @@ class Sopir extends Model
         'status',
     ];
 
-    protected static function boot()
+    protected static function boot(): void
     {
         parent::boot();
 
-        static::creating(function ($sopir) {
+        static::creating(function (Sopir $sopir): void {
             if (empty($sopir->kode_sopir)) {
                 $sopir->kode_sopir = $sopir->generateUniqueKode('SPR');
             }
         });
     }
 
-    public function ritase()
+    public function ritase(): HasMany
     {
         return $this->hasMany(Ritase::class, 'kode_sopir', 'kode_sopir');
     }
 
-    public function penggajian()
+    public function penggajian(): HasMany
     {
         return $this->hasMany(Penggajian::class, 'kode_sopir', 'kode_sopir');
     }
 
-    public function scopeAktif($query)
+    public function scopeAktif(Builder $query): Builder
     {
         return $query->where('status', 'aktif');
     }
 
-    public function scopeNonaktif($query)
+    public function scopeNonaktif(Builder $query): Builder
     {
         return $query->where('status', 'nonaktif');
     }
 
     /**
      * Sync status: sopir with ritase in active periode -> active, others -> inactive.
-     * If no active periode -> all inactive.
      */
     public static function syncActiveStatus(): void
     {

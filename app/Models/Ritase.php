@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Traits\HasUniqueKode;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Ritase extends Model
 {
@@ -38,28 +41,28 @@ class Ritase extends Model
         'upah_lembur' => 'decimal:2',
     ];
 
-    protected static function boot()
+    protected static function boot(): void
     {
         parent::boot();
 
-        static::creating(function ($ritase) {
+        static::creating(function (Ritase $ritase): void {
             if (empty($ritase->kode_ritase)) {
                 $ritase->kode_ritase = $ritase->generateUniqueKode('RIT');
             }
         });
     }
 
-    public function periode()
+    public function periode(): BelongsTo
     {
         return $this->belongsTo(Periode::class, 'periode_id');
     }
 
-    public function sopir()
+    public function sopir(): BelongsTo
     {
         return $this->belongsTo(Sopir::class, 'kode_sopir', 'kode_sopir');
     }
 
-    public function tujuan()
+    public function tujuan(): BelongsTo
     {
         return $this->belongsTo(Tujuan::class, 'kode_tujuan', 'kode_tujuan');
     }

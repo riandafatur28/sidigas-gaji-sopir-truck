@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\Periode;
@@ -65,7 +67,7 @@ class RitaseCreator
                 $last = Sopir::orderBy('id', 'desc')->first();
                 $num = $last ? (int)substr($last->kode_sopir, 4) + 1 : 1;
                 $sopir = Sopir::create([
-                    'kode_sopir' => 'SPR-' . str_pad($num, 3, '0', STR_PAD_LEFT),
+                    'kode_sopir' => 'SPR-' . str_pad((string) $num, 3, '0', STR_PAD_LEFT),
                     'nama' => $driverName, 'status' => 'aktif',
                 ]);
                 $createdDrivers[$driverName] = true;
@@ -79,7 +81,7 @@ class RitaseCreator
                     $last = Tujuan::orderBy('id', 'desc')->first();
                     $num = $last ? (int)substr($last->kode_tujuan, 4) + 1 : 1;
                     $tujuan = Tujuan::create([
-                        'kode_tujuan' => 'TUJ-' . str_pad($num, 3, '0', STR_PAD_LEFT),
+                        'kode_tujuan' => 'TUJ-' . str_pad((string) $num, 3, '0', STR_PAD_LEFT),
                         'nama' => $routeName, 'status' => 'aktif',
                     ]);
                     $createdRoutes[$routeName] = true;

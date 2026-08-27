@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Mail\OtpMail;
@@ -15,7 +17,7 @@ class AuthService
     public function sendOtp(string $email): void
     {
         Otp::where('email', $email)->delete();
-        $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         Otp::create([
             'email' => $email,
             'otp' => $otp,

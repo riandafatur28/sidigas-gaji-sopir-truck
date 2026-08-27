@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\Periode;
@@ -130,7 +132,7 @@ class ValidasiBuktiService
 
         $lastRit = Ritase::orderBy('id', 'desc')->first();
         $newNumber = $lastRit ? (int) substr($lastRit->kode_ritase, 4) + 1 : 1;
-        $kodeRitase = 'RIT-' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
+        $kodeRitase = 'RIT-' . str_pad((string) $newNumber, 3, '0', STR_PAD_LEFT);
 
         $dt = $this->hitungDt($request->kode_sopir, $request->tanggal, $request->kabupaten, $request->waktu);
 

@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Traits\HasUniqueKode;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Periode extends Model
 {
@@ -25,36 +28,35 @@ class Periode extends Model
         'tanggal_selesai' => 'date',
     ];
 
-    protected static function boot()
+    protected static function boot(): void
     {
         parent::boot();
 
-        static::creating(function ($periode) {
+        static::creating(function (Periode $periode): void {
             if (empty($periode->kode_periode)) {
                 $periode->kode_periode = $periode->generateUniqueKode('PER');
             }
         });
     }
 
-    // RELATIONSHIP: Periode has many Ritase records
-    public function ritase()
+    public function ritase(): HasMany
     {
         return $this->hasMany(Ritase::class, 'periode_id');
     }
 
-    // RELATIONSHIP: Periode has many Penggajian records
-    public function gaji()
+    public function gaji(): HasMany
     {
         return $this->hasMany(Penggajian::class, 'periode_id');
     }
 
-    // SCOPE: Only active periodes
     public function scopeAktif($query)
     {
         return $query->where('status', 'aktif');
     }
 
-    // Sync status based on current date — call on every request that needs 'active periode'
+    /**
+     * Sync status based on current date.
+     */
     public static function syncActiveStatus(): ?self
     {
         $today = now()->startOfDay();
@@ -64,20 +66,16 @@ class Periode extends Model
             ->pluck('id');
 
         if ($currentIds->isEmpty()) {
-            // No period spans today → deactivate all
             static::where('status', 'aktif')->update(['status' => 'selesai']);
             return null;
         }
 
-        // If multiple spans today (shouldn't happen), take the last one
         $targetId = $currentIds->sort()->last();
 
-        // Deactivate others
         static::where('id', '!=', $targetId)
             ->where('status', 'aktif')
             ->update(['status' => 'selesai']);
 
-        // Activate target
         static::where('id', $targetId)
             ->where('status', '!=', 'aktif')
             ->update(['status' => 'aktif']);

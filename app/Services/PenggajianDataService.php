@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\Penggajian;
@@ -145,7 +147,7 @@ class PenggajianDataService
             $found = Periode::whereDate('tanggal_mulai', '<=', $tanggal)->whereDate('tanggal_selesai', '>=', $tanggal)->first();
             if ($found) $periodeId = $found->id;
         }
-        return $periodeId;
+        return $periodeId ? (int) $periodeId : null;
     }
 
     private function getRitaseSummary($periodeIds)

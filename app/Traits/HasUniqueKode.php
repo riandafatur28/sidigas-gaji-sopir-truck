@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Traits;
 
 use Illuminate\Database\Eloquent\Model;
@@ -47,7 +49,7 @@ trait HasUniqueKode
                 $newNumber = 1;
             }
 
-            return $prefix . '-' . str_pad($newNumber, $padLength, '0', STR_PAD_LEFT);
+            return $prefix . '-' . str_pad((string) $newNumber, $padLength, '0', STR_PAD_LEFT);
         });
     }
 }
