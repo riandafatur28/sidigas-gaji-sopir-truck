@@ -1,0 +1,88 @@
+@startuml flowchart-ritase
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+skinparam defaultFontName Arial
+
+title Flowchart — Ritase (Parser + CRUD)
+
+start
+
+if (Metode?) then (Parser WhatsApp)
+  :Teks mentah;
+
+  partition "1. Tanggal" {
+    :Regex DD MM YY;
+    if (Match?) then (Ya)
+      :Parse;
+    else (Tidak)
+      :Default hari ini;
+    endif
+  }
+
+  partition "2. Sopir & Rute" {
+    while (Baris "N. Nama"?) is (Ya)
+      :Extract nama + rute;
+    endwhile (Tidak)
+  }
+
+  partition "3. Fuzzy Match" {
+    :Sopir: Jaro-Winkler vs DB;
+    if (>= 85%?) then (Ya)
+      :Existing;
+    else (Tidak)
+      :Baru;
+    endif
+    :Tujuan: Jaro-Winkler vs DB;
+    if (>= 85%?) then (Ya)
+      :Existing;
+    else (Tidak)
+      :Baru;
+    endif
+  }
+
+  partition "4. Hitung DT" {
+    if (Kab [Nganjuk,Kediri,Kota Kediri,Jombang]?) then (Ya)
+      if (Sudah 1 DT?) then (Ya)
+        :DT = 0;
+      else (Tidak)
+        :DT = 330000;
+      endif
+    else (Tidak)
+      :DT = 330000;
+    endif
+    if (Gagal produksi?) then (Ya)
+      :DT = 0;
+      :Kompensasi = nominal;
+    endif
+  }
+
+  :Preview → Simpan;
+
+elseif (Input Manual)
+  :Isi form;
+  :Validasi;
+  :Hitung DT;
+  :Simpan;
+
+elseif (Edit)
+  :Ubah data;
+  :Recalculate DT;
+  :Update;
+
+elseif (Hapus)
+  if (Pakai penggajian?) then (Ya)
+    :Error;
+  else (Tidak)
+    :Delete;
+  endif
+
+elseif (Detail/Pivot)
+  :Query sopir × tanggal;
+  :Tampilkan pivot;
+  :Download PDF (opsional);
+endif
+
+stop
+
+@enduml

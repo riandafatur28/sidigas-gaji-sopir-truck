@@ -1,0 +1,101 @@
+@startuml activity-ritase
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+skinparam defaultFontName Arial
+
+title Activity Diagram — Ritase (Parser + CRUD)
+
+|User (Admin)|
+start
+:Buka halaman Ritase;
+
+if (Pilih metode input?) then (Parser WhatsApp)
+  :Pilih periode;
+  :Copy-paste teks WhatsApp;
+  :Klik "Proses Teks";
+
+  |Sistem|
+  :Extract tanggal dari teks;
+  :Extract sopir & rute per baris;
+
+  partition "Fuzzy Matching" {
+    while (Ada hasil parse?) is (Ya)
+      :Jaro-Winkler vs sopir aktif;
+
+      |Database|
+      :SELECT sopirs WHERE status = 'aktif';
+
+      |Sistem|
+      if (Score >= 85%?) then (Ya)
+        :Map existing;
+      else (Tidak)
+        :Mark baru;
+      endif
+
+      :Jaro-Winkler vs tujuan aktif;
+
+      |Database|
+      :SELECT tujuans WHERE status = 'aktif';
+
+      |Sistem|
+      if (Score >= 85%?) then (Ya)
+        :Map existing;
+      else (Tidak)
+        :Mark baru;
+      endif
+    endwhile (Tidak)
+  }
+
+  |User (Admin)|
+  :Preview hasil parsing;
+  :Klik "Simpan Semua";
+
+  |Database|
+  :INSERT sopir/tujuan baru;
+  :INSERT ritases;
+
+elseif (Input Manual)
+  :Klik "Tambah";
+  :Isi form (sopir, tujuan, tanggal, waktu, kab);
+
+  |Sistem|
+  :Validasi & hitung DT;
+
+  |Database|
+  :INSERT ritases;
+
+elseif (Edit)
+  :Klik edit pada baris;
+
+  |Sistem|
+  :Recalculate DT;
+
+  |Database|
+  :UPDATE ritases;
+
+elseif (Hapus)
+  :Klik hapus + konfirmasi;
+
+  |Sistem|
+  if (Pakai di penggajian?) then (Ya)
+    :Error "Tidak bisa hapus";
+  else (Tidak)
+    |Database|
+    :DELETE ritases;
+  endif
+
+elseif (Detail/Pivot)
+  :Klik "Lihat Detail";
+
+  |Database|
+  :SELECT sopir × tanggal (GROUP BY);
+
+  |Sistem|
+  :Tampilkan pivot + ringkasan;
+  :Download PDF (opsional);
+endif
+
+stop
+
+@enduml
