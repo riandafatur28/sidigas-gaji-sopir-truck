@@ -1,0 +1,93 @@
+@startuml activity-crud-ritase
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+skinparam defaultFontName Arial
+
+title Activity Diagram — CRUD Ritase
+
+|Admin|
+start
+:Buka halaman Tabel Ritase;
+
+partition "READ (Lihat Data)" {
+  |System|
+  :Query ritase dengan filter periode;
+  |DB|
+  :SELECT ritases JOIN sopirs JOIN tujuans JOIN periodes
+   WHERE periode_id = :periode;
+  |System|
+  :Tampilkan data dalam tabel;
+  |Admin|
+  :Lihat / filter / search data;
+}
+
+partition "CREATE (Tambah Manual)" {
+  |Admin|
+  :Klik "Tambah Ritase";
+  :Isi form (sopir, tujuan, tanggal, waktu, kabupaten);
+  :Klik "Simpan";
+  |System|
+  :Validasi input;
+  if (Valid?) then (Ya)
+    :Hitung otomatis (DT berdasarkan aturan);
+    |DB|
+    :INSERT INTO ritases (...);
+    |System|
+    :Tampilkan sukses;
+  else (Tidak)
+    :Tampilkan validasi error;
+  endif
+}
+
+partition "UPDATE (Edit)" {
+  |Admin|
+  :Klik icon edit pada baris ritase;
+  :Edit field yang diubah;
+  :Klik "Update";
+  |System|
+  :Validasi input;
+  :Recalculate DT jika kabupaten berubah;
+  |DB|
+  :UPDATE ritases SET ... WHERE id = :id;
+  |System|
+  :Refresh tabel;
+}
+
+partition "DELETE (Hapus)" {
+  |Admin|
+  :Klik icon hapus pada baris ritase;
+  :Konfirmasi hapus;
+  |System|
+  if (Ritase sudah dipakai di penggajian?) then (Ya)
+    :Tampilkan error "Tidak bisa hapus";
+  else (Tidak)
+    |DB|
+    :DELETE FROM ritases WHERE id = :id;
+    |System|
+    :Refresh tabel;
+  endif
+}
+
+partition "DETAIL (Pivot)" {
+  |Admin|
+  :Klik "Lihat Detail";
+  |System|
+  :Query pivot sopir × tanggal;
+  |DB|
+  :SELECT sopir, tanggal, COUNT(*), SUM(dt), SUM(upah)
+   FROM ritases GROUP BY sopir_id, tanggal;
+  |System|
+  :Tampilkan tabel pivot + ringkasan;
+  |Admin|
+  :Klik "Download PDF" (opsional);
+  |System|
+  :Generate PDF via DomPDF;
+  :Return file PDF;
+}
+
+|Admin|
+:Selesai;
+stop
+
+@enduml

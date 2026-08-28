@@ -1,0 +1,43 @@
+@startuml activity-google-login
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+skinparam defaultFontName Arial
+
+title Activity Diagram — Login Google OAuth
+
+|User|
+start
+:Buka halaman login;
+:Klik tombol "Login dengan Google";
+
+|System|
+:Redirect ke Google OAuth;
+:Google tampilkan consent screen;
+
+|User|
+:Klik "Allow" / "Izinkan";
+
+|System|
+:Terima callback dengan auth code;
+:Exchange code → access token;
+:Ambil user info dari Google API;
+
+|DB|
+:SELECT * FROM users WHERE email = :google_email;
+if (User sudah terdaftar?) then (Ya)
+  :UPDATE users SET google_id = :google_id;
+else (Tidak)
+  :INSERT INTO users (name, email, google_id) VALUES (:name, :email, :google_id);
+endif
+:UPDATE users SET last_login = NOW();
+
+|System|
+:Generate session token;
+:Redirect ke /dashboard;
+
+|User|
+:Tampilkan dashboard;
+stop
+
+@enduml

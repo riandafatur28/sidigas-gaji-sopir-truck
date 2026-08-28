@@ -1,0 +1,68 @@
+@startuml activity-login
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+skinparam defaultFontName Arial
+skinparam activity {
+  BackgroundColor #F1F8FF
+  BorderColor #4A90D9
+  DiamondBackgroundColor #FFF9C4
+}
+skinparam swimlane {
+  BackgroundColor #FAFAFA
+  TitleBackgroundColor #E3F2FD
+}
+
+title Activity Diagram — Login (Email & Password)
+
+|User|
+start
+:Buka halaman login;
+:Input email & password;
+:Klik tombol "Login";
+
+|System|
+if (Email terdaftar?) then (Ya)
+  if (Password valid?) then (Ya)
+    :Generate session token;
+    if (Google OAuth user?) then (Ya)
+      :Tolak login email;
+      |User|
+      :Tampilkan pesan error;
+      stop
+    else (Tidak)
+      :Set session active;
+      |DB|
+      :UPDATE users SET last_login = NOW() WHERE email = :email;
+      |System|
+      :Redirect ke /dashboard;
+      |User|
+      :Tampilkan dashboard;
+      stop
+    endif
+  else (Tidak)
+    :Increment login attempts;
+    |DB|
+    :UPDATE users SET login_attempts = login_attempts + 1;
+    |System|
+    if (Attempts >= 5?) then (Ya)
+      :Lock account 30 menit;
+      |DB|
+      :UPDATE users SET locked_until = NOW() + 30min;
+      |System|
+      :Tampilkan "Akun dikunci";
+    else (Tidak)
+      :Tampilkan "Password salah";
+    endif
+    |User|
+    :Tampilkan pesan error;
+    stop
+  endif
+else (Tidak)
+  :Tampilkan "Email tidak ditemukan";
+  |User|
+  :Tampilkan pesan error;
+  stop
+endif
+
+@enduml

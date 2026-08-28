@@ -1,0 +1,75 @@
+@startuml flowchart-penggajian
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+skinparam defaultFontName Arial
+
+title Flowchart — Penggajian Algorithm
+
+start
+
+:Input: periode_id;
+:Ambil semua ritase untuk periode ini;
+:Group by kode_sopir;
+
+while (Masih ada sopir?) is (Ya)
+
+partition "Hitung Per Tujuan" {
+  :total_solar = 0;
+  :total_upah = 0;
+  :total_dt = 0;
+  :total_tol = 0;
+  :total_kompensasi = 0;
+  :total_lembur = 0;
+
+  while (Masih ada tujuan?) is (Ya)
+    :jumlah_rit = COUNT(ritase);
+
+    :solar_per_rit = config.solar;
+    :total_solar += jumlah_rit × solar_per_rit;
+
+    :upah_per_rit = config.upah;
+    :total_upah += jumlah_rit × upah_per_rit;
+
+    :tol_per_rit = config.tol;
+    :total_tol += jumlah_rit × tol_per_rit;
+
+    :sewa_dt = config.dt_value;
+
+    if (status = 'gagal_produksi'?) then (Ya)
+      :dt_per_rit = 0;
+      :total_kompensasi += nominal_kompensasi;
+    else (Tidak)
+      if (kab in [Nganjuk, Kediri, Kota Kediri, Jombang]?) then (Ya)
+        if (sudah 1 DT hari ini?) then (Ya)
+          :dt_per_rit = 0;
+        else (Tidak)
+          :dt_per_rit = sewa_dt;
+        endif
+      else (Tidak)
+        :dt_per_rit = sewa_dt;
+      endif
+      :total_dt += dt_per_rit;
+    endif
+  endwhile (Tidak)
+}
+
+if (ada ritase lembur?) then (Ya)
+  :total_lembur = COUNT(ritase_lembur) × nominal_lembur;
+else (Tidak)
+  :total_lembur = 0;
+endif
+
+:grand_total = total_solar + total_upah + total_dt
+  + total_tol + total_kompensasi + total_lembur;
+
+:INSERT INTO penggajian (...);
+:INSERT INTO penggajian_details (...);
+
+endwhile (Tidak)
+
+:Tampilkan tabel hasil penggajian;
+
+stop
+
+@enduml

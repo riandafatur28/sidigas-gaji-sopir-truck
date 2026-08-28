@@ -1,0 +1,107 @@
+@startuml activity-parser-ritase
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+skinparam defaultFontName Arial
+
+title Activity Diagram — Parser Ritase (WhatsApp Text)
+
+|Admin|
+start
+:Buka halaman Parser Ritase;
+:Pilih periode;
+:Copy-paste teks WhatsApp;
+:Klik "Proses Teks";
+
+|System|
+:Terima teks mentah;
+
+partition "Step 1: Extract Tanggal" {
+  :Cari pola tanggal (DD MM YY / YYYY-MM-DD);
+  if (Tanggal ditemukan?) then (Ya)
+    :Parse ke objek Date;
+  else (Tidak)
+    :Set tanggal = hari ini;
+  endif
+}
+
+partition "Step 2: Extract Sopir & Rute" {
+  :Split teks per baris;
+  :Iterasi setiap baris;
+  while (Masih ada baris?) is (Ya)
+    if (Baris berawalan angka + titik?) then (Ya)
+      :Extract nama sopir;
+      :Baris berikutnya = rute/tujuan;
+      :Simpan ke parsed_items[];
+    endif
+  endwhile (Tidak)
+}
+
+partition "Step 3: Fuzzy Matching" {
+  while (Ada parsed_items?) is (Ya)
+    :Ambil nama sopir dari parsed;
+
+    |DB|
+    :SELECT kode_sopir FROM sopirs WHERE status = 'aktif';
+    |System|
+
+    :Hitung similarity (Jaro-Winkler) dengan setiap sopir;
+    if (Best match >= 85%?) then (Ya)
+      :Map ke sopir yang ada di DB;
+    else (Tidak)
+      :Mark sebagai sopir baru;
+    endif
+
+    :Ambil nama tujuan dari parsed;
+
+    |DB|
+    :SELECT kode_tujuan FROM tujuans WHERE status = 'aktif';
+    |System|
+
+    :Hitung similarity (Jaro-Winkler) dengan setiap tujuan;
+    if (Best match >= 85%?) then (Ya)
+      :Map ke tujuan yang ada di DB;
+    else (Tidak)
+      :Mark sebagai tujuan baru;
+    endif
+  endwhile (Tidak)
+}
+
+partition "Step 4: Preview & Confirm" {
+  |Admin|
+  :Tampilkan hasil parsing (tabel preview);
+  :Review data yang akan disimpan;
+  if (Ada sopir/tujuan baru?) then (Ya)
+    :Konfirmasi auto-create;
+  endif
+  :Klik "Simpan Semua";
+}
+
+partition "Step 5: Save to DB" {
+  |System|
+
+  while (Ada sopir baru?) is (Ya)
+    |DB|
+    :INSERT INTO sopirs (kode_sopir, nama, status) VALUES (...);
+  endwhile (Tidak)
+
+  while (Ada tujuan baru?) is (Ya)
+    |DB|
+    :INSERT INTO tujuans (kode_tujuan, nama, status) VALUES (...);
+  endwhile (Tidak)
+
+  while (Ada ritase?) is (Ya)
+    |DB|
+    :INSERT INTO ritases (...);
+  endwhile (Tidak)
+}
+
+|System|
+:Tampilkan "N ritase berhasil disimpan";
+:Reload tabel ritase;
+
+|Admin|
+:Selesai;
+stop
+
+@enduml

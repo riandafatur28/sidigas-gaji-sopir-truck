@@ -1,0 +1,54 @@
+@startuml flowchart-validasi-bukti
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+skinparam defaultFontName Arial
+
+title Flowchart — Validasi Bukti Algorithm
+
+start
+
+:Input bukti (nama_sopir, nama_tujuan, foto, lokasi);
+
+:Validasi form;
+if (nama_sopir kosong?) then (Ya)
+  :Error "Nama sopir wajib diisi";
+  stop
+endif
+if (foto tidak diupload?) then (Ya)
+  :Error "Foto wajib diupload";
+  stop
+endif
+if (lokasi tidak ada?) then (Ya)
+  :Error "Lokasi GPS wajib aktif";
+  stop
+endif
+
+:Compress foto → upload ke storage;
+:Simpan metadata ke DB;
+:Status = 'pending';
+
+' ===== ADMIN REVIEW =====
+
+:Admin melihat bukti;
+if (Status = 'pending'?) then (Ya)
+  :Tampilkan foto + lokasi di peta;
+  :Admin memvalidasi;
+  if (Bukti valid?) then (Ya)
+    :Status → 'disetujui';
+    if (Sopir baru?) then (Ya)
+      :Auto-create sopir baru;
+    endif
+    if (Tujuan baru?) then (Ya)
+      :Auto-create tujuan baru;
+    endif
+    :Opsi: Tambah ke ritase;
+  else (Tidak)
+    :Status → 'ditolak';
+    :Catatan penolakan;
+  endif
+endif
+
+stop
+
+@enduml

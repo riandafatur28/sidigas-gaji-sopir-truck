@@ -1,0 +1,76 @@
+@startuml activity-slip-laporan
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+skinparam defaultFontName Arial
+
+title Activity Diagram — Slip Gaji & Laporan PDF
+
+|Admin|
+start
+
+partition "SLIP GAJI" {
+  :Buka halaman Penggajian;
+  :Pilih periode;
+  :Klik "Download Slip Gaji";
+
+  |System|
+  :Ambil data penggajian + detail;
+
+  |DB|
+  :SELECT p.*, s.nama, d.*
+   FROM penggajian p
+   JOIN sopirs s ON p.kode_sopir = s.kode_sopir
+   JOIN penggajian_details d ON d.penggajian_id = p.id
+   WHERE p.periode_id = :periode;
+
+  |System|
+  :Build data slip per sopir:
+    - Header: nama periode, tanggal
+    - Detail: solar, upah, DT, tol, kompensasi, lembur
+    - Grand total;
+
+  :Format 4 slip per halaman F4;
+
+  :Generate PDF via DomPDF;
+
+  |DB|
+  :SELECT nama_periode FROM periodes WHERE id = :periode;
+
+  |System|
+  :Set filename: "Slip_Gaji_{nama_periode}.pdf";
+  :Return PDF response;
+
+  |Admin|
+  :Download slip PDF;
+}
+
+partition "LAPORAN" {
+  :Klik "Download Laporan";
+
+  |System|
+  :Ambil data ringkasan per periode;
+
+  |DB|
+  :SELECT sopir, jumlah_ritase, total_solar,
+   total_upah, total_dt, total_tol, grand_total
+   FROM penggajian WHERE periode_id = :periode;
+
+  |System|
+  :Build laporan:
+    - Header: nama periode
+    - Tabel rekap per sopir
+    - Total keseluruhan;
+
+  :Generate PDF via DomPDF;
+
+  :Set filename: "Laporan_{nama_periode}.pdf";
+  :Return PDF response;
+
+  |Admin|
+  :Download laporan PDF;
+}
+
+stop
+
+@enduml

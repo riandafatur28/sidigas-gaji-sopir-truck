@@ -1,0 +1,53 @@
+@startuml activity-dashboard
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+skinparam defaultFontName Arial
+
+title Activity Diagram — Dashboard
+
+|Admin|
+start
+:Buka halaman Dashboard;
+
+|System|
+partition "Ambil Metrik (Cache 5 menit)" {
+  :Cek cache 'dashboard_metrics';
+
+  if (Cache ada & valid?) then (Ya)
+    :Load dari cache;
+  else (Tidak)
+    |DB|
+    :SELECT COUNT(*) FROM sopirs WHERE status = 'aktif';
+    :SELECT COUNT(*) FROM periodes WHERE status = 'aktif';
+    :SELECT COUNT(*) FROM ritases WHERE periode_id = :periode_aktif;
+    :SELECT COUNT(*) FROM penggajian WHERE periode_id = :periode_aktif;
+    :SELECT SUM(total) FROM penggajian WHERE periode_id = :periode_aktif;
+    :SELECT COUNT(*) FROM validasi_bukti WHERE status = 'pending';
+
+    |System|
+    :Hitung progress_percentage:
+      (ritase_processed / total_ritase) × 100;
+    :Simpan ke cache (TTL 5 menit);
+  endif
+}
+
+:Render dashboard view;
+:Kirim response ke browser;
+
+|Admin|
+:Tampilkan dashboard dengan:
+  - Total sopir aktif
+  - Periode aktif
+  - Total ritase
+  - Total gaji
+  - Progress bar
+  - Bukti pending (badge);
+
+if (Klik "Lihat Detail"?) then (Ya)
+  :Redirect ke halaman terkait;
+endif
+
+stop
+
+@enduml

@@ -1,0 +1,114 @@
+@startuml activity-master-data
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+skinparam defaultFontName Arial
+
+title Activity Diagram — Master Data (Sopir, Tujuan, Periode)
+
+|Admin|
+start
+
+partition "SOPIR" {
+  :Buka halaman Sopir;
+  |System|
+  :Load semua sopir dari DB;
+  |Admin|
+
+  if (Tambah Sopir?) then (Ya)
+    :Isi form (nama);
+    |System|
+    :Generate kode_sopir otomatis (SPR-NNN);
+    :Validasi nama unik;
+    if (Valid?) then (Ya)
+      |DB|
+      :INSERT INTO sopirs (kode_sopir, nama, status);
+      |System|
+      :Refresh tabel;
+    else (Tidak)
+      :Error "Nama sudah ada";
+    endif
+  elseif (Edit Sopir?) then (Ya)
+    :Klik edit;
+    :Ubah nama / status;
+    |DB|
+    :UPDATE sopirs SET ...;
+  elseif (Hapus Sopir?) then (Ya)
+    |System|
+    if (Sopir punya ritase?) then (Ya)
+      :Error "Tidak bisa hapus (ada data ritase)";
+    else (Tidak)
+      |DB|
+      :DELETE FROM sopirs WHERE id = :id;
+    endif
+  endif
+}
+
+partition "TUJUAN" {
+  :Buka halaman Tujuan;
+  |System|
+  :Load semua tujuan dari DB;
+  |Admin|
+
+  if (Tambah Tujuan?) then (Ya)
+    :Isi form (nama, latitude, longitude);
+    |System|
+    :Generate kode_tujuan (TUJ-NNN);
+    :Validasi nama unik;
+    if (Valid?) then (Ya)
+      |DB|
+      :INSERT INTO tujuans (...);
+    endif
+  elseif (Edit Tujuan?) then (Ya)
+    :Ubah data;
+    |DB|
+    :UPDATE tujuans SET ...;
+  elseif (Hapus Tujuan?) then (Ya)
+    |System|
+    if (Tujuan punya ritase?) then (Ya)
+      :Error "Tidak bisa hapus";
+    else (Tidak)
+      |DB|
+      :DELETE FROM tujuans WHERE id = :id;
+    endif
+  endif
+}
+
+partition "PERIODE" {
+  :Buka halaman Periode;
+  |System|
+  :Load semua periode dari DB;
+  :Auto-sync status (aktif/selesai);
+  |Admin|
+
+  if (Tambah Periode?) then (Ya)
+    :Isi form (nama, tanggal_mulai, tanggal_selesai);
+    |System|
+    :Generate kode_periode (PRD-NNN);
+    :Validasi overlap tanggal;
+    if (Overlap?) then (Ya)
+      :Error "Periode tumpang tindih";
+    else (Tidak)
+      |DB|
+      :INSERT INTO periodes (...);
+    endif
+  elseif (Edit Periode?) then (Ya)
+    :Ubah data;
+    |DB|
+    :UPDATE periodes SET ...;
+  elseif (Hapus Periode?) then (Ya)
+    |System|
+    if (Periode punya ritase/penggajian?) then (Ya)
+      :Error "Tidak bisa hapus";
+    else (Tidak)
+      |DB|
+      :DELETE FROM periodes WHERE id = :id;
+    endif
+  endif
+}
+
+|Admin|
+:Selesai;
+stop
+
+@enduml

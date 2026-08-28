@@ -1,0 +1,81 @@
+@startuml activity-penggajian
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+skinparam defaultFontName Arial
+
+title Activity Diagram — Penggajian
+
+|Admin|
+start
+:Buka halaman Penggajian;
+:Pilih periode yang akan diproses;
+
+|System|
+:Load semua ritase untuk periode ini;
+
+|DB|
+:SELECT r.*, s.kode_sopir, t.kode_tujuan
+ FROM ritases r
+ JOIN sopirs s ON r.kode_sopir = s.kode_sopir
+ JOIN tujuans t ON r.kode_tujuan = t.kode_tujuan
+ WHERE r.periode_id = :periode;
+
+|System|
+
+partition "Hitung Per Sopir" {
+  while (Masih ada sopir?) is (Ya)
+    :Group ritase per sopir;
+    :Hitung per tujuan:
+      - jumlah_rit
+      - total_solar (jumlah_rit × solar_per_rit)
+      - total_upah (jumlah_rit × upah_per_rit)
+      - sewa_dt (dari config/dt.php)
+      - total_tol (jumlah_rit × tol_per_rit)
+      - subtotal per tujuan;
+
+    :Hitung kompensasi gagal:
+      ritase gagal_produksi × nominal_kompensasi;
+    :Hitung upah lembur (jika ada);
+    :Hitung grand total:
+      total_solar + total_upah + total_dt
+      + total_tol + kompensasi + lembur;
+  endwhile (Tidak)
+}
+
+partition "Simpan ke DB" {
+  |DB|
+  :DELETE FROM penggajian WHERE periode_id = :periode;
+  :DELETE FROM penggajian_details WHERE penggajian_id IN (...);
+
+  while (Masih ada data?) is (Ya)
+    :INSERT INTO penggajian (...);
+    :INSERT INTO penggajian_details (...);
+  endwhile (Tidak)
+}
+
+|System|
+:Tampilkan hasil penggajian dalam tabel;
+
+|Admin|
+:Review hasil penggajian;
+if (Perlu edit?) then (Ya)
+  :Klik "Edit" pada baris sopir;
+  :Ubah nominal (uang_solar, upah, dll);
+  |System|
+  :Recalculate grand total;
+  |DB|
+  :UPDATE penggajian SET ...;
+  |Admin|
+endif
+
+:Klik "Download Slip Gaji";
+|System|
+:Generate PDF slip gaji (4 per halaman F4);
+:Return file PDF;
+
+|Admin|
+:Download selesai;
+stop
+
+@enduml
