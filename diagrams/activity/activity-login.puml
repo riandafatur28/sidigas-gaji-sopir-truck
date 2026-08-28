@@ -1,0 +1,52 @@
+@startuml activity-login
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+skinparam defaultFontName Arial
+
+title Activity Diagram — Login Email & Password
+
+|User (Admin)|
+start
+:Buka halaman login;
+:Input email & password;
+:Klik "Login";
+
+|Sistem|
+:Validasi input form;
+:Cari user berdasarkan email;
+
+|Database|
+:SELECT * FROM users WHERE email = :email;
+
+|Sistem|
+if (User ditemukan?) then (Ya)
+  if (User dari Google OAuth?) then (Ya)
+    :Tolak login;
+    :Return error "Gunakan login Google";
+  else (Tidak)
+    :Verifikasi password (bcrypt);
+    if (Password cocok?) then (Ya)
+      if (Akun terkunci?) then (Ya)
+        :Tolak login;
+        :Return error "Akun terkunci 30 menit";
+      else (Tidak)
+        |Database|
+        :UPDATE login_attempts = 0, last_login = NOW();
+        |Sistem|
+        :Generate session token;
+        :Redirect ke /dashboard;
+      endif
+    else (Tidak)
+      |Database|
+      :UPDATE login_attempts += 1;
+      |Sistem|
+      :Return error "Password salah";
+    endif
+  endif
+else (Tidak)
+  :Return error "Email tidak terdaftar";
+endif
+stop
+
+@enduml

@@ -1,0 +1,40 @@
+@startuml flowchart-google-login
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+skinparam defaultFontName Arial
+
+title Flowchart — Login Google OAuth
+
+|User|
+start
+:Klik "Login dengan Google";
+
+|Sistem|
+:Redirect ke Google OAuth;
+
+|Google|
+:Tampilkan consent screen;
+
+|User|
+:Klik "Izinkan";
+
+|Sistem|
+:Terima callback + auth code;
+:Exchange code → access token;
+:Ambil data user dari Google;
+
+|DB|
+:SELECT user WHERE email = :email;
+if (User ada?) then (Ya)
+  :UPDATE google_id, last_login;
+else (Tidak)
+  :INSERT user baru;
+endif
+
+|Sistem|
+:Generate session;
+:Redirect /dashboard;
+stop
+
+@enduml

@@ -1,0 +1,53 @@
+@startuml flowchart-login
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+skinparam defaultFontName Arial
+
+title Flowchart — Login Email & Password
+
+|User|
+start
+:Input email & password;
+:Klik Login;
+
+|Sistem|
+if (Email kosong?) then (Ya)
+  :Tampilkan "Email wajib diisi";
+  stop
+endif
+if (Password kosong?) then (Ya)
+  :Tampilkan "Password wajib diisi";
+  stop
+endif
+
+:Cari user by email di DB;
+if (User ditemukan?) then (Ya)
+  if (User Google OAuth?) then (Ya)
+    :Tampilkan "Gunakan login Google";
+    stop
+  endif
+  if (Password cocok?) then (Ya)
+    if (Akun terkunci?) then (Ya)
+      :Tampilkan "Akun terkunci 30 menit";
+      stop
+    endif
+    :Reset login_attempts = 0;
+    :Update last_login;
+    :Generate session;
+    :Redirect ke /dashboard;
+    stop
+  else (Tidak)
+    :login_attempts += 1;
+    if (attempts >= 5?) then (Ya)
+      :Lock akun 30 menit;
+    endif
+    :Tampilkan "Password salah";
+    stop
+  endif
+else (Tidak)
+  :Tampilkan "Email tidak terdaftar";
+  stop
+endif
+
+@enduml
