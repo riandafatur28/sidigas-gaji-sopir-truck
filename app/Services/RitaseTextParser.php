@@ -36,16 +36,19 @@ class RitaseTextParser
 
     private function extractDate(array $lines): array
     {
+        $allText = implode(' ', $lines);
+        $dayHint = $this->extractDayHint($allText);
+
         foreach ($lines as $idx => $line) {
-            $d = $this->parseDateLine($line);
+            $d = $this->parseDateLine($line, $dayHint);
             if ($d) return [$d, $idx];
 
             if (preg_match_all('/(?<!\d)(\d{1,2})\s+(\d{1,2})\s+(\d{2,4})(?!\d)/', $line, $matches, PREG_SET_ORDER)) {
                 foreach ($matches as $m) {
                     $day = str_pad($m[1], 2, '0', STR_PAD_LEFT);
                     $month = str_pad($m[2], 2, '0', STR_PAD_LEFT);
-                    $year = strlen($m[3]) === 2 ? '20'.$m[3] : $m[3];
-                    if (checkdate((int)$month, (int)$day, (int)$year)) {
+                    $year = $this->resolveTwoDigitYear($m[3], $day, $month, $dayHint);
+                    if ($year && checkdate((int)$month, (int)$day, (int)$year)) {
                         return ["{$year}-{$month}-{$day}", $idx];
                     }
                 }
@@ -54,13 +57,13 @@ class RitaseTextParser
         return [null, -1];
     }
 
-    private function parseDateLine(string $line): ?string
+    private function parseDateLine(string $line, ?string $dayHint = null): ?string
     {
         if (preg_match('/^(\d{1,2})\s+(\d{1,2})\s+(\d{2,4})/', $line, $m)) {
             $day = str_pad($m[1], 2, '0', STR_PAD_LEFT);
             $month = str_pad($m[2], 2, '0', STR_PAD_LEFT);
-            $year = strlen($m[3]) === 2 ? '20'.$m[3] : $m[3];
-            if (checkdate((int)$month, (int)$day, (int)$year)) return "{$year}-{$month}-{$day}";
+            $year = $this->resolveTwoDigitYear($m[3], $day, $month, $dayHint);
+            if ($year && checkdate((int)$month, (int)$day, (int)$year)) return "{$year}-{$month}-{$day}";
         }
         if (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $line, $m)) {
             if (checkdate((int)$m[2], (int)$m[3], (int)$m[1])) return $line;
@@ -198,6 +201,42 @@ class RitaseTextParser
         $name = preg_replace('/^(mbah|pak|bu|ira)\s*/i', '', $name);
         $name = str_replace(['√', '✔', '✓', '🙏', '🙌'], '', $name);
         return trim(preg_replace('/\s+/u', ' ', $name));
+    }
+
+    private function extractDayHint(string $text): ?string
+    {
+        $dayMap = [
+            'senin' => 1, 'sen' => 1,
+            'selasa' => 2, 'sel' => 2,
+            'rabu' => 3, 'rab' => 3,
+            'kamis' => 4, 'kam' => 4,
+            'jumat' => 5, 'jum' => 5, 'jum at' => 5, 'jmat' => 5,
+            'sabtu' => 6, 'sab' => 6,
+            'minggu' => 0, 'min' => 0,
+        ];
+        $lower = strtolower($text);
+        foreach ($dayMap as $key => $num) {
+            if (str_contains($lower, $key)) return (string) $num;
+        }
+        return null;
+    }
+
+    private function resolveTwoDigitYear(string $yearStr, string $day, string $month, ?string $dayHint): ?string
+    {
+        if (strlen($yearStr) !== 2) return $yearStr;
+
+        $year20 = (int) ('20' . $yearStr);
+        $year19 = (int) ('19' . $yearStr);
+
+        if ($dayHint !== null) {
+            $dow20 = date('w', mktime(0, 0, 0, (int)$month, (int)$day, $year20));
+            if ((string) $dow20 === (string) $dayHint) return (string) $year20;
+
+            $dow19 = date('w', mktime(0, 0, 0, (int)$month, (int)$day, $year19));
+            if ((string) $dow19 === (string) $dayHint) return (string) $year19;
+        }
+
+        return (string) $year20;
     }
 
     public function looksLikeDriverName(string $line): bool

@@ -106,7 +106,12 @@ class RitaseDetailService
             $data[$sk][$tgl . '_' . $wkt][] = $tujuanNama;
 
             $c = count($data[$sk][$tgl . '_' . $wkt]);
-            if ($c > $maxRitByWaktu[$tgl][$wkt]) $maxRitByWaktu[$tgl][$wkt] = $c;
+            if (!isset($maxRitByWaktu[$tgl])) {
+                $maxRitByWaktu[$tgl] = ['P' => 0, 'M' => 0];
+            }
+            if ($c > $maxRitByWaktu[$tgl][$wkt]) {
+                $maxRitByWaktu[$tgl][$wkt] = $c;
+            }
 
             $counts[$sk]['total']++;
             if ($r->status === 'gagal_produksi') {
