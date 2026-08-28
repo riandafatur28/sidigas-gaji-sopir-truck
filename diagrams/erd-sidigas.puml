@@ -1,0 +1,187 @@
+@startuml erd-sidigas
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+skinparam defaultFontName Arial
+skinparam linetype ortho
+skinparam roundcorner 5
+
+title Entity Relationship Diagram — SIDIGAS
+
+' ========== USERS & AUTH ==========
+entity "users" as users {
+  *id : bigint PK
+  --
+  *name : varchar(255)
+  *email : varchar(255) UNIQUE
+  phone : varchar(255) NULL
+  *password : varchar(255)
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "otps" as otps {
+  *id : bigint PK
+  --
+  *email : varchar(255)
+  *otp : varchar(6)
+  *expires_at : timestamp
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+' ========== MASTER DATA ==========
+entity "sopirs" as sopirs {
+  *id : bigint PK
+  --
+  *kode_sopir : varchar(255) UNIQUE
+  *nama : varchar(255)
+  *status : enum(aktif,nonaktif)
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "tujuans" as tujuans {
+  *id : bigint PK
+  --
+  *kode_tujuan : varchar(255) UNIQUE
+  *nama : varchar(255)
+  latitude : decimal(10,7) NULL
+  longitude : decimal(10,7) NULL
+  *status : enum(aktif,nonaktif)
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "periodes" as periodes {
+  *id : bigint PK
+  --
+  *kode_periode : varchar(255) UNIQUE
+  *nama_periode : varchar(255)
+  *tanggal_mulai : date
+  *tanggal_selesai : date
+  *status : enum(aktif,selesai)
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+' ========== RITASE ==========
+entity "ritases" as ritases {
+  *id : bigint PK
+  --
+  *kode_ritase : varchar(255) UNIQUE
+  *periode_id : bigint FK
+  *kode_sopir : varchar(255) FK
+  *kode_tujuan : varchar(255) FK
+  *tanggal : date
+  *waktu : enum(pagi,malam)
+  *kabupaten : enum(Nganjuk,Kediri,...)
+  *status : enum(valid,pending,gagal_produksi)
+  dt : decimal(15,2)
+  upah_sopir : decimal(15,2)
+  nominal_kompensasi : decimal(15,2)
+  is_lembur : tinyint(1)
+  upah_lembur : decimal(15,2)
+  catatan : text NULL
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+' ========== PENGGAJIAN ==========
+entity "penggajian" as penggajian {
+  *id : bigint PK
+  --
+  *kode_sopir : varchar(255) FK
+  *periode_id : bigint FK
+  *tanggal : date
+  uang_solar : decimal(15,2)
+  upah_sopir : decimal(15,2)
+  upah_lembur : decimal(15,2)
+  dt : decimal(15,2)
+  tol : decimal(15,2)
+  kompensasi_gagal : decimal(15,2)
+  total : decimal(15,2)
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "penggajian_details" as details {
+  *id : bigint PK
+  --
+  *penggajian_id : bigint FK
+  *kode_tujuan : varchar(255) FK
+  jumlah_rit : int
+  solar_per_rit : decimal(15,2)
+  upah_per_rit : decimal(15,2)
+  total_solar : decimal(15,2)
+  total_upah : decimal(15,2)
+  sewa_dt : decimal(15,2)
+  tol_per_rit : decimal(15,2)
+  total_tol : decimal(15,2)
+  subtotal : decimal(15,2)
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+' ========== VALIDASI BUKTI ==========
+entity "validasi_bukti" as vbukti {
+  *id : bigint PK
+  --
+  kode_sopir : varchar(20) FK NULL
+  *nama_sopir : varchar(100)
+  sopir_baru : tinyint(1)
+  kode_tujuan : varchar(20) FK NULL
+  *nama_tujuan : varchar(100)
+  tujuan_baru : tinyint(1)
+  *foto : varchar(255)
+  latitude : decimal(10,7) NULL
+  longitude : decimal(10,7) NULL
+  lokasi : varchar(255) NULL
+  *waktu_foto : datetime
+  *tanggal : date
+  periode_id : bigint FK NULL
+  catatan : text NULL
+  *status : enum(pending,disetujui,ditolak)
+  catatan_mitra : text NULL
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+' ========== RELATIONSHIPS ==========
+periodes ||..|{ ritases : "periode_id"
+sopirs ||..|{ ritases : "kode_sopir"
+tujuans ||..|{ ritases : "kode_tujuan"
+
+sopirs ||..|{ penggajian : "kode_sopir"
+periodes ||..|{ penggajian : "periode_id"
+
+penggajian ||..|{ details : "penggajian_id"
+tujuans ||..|{ details : "kode_tujuan"
+
+sopirs ||..o{ vbukti : "kode_sopir (nullable)"
+tujuans ||..o{ vbukti : "kode_tujuan (nullable)"
+periodes ||..o{ vbukti : "periode_id (nullable)"
+
+' ========== NOTES ==========
+note bottom of ritases
+  **Aturan DT:**
+  Nganjuk, Kediri, Kota Kediri, Jombang
+  → maks 1 DT/hari/sopir
+  Blitar, Kota Blitar, Ngawi, Kota Ngawi,
+  Lainnya → tiap rit dapat DT penuh
+  Gagal produksi → DT = 0
+end note
+
+note bottom of penggajian
+  **Grand Total =**
+  Total Solar + Total Upah + Total DT
+  + Total Tol + Kompensasi + Lembur
+end note
+
+note right of vbukti
+  **Public access**
+  Sopir submit bukti
+  tanpa login
+end note
+
+@enduml

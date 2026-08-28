@@ -1,0 +1,145 @@
+@startuml usecase-sidigas
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecase {
+  BackgroundColor #F1F8FF
+  BorderColor #4A90D9
+  ArrowColor #4A90D9
+}
+skinparam actor {
+  BackgroundColor #FFE0B2
+  BorderColor #E65100
+}
+
+left to right direction
+
+title Use Case Diagram — SIDIGAS (Sistem Distribusi Gaji Sopir Dump Truck)
+
+' ========== ACTORS ==========
+actor "Admin" as Admin
+actor "Sopir\n(Publik)" as Sopir
+actor "Google\nOAuth" as Google
+actor "Email\nServer" as Email
+
+' ========== BOUNDARIES ==========
+rectangle "SIDIGAS" {
+
+  ' --- Autentikasi ---
+  package "Autentikasi" {
+    usecase "Login dengan\nEmail & Password" as UC_Login
+    usecase "Login dengan\nGoogle OAuth" as UC_Google
+    usecase "Logout" as UC_Logout
+    usecase "Lupa Password\n(Kirim OTP)" as UC_Forgot
+    usecase "Verifikasi OTP" as UC_VerifyOTP
+    usecase "Reset Password" as UC_ResetPass
+    usecase "Kelola Profil" as UC_Profil
+  }
+
+  ' --- Master Data ---
+  package "Master Data" {
+    usecase "Kelola Sopir\n(CRUD)" as UC_Sopir
+    usecase "Kelola Tujuan\n(CRUD)" as UC_Tujuan
+    usecase "Kelola Periode\n(CRUD)" as UC_Periode
+    usecase "Sinkronisasi Status\n(Otomatis)" as UC_Sync
+  }
+
+  ' --- Ritase ---
+  package "Ritase" {
+    usecase "Parse Teks WhatsApp\n(Otomatis)" as UC_Parse
+    usecase "Input Ritase Manual" as UC_RitaseManual
+    usecase "Edit Ritase" as UC_RitaseEdit
+    usecase "Hapus Ritase" as UC_RitaseHapus
+    usecase "Lihat Detail Ritase\n(Pivot Sopir×Tanggal)" as UC_Pivot
+    usecase "Download Detail PDF" as UC_DetailPDF
+    usecase "Cek Aturan Sewa DT" as UC_CekDT
+  }
+
+  ' --- Penggajian ---
+  package "Penggajian" {
+    usecase "Proses Penggajian\n(Hitung Gaji)" as UC_Gaji
+    usecase "Edit Penggajian" as UC_GajiEdit
+    usecase "Hapus Penggajian" as UC_GajiHapus
+    usecase "Lihat Slip Gaji" as UC_Slip
+    usecase "Download Slip PDF" as UC_SlipPDF
+    usecase "Lihat Laporan" as UC_Laporan
+    usecase "Download Laporan PDF" as UC_LaporanPDF
+    usecase "Lihat Riwayat" as UC_Riwayat
+  }
+
+  ' --- Validasi Bukti ---
+  package "Validasi Bukti" {
+    usecase "Submit Bukti Kerja\n(Foto + Lokasi)" as UC_Submit
+    usecase "Review Bukti\n(Setujui/Tolak)" as UC_Review
+    usecase "Tambah Ritase\n dari Bukti" as UC_TambahDariBukti
+    usecase "Toggle Aturan\nValidasi" as UC_Toggle
+  }
+
+  ' --- Dashboard ---
+  package "Dashboard" {
+    usecase "Lihat Dashboard\n(Metrik & Progress)" as UC_Dashboard
+  }
+}
+
+' ========== RELATIONSHIPS ==========
+
+' Admin → Autentikasi
+Admin --> UC_Login
+Admin --> UC_Google
+Admin --> UC_Logout
+Admin --> UC_Forgot
+Admin --> UC_Profil
+
+' Admin → Master Data
+Admin --> UC_Sopir
+Admin --> UC_Tujuan
+Admin --> UC_Periode
+
+' Admin → Ritase
+Admin --> UC_Parse
+Admin --> UC_RitaseManual
+Admin --> UC_RitaseEdit
+Admin --> UC_RitaseHapus
+Admin --> UC_Pivot
+Admin --> UC_DetailPDF
+Admin --> UC_CekDT
+
+' Admin → Penggajian
+Admin --> UC_Gaji
+Admin --> UC_GajiEdit
+Admin --> UC_GajiHapus
+Admin --> UC_Slip
+Admin --> UC_SlipPDF
+Admin --> UC_Laporan
+Admin --> UC_LaporanPDF
+Admin --> UC_Riwayat
+
+' Admin → Validasi Bukti
+Admin --> UC_Review
+Admin --> UC_TambahDariBukti
+Admin --> UC_Toggle
+
+' Admin → Dashboard
+Admin --> UC_Dashboard
+
+' Sopir (Publik) → Validasi Bukti
+Sopir --> UC_Submit
+
+' External Systems
+UC_Google --> Google
+UC_Forgot --> Email
+UC_ResetPass ..> UC_VerotifyOTP : <<include>>
+UC_VerifyOTP ..> UC_ResetPass : <<include>>
+UC_TambahDariBukti ..> UC_Sopir : <<include>>
+UC_TambahDariBukti ..> UC_Tujuan : <<include>>
+UC_Gaji ..> UC_Periode : <<include>>
+
+' Auto-sync
+UC_Sync ..> UC_Sopir : <<trigger>>
+UC_Sync ..> UC_Tujuan : <<trigger>>
+UC_Sync ..> UC_Periode : <<trigger>>
+
+@enduml
