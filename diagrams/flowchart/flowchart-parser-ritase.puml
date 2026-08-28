@@ -4,86 +4,61 @@ skinparam backgroundColor #ffffff
 skinparam defaultFontSize 10
 skinparam defaultFontName Arial
 
-title Flowchart — Parser Ritase Algorithm
+title Flowchart — Parser Ritase
 
 start
+:Teks WhatsApp mentah;
+:Trim, normalize;
 
-:Teks mentah dari WhatsApp;
-:Trim whitespace, normalize line endings;
-
-partition "1. Extract Tanggal" {
-  :Cari regex: \b(\d{1,2})\s?[-/.]?\s?(\d{1,2})\s?[-/.]?\s?(\d{2,4})\b;
+partition "1. Tanggal" {
+  :Regex: \b(\d{1,2})\s?[-/.]?\s?(\d{1,2})\s?[-/.]?\s?(\d{2,4})\b;
   if (Match?) then (Ya)
     :Parse DD MM YY/YYYY;
-    :Set tanggal_ritase;
   else (Tidak)
-    :Set tanggal_ritase = hari ini;
+    :Default = hari ini;
   endif
 }
 
-partition "2. Extract Per Sopir" {
-  :Split per baris kosong atau pola "N. Nama";
-  :Untuk setiap blok:
-    Line 1: nama_sopir
-    Line 2: rute/tujuan;
+partition "2. Sopir & Rute" {
+  :Split per baris;
+  while (Baris berawalan "N. Nama"?) is (Ya)
+    :Extract nama sopir;
+    :Baris berikutnya = rute;
+  endwhile (Tidak)
 }
 
-partition "3. Fuzzy Match Sopir" {
-  :Ambil nama_sopir dari parsed;
-  :Hitung Jaro-Winkler vs semua sopir aktif;
-  if (Best score >= 0.85) then (Ya)
-    :Gunakan kode_sopir yang ada;
-    :status = 'existing';
+partition "3. Fuzzy Match" {
+  :Sopir: Jaro-Winkler vs DB;
+  if (>= 85%?) then (Ya)
+    :Existing;
   else (Tidak)
-    :Generate kode_sopir baru (SPR-NNN);
-    :status = 'new';
+    :Sopir baru;
+  endif
+  :Tujuan: Jaro-Winkler vs DB;
+  if (>= 85%?) then (Ya)
+    :Existing;
+  else (Tidak)
+    :Tujuan baru;
   endif
 }
 
-partition "4. Fuzzy Match Tujuan" {
-  :Ambil rute dari parsed;
-  :Hitung Jaro-Winkler vs semua tujuan aktif;
-  if (Best score >= 0.85) then (Ya)
-    :Gunakan kode_tujuan yang ada;
-  else (Tidak)
-    :Generate kode_tujuan baru (TUJ-NNN);
-  endif
-}
-
-partition "5. Tentukan Waktu & DT" {
-  :Cek jam dalam teks;
-  if (Jam < 12?) then (Ya)
-    :waktu = 'pagi';
-  else (Tidak)
-    :waktu = 'malam';
-  endif
-
-  :Cek kabupaten dari teks;
+partition "4. Hitung DT" {
   if (Kab in [Nganjuk, Kediri, Kota Kediri, Jombang]?) then (Ya)
-    :Hitung jumlah_rit_per_hari_per_sopir;
-    if (sudah 1 DT?) then (Ya)
-      :dt = 0 (gagal produksi);
+    if (Sudah 1 DT hari ini?) then (Ya)
+      :DT = 0;
     else (Tidak)
-      :dt = 330000;
+      :DT = 330000;
     endif
   else (Tidak)
-    :dt = 330000;
+    :DT = 330000;
   endif
-}
-
-partition "6. Hitung Upah" {
-  :upah_sopir = nominal_sopir (dari config);
-  if (ada 'lembur' di teks?) then (Ya)
-    :is_lembur = true;
-    :upah_lembur = nominal_lembur;
-  else (Tidak)
-    :is_lembur = false;
-    :upah_lembur = 0;
+  if (Gagal produksi?) then (Ya)
+    :DT = 0;
+    :Kompensasi = nominal;
   endif
 }
 
 :Return parsed_items[];
-
 stop
 
 @enduml

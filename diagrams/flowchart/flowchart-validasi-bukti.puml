@@ -4,51 +4,43 @@ skinparam backgroundColor #ffffff
 skinparam defaultFontSize 10
 skinparam defaultFontName Arial
 
-title Flowchart — Validasi Bukti Algorithm
+title Flowchart — Validasi Bukti
 
 start
-
-:Input bukti (nama_sopir, nama_tujuan, foto, lokasi);
-
+:Input (nama, tujuan, foto, lokasi);
 :Validasi form;
-if (nama_sopir kosong?) then (Ya)
-  :Error "Nama sopir wajib diisi";
+
+if (Nama kosong?) then (Ya)
+  :Error "Nama wajib";
   stop
 endif
-if (foto tidak diupload?) then (Ya)
-  :Error "Foto wajib diupload";
+if (Foto kosong?) then (Ya)
+  :Error "Foto wajib";
   stop
 endif
-if (lokasi tidak ada?) then (Ya)
-  :Error "Lokasi GPS wajib aktif";
+if (Lokasi kosong?) then (Ya)
+  :Error "Lokasi GPS wajib";
   stop
 endif
 
-:Compress foto → upload ke storage;
-:Simpan metadata ke DB;
-:Status = 'pending';
+:Compress & upload foto;
+:Simpan ke DB (status = 'pending');
 
-' ===== ADMIN REVIEW =====
-
-:Admin melihat bukti;
-if (Status = 'pending'?) then (Ya)
-  :Tampilkan foto + lokasi di peta;
-  :Admin memvalidasi;
-  if (Bukti valid?) then (Ya)
-    :Status → 'disetujui';
-    if (Sopir baru?) then (Ya)
-      :Auto-create sopir baru;
-    endif
-    if (Tujuan baru?) then (Ya)
-      :Auto-create tujuan baru;
-    endif
-    :Opsi: Tambah ke ritase;
-  else (Tidak)
-    :Status → 'ditolak';
-    :Catatan penolakan;
+' ===== REVIEW =====
+:Admin lihat bukti;
+if (Valid?) then (Ya)
+  :Status → disetujui;
+  if (Sopir baru?) then (Ya)
+    :Auto-create sopir;
   endif
+  if (Tujuan baru?) then (Ya)
+    :Auto-create tujuan;
+  endif
+  :Opsi tambah ke ritase;
+else (Tidak)
+  :Status → ditolak;
+  :Catatan penolakan;
 endif
-
 stop
 
 @enduml

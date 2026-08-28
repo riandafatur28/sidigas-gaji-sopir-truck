@@ -6,48 +6,38 @@ skinparam defaultFontName Arial
 
 title Activity Diagram — Dashboard
 
-|Admin|
+|User (Admin)|
 start
-:Buka halaman Dashboard;
+:Buka /dashboard;
 
-|System|
-partition "Ambil Metrik (Cache 5 menit)" {
-  :Cek cache 'dashboard_metrics';
+|Sistem|
+:Cek cache metrics;
 
-  if (Cache ada & valid?) then (Ya)
-    :Load dari cache;
-  else (Tidak)
-    |DB|
-    :SELECT COUNT(*) FROM sopirs WHERE status = 'aktif';
-    :SELECT COUNT(*) FROM periodes WHERE status = 'aktif';
-    :SELECT COUNT(*) FROM ritases WHERE periode_id = :periode_aktif;
-    :SELECT COUNT(*) FROM penggajian WHERE periode_id = :periode_aktif;
-    :SELECT SUM(total) FROM penggajian WHERE periode_id = :periode_aktif;
-    :SELECT COUNT(*) FROM validasi_bukti WHERE status = 'pending';
+if (Cache valid?) then (Ya)
+  :Load dari cache;
+else (Tidak)
+  |Database|
+  :COUNT sopirs aktif;
+  :COUNT periode aktif;
+  :COUNT ritase periode aktif;
+  :SUM total gaji;
+  :COUNT bukti pending;
 
-    |System|
-    :Hitung progress_percentage:
-      (ritase_processed / total_ritase) × 100;
-    :Simpan ke cache (TTL 5 menit);
-  endif
-}
+  |Sistem|
+  :Hitung progress %;
+  :Simpan ke cache (5 min);
+endif
 
-:Render dashboard view;
-:Kirim response ke browser;
+:Render dashboard;
 
-|Admin|
-:Tampilkan dashboard dengan:
+|User (Admin)|
+:Tampilkan:
   - Total sopir aktif
   - Periode aktif
   - Total ritase
   - Total gaji
   - Progress bar
-  - Bukti pending (badge);
-
-if (Klik "Lihat Detail"?) then (Ya)
-  :Redirect ke halaman terkait;
-endif
-
+  - Bukti pending;
 stop
 
 @enduml

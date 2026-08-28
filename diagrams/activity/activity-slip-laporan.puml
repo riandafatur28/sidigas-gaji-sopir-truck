@@ -6,71 +6,40 @@ skinparam defaultFontName Arial
 
 title Activity Diagram — Slip Gaji & Laporan PDF
 
-|Admin|
+|User (Admin)|
 start
 
 partition "SLIP GAJI" {
-  :Buka halaman Penggajian;
   :Pilih periode;
-  :Klik "Download Slip Gaji";
+  :Klik "Download Slip";
 
-  |System|
-  :Ambil data penggajian + detail;
+  |Database|
+  :SELECT penggajian + details + sopir
+   WHERE periode = :periode;
 
-  |DB|
-  :SELECT p.*, s.nama, d.*
-   FROM penggajian p
-   JOIN sopirs s ON p.kode_sopir = s.kode_sopir
-   JOIN penggajian_details d ON d.penggajian_id = p.id
-   WHERE p.periode_id = :periode;
+  |Sistem|
+  :Build data per sopir;
+  :Format 4 slip/halaman F4;
+  :Generate PDF (DomPDF);
 
-  |System|
-  :Build data slip per sopir:
-    - Header: nama periode, tanggal
-    - Detail: solar, upah, DT, tol, kompensasi, lembur
-    - Grand total;
-
-  :Format 4 slip per halaman F4;
-
-  :Generate PDF via DomPDF;
-
-  |DB|
-  :SELECT nama_periode FROM periodes WHERE id = :periode;
-
-  |System|
-  :Set filename: "Slip_Gaji_{nama_periode}.pdf";
-  :Return PDF response;
-
-  |Admin|
+  |User (Admin)|
   :Download slip PDF;
 }
 
 partition "LAPORAN" {
   :Klik "Download Laporan";
 
-  |System|
-  :Ambil data ringkasan per periode;
+  |Database|
+  :SELECT rekap per sopir
+   WHERE periode = :periode;
 
-  |DB|
-  :SELECT sopir, jumlah_ritase, total_solar,
-   total_upah, total_dt, total_tol, grand_total
-   FROM penggajian WHERE periode_id = :periode;
+  |Sistem|
+  :Build tabel rekap;
+  :Generate PDF (DomPDF);
 
-  |System|
-  :Build laporan:
-    - Header: nama periode
-    - Tabel rekap per sopir
-    - Total keseluruhan;
-
-  :Generate PDF via DomPDF;
-
-  :Set filename: "Laporan_{nama_periode}.pdf";
-  :Return PDF response;
-
-  |Admin|
+  |User (Admin)|
   :Download laporan PDF;
 }
-
 stop
 
 @enduml

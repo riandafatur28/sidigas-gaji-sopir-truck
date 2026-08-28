@@ -3,54 +3,47 @@
 skinparam backgroundColor #ffffff
 skinparam defaultFontSize 10
 skinparam defaultFontName Arial
-skinparam diamondBackgroundColor #FFF9C4
 
-title Flowchart — Login Algorithm
+title Flowchart — Login
 
 start
-
 :Input email & password;
-
-:Validasi input form;
+:Validasi form;
 if (Email kosong?) then (Ya)
-  :Return error "Email wajib diisi";
+  :Error "Email wajib";
   stop
 endif
 if (Password kosong?) then (Ya)
-  :Return error "Password wajib diisi";
+  :Error "Password wajib";
   stop
 endif
 
-:Cari user by email di DB;
-
-if (User ditemukan?) then (Ya)
-  if (User dari Google OAuth?) then (Ya)
-    :Return error "Gunakan login Google";
+:Cari user by email;
+if (Ditemukan?) then (Ya)
+  if (Google OAuth user?) then (Ya)
+    :Error "Gunakan login Google";
     stop
   endif
   if (Password cocok?) then (Ya)
     if (Akun terkunci?) then (Ya)
-      :Return error "Akun terkunci sementara";
+      :Error "Akun terkunci";
       stop
     endif
-    :Reset login_attempts = 0;
-    :Update last_login = NOW();
-    :Generate session();
-    :Redirect ke /dashboard;
+    :Reset attempts;
+    :Update last_login;
+    :Generate session;
+    :Redirect /dashboard;
     stop
   else (Tidak)
-    :login_attempts += 1;
-    if (login_attempts >= 5?) then (Ya)
+    :attempts += 1;
+    if (>= 5?) then (Ya)
       :Lock akun 30 menit;
-      :Return error "Akun terkunci";
-    else (Tidak)
-      :Sisa percobaan = 5 - attempts;
-      :Return error "Password salah (sisa N)";
     endif
+    :Error "Password salah";
     stop
   endif
 else (Tidak)
-  :Return error "Email tidak terdaftar";
+  :Error "Email tidak ditemukan";
   stop
 endif
 

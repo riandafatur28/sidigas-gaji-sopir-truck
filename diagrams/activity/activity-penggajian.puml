@@ -6,76 +6,52 @@ skinparam defaultFontName Arial
 
 title Activity Diagram — Penggajian
 
-|Admin|
+|User (Admin)|
 start
 :Buka halaman Penggajian;
-:Pilih periode yang akan diproses;
+:Pilih periode;
 
-|System|
-:Load semua ritase untuk periode ini;
+|Sistem|
+|Database|
+:SELECT ritases WHERE periode_id = :periode;
+:JOIN sopirs, tujuans;
 
-|DB|
-:SELECT r.*, s.kode_sopir, t.kode_tujuan
- FROM ritases r
- JOIN sopirs s ON r.kode_sopir = s.kode_sopir
- JOIN tujuans t ON r.kode_tujuan = t.kode_tujuan
- WHERE r.periode_id = :periode;
-
-|System|
+|Sistem|
 
 partition "Hitung Per Sopir" {
   while (Masih ada sopir?) is (Ya)
-    :Group ritase per sopir;
-    :Hitung per tujuan:
-      - jumlah_rit
-      - total_solar (jumlah_rit × solar_per_rit)
-      - total_upah (jumlah_rit × upah_per_rit)
-      - sewa_dt (dari config/dt.php)
-      - total_tol (jumlah_rit × tol_per_rit)
-      - subtotal per tujuan;
-
-    :Hitung kompensasi gagal:
-      ritase gagal_produksi × nominal_kompensasi;
-    :Hitung upah lembur (jika ada);
-    :Hitung grand total:
-      total_solar + total_upah + total_dt
-      + total_tol + kompensasi + lembur;
+    :Group ritase per tujuan;
+    :Hitung jumlah_rit, solar, upah, tol, DT;
+    :Hitung kompensasi gagal produksi;
+    :Hitung lembur;
+    :Hitung grand total;
   endwhile (Tidak)
 }
 
-partition "Simpan ke DB" {
-  |DB|
-  :DELETE FROM penggajian WHERE periode_id = :periode;
-  :DELETE FROM penggajian_details WHERE penggajian_id IN (...);
-
-  while (Masih ada data?) is (Ya)
-    :INSERT INTO penggajian (...);
-    :INSERT INTO penggajian_details (...);
-  endwhile (Tidak)
+partition "Simpan" {
+  |Database|
+  :DELETE old penggajian WHERE periode = :periode;
+  :INSERT penggajian + details;
 }
 
-|System|
-:Tampilkan hasil penggajian dalam tabel;
+|Sistem|
+:Tampilkan tabel hasil;
 
-|Admin|
-:Review hasil penggajian;
+|User (Admin)|
+:Review hasil;
 if (Perlu edit?) then (Ya)
-  :Klik "Edit" pada baris sopir;
-  :Ubah nominal (uang_solar, upah, dll);
-  |System|
-  :Recalculate grand total;
-  |DB|
-  :UPDATE penggajian SET ...;
-  |Admin|
+  :Edit nominal;
+  |Sistem|
+  :Recalculate;
+  |Database|
+  :UPDATE penggajian;
 endif
 
-:Klik "Download Slip Gaji";
-|System|
-:Generate PDF slip gaji (4 per halaman F4);
-:Return file PDF;
+:Klik "Download Slip";
 
-|Admin|
-:Download selesai;
+|Sistem|
+:Generate PDF (4 slip/F4);
+:Return file;
 stop
 
 @enduml

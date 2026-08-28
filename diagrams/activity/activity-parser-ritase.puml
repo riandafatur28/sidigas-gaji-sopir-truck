@@ -4,104 +4,81 @@ skinparam backgroundColor #ffffff
 skinparam defaultFontSize 10
 skinparam defaultFontName Arial
 
-title Activity Diagram — Parser Ritase (WhatsApp Text)
+title Activity Diagram — Parser Ritase (WhatsApp)
 
-|Admin|
+|User (Admin)|
 start
 :Buka halaman Parser Ritase;
 :Pilih periode;
 :Copy-paste teks WhatsApp;
 :Klik "Proses Teks";
 
-|System|
+|Sistem|
 :Terima teks mentah;
 
-partition "Step 1: Extract Tanggal" {
-  :Cari pola tanggal (DD MM YY / YYYY-MM-DD);
-  if (Tanggal ditemukan?) then (Ya)
-    :Parse ke objek Date;
+partition "Step 1 — Extract Tanggal" {
+  :Cari pola tanggal di teks;
+  if (Ditemukan?) then (Ya)
+    :Parse ke Date;
   else (Tidak)
-    :Set tanggal = hari ini;
+    :Default = hari ini;
   endif
 }
 
-partition "Step 2: Extract Sopir & Rute" {
-  :Split teks per baris;
-  :Iterasi setiap baris;
+partition "Step 2 — Extract Sopir & Rute" {
+  :Split per baris;
   while (Masih ada baris?) is (Ya)
-    if (Baris berawalan angka + titik?) then (Ya)
+    if (Baris = "N. Nama") then (Ya)
       :Extract nama sopir;
-      :Baris berikutnya = rute/tujuan;
-      :Simpan ke parsed_items[];
+      :Baris berikutnya = rute;
     endif
   endwhile (Tidak)
 }
 
-partition "Step 3: Fuzzy Matching" {
-  while (Ada parsed_items?) is (Ya)
-    :Ambil nama sopir dari parsed;
+partition "Step 3 — Fuzzy Matching" {
+  while (Ada hasil parse?) is (Ya)
+    :Hitung Jaro-Winkler vs sopir aktif;
 
-    |DB|
-    :SELECT kode_sopir FROM sopirs WHERE status = 'aktif';
-    |System|
+    |Database|
+    :SELECT sopirs WHERE status = 'aktif';
 
-    :Hitung similarity (Jaro-Winkler) dengan setiap sopir;
-    if (Best match >= 85%?) then (Ya)
-      :Map ke sopir yang ada di DB;
+    |Sistem|
+    if (Score >= 85%?) then (Ya)
+      :Map ke sopir existing;
     else (Tidak)
-      :Mark sebagai sopir baru;
+      :Mark sopir baru;
     endif
 
-    :Ambil nama tujuan dari parsed;
+    :Hitung Jaro-Winkler vs tujuan aktif;
 
-    |DB|
-    :SELECT kode_tujuan FROM tujuans WHERE status = 'aktif';
-    |System|
+    |Database|
+    :SELECT tujuans WHERE status = 'aktif';
 
-    :Hitung similarity (Jaro-Winkler) dengan setiap tujuan;
-    if (Best match >= 85%?) then (Ya)
-      :Map ke tujuan yang ada di DB;
+    |Sistem|
+    if (Score >= 85%?) then (Ya)
+      :Map ke tujuan existing;
     else (Tidak)
-      :Mark sebagai tujuan baru;
+      :Mark tujuan baru;
     endif
   endwhile (Tidak)
 }
 
-partition "Step 4: Preview & Confirm" {
-  |Admin|
-  :Tampilkan hasil parsing (tabel preview);
-  :Review data yang akan disimpan;
-  if (Ada sopir/tujuan baru?) then (Ya)
-    :Konfirmasi auto-create;
-  endif
+partition "Step 4 — Preview" {
+  |User (Admin)|
+  :Tampilkan tabel preview;
+  :Review data;
   :Klik "Simpan Semua";
 }
 
-partition "Step 5: Save to DB" {
-  |System|
+partition "Step 5 — Simpan" {
+  |Database|
+  :INSERT sopir baru (jika ada);
+  :INSERT tujuan baru (jika ada);
+  :INSERT ritases;
 
-  while (Ada sopir baru?) is (Ya)
-    |DB|
-    :INSERT INTO sopirs (kode_sopir, nama, status) VALUES (...);
-  endwhile (Tidak)
-
-  while (Ada tujuan baru?) is (Ya)
-    |DB|
-    :INSERT INTO tujuans (kode_tujuan, nama, status) VALUES (...);
-  endwhile (Tidak)
-
-  while (Ada ritase?) is (Ya)
-    |DB|
-    :INSERT INTO ritases (...);
-  endwhile (Tidak)
+  |Sistem|
+  :Tampilkan "N ritase tersimpan";
 }
-
-|System|
-:Tampilkan "N ritase berhasil disimpan";
-:Reload tabel ritase;
-
-|Admin|
-:Selesai;
 stop
 
 @enduml

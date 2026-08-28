@@ -4,72 +4,50 @@ skinparam backgroundColor #ffffff
 skinparam defaultFontSize 10
 skinparam defaultFontName Arial
 
-title Flowchart — Penggajian Algorithm
+title Flowchart — Penggajian
 
 start
-
-:Input: periode_id;
-:Ambil semua ritase untuk periode ini;
-:Group by kode_sopir;
+:Input periode_id;
+:Ambil semua ritase;
+:Group per sopir;
 
 while (Masih ada sopir?) is (Ya)
-
-partition "Hitung Per Tujuan" {
-  :total_solar = 0;
-  :total_upah = 0;
-  :total_dt = 0;
-  :total_tol = 0;
-  :total_kompensasi = 0;
-  :total_lembur = 0;
+  :Init total = 0;
 
   while (Masih ada tujuan?) is (Ya)
-    :jumlah_rit = COUNT(ritase);
+    :jumlah_rit = COUNT;
+    :solar = jumlah_rit × config.solar;
+    :upah = jumlah_rit × config.upah;
+    :tol = jumlah_rit × config.tol;
 
-    :solar_per_rit = config.solar;
-    :total_solar += jumlah_rit × solar_per_rit;
-
-    :upah_per_rit = config.upah;
-    :total_upah += jumlah_rit × upah_per_rit;
-
-    :tol_per_rit = config.tol;
-    :total_tol += jumlah_rit × tol_per_rit;
-
-    :sewa_dt = config.dt_value;
-
-    if (status = 'gagal_produksi'?) then (Ya)
-      :dt_per_rit = 0;
-      :total_kompensasi += nominal_kompensasi;
+    if (Gagal produksi?) then (Ya)
+      :dt = 0;
+      :kompensasi = nominal;
     else (Tidak)
-      if (kab in [Nganjuk, Kediri, Kota Kediri, Jombang]?) then (Ya)
-        if (sudah 1 DT hari ini?) then (Ya)
-          :dt_per_rit = 0;
+      if (Kab [Nganjuk, Kediri, Kota Kediri, Jombang]?) then (Ya)
+        if (Sudah 1 DT?) then (Ya)
+          :dt = 0;
         else (Tidak)
-          :dt_per_rit = sewa_dt;
+          :dt = config.dt;
         endif
       else (Tidak)
-        :dt_per_rit = sewa_dt;
+        :dt = config.dt;
       endif
-      :total_dt += dt_per_rit;
+      :kompensasi = 0;
     endif
   endwhile (Tidak)
-}
 
-if (ada ritase lembur?) then (Ya)
-  :total_lembur = COUNT(ritase_lembur) × nominal_lembur;
-else (Tidak)
-  :total_lembur = 0;
-endif
+  if (Ada lembur?) then (Ya)
+    :lembur = COUNT × nominal;
+  else (Tidak)
+    :lembur = 0;
+  endif
 
-:grand_total = total_solar + total_upah + total_dt
-  + total_tol + total_kompensasi + total_lembur;
-
-:INSERT INTO penggajian (...);
-:INSERT INTO penggajian_details (...);
-
+  :grand_total = solar + upah + dt + tol + kompensasi + lembur;
+  :INSERT penggajian + details;
 endwhile (Tidak)
 
-:Tampilkan tabel hasil penggajian;
-
+:Tampilkan hasil;
 stop
 
 @enduml

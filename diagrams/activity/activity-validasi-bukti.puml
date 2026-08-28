@@ -9,90 +9,59 @@ title Activity Diagram — Validasi Bukti Kerja
 |Sopir (Publik)|
 start
 :Buka link validasi bukti;
-:Isi form:
-  - Nama sopir
-  - Pilih/tulis tujuan
-  - Upload foto bukti
-  - Catatan (opsional);
-:Submit bukti;
+:Isi form (nama, tujuan, foto, catatan);
+:Submit;
 
-|System|
-:Aktifkan GPS / ambil lokasi;
-:Validasi input;
-if (Valid?) then (Ya)
-  :Compress & upload foto ke storage;
-  :Simpan data bukti;
+|Sistem|
+:Ambil lokasi GPS;
+:Validasi & upload foto;
 
-  |DB|
-  :INSERT INTO validasi_bukti
-   (nama_sopir, nama_tujuan, foto, latitude,
-    longitude, lokasi, waktu_foto, status)
-   VALUES (...);
+|Database|
+:INSERT validasi_bukti (status = 'pending');
 
-  |System|
-  :Tampilkan "Bukti berhasil dikirim";
-
-  |Sopir (Publik)|
-  :Selesai;
-  stop
-else (Tidak)
-  :Tampilkan validasi error;
-  |Sopir (Publik)|
-  :Input ulang;
-  stop
-endif
+|Sistem|
+:Tampilkan "Bukti dikirim";
+stop
 
 ' ===== ADMIN REVIEW =====
 
-|Admin|
-:Ambil data dari Database;
+|User (Admin)|
+:Buka halaman Kelola Validasi;
 
-|DB|
-:SELECT * FROM validasi_bukti WHERE status = 'pending';
-:SELECT sopirs, tujuans (for reference);
+|Database|
+:SELECT validasi_bukti WHERE status = 'pending';
 
-|System|
-:Tampilkan daftar bukti pending;
+|Sistem|
+:Tampilkan daftar bukti;
 
-|Admin|
-:Klik "Detail" pada bukti;
-:Tampilkan foto, lokasi (peta), data sopir & tujuan;
+|User (Admin)|
+:Klik "Detail";
 if (Bukti valid?) then (Ya)
   :Klik "Setujui";
-  |System|
-  :Update status = 'disetujui';
-  |DB|
-  :UPDATE validasi_bukti SET status = 'disetujui';
-  |System|
+
+  |Sistem|
+  |Database|
+  :UPDATE status = 'disetujui';
   if (Sopir baru?) then (Ya)
-    :Buat sopir baru otomatis;
-    |DB|
-    :INSERT INTO sopirs (...);
+    :INSERT sopir baru;
   endif
   if (Tujuan baru?) then (Ya)
-    :Buat tujuan baru otomatis;
-    |DB|
-    :INSERT INTO tujuans (...);
+    :INSERT tujuan baru;
   endif
-  :Tampilkan opsi "Tambah ke Ritase";
-  |Admin|
+
+  |Sistem|
   if (Tambah ke Ritase?) then (Ya)
-    :Pilih periode, waktu, kabupaten;
-    |DB|
-    :INSERT INTO ritases (...);
+    |User (Admin)|
+    :Pilih periode, waktu, kab;
+    |Database|
+    :INSERT ritase;
   endif
 else (Tidak)
   :Klik "Tolak";
-  :Isi catatan penolakan;
-  |System|
-  :Update status = 'ditolak';
-  |DB|
-  :UPDATE validasi_bukti SET status = 'ditolak',
-   catatan_mitra = :catatan;
+  :Isi catatan;
+  |Database|
+  :UPDATE status = 'ditolak';
 endif
-
-|Admin|
-:Kembali ke daftar;
 stop
 
 @enduml

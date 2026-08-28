@@ -3,66 +3,52 @@
 skinparam backgroundColor #ffffff
 skinparam defaultFontSize 10
 skinparam defaultFontName Arial
-skinparam activity {
-  BackgroundColor #F1F8FF
-  BorderColor #4A90D9
-  DiamondBackgroundColor #FFF9C4
-}
-skinparam swimlane {
-  BackgroundColor #FAFAFA
-  TitleBackgroundColor #E3F2FD
-}
 
-title Activity Diagram — Login (Email & Password)
+title Activity Diagram — Login
 
-|User|
+|User (Admin)|
 start
 :Buka halaman login;
 :Input email & password;
-:Klik tombol "Login";
+:Klik "Login";
 
-|System|
-if (Email terdaftar?) then (Ya)
-  if (Password valid?) then (Ya)
-    :Generate session token;
-    if (Google OAuth user?) then (Ya)
-      :Tolak login email;
-      |User|
-      :Tampilkan pesan error;
-      stop
+|Sistem|
+:Validasi input;
+if (Valid?) then (Ya)
+  :Cari user di DB;
+
+  |Database|
+  :SELECT * FROM users WHERE email = :email;
+
+  |Sistem|
+  if (User ditemukan?) then (Ya)
+    if (Dari Google OAuth?) then (Ya)
+      :Error "Gunakan login Google";
     else (Tidak)
-      :Set session active;
-      |DB|
-      :UPDATE users SET last_login = NOW() WHERE email = :email;
-      |System|
-      :Redirect ke /dashboard;
-      |User|
-      :Tampilkan dashboard;
-      stop
+      :Verifikasi password;
+      if (Cocok?) then (Ya)
+        if (Akun terkunci?) then (Ya)
+          :Error "Akun terkunci";
+        else (Tidak)
+          |Database|
+          :UPDATE login_attempts = 0, last_login = NOW();
+          |Sistem|
+          :Generate session;
+          :Redirect /dashboard;
+        endif
+      else (Tidak)
+        |Database|
+        :UPDATE login_attempts += 1;
+        |Sistem|
+        :Error "Password salah";
+      endif
     endif
   else (Tidak)
-    :Increment login attempts;
-    |DB|
-    :UPDATE users SET login_attempts = login_attempts + 1;
-    |System|
-    if (Attempts >= 5?) then (Ya)
-      :Lock account 30 menit;
-      |DB|
-      :UPDATE users SET locked_until = NOW() + 30min;
-      |System|
-      :Tampilkan "Akun dikunci";
-    else (Tidak)
-      :Tampilkan "Password salah";
-    endif
-    |User|
-    :Tampilkan pesan error;
-    stop
+    :Error "Email tidak ditemukan";
   endif
 else (Tidak)
-  :Tampilkan "Email tidak ditemukan";
-  |User|
-  :Tampilkan pesan error;
-  stop
+  :Error validasi form;
 endif
+stop
 
 @enduml

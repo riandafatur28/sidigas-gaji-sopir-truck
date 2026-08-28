@@ -1,0 +1,91 @@
+@startuml arsitektur-sistem
+!theme plain
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+skinparam defaultFontName Arial
+skinparam componentStyle uml2
+skinparam linetype ortho
+skinparam roundcorner 8
+skinparam nodesep 60
+skinparam ranksep 40
+
+title Arsitektur Sistem — SIDIGAS\n(Sistem Distribusi Gaji Sopir Dump Truck)
+
+' ========== LAYER PENGGUNA ==========
+package "PENGGUNA" as pengguna #E8F5E9 {
+  rectangle "Laptop / PC\n(Admin)" as admin #C8E6C9
+  rectangle "Smartphone\n(Sopir)" as sopir #C8E6C9
+  rectangle "Printer\n(Cetak Slip/Laporan)" as printer #C8E6C9
+}
+
+' ========== JARINGAN ==========
+package "JARINGAN" as jaringan #E3F2FD {
+  rectangle "Internet" as internet #BBDEFB
+  rectangle "Lokal Network\n(Docker Compose)" as localnet #BBDEFB
+}
+
+' ========== SERVER ==========
+package "SERVER (Render.com / Docker)" as server #FFF3E0 {
+  package "Web Server" as web #FFE0B2 {
+    rectangle "PHP 8.3-FPM\n+ Nginx" as php #FFCC80
+    rectangle "Laravel 13\n(Application Server)" as laravel #FFCC80
+    rectangle "Blade Template\n+ Tailwind CSS + Vite" as blade #FFCC80
+  }
+
+  package "Layanan Pendukung" as layanan #FFE0B2 {
+    rectangle "DomPDF\n(Generate PDF)" as dompdf #FFE0B2
+    rectangle "PhpSpreadsheet\n(Export Excel)" as phpspreadsheet #FFE0B2
+    rectangle "Queue Worker\n(Jobs & Notifications)" as queue #FFE0B2
+  }
+
+  package "Penyimpanan" as storage #FFE0B2 {
+    rectangle "MySQL 8.4\n(Database)" as mysql #FFE0B2
+    rectangle "File Storage\n(Foto Bukti, PDF)" as filestorage #FFE0B2
+  }
+}
+
+' ========== LAYANAN EKSTERNAL ==========
+package "LAYANAN EKSTERNAL" as eksternal #F3E5F5 {
+  rectangle "Google OAuth 2.0\n(Login SSO)" as google #E1BEE7
+  rectangle "SMTP Email\n(OTP & Notifikasi)" as smtp #E1BEE7
+  rectangle "Google Maps API\n(Geolocation)" as gmaps #E1BEE7
+}
+
+' ========== KONEKSI ==========
+admin -down- internet : "Browser\n(Chrome/Edge)"
+sopir -down- internet : "Browser\n(Mobile Chrome)"
+printer -up- php : "Cetak PDF\n(AirPrint/USB)"
+
+internet -down- php : "HTTPS\n(Port 443)"
+internet -down- localnet : "Port 8080"
+
+php -right- laravel : "PHP-FPM\nFastCGI"
+laravel -down- blade : "Render\nBlade View"
+laravel -right- dompdf : "Generate\nPDF"
+laravel -right- phpspreadsheet : "Export\nExcel"
+laravel -down- mysql : "PDO\nMySQL"
+laravel -down- filestorage : "File\nUpload"
+
+laravel -right- google : "OAuth 2.0\nRedirect"
+laravel -right- smtp : "SMTP\nSend"
+laravel -right- gmaps : "REST API\nGeocoding"
+
+queue -down- mysql : "Job\nStorage"
+queue -right- smtp : "Email\nDispatch"
+
+' ========== LABELS ==========
+note bottom of server
+  **Docker Compose Stack:**
+  - app (PHP 8.3 + Nginx)
+  - db (MySQL 8.4)
+  - ngrok (HTTPS Tunnel)
+end note
+
+note right of eksternal
+  **API Keys:**
+  - GOOGLE_CLIENT_ID/SECRET
+  - SMTP credentials
+  - MAPS_API_KEY
+end note
+
+@enduml

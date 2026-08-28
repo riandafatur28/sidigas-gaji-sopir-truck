@@ -6,38 +6,36 @@ skinparam defaultFontName Arial
 
 title Activity Diagram — Login Google OAuth
 
-|User|
+|User (Admin)|
 start
 :Buka halaman login;
-:Klik tombol "Login dengan Google";
+:Klik "Login dengan Google";
 
-|System|
+|Sistem|
 :Redirect ke Google OAuth;
-:Google tampilkan consent screen;
 
-|User|
-:Klik "Allow" / "Izinkan";
+|Google (Eksternal)|
+:Tampilkan consent screen;
 
-|System|
-:Terima callback dengan auth code;
+|User (Admin)|
+:Klik "Izinkan";
+
+|Sistem|
+:Terima callback + auth code;
 :Exchange code → access token;
-:Ambil user info dari Google API;
+:Ambil data user dari Google;
 
-|DB|
-:SELECT * FROM users WHERE email = :google_email;
-if (User sudah terdaftar?) then (Ya)
-  :UPDATE users SET google_id = :google_id;
+|Database|
+:SELECT user WHERE email = :email;
+if (Sudah ada?) then (Ya)
+  :UPDATE google_id, last_login;
 else (Tidak)
-  :INSERT INTO users (name, email, google_id) VALUES (:name, :email, :google_id);
+  :INSERT user baru;
 endif
-:UPDATE users SET last_login = NOW();
 
-|System|
-:Generate session token;
-:Redirect ke /dashboard;
-
-|User|
-:Tampilkan dashboard;
+|Sistem|
+:Generate session;
+:Redirect /dashboard;
 stop
 
 @enduml
