@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Models\Ritase;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StorePenggajianRequest extends FormRequest
@@ -23,16 +24,36 @@ class StorePenggajianRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $periodeId = $this->input('periode_id');
+        $tujuanWithRitase = [];
+
+        if ($periodeId) {
+            $tujuanWithRitase = Ritase::where('periode_id', $periodeId)
+                ->where('status', '!=', 'gagal_produksi')
+                ->distinct()
+                ->pluck('kode_tujuan')
+                ->toArray();
+        }
+
+        $rules = [
             'periode_id' => 'required|exists:periodes,id',
             'detail' => 'required|array|min:1',
             'detail.*.kode_tujuan' => 'required|exists:tujuans,kode_tujuan',
-            'detail.*.bbm_per_rit' => 'required|numeric|min:0',
-            'detail.*.upah_per_rit' => 'required|numeric|min:0',
             'detail.*.tol_per_rit' => 'nullable|numeric|min:0',
             'detail.*.kompensasi_gagal' => 'nullable|numeric|min:0',
             'detail.*.lembur_per_rit' => 'nullable|numeric|min:0',
         ];
+
+        // Only require BBM/Upah for tujuan that have ritase in the periode
+        foreach ($this->input('detail', []) as $index => $detail) {
+            $kodeTujuan = $detail['kode_tujuan'] ?? null;
+            $hasRitase = $kodeTujuan && in_array($kodeTujuan, $tujuanWithRitase, true);
+
+            $rules["detail.{$index}.bbm_per_rit"] = $hasRitase ? 'required|numeric|min:0' : 'nullable|numeric|min:0';
+            $rules["detail.{$index}.upah_per_rit"] = $hasRitase ? 'required|numeric|min:0' : 'nullable|numeric|min:0';
+        }
+
+        return $rules;
     }
 
     /**
@@ -50,10 +71,10 @@ class StorePenggajianRequest extends FormRequest
             'detail.min' => 'Detail penggajian minimal 1 item.',
             'detail.*.kode_tujuan.required' => 'Kode tujuan wajib diisi.',
             'detail.*.kode_tujuan.exists' => 'Kode tujuan tidak valid.',
-            'detail.*.bbm_per_rit.required' => 'BBM per rit wajib diisi.',
+            'detail.*.bbm_per_rit.required' => 'BBM per rit wajib diisi untuk tujuan yang memiliki ritase.',
             'detail.*.bbm_per_rit.numeric' => 'BBM per rit harus berupa angka.',
             'detail.*.bbm_per_rit.min' => 'BBM per rit tidak boleh negatif.',
-            'detail.*.upah_per_rit.required' => 'Upah per rit wajib diisi.',
+            'detail.*.upah_per_rit.required' => 'Upah per rit wajib diisi untuk tujuan yang memiliki ritase.',
             'detail.*.upah_per_rit.numeric' => 'Upah per rit harus berupa angka.',
             'detail.*.upah_per_rit.min' => 'Upah per rit tidak boleh negatif.',
             'detail.*.tol_per_rit.numeric' => 'Tol per rit harus berupa angka.',

@@ -139,7 +139,7 @@
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         <div class="w-32">
                                             <input type="number" name="detail[{{ $i }}][kompensasi_gagal]" data-tujuan="{{ $tujuan->kode_tujuan }}" data-field="kompensasi_gagal" min="0" step="0.01" value="{{ $oldKomp }}" placeholder="0" class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 transition bg-white">
-                                            <p class="text-red-500 text-xs mt-1 hidden" id="error_komp_{{ $i }}">Harus angka positif.</p>
+                                            <p class="text-red-500 text-xs mt-1 hidden" id="error_kompensasi_{{ $i }}">Harus angka positif.</p>
                                             <input type="hidden" name="detail[{{ $i }}][kode_tujuan]" value="{{ $tujuan->kode_tujuan }}">
                                         </div>
                                     </td>

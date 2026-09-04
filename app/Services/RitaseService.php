@@ -328,7 +328,7 @@ class RitaseService
         ];
 
         if ($request->boolean('auto_create')) {
-            $createResult = $parser->createRitases($parsed, $request->periode_id, $driverMatches, $routeMatches);
+            $createResult = $parser->createRitases($parsed, (int) $request->periode_id, $driverMatches, $routeMatches);
             $results['created'] = $createResult['created'];
             $results['skipped'] = $createResult['skipped'];
             $results['errors'] = array_merge($results['errors'], $createResult['errors']);

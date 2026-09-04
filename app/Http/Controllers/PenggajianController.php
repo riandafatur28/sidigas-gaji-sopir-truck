@@ -22,11 +22,6 @@ class PenggajianController extends Controller
 
     public function getRitaseData(Request $request)
     {
-        // Jika bukan AJAX request, redirect ke halaman gaji (bukan tampilkan JSON)
-        if (!$request->ajax() && !$request->expectsJson()) {
-            return redirect()->route('gaji.index', ['periode' => $request->query('periode')]);
-        }
-
         try {
             $result = $this->penggajianService->getRitaseData($request);
             return isset($result['error'])

@@ -127,14 +127,14 @@ class PenggajianDataService
         $periodes = $paginated->getCollection()->map(fn($p) => $this->mapRiwayatPeriode($p, $ritSummary, $gajiSummary));
         $paginated->setCollection($periodes);
 
-        return compact('periodes', 'sort', 'bulan', 'tahun') + ['availableYears' => $years];
+        return ['periodes' => $paginated, 'sort' => $sort, 'bulan' => $bulan, 'tahun' => $tahun, 'availableYears' => $years];
     }
 
     // === Private helpers ===
 
     private function resolvePeriodeId($periodeId): ?int
     {
-        if ($periodeId) return $periodeId;
+        if ($periodeId) return (int) $periodeId;
         $latest = Periode::orderBy('id', 'desc')->first();
         return $latest?->id;
     }

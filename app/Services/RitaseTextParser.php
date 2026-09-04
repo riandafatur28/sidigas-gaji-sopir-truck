@@ -241,6 +241,6 @@ class RitaseTextParser
 
     public function looksLikeDriverName(string $line): bool
     {
-        return preg_match('/^\d+\./', $line);
+        return (bool) preg_match('/^\d+\./', $line);
     }
 }

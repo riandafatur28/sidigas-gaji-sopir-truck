@@ -52,13 +52,13 @@
     <div class="card mb-6">
         <div class="border-b border-gray-200">
             <nav class="flex gap-0 px-5" role="tablist">
-                <button type="button" class="tab-btn" data-tab="1" onclick="switchTab(1)">Kelola Ritase</button>
+                <button type="button" class="tab-btn active" data-tab="1" onclick="switchTab(1)">Kelola Ritase</button>
                 <button type="button" class="tab-btn" data-tab="2" onclick="switchTab(2)">Detail Ritase</button>
             </nav>
         </div>
 
         {{-- TAB 1: DATA RITASE --}}
-        <div id="tab-content-1" class="tab-panel">
+        <div id="tab-content-1" class="tab-panel active">
             <div class="border-b border-gray-200 px-5 py-4">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                     <div>
@@ -205,7 +205,7 @@
         .tab-btn:hover { color: #2d6a4f; }
         .tab-btn.active { color: #2d6a4f; border-bottom-color: #2d6a4f; font-weight: 600; }
         .tab-panel { display: none; }
-        .tab-panel.active { display: block; }
+        .tab-panel.active { display: block !important; }
         .detail-table td, .detail-table th { border: 1px solid #e2e8f0; }
         .detail-table td:first-child { position: sticky; left: 0; background: white; z-index: 2; }
         .detail-table th { position: sticky; top: 0; z-index: 3; }

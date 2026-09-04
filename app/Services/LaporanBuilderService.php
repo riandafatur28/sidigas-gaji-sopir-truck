@@ -65,10 +65,14 @@ class LaporanBuilderService
 
         [$detailRows, $totals] = $this->buildDetailRows($allTujuanCodes, $tujuanList, $gajiPerTujuan, $nonGagalPerTujuan, $gagalPerTujuan);
 
-        return array_merge(compact('hari_kerja', 'total_sopir', 'total_ritase', 'total_ritase_gagal'), [
+        return [
+            'hari_kerja' => $hariKerja,
+            'total_sopir' => $totalSopir,
+            'total_ritase' => $totalRitase,
+            'total_ritase_gagal' => $totalGagal,
             'unique_kabupaten' => $uniqueTrip,
             'detail_rows' => $detailRows,
-        ], $totals);
+        ] + $totals;
     }
 
     private function getTujuanAggregates($periodeId): array

@@ -47,21 +47,27 @@ class SlipBuilderService
                 [$solar, $upah, $tol] = $isGagal ? [0, 0, 0] : $this->slipRitRates($periodeId, $rit, $detail, $periodRates);
                 $kompensasi = $isGagal ? ($rit->nominal_kompensasi ?? 0) : 0;
 
+                $solarF = (float) $solar;
+                $upahF = (float) $upah;
+                $tolF = (float) $tol;
+                $kompF = (float) $kompensasi;
+                $lemburF = (float) ($rit->upah_lembur ?? 0);
+
                 $dataPerHari[] = [
                     'tanggal' => $tanggal,
                     'hari' => $hari,
                     'rit_ke' => $ritIndex + 1,
                     'total_rit_hari' => $ritHari->count(),
-                    'solar' => round($solar),
-                    'upah' => round($upah),
-                    'jumlah' => $isGagal ? round($kompensasi) : round($solar + $upah + ($rit->upah_lembur ?? 0)),
+                    'solar' => round($solarF),
+                    'upah' => round($upahF),
+                    'jumlah' => $isGagal ? round($kompF) : round($solarF + $upahF + $lemburF),
                     'tujuan' => $this->getTujuanNama($detail, $rit),
                     'kode_tujuan' => $rit->kode_tujuan,
                     'is_gagal' => $isGagal,
                     'is_lembur' => $rit->is_lembur ?? false,
-                    'upah_lembur' => (float) ($rit->upah_lembur ?? 0),
+                    'upah_lembur' => $lemburF,
                     'dt' => $isGagal ? 0 : (floatval($rit->dt) ?? 0),
-                    'tol' => $isGagal ? 0 : round($tol),
+                    'tol' => $isGagal ? 0 : round($tolF),
                 ];
             }
         }

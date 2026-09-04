@@ -36,6 +36,14 @@ services:
       GOOGLE_REDIRECT_URL: ${GOOGLE_REDIRECT_URL:-http://localhost:8080/auth/google/callback}
     ports:
       - "8080:8080"
+    volumes:
+      - ./.env:/app/.env
+      - ./app:/app/app
+      - ./public:/app/public
+      - ./resources:/app/resources
+      - ./routes:/app/routes
+      - ./config:/app/config
+      - ./database:/app/database
 
   ngrok:
     image: ngrok/ngrok:latest

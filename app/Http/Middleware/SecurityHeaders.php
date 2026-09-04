@@ -12,6 +12,13 @@ class SecurityHeaders
 {
     public function handle(Request $request, Closure $next): Response
     {
+        // Force HTTPS URL generation when behind proxy (ngrok, Render, etc.)
+        // ngrok sends X-Forwarded-Proto: https but request->secure() is false
+        // because the internal connection is HTTP (app:8080)
+        if ($request->header('X-Forwarded-Proto') === 'https' || $request->secure()) {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
+
         $response = $next($request);
 
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
@@ -23,8 +30,8 @@ class SecurityHeaders
         // Content Security Policy — restrict script/style sources
         $csp = implode('; ', [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
-            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.tailwindcss.com",
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com https://cdn.tailwindcss.com",
             "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com",
             "img-src 'self' data: https:",
             "connect-src 'self'",
