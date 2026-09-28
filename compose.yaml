@@ -39,11 +39,13 @@ services:
     volumes:
       - ./.env:/app/.env
       - ./app:/app/app
-      - ./public:/app/public
+      - ./public/images:/app/public/images
+      - ./storage/app/public:/app/public/storage
       - ./resources:/app/resources
       - ./routes:/app/routes
       - ./config:/app/config
       - ./database:/app/database
+      - ./storage:/app/storage
 
   ngrok:
     image: ngrok/ngrok:latest

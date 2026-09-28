@@ -56,14 +56,14 @@ RUN chmod -R 775 storage bootstrap/cache \
     && mkdir -p /app/database \
     && chmod -R 777 /app/database
 
-# Ensure public/storage exists (direct folder, not symlink — symlinks break in Docker)
-RUN mkdir -p /app/public/storage/bukti \
-    && cp -rn /app/storage/app/public/* /app/public/storage/ 2>/dev/null || true \
-    && chmod -R 777 /app/public/storage
+# NOTE: public/storage HARUS symlink ke storage/app/public (dibuat saat container
+# start via `php artisan storage:link` di CMD). Jangan ganti dengan folder biasa
+# + copy, karena upload runtime masuk ke storage/app/public dan tidak akan
+# terlihat dari public/storage (gejala: foto bukti 404 di halaman validasi).
 
 EXPOSE ${PORT:-8080}
 
-CMD mkdir -p /app/public/storage/bukti && chmod -R 777 /app/public/storage; \
+CMD mkdir -p /app/storage/app/public/bukti && chmod -R 777 /app/storage/app/public; \
     if [ ! -f .env ]; then cp .env.example .env; fi; \
     sed -i "s/^APP_KEY=.*/APP_KEY=${APP_KEY}/" .env 2>/dev/null || echo "APP_KEY=${APP_KEY}" >> .env; \
     sed -i "s/^APP_ENV=.*/APP_ENV=local/" .env 2>/dev/null || echo "APP_ENV=local" >> .env; \
