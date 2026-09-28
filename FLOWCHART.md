@@ -396,7 +396,7 @@ start
 
 repeat
   |Admin|
-  if (Pilih aksi?) then (Tambah)
+  if (Ingin menambah data?) then (ya)
     :Klik "Tambah";
     :Isi form data sopir;
     :Submit;
@@ -410,38 +410,42 @@ repeat
       :Tampilkan error;
     endif
 
-  elseif (Edit) then
-    :Klik "Edit" pada baris;
-    |Sistem|
-    :Load data sopir;
-    :Tampilkan modal form;
-    |Admin|
-    :Ubah data;
-    :Submit;
-    |Sistem|
-    if (Validasi lolos?) then (ya)
-      :Update sopirs;
-      :Redirect back;
-    else (tidak)
-      :Tampilkan error;
-    endif
-
-  elseif (Hapus) then
-    :Klik "Hapus";
-    if (Konfirmasi?) then (ya)
+  else (tidak)
+    if (Ingin edit data?) then (ya)
+      :Klik "Edit" pada baris;
       |Sistem|
-      if (Punya ritase?) then (ya)
-        :Tampilkan error\n"Tidak bisa hapus";
+      :Load data sopir;
+      :Tampilkan modal form;
+      |Admin|
+      :Ubah data;
+      :Submit;
+      |Sistem|
+      if (Validasi lolos?) then (ya)
+        :Update sopirs;
+        :Redirect back;
       else (tidak)
-        :Hapus sopir;
+        :Tampilkan error;
       endif
-      :Redirect back;
-    endif
 
-  else (Navigasi)
-    :Klik nomor halaman;
-    |Sistem|
-    :Query halaman berikutnya;
+    else (tidak)
+      if (Ingin hapus data?) then (ya)
+        :Klik "Hapus";
+        if (Konfirmasi?) then (ya)
+          |Sistem|
+          if (Punya ritase?) then (ya)
+            :Tampilkan error\n"Tidak bisa hapus";
+          else (tidak)
+            :Hapus sopir;
+          endif
+          :Redirect back;
+        endif
+
+      else (tidak)
+        :Navigasi halaman;
+        |Sistem|
+        :Query halaman berikutnya;
+      endif
+    endif
   endif
 
 repeat while (Masih di halaman sopir?) is (ya)
@@ -472,7 +476,7 @@ start
 
 repeat
   |Admin|
-  if (Pilih aksi?) then (Tambah)
+  if (Ingin menambah data?) then (ya)
     :Klik "Tambah";
     :Isi form data tujuan;
     :Submit;
@@ -486,38 +490,42 @@ repeat
       :Tampilkan error;
     endif
 
-  elseif (Edit) then
-    :Klik "Edit";
-    |Sistem|
-    :Load data tujuan;
-    :Tampilkan modal;
-    |Admin|
-    :Ubah data;
-    :Submit;
-    |Sistem|
-    if (Validasi lolos?) then (ya)
-      :Update tujuans;
-      :Redirect back;
-    else (tidak)
-      :Tampilkan error;
-    endif
-
-  elseif (Hapus) then
-    :Klik "Hapus";
-    if (Konfirmasi?) then (ya)
+  else (tidak)
+    if (Ingin edit data?) then (ya)
+      :Klik "Edit";
       |Sistem|
-      if (Punya ritase?) then (ya)
-        :Tampilkan error\n"Tidak bisa hapus";
+      :Load data tujuan;
+      :Tampilkan modal;
+      |Admin|
+      :Ubah data;
+      :Submit;
+      |Sistem|
+      if (Validasi lolos?) then (ya)
+        :Update tujuans;
+        :Redirect back;
       else (tidak)
-        :Hapus tujuan;
+        :Tampilkan error;
       endif
-      :Redirect back;
-    endif
 
-  else (Navigasi)
-    :Klik nomor halaman;
-    |Sistem|
-    :Query halaman berikutnya;
+    else (tidak)
+      if (Ingin hapus data?) then (ya)
+        :Klik "Hapus";
+        if (Konfirmasi?) then (ya)
+          |Sistem|
+          if (Punya ritase?) then (ya)
+            :Tampilkan error\n"Tidak bisa hapus";
+          else (tidak)
+            :Hapus tujuan;
+          endif
+          :Redirect back;
+        endif
+
+      else (tidak)
+        :Navigasi halaman;
+        |Sistem|
+        :Query halaman berikutnya;
+      endif
+    endif
   endif
 
 repeat while (Masih di halaman tujuan?) is (ya)
@@ -548,7 +556,7 @@ start
 
 repeat
   |Admin|
-  if (Pilih aksi?) then (Tambah)
+  if (Ingin menambah data?) then (ya)
     :Input nama_periode,\ntgl_mulai, tgl_selesai;
     :Submit;
     |Sistem|
@@ -561,38 +569,42 @@ repeat
       :Tampilkan error;
     endif
 
-  elseif (Edit) then
-    :Klik "Edit";
-    |Sistem|
-    :Load data periode;
-    :Tampilkan modal;
-    |Admin|
-    :Ubah data;
-    :Submit;
-    |Sistem|
-    if (Validasi lolos?) then (ya)
-      :Update periodes;
-      :Redirect back;
-    else (tidak)
-      :Tampilkan error;
-    endif
-
-  elseif (Hapus) then
-    :Klik "Hapus";
-    if (Konfirmasi?) then (ya)
+  else (tidak)
+    if (Ingin edit data?) then (ya)
+      :Klik "Edit";
       |Sistem|
-      if (Ada ritase?) then (ya)
-        :Tampilkan error\n"Memiliki data ritase";
+      :Load data periode;
+      :Tampilkan modal;
+      |Admin|
+      :Ubah data;
+      :Submit;
+      |Sistem|
+      if (Validasi lolos?) then (ya)
+        :Update periodes;
+        :Redirect back;
       else (tidak)
-        :Hapus periode;
+        :Tampilkan error;
       endif
-      :Redirect back;
-    endif
 
-  else (Navigasi)
-    :Klik nomor halaman;
-    |Sistem|
-    :Query halaman berikutnya;
+    else (tidak)
+      if (Ingin hapus data?) then (ya)
+        :Klik "Hapus";
+        if (Konfirmasi?) then (ya)
+          |Sistem|
+          if (Ada ritase?) then (ya)
+            :Tampilkan error\n"Memiliki data ritase";
+          else (tidak)
+            :Hapus periode;
+          endif
+          :Redirect back;
+        endif
+
+      else (tidak)
+        :Navigasi halaman;
+        |Sistem|
+        :Query halaman berikutnya;
+      endif
+    endif
   endif
 
 repeat while (Masih di halaman periode?) is (ya)
@@ -646,7 +658,7 @@ start
 :Tampilkan tabel;
 
 |Admin|
-if (Pilih aksi?) then (Parse Teks)
+if (Ingin parse teks?) then (ya)
   :Buka /ritase/parse;
   :Pilih periode;
   :Paste teks ritase;
@@ -670,39 +682,45 @@ if (Pilih aksi?) then (Parse Teks)
     :Tampilkan error parse;
   endif
 
-elseif (Tambah Manual) then
-  :Klik "Tambah";
-  :Isi form modal;
-  :Submit;
-  |Sistem|
-  :Simpan ke ritases;
-  :Redirect back;
+else (tidak)
+  if (Ingin tambah manual?) then (ya)
+    :Klik "Tambah";
+    :Isi form modal;
+    :Submit;
+    |Sistem|
+    :Simpan ke ritases;
+    :Redirect back;
 
-elseif (Edit) then
-  :Klik "Edit";
-  :Ubah data via modal;
-  :Submit;
-  |Sistem|
-  :Hitung ulang DT;
-  :Update ritases;
-  :Redirect back;
-
-elseif (Hapus) then
-  :Klik "Hapus";
-  :Konfirmasi;
-  |Sistem|
-  :Hapus ritase;
-  :Redirect back;
-
-elseif (Detail) then
-  :Klik "Detail";
-  |Sistem|
-  :Generate pivot\nsopir x tanggal;
-  if (View = HTML?) then (ya)
-    :Tampilkan detail-html\ndi iframe;
   else (tidak)
-    :Generate PDF via DomPDF;
-    :Download file;
+    if (Ingin edit data?) then (ya)
+      :Klik "Edit";
+      :Ubah data via modal;
+      :Submit;
+      |Sistem|
+      :Hitung ulang DT;
+      :Update ritases;
+      :Redirect back;
+
+    else (tidak)
+      if (Ingin hapus data?) then (ya)
+        :Klik "Hapus";
+        :Konfirmasi;
+        |Sistem|
+        :Hapus ritase;
+        :Redirect back;
+
+      else (tidak)
+        :Klik "Detail";
+        |Sistem|
+        :Generate pivot\nsopir x tanggal;
+        if (View = HTML?) then (ya)
+          :Tampilkan detail-html\ndi iframe;
+        else (tidak)
+          :Generate PDF via DomPDF;
+          :Download file;
+        endif
+      endif
+    endif
   endif
 endif
 stop
@@ -1005,7 +1023,7 @@ start
 :Tampilkan tabel\ndaftar bukti;
 
 |Admin|
-if (Pilih aksi?) then (Setujui)
+if (Ingin menyetujui?) then (ya)
   :Klik "Setujui";
   |Sistem|
   if (sopir_baru?) then (ya)
@@ -1019,24 +1037,28 @@ if (Pilih aksi?) then (Setujui)
   :Update status = disetujui;
   :Redirect back;
 
-elseif (Tolak) then
-  :Input catatan penolakan;
-  :Klik "Tolak";
-  |Sistem|
-  :Update status = ditolak;
-  :Redirect back;
+else (tidak)
+  if (Ingin menolak?) then (ya)
+    :Input catatan penolakan;
+    :Klik "Tolak";
+    |Sistem|
+    :Update status = ditolak;
+    :Redirect back;
 
-elseif (Tambah Ritase) then
-  :Klik "Tambah ke Ritase";
-  |Sistem|
-  :Auto-create sopir/tujuan\njika sopir_baru/tujuan_baru;
-  :Buat ritase baru\ndari data bukti;
-  :Redirect ke /ritase;
+  else (tidak)
+    if (Ingin tambah ritase?) then (ya)
+      :Klik "Tambah ke Ritase";
+      |Sistem|
+      :Auto-create sopir/tujuan\njika sopir_baru/tujuan_baru;
+      :Buat ritase baru\ndari data bukti;
+      :Redirect ke /ritase;
 
-elseif (Toggle Aturan) then
-  :Klik toggle aturan;
-  |Sistem|
-  :Update status aturan\ndi session/cache;
+    else (tidak)
+      :Klik toggle aturan;
+      |Sistem|
+      :Update status aturan\ndi session/cache;
+    endif
+  endif
 endif
 stop
 
@@ -1068,54 +1090,74 @@ return 330000; // Dapat DT
 skinparam backgroundColor #ffffff
 skinparam defaultFontSize 11
 skinparam defaultFontName Arial
+skinparam Shadowing false
+skinparam RoundCorner 10
+skinparam ActivityBackgroundColor #ffffff
+skinparam ActivityBorderColor #37474F
+skinparam ActivityDiamondBackgroundColor #FFF8E1
+skinparam ActivityDiamondBorderColor #F9A825
+skinparam ArrowColor #37474F
+skinparam ArrowThickness 1.2
+skinparam RankSep 38
+skinparam NodeSep 70
+skinparam Padding 14
+skinparam PartitionBackgroundColor #F8F9FA
+skinparam PartitionBorderColor #B0BEC5
+skinparam TitleFontSize 12
+
+title Penggajian - Proses & Kalkulasi Gaji (tidak mepet, anti-tumpuk)
 
 |Admin|
 start
-:Buka /gaji;
+:Buka halaman /gaji;
+note right: Pilih periode aktif
 
 |Sistem|
-:Load periode aktif;
+:Load periode aktif\n(Periode::syncActiveStatus);
 :Query sopir + ritase\nperiode aktif;
-:Tampilkan tabel\ninput biaya;
+:Tampilkan form\ninput biaya per tujuan;
 
 |Admin|
-:Input biaya tiap tujuan:\n  uang_solar\n  upah_sopir\n  tol_per_rit;
-:Klik "Hitung";
+:Input per tujuan:\n• uang_solar / rit\n• upah_sopir / rit\n• tol_per_rit;
+:Klik tombol\n"Hitung Gaji";
 
 |Sistem|
-:5 batch queries:
-  1. Count rit per sopir+tujuan
-  2. Sum DT per sopir
-  3. Sum kompensasi gagal
-  4. Sum upah lembur
-  5. Update upah_sopir per tujuan;
+partition "Batch Queries — Persiapan Data" {
+  :[Q1] Hitung jumlah rit\nper sopir + tujuan\n(ritCounts);
+  --
+  :[Q2] Jumlahkan DT\nper sopir\n(ritDtSum = Σ dt);
+  --
+  :[Q3] Jumlahkan kompensasi\nrit gagal_produksi per sopir;
+  --
+  :[Q4] Jumlahkan upah lembur\nper sopir (is_lembur=true);
+  --
+  :[Q5] Update upah_sopir\nritase per tujuan;
+}
 
-:Iterasi per sopir;
+partition "Loop Kalkulasi per Sopir" {
+  repeat :Untuk setiap sopir\n yang punya ritase;
+    :Inisialisasi:\nTotal Solar=0, Upah=0,\nTol=0, Subtotal=0,\nDetails=[];
+    partition "Loop per Tujuan" {
+      repeat :Untuk setiap tujuan\n di master map;
+        if (Ada ritase\nsopir + tujuan ?) then (ya)
+          :Hitung per tujuan:\n• Solar = BBM/rit × jml_rit\n• Upah = Upah/rit × jml_rit\n• Tol = Tol/rit × jml_rit\n• Subtotal akumulasi;
+          :Simpan detail tujuan\nke Details[];
+        else (tidak)
+          :Skip tujuan ini;
+        endif
+      repeat while (Masih ada tujuan ?) is (ya)
+      ->tidak;
+    }
+    :Ambil DT, Kompensasi, Lembur\ndari hasil batch query\n(Q2, Q3, Q4);
+    :Hitung Grand Total =\nSolar + Upah + DT\n+ Tol + Kompensasi + Lembur;
+    :Simpan Penggajian\n(satu baris per sopir)\n+ PenggajianDetail[]\n(per tujuan);
+  repeat while (Masih ada sopir ?) is (ya)
+  ->tidak;
+}
 
-repeat
-  :Iterasi per tujuan;
-  repeat
-    if (Ada rit di sopir+tujuan?) then (ya)
-      :Total Solar   = BBM/rit × jumlah;
-      :Total Upah    = Upah/rit × jumlah;
-      :Total Tol     = Tol/rit × jumlah;
-    endif
-  repeat while (Semua tujuan?) is (tidak)
-  ->(ya);
+:Tampilkan hasil kalkulasi\nRedirect ke halaman edit;
 
-  :DT = Σ dt dari ritases;
-  :Kompensasi = Σ gagal;
-  :Lembur = Σ upah_lembur;
-
-  :Grand Total = Solar + Upah + DT\n+ Tol + Kompensasi + Lembur;
-
-  :Create Penggajian + Detail;
-repeat while (Semua sopir?) is (tidak)
-->(ya);
-
-:Tampilkan hasil\n(redirect ke halaman edit);
 stop
-
 @enduml
 ```
 
@@ -1288,26 +1330,39 @@ stop
 [[Admin]]
 start
 :Buka /dashboard;
-if (Pilih menu?) then (Sopir)
+if (Menu Sopir?) then (ya)
   :/sopir;
-elseif (Tujuan) then
-  :/tujuan;
-elseif (Periode) then
-  :/periode;
-elseif (Ritase) then
-  :/ritase (parser)
-  :/ritase/table (tabel)
-  :/ritase/detail-data (pivot);
-elseif (Validasi) then
-  :/validasi-bukti/kelola;
-elseif (Gaji) then
-  :/gaji (penggajian)
-  :/gaji/riwayat (laporan)
-  :/gaji/slip/{periode}/{sopir} (slip);
-elseif (Profil) then
-  :/profil;
-elseif (Logout) then
-  :AuthController@logout;
+else (tidak)
+  if (Menu Tujuan?) then (ya)
+    :/tujuan;
+  else (tidak)
+    if (Menu Periode?) then (ya)
+      :/periode;
+    else (tidak)
+      if (Menu Ritase?) then (ya)
+        :/ritase (parser)
+        :/ritase/table (tabel)
+        :/ritase/detail-data (pivot);
+      else (tidak)
+        if (Menu Validasi?) then (ya)
+          :/validasi-bukti/kelola;
+        else (tidak)
+          if (Menu Gaji?) then (ya)
+            :/gaji (penggajian)
+            :/gaji/riwayat (laporan)
+            :/gaji/slip/{periode}/{sopir} (slip);
+          else (tidak)
+            if (Menu Profil?) then (ya)
+              :/profil;
+            else (tidak)
+              :Logout;
+              :AuthController@logout;
+            endif
+          endif
+        endif
+      endif
+    endif
+  endif
 endif
 stop
 
