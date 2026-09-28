@@ -6,6 +6,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Periode;
 use App\Models\Ritase;
+use App\Models\Sopir;
+use App\Models\Tujuan;
 use App\Http\Requests\StoreRitaseRequest;
 use App\Http\Requests\UpdateRitaseRequest;
 use App\Services\RitaseService;
@@ -25,6 +27,8 @@ class RitaseController extends Controller
     public function index(Request $request): View
     {
         Periode::syncActiveStatus();
+        Sopir::syncActiveStatus();
+        Tujuan::syncActiveStatus();
         return view('ritase.index', $this->ritaseService->getIndexData($request));
     }
 
@@ -94,6 +98,21 @@ class RitaseController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 400);
         }
+    }
+
+    /**
+     * Predict kabupaten for a tujuan (used to auto-fill kabupaten when
+     * tujuan changes in ritase forms).
+     */
+    public function tebakKabupaten(Request $request): JsonResponse
+    {
+        $request->validate(['kode_tujuan' => 'required|string']);
+        $tujuan = Tujuan::where('kode_tujuan', $request->kode_tujuan)->first();
+        if (!$tujuan) {
+            return response()->json(['kabupaten' => 'Lainnya']);
+        }
+        $kabupaten = (new \App\Services\RitaseCreator())->guessKabupaten($tujuan->nama);
+        return response()->json(['kabupaten' => $kabupaten]);
     }
 
     /**

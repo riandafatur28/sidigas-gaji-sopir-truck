@@ -9,6 +9,7 @@ use App\Models\Ritase;
 use App\Models\Sopir;
 use App\Models\Tujuan;
 use App\Models\User;
+use App\Models\ValidasiBukti;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -158,5 +159,75 @@ class PeriodeControllerTest extends TestCase
     {
         $response = $this->post('/periode', []);
         $response->assertSessionHasErrors(['nama_periode', 'tanggal_mulai', 'tanggal_selesai']);
+    }
+
+    public function test_store_melampirkan_bukti_tanpa_periode(): void
+    {
+        $bukti = ValidasiBukti::create([
+            'nama_sopir' => 'Budi',
+            'nama_tujuan' => 'Nganjuk',
+            'foto' => 'bukti/tes.jpg',
+            'waktu_foto' => '2026-09-14 06:00:00',
+            'tanggal' => '2026-09-14',
+        ]);
+
+        $this->post('/periode', [
+            'nama_periode' => 'September 2026',
+            'tanggal_mulai' => '2026-09-08',
+            'tanggal_selesai' => '2026-09-21',
+        ]);
+
+        $periode = Periode::where('nama_periode', 'September 2026')->first();
+        $this->assertDatabaseHas('validasi_bukti', ['id' => $bukti->id, 'periode_id' => $periode->id]);
+    }
+
+    public function test_update_melampirkan_bukti_tanpa_periode(): void
+    {
+        $periode = Periode::create([
+            'nama_periode' => 'Juli 2026',
+            'tanggal_mulai' => '2026-07-01',
+            'tanggal_selesai' => '2026-07-31',
+            'status' => 'aktif',
+        ]);
+
+        $bukti = ValidasiBukti::create([
+            'nama_sopir' => 'Budi',
+            'nama_tujuan' => 'Nganjuk',
+            'foto' => 'bukti/tes.jpg',
+            'waktu_foto' => '2026-08-10 06:00:00',
+            'tanggal' => '2026-08-10',
+        ]);
+
+        $this->put("/periode/{$periode->id}", [
+            'nama_periode' => 'Juli-Agustus 2026',
+            'tanggal_mulai' => '2026-07-01',
+            'tanggal_selesai' => '2026-08-31',
+            'status' => 'aktif',
+        ]);
+
+        $this->assertDatabaseHas('validasi_bukti', ['id' => $bukti->id, 'periode_id' => $periode->id]);
+    }
+
+    public function test_destroy_blocks_periode_with_bukti(): void
+    {
+        $periode = Periode::create([
+            'nama_periode' => 'Juli 2026',
+            'tanggal_mulai' => '2026-07-01',
+            'tanggal_selesai' => '2026-07-31',
+            'status' => 'aktif',
+        ]);
+
+        ValidasiBukti::create([
+            'nama_sopir' => 'Budi',
+            'nama_tujuan' => 'Nganjuk',
+            'foto' => 'bukti/tes.jpg',
+            'waktu_foto' => '2026-07-15 06:00:00',
+            'tanggal' => '2026-07-15',
+            'periode_id' => $periode->id,
+        ]);
+
+        $response = $this->delete("/periode/{$periode->id}");
+        $response->assertSessionHas('error');
+        $this->assertDatabaseHas('periodes', ['id' => $periode->id]);
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SopirController;
 use App\Http\Controllers\TujuanController;
 use App\Http\Controllers\RitaseController;
@@ -98,6 +99,9 @@ Route::middleware('auth')->group(function () {
     // API untuk cek aturan sewa DT
     Route::post('/ritase/cek-aturan', [RitaseController::class, 'cekAturanSewaDT'])->name('ritase.cek.aturan');
 
+    // API untuk tebak kabupaten dari tujuan (auto-fill form ritase)
+    Route::get('/ritase/tebak-kabupaten', [RitaseController::class, 'tebakKabupaten'])->name('ritase.tebak-kabupaten');
+
     // API untuk detail ritase (pivot sopir x tanggal)
     Route::get('/ritase/detail-data', [RitaseController::class, 'detailData'])->name('ritase.detail-data');
     Route::get('/ritase/detail-pdf', [RitaseController::class, 'detailPdf'])->name('ritase.detail-pdf');
@@ -112,4 +116,8 @@ Route::middleware('auth')->group(function () {
 
     // Toggle aturan validasi
     Route::post('/settings/toggle-validasi', [ValidasiBuktiController::class, 'toggleAturan'])->name('settings.toggle-validasi');
+
+    // Pengaturan
+    Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+    Route::put('/settings/dt-nominal', [SettingsController::class, 'updateDtNominal'])->name('settings.dt-nominal');
 });

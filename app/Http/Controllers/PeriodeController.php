@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Periode;
+use App\Models\Ritase;
 use App\Models\Sopir;
 use App\Models\Tujuan;
+use App\Models\ValidasiBukti;
 use App\Http\Requests\StorePeriodeRequest;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -16,23 +18,31 @@ class PeriodeController extends Controller
     public function index(Request $request)
     {
         $search = $request->get('search', '');
+        $statusFilter = $request->get('status', '');
 
-        $periodes = Periode::where('nama_periode', 'like', "%{$search}%")
-            ->orWhere('kode_periode', 'like', "%{$search}%")
-            ->orderBy('id', 'asc')
-            ->paginate(10)
-            ->withQueryString();
+        $base = Periode::where(function ($q) use ($search) {
+                    $q->where('nama_periode', 'like', "%{$search}%")
+                      ->orWhere('kode_periode', 'like', "%{$search}%");
+                })
+                ->when($statusFilter, fn($q) => $q->where('status', $statusFilter));
 
-        $totalPeriode = Periode::count();
-        $periodeAktif = Periode::where('status', 'aktif')->count();
-        $periodeSelesai = Periode::where('status', 'selesai')->count();
+        $periodes = (clone $base)->orderBy('id', 'asc')
+                ->paginate(10)
+                ->withQueryString();
+
+        $totalPeriode = (clone $base)->count();
+        $periodeAktif = (clone $base)->where('status', 'aktif')->count();
+        $periodeSelesai = (clone $base)->where('status', 'selesai')->count();
+        $totalRitase = Ritase::count();
 
         return view('periode.index', compact(
             'periodes',
             'search',
+            'statusFilter',
             'totalPeriode',
             'periodeAktif',
-            'periodeSelesai'
+            'periodeSelesai',
+            'totalRitase'
         ));
     }
 
@@ -54,12 +64,14 @@ class PeriodeController extends Controller
                 ->withInput();
         }
 
-        Periode::create([
+        $periode = Periode::create([
             'nama_periode' => $request->nama_periode,
             'tanggal_mulai' => $request->tanggal_mulai,
             'tanggal_selesai' => $request->tanggal_selesai,
             'status' => 'aktif',
         ]);
+
+        $this->lampirkanBuktiTanpaPeriode($periode);
 
         return redirect()->back()
             ->with('success', 'Periode berhasil ditambahkan!');
@@ -82,8 +94,21 @@ class PeriodeController extends Controller
             'status' => $request->status,
         ]);
 
+        $this->lampirkanBuktiTanpaPeriode($periode);
+
         return redirect()->back()
             ->with('success', 'Data periode berhasil diperbarui!');
+    }
+
+    /**
+     * Lampirkan bukti validasi yang belum punya periode
+     * dan tanggalnya masuk rentang periode ini.
+     */
+    private function lampirkanBuktiTanpaPeriode(Periode $periode): void
+    {
+        ValidasiBukti::whereNull('periode_id')
+            ->whereBetween('tanggal', [$periode->tanggal_mulai, $periode->tanggal_selesai])
+            ->update(['periode_id' => $periode->id]);
     }
 
     public function destroy($id)
@@ -94,6 +119,11 @@ class PeriodeController extends Controller
             if ($periode->ritase()->count() > 0) {
                 return redirect()->back()
                     ->with('error', 'Periode tidak dapat dihapus karena sudah memiliki data ritase!');
+            }
+
+            if ($periode->validasiBukti()->count() > 0) {
+                return redirect()->back()
+                    ->with('error', 'Periode tidak dapat dihapus karena sudah memiliki data validasi bukti!');
             }
 
             $periode->delete();

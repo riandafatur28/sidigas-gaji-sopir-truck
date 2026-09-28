@@ -38,8 +38,10 @@ class RitaseDetailService
         $ritases = Ritase::with(['sopir', 'tujuan'])
             ->where('periode_id', $periodeId)
             ->when($search, function ($q) use ($search) {
-                $q->whereHas('sopir', fn($sq) => $sq->where('nama', 'like', "%{$search}%"))
-                    ->orWhereHas('tujuan', fn($sq) => $sq->where('nama', 'like', "%{$search}%"));
+                $q->where(function ($q2) use ($search) {
+                    $q2->whereHas('sopir', fn($sq) => $sq->where('nama', 'like', "%{$search}%"))
+                       ->orWhereHas('tujuan', fn($sq) => $sq->where('nama', 'like', "%{$search}%"));
+                });
             })
             ->orderBy('tanggal', 'asc')
             ->get();
@@ -53,7 +55,7 @@ class RitaseDetailService
                 $counts[$sk] = ['ritase_berhasil' => 0, 'ritase_gagal' => 0];
             }
             $colKey = $r->tanggal->format('Y-m-d') . '_' . ($r->waktu == 'pagi' ? 'P' : 'M');
-            $tujuanNama = $r->is_lembur ? 'Lembur ' . $this->cleanTujuan($r->tujuan?->nama) : $this->cleanTujuan($r->tujuan?->nama);
+            $tujuanNama = $r->status === 'gagal_produksi' ? 'Gagal Produksi' : ($r->is_lembur ? 'Lembur ' . $this->cleanTujuan($r->tujuan?->nama) : $this->cleanTujuan($r->tujuan?->nama));
             $data[$sk][$colKey][] = $tujuanNama;
             $counts[$sk][$r->status === 'gagal_produksi' ? 'ritase_gagal' : 'ritase_berhasil']++;
         }
@@ -102,7 +104,7 @@ class RitaseDetailService
             }
             $tgl = $r->tanggal->format('Y-m-d');
             $wkt = $r->waktu == 'pagi' ? 'P' : 'M';
-            $tujuanNama = $r->is_lembur ? 'Lembur ' . $this->cleanTujuan($r->tujuan?->nama) : $this->cleanTujuan($r->tujuan?->nama);
+            $tujuanNama = $r->status === 'gagal_produksi' ? 'Gagal Produksi' : ($r->is_lembur ? 'Lembur ' . $this->cleanTujuan($r->tujuan?->nama) : $this->cleanTujuan($r->tujuan?->nama));
             $data[$sk][$tgl . '_' . $wkt][] = $tujuanNama;
 
             $c = count($data[$sk][$tgl . '_' . $wkt]);

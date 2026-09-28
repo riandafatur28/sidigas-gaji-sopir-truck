@@ -6,13 +6,22 @@ namespace App\Services;
 
 use App\Models\Sopir;
 use App\Models\Tujuan;
+use App\Services\Ml\TujuanMlService;
 
 /**
  * Fuzzy matching for drivers and routes using string similarity algorithms.
  * Uses Jaro-Winkler distance, metaphone, and word-level matching.
+ * ML Naive Bayes dipakai HANYA sebagai fallback saat skor < 85.
  */
 class RitaseFuzzyMatcher
 {
+    private TujuanMlService $ml;
+
+    public function __construct(?TujuanMlService $ml = null)
+    {
+        $this->ml = $ml ?? new TujuanMlService();
+    }
+
     public function matchDrivers(array $driverNames): array
     {
         $results = [];
@@ -30,20 +39,38 @@ class RitaseFuzzyMatcher
 
                 if ($sopirLower === $lowerInput) {
                     $score = 100;
-                } elseif ($inputMeta !== '' && $inputMeta === metaphone($sopir->nama)) {
+                } elseif ($inputMeta !== '' && $inputMeta === metaphone($sopir->nama)
+                    && strlen($lowerInput) >= 4 && strlen($sopirLower) >= 4) {
+                    // Guard: kode metaphone nama pendek (mis. "Ari" -> "AR")
+                    // rawan tabrakan, hanya berlaku untuk nama >= 4 huruf.
                     $score = 95;
                 } elseif (str_contains($sopirLower, $lowerInput)) {
-                    if (strlen($lowerInput) > 2 || strlen($sopirLower) > 2) {
+                    // Guard: input yang hanya prefix/substring nama master yang
+                    // jauh lebih panjang (mis. "Ari" vs "Aripin") dianggap
+                    // orang berbeda. Izinkan hanya jika panjang hampir sama.
+                    if (strlen($lowerInput) >= 4
+                        && abs(strlen($sopirLower) - strlen($lowerInput)) <= 2) {
                         $score = 90;
                     }
                 } else {
                     $isSubstringRelation = str_contains($sopirLower, $lowerInput) || str_contains($lowerInput, $sopirLower);
                     if (!$isSubstringRelation) {
-                        $similarity = $this->calculateStringSimilarity($driverName, $sopir->nama) * 100;
-                        if ($similarity >= 85) {
-                            $firstCharMatch = strtolower(substr($sopir->nama, 0, 1)) === strtolower(substr($driverName, 0, 1));
-                            if ($firstCharMatch) {
-                                $score = $similarity;
+                        // Guard rasio panjang: Jaro-Winkler memberi skor tinggi
+                        // untuk nama pendek yang jadi awalan nama panjang
+                        // (mis. "Ari" vs "Aripin" = 88). Tolak jika beda
+                        // panjang terlalu jauh.
+                        $lenInput = strlen($lowerInput);
+                        $lenSopir = strlen($sopirLower);
+                        $lenRatio = $lenInput > 0 && $lenSopir > 0
+                            ? min($lenInput, $lenSopir) / max($lenInput, $lenSopir)
+                            : 0;
+                        if ($lenRatio >= 0.6) {
+                            $similarity = $this->calculateStringSimilarity($driverName, $sopir->nama) * 100;
+                            if ($similarity >= 85) {
+                                $firstCharMatch = strtolower(substr($sopir->nama, 0, 1)) === strtolower(substr($driverName, 0, 1));
+                                if ($firstCharMatch) {
+                                    $score = $similarity;
+                                }
                             }
                         }
                     }
@@ -133,6 +160,21 @@ class RitaseFuzzyMatcher
                     if ($similarity >= 90 && !empty($cleanRoute) && !empty($pt['stripped'])
                         && $cleanLower[0] === $pt['stripped_lower'][0] && count($sharedWords) >= 1) {
                         if ($similarity > $bestScore) { $bestScore = $similarity; $bestMatch = $pt['model']; }
+                    }
+                }
+            }
+
+            // Fallback ML: hanya jika rule/fuzzy gagal (skor < 85).
+            // Tidak pernah meng-override match yang sudah yakin.
+            if ($bestScore < 85) {
+                $ml = $this->ml->predictTujuan($cleanRoute);
+                if ($ml !== null) {
+                    foreach ($processedTujuan as $pt) {
+                        if ($pt['model']->kode_tujuan === $ml['kode_tujuan']) {
+                            $bestMatch = $pt['model'];
+                            $bestScore = $ml['confidence'] * 100;
+                            break;
+                        }
                     }
                 }
             }

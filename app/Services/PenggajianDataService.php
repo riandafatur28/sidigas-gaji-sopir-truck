@@ -110,8 +110,12 @@ class PenggajianDataService
         $sort = $request->get('sort', 'terbaru');
         $bulan = $request->get('bulan');
         $tahun = $request->get('tahun');
+        $search = trim((string) $request->get('search', ''));
 
         $query = Periode::query();
+        if ($search !== '') {
+            $query->where(fn($q) => $q->where('nama_periode', 'like', "%{$search}%")->orWhere('kode_periode', 'like', "%{$search}%"));
+        }
         if ($bulan) $query->whereMonth('tanggal_mulai', $bulan);
         if ($tahun && !$bulan) $query->whereYear('tanggal_mulai', $tahun);
         if ($tahun && $bulan) $query->whereYear('tanggal_mulai', $tahun);
@@ -127,7 +131,7 @@ class PenggajianDataService
         $periodes = $paginated->getCollection()->map(fn($p) => $this->mapRiwayatPeriode($p, $ritSummary, $gajiSummary));
         $paginated->setCollection($periodes);
 
-        return ['periodes' => $paginated, 'sort' => $sort, 'bulan' => $bulan, 'tahun' => $tahun, 'availableYears' => $years];
+        return ['periodes' => $paginated, 'sort' => $sort, 'bulan' => $bulan, 'tahun' => $tahun, 'search' => $search, 'availableYears' => $years];
     }
 
     // === Private helpers ===

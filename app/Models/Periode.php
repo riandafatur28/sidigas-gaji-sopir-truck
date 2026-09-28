@@ -49,6 +49,11 @@ class Periode extends Model
         return $this->hasMany(Penggajian::class, 'periode_id');
     }
 
+    public function validasiBukti(): HasMany
+    {
+        return $this->hasMany(ValidasiBukti::class, 'periode_id');
+    }
+
     public function scopeAktif($query)
     {
         return $query->where('status', 'aktif');

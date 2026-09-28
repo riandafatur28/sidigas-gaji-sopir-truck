@@ -12,6 +12,7 @@ use App\Models\ValidasiBukti;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class ValidasiBuktiService
 {
@@ -57,7 +58,8 @@ class ValidasiBuktiService
     public function getKelolaData(Request $request): array
     {
         $status = $request->get('status', 'pending');
-        $search = trim($request->get('search', ''));
+        if ($status === '' || $status === null) $status = 'semua';
+        $search = trim((string) $request->get('search', ''));
 
         $list = ValidasiBukti::with(['sopir', 'tujuan', 'periode'])
             ->when($status !== 'semua', fn($q) => $q->where('status', $status))
@@ -73,7 +75,18 @@ class ValidasiBuktiService
             ->paginate(10)
             ->withQueryString();
 
-        return compact('list', 'status', 'search');
+        $counts = ValidasiBukti::selectRaw('COUNT(*) as total')
+            ->selectRaw("SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending")
+            ->selectRaw("SUM(CASE WHEN status = 'disetujui' THEN 1 ELSE 0 END) as disetujui")
+            ->selectRaw("SUM(CASE WHEN status = 'ditolak' THEN 1 ELSE 0 END) as ditolak")
+            ->first();
+
+        return compact('list', 'status', 'search') + [
+            'totalValidasi' => (int) ($counts->total ?? 0),
+            'validasiPending' => (int) ($counts->pending ?? 0),
+            'validasiDisetujui' => (int) ($counts->disetujui ?? 0),
+            'validasiDitolak' => (int) ($counts->ditolak ?? 0),
+        ];
     }
 
     public function getDetailData($id): array
@@ -165,7 +178,7 @@ class ValidasiBuktiService
             ->where('status', '!=', 'gagal_produksi')
             ->exists();
 
-        return $exists ? 0 : config('dt.value', 330000);
+        return $exists ? 0 : (int) Cache::get('dt_nominal', config('dt.value', 330000));
     }
 
     private function parseSearchDate(string $search): ?string

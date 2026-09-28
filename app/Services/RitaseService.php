@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Periode;
+use App\Models\Penggajian;
 use App\Models\PenggajianDetail;
 use App\Models\Ritase;
 use App\Models\Sopir;
@@ -69,7 +70,7 @@ class RitaseService
         }
 
         $kabSatuDt = config('dt.single_dt_regencies');
-        $dtValue = config('dt.value', 330000);
+        $dtValue = Cache::get('dt_nominal', config('dt.value', 330000));
 
         $query = Ritase::where('kode_sopir', $request->kode_sopir)
             ->where('tanggal', $request->tanggal)
@@ -91,6 +92,121 @@ class RitaseService
     }
 
     /**
+     * Sync stored DT for all ritase in the ACTIVE periode to the given nominal.
+     * Ritase in previous periodes are left untouched (frozen history).
+     * The "2nd rit same kabupaten+waktu = 0" rule is preserved by replaying
+     * ritase in creation order. Existing Penggajian rows for the periode are
+     * adjusted (dt + total) so hitung gaji / riwayat / laporan follow along.
+     *
+     * @return array{periode: ?Periode, ritase: int, gaji: int}
+     */
+    public function syncActivePeriodeDt(int $nominal): array
+    {
+        $periode = Periode::syncActiveStatus();
+        if (!$periode) {
+            return ['periode' => null, 'ritase' => 0, 'gaji' => 0];
+        }
+
+        $kabSatuDt = array_map('strtolower', config('dt.single_dt_regencies', []));
+        $seen = [];
+        $ritUpdated = 0;
+
+        $ritases = Ritase::where('periode_id', $periode->id)->orderBy('id')->get();
+        foreach ($ritases as $r) {
+            if ($r->status === 'gagal_produksi') {
+                $newDt = 0;
+            } else {
+                $kabNorm = strtolower(trim((string) $r->kabupaten));
+                $key = $r->kode_sopir . '|' . $r->tanggal . '|' . $kabNorm . '|' . $r->waktu;
+                if (in_array($kabNorm, $kabSatuDt) && isset($seen[$key])) {
+                    $newDt = 0;
+                } else {
+                    $newDt = $nominal;
+                    $seen[$key] = true;
+                }
+            }
+            if ((int) $r->dt !== (int) $newDt) {
+                $r->update(['dt' => $newDt]);
+                $ritUpdated++;
+            }
+        }
+
+        $gajiUpdated = 0;
+        $sums = Ritase::where('periode_id', $periode->id)
+            ->where('status', '!=', 'gagal_produksi')
+            ->selectRaw('kode_sopir, SUM(dt) as total')
+            ->groupBy('kode_sopir')
+            ->pluck('total', 'kode_sopir');
+
+        foreach (Penggajian::where('periode_id', $periode->id)->get() as $g) {
+            $newDt = (int) ($sums[$g->kode_sopir] ?? 0);
+            $oldDt = (int) $g->dt;
+            if ($newDt !== $oldDt) {
+                $g->update(['dt' => $newDt, 'total' => (float) $g->total - $oldDt + $newDt]);
+                $gajiUpdated++;
+            }
+        }
+
+        return ['periode' => $periode, 'ritase' => $ritUpdated, 'gaji' => $gajiUpdated];
+    }
+
+    /**
+     * Re-predict kabupaten from a (possibly renamed) tujuan and cascade it
+     * to all linked ritase rows. DT is recalculated per row (ordered replay
+     * via hitungDT so the 2nd-rit rule stays correct) and existing
+     * Penggajian rows for affected periodes are adjusted.
+     *
+     * @return array{kabupaten: string, ritase: int, gaji: int}
+     */
+    public function syncKabupatenForTujuan(string $kodeTujuan, string $namaTujuan): array
+    {
+        $kabupaten = (new RitaseCreator())->guessKabupaten($namaTujuan);
+
+        $affected = Ritase::where('kode_tujuan', $kodeTujuan)->orderBy('id')->get();
+        if ($affected->isEmpty()) {
+            return ['kabupaten' => $kabupaten, 'ritase' => 0, 'gaji' => 0];
+        }
+
+        Ritase::where('kode_tujuan', $kodeTujuan)->update(['kabupaten' => $kabupaten]);
+
+        $ritUpdated = 0;
+        foreach ($affected as $r) {
+            $req = new Request([
+                'kode_sopir' => $r->kode_sopir,
+                'tanggal' => date('Y-m-d', strtotime((string) $r->tanggal)),
+                'kabupaten' => $kabupaten,
+                'waktu' => $r->waktu,
+                'status' => $r->status,
+            ]);
+            $newDt = $this->hitungDT($req, $r->id);
+            if ((int) $r->dt !== (int) $newDt) {
+                $r->update(['dt' => $newDt]);
+                $ritUpdated++;
+            }
+        }
+
+        $gajiUpdated = 0;
+        $periodeIds = $affected->pluck('periode_id')->filter()->unique()->values();
+        foreach ($periodeIds as $pid) {
+            $sums = Ritase::where('periode_id', $pid)
+                ->where('status', '!=', 'gagal_produksi')
+                ->selectRaw('kode_sopir, SUM(dt) as total')
+                ->groupBy('kode_sopir')
+                ->pluck('total', 'kode_sopir');
+            foreach (Penggajian::where('periode_id', $pid)->get() as $g) {
+                $newDt = (int) ($sums[$g->kode_sopir] ?? 0);
+                $oldDt = (int) $g->dt;
+                if ($newDt !== $oldDt) {
+                    $g->update(['dt' => $newDt, 'total' => (float) $g->total - $oldDt + $newDt]);
+                    $gajiUpdated++;
+                }
+            }
+        }
+
+        return ['kabupaten' => $kabupaten, 'ritase' => $ritUpdated, 'gaji' => $gajiUpdated];
+    }
+
+    /**
      * Check DT rental rules for display.
      *
      * @param Request $request
@@ -108,7 +224,7 @@ class RitaseService
         $dt = 0;
         $keterangan = '';
         $kabSatuDt = config('dt.single_dt_regencies');
-        $dtValue = config('dt.value', 330000);
+        $dtValue = Cache::get('dt_nominal', config('dt.value', 330000));
 
         if ($status === 'gagal_produksi') {
             $dt = 0;
@@ -193,7 +309,7 @@ class RitaseService
         $tujuans = Tujuan::orderBy('id', 'asc')->get();
 
         $ritBase = Ritase::with(['periode', 'sopir', 'tujuan']);
-        if ($filterPeriode) $ritBase->where('periode_id', $filterPeriode);
+        if ($filterPeriode && $filterPeriode !== 'semua') $ritBase->where('periode_id', $filterPeriode);
         if ($tanggal) $ritBase->whereDate('tanggal', $tanggal);
 
         $ritases = (clone $ritBase)
@@ -209,7 +325,7 @@ class RitaseService
             ->withQueryString();
 
         $statBase = Ritase::query();
-        if ($filterPeriode) $statBase->where('periode_id', $filterPeriode);
+        if ($filterPeriode && $filterPeriode !== 'semua') $statBase->where('periode_id', $filterPeriode);
         if ($tanggal) $statBase->whereDate('tanggal', $tanggal);
 
         return compact(
@@ -221,6 +337,7 @@ class RitaseService
             'ritasePending' => (clone $statBase)->where('status', 'pending')->count(),
             'ritaseGagal' => (clone $statBase)->where('status', 'gagal_produksi')->count(),
             'sopirTerlibat' => (clone $statBase)->distinct('kode_sopir')->count('kode_sopir'),
+            'ritaseLembur' => (clone $statBase)->where('is_lembur', true)->count(),
         ];
     }
 

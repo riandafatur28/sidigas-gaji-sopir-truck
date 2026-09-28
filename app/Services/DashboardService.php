@@ -37,11 +37,18 @@ class DashboardService
      */
     private function computeDashboardData(object $user, string $filter, string $tanggal): array
     {
-        $totalSopir = Sopir::count();
-        $sopirAktif = Sopir::where('status', 'aktif')->count();
-        $sopirNonaktif = Sopir::where('status', 'nonaktif')->count();
-
         [$startDate, $endDate, $periodLabel] = $this->resolveFilter($filter, $tanggal);
+
+        $totalSopir = Sopir::count();
+
+        // Sopir aktif = sopir yang punya ritase di periode/rentang tanggal terpilih
+        $sopirQuery = Sopir::select('sopirs.*')
+            ->join('ritases', 'sopirs.kode_sopir', '=', 'ritases.kode_sopir');
+        if ($startDate) {
+            $sopirQuery->whereBetween('ritases.tanggal', [$startDate, $endDate]);
+        }
+        $sopirAktif = (int) (clone $sopirQuery)->distinct()->count('sopirs.kode_sopir');
+        $sopirNonaktif = (int) ($totalSopir - $sopirAktif);
 
         $ritaseQuery = Ritase::query();
         $gajiQuery = Penggajian::query();
@@ -91,13 +98,17 @@ class DashboardService
         }
         $topSopir = $topSopir->groupBy('kode_sopir')->orderByDesc('total')->limit(5)->get();
 
+        [$ritaseTrendLabels, $ritaseTrendData, $ritaseGagalTrendData] = $this->buildRitaseTrend($startDate, $endDate);
+        [$gajiTrendLabels, $gajiTrendData] = $this->buildGajiTrend();
+
         return compact(
             'user', 'totalSopir', 'sopirAktif', 'sopirNonaktif',
             'totalRitase', 'ritasePending', 'ritaseValid', 'ritaseGagal', 'totalGaji',
             'validasiPending', 'validasiDisetujui', 'validasiDitolak', 'validasiHariIni',
             'recentRitase', 'filter', 'periodLabel', 'startDate', 'endDate', 'tanggal',
             'periodeAktif', 'sisaHari', 'progressPeriode',
-            'hariIniRitase', 'hariIniValidasi', 'topSopir'
+            'hariIniRitase', 'hariIniValidasi', 'topSopir',
+            'ritaseTrendLabels', 'ritaseTrendData', 'ritaseGagalTrendData', 'gajiTrendLabels', 'gajiTrendData'
         );
     }
 
@@ -149,6 +160,62 @@ class DashboardService
             return [Carbon::parse($periodeLalu->tanggal_mulai), Carbon::parse($periodeLalu->tanggal_selesai), 'Periode Lalu'];
         }
         return [null, now(), 'Periode Lalu'];
+    }
+
+    private function buildRitaseTrend(mixed $startDate, mixed $endDate): array
+    {
+        $to = $endDate ? Carbon::parse($endDate)->startOfDay() : today();
+        $from = $startDate ? Carbon::parse($startDate)->startOfDay() : today()->copy()->subDays(29);
+
+        if ($from->diffInDays($to) > 62) {
+            $from = $to->copy()->subDays(61);
+        }
+        if ($from->greaterThan($to)) {
+            [$from, $to] = [$to, $from];
+        }
+
+        $rows = Ritase::selectRaw("DATE(tanggal) as d, COUNT(*) as c, SUM(CASE WHEN status = 'gagal_produksi' THEN 1 ELSE 0 END) as g")
+            ->whereBetween('tanggal', [$from->format('Y-m-d'), $to->format('Y-m-d')])
+            ->groupBy('d')
+            ->orderBy('d')
+            ->get()
+            ->keyBy('d');
+
+        $labels = [];
+        $berhasil = [];
+        $gagal = [];
+        for ($d = $from->copy(); $d->lte($to); $d->addDay()) {
+            $row = $rows[$d->format('Y-m-d')] ?? null;
+            $g = (int) ($row->g ?? 0);
+            $c = (int) ($row->c ?? 0);
+            $labels[] = $d->format('d/m');
+            $gagal[] = $g;
+            $berhasil[] = $c - $g;
+        }
+
+        return [$labels, $berhasil, $gagal];
+    }
+
+    private function buildGajiTrend(): array
+    {
+        $periodes = \App\Models\Periode::orderBy('tanggal_mulai', 'desc')->limit(6)->get()->reverse()->values();
+        if ($periodes->isEmpty()) {
+            return [[], []];
+        }
+
+        $totals = Penggajian::selectRaw('periode_id, SUM(total) as t')
+            ->whereIn('periode_id', $periodes->pluck('id'))
+            ->groupBy('periode_id')
+            ->pluck('t', 'periode_id');
+
+        $labels = [];
+        $data = [];
+        foreach ($periodes as $p) {
+            $labels[] = $p->nama_periode ?? $p->kode_periode ?? ('#' . $p->id);
+            $data[] = (float) ($totals[$p->id] ?? 0);
+        }
+
+        return [$labels, $data];
     }
 
     /**

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Models\Ritase;
 use App\Models\Tujuan;
 use App\Http\Requests\StoreTujuanRequest;
+use App\Services\RitaseService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -17,19 +19,27 @@ class TujuanController extends Controller
      */
     public function index(Request $request): View
     {
+        Tujuan::syncActiveStatus();
+
         $search = $request->get('search', '');
+        $statusFilter = $request->get('status', '');
 
-        $tujuans = Tujuan::where('nama', 'like', "%{$search}%")
-            ->orWhere('kode_tujuan', 'like', "%{$search}%")
-            ->orderBy('id', 'asc')
-            ->paginate(10)
-            ->withQueryString();
+        $base = Tujuan::where(function ($q) use ($search) {
+                    $q->where('nama', 'like', "%{$search}%")
+                      ->orWhere('kode_tujuan', 'like', "%{$search}%");
+                })
+                ->when($statusFilter, fn($q) => $q->where('status', $statusFilter));
 
-        $totalTujuan = Tujuan::count();
-        $tujuanAktif = Tujuan::aktif()->count();
-        $tujuanNonaktif = Tujuan::nonaktif()->count();
+        $tujuans = (clone $base)->orderBy('id', 'asc')
+                ->paginate(10)
+                ->withQueryString();
 
-        return view('tujuan.index', compact('tujuans', 'search', 'totalTujuan', 'tujuanAktif', 'tujuanNonaktif'));
+        $totalTujuan = (clone $base)->count();
+        $tujuanAktif = (clone $base)->where('status', 'aktif')->count();
+        $tujuanNonaktif = (clone $base)->where('status', 'nonaktif')->count();
+        $totalRitase = Ritase::count();
+
+        return view('tujuan.index', compact('tujuans', 'search', 'statusFilter', 'totalTujuan', 'tujuanAktif', 'tujuanNonaktif', 'totalRitase'));
     }
 
     /**
@@ -63,13 +73,20 @@ class TujuanController extends Controller
 
         try {
             $tujuan = Tujuan::findOrFail($id);
+            $namaLama = $tujuan->nama;
             $tujuan->update([
                 'nama' => $request->nama,
                 'status' => $request->status,
             ]);
 
+            $msg = 'Data tujuan berhasil diperbarui!';
+            if ($namaLama !== $request->nama) {
+                $sync = app(RitaseService::class)->syncKabupatenForTujuan($tujuan->kode_tujuan, $request->nama);
+                $msg .= " Kabupaten ritase terkait disesuaikan menjadi {$sync['kabupaten']} ({$sync['ritase']} ritase, {$sync['gaji']} data gaji).";
+            }
+
             return redirect()->back()
-                ->with('success', 'Data tujuan berhasil diperbarui!');
+                ->with('success', $msg);
         } catch (\Exception $e) {
             report($e);
             return redirect()->back()->withInput()->with('error', 'Gagal memperbarui tujuan: ' . $e->getMessage());

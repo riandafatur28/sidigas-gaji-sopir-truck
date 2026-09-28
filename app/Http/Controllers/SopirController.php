@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Models\Ritase;
 use App\Models\Sopir;
 use App\Http\Requests\StoreSopirRequest;
 use Illuminate\Http\RedirectResponse;
@@ -17,19 +18,27 @@ class SopirController extends Controller
      */
     public function index(Request $request): View
     {
+        Sopir::syncActiveStatus();
+
         $search = $request->get('search', '');
+        $statusFilter = $request->get('status', '');
 
-        $sopirs = Sopir::where('nama', 'like', "%{$search}%")
-            ->orWhere('kode_sopir', 'like', "%{$search}%")
-            ->orderBy('id', 'asc')
-            ->paginate(10)
-            ->withQueryString();
+        $base = Sopir::where(function ($q) use ($search) {
+                    $q->where('nama', 'like', "%{$search}%")
+                      ->orWhere('kode_sopir', 'like', "%{$search}%");
+                })
+                ->when($statusFilter, fn($q) => $q->where('status', $statusFilter));
 
-        $totalSopir = Sopir::count();
-        $sopirAktif = Sopir::aktif()->count();
-        $sopirNonaktif = Sopir::nonaktif()->count();
+        $sopirs = (clone $base)->orderBy('id', 'asc')
+                ->paginate(10)
+                ->withQueryString();
 
-        return view('sopir.index', compact('sopirs', 'search', 'totalSopir', 'sopirAktif', 'sopirNonaktif'));
+        $totalSopir = (clone $base)->count();
+        $sopirAktif = (clone $base)->where('status', 'aktif')->count();
+        $sopirNonaktif = (clone $base)->where('status', 'nonaktif')->count();
+        $totalRitase = Ritase::count();
+
+        return view('sopir.index', compact('sopirs', 'search', 'statusFilter', 'totalSopir', 'sopirAktif', 'sopirNonaktif', 'totalRitase'));
     }
 
     /**

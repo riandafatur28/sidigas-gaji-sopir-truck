@@ -198,7 +198,6 @@ class RitaseTextParser
 
     public function cleanDriverName(string $name): string
     {
-        $name = preg_replace('/^(mbah|pak|bu|ira)\s*/i', '', $name);
         $name = str_replace(['√', '✔', '✓', '🙏', '🙌'], '', $name);
         return trim(preg_replace('/\s+/u', ' ', $name));
     }
@@ -227,13 +226,31 @@ class RitaseTextParser
 
         $year20 = (int) ('20' . $yearStr);
         $year19 = (int) ('19' . $yearStr);
+        $currentYear = (int) date('Y');
 
         if ($dayHint !== null) {
             $dow20 = date('w', mktime(0, 0, 0, (int)$month, (int)$day, $year20));
-            if ((string) $dow20 === (string) $dayHint) return (string) $year20;
-
             $dow19 = date('w', mktime(0, 0, 0, (int)$month, (int)$day, $year19));
-            if ((string) $dow19 === (string) $dayHint) return (string) $year19;
+            $match20 = (string) $dow20 === (string) $dayHint;
+            $match19 = (string) $dow19 === (string) $dayHint;
+            $diff20 = abs($year20 - $currentYear);
+            $diff19 = abs($year19 - $currentYear);
+
+            // If both match, pick closer to today
+            if ($match20 && $match19) {
+                return $diff20 <= $diff19 ? (string) $year20 : (string) $year19;
+            }
+            // Only 20 matches and within reasonable window (<=50y) -> use it
+            if ($match20 && $diff20 <= 50) return (string) $year20;
+            if ($match19 && $diff19 <= 50) return (string) $year19;
+            // If matched century is far (>50y) but the other is close, prefer close
+            // (handles typo hari like "sabtu" vs "jumat" -> 1925 match but far, so keep 2025)
+            if ($match20 || $match19) {
+                // Day hint likely typo if close candidate doesn't match but far does
+                // Prefer the close year anyway
+                if ($diff20 <= 50) return (string) $year20;
+                if ($diff19 <= 50) return (string) $year19;
+            }
         }
 
         return (string) $year20;

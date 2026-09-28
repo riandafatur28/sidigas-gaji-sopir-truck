@@ -51,6 +51,7 @@ class PenggajianService
                 'error' => 'Tidak ada data ritase untuk sopir ini pada periode tersebut',
             ];
         }
+        $slip['periode'] = Periode::findOrFail($periodeId);
         return $slip;
     }
 
