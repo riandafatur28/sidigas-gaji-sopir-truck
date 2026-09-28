@@ -45,3 +45,8 @@ dropColumn(*
 
 # Root-level PlantUML duplicates (real versions in diagrams/)
 /*.puml
+
+# Agent/tool state & temp artifacts (folder " storage/" = upload salah-path, data dipertahankan)
+.omo/
+.playwright-mcp/
+/ storage/
