@@ -162,8 +162,9 @@
                     </div>
 
                     <div class="mt-4 flex justify-end gap-3">
-                        <a href="{{ route('gaji.index') }}" class="border border-gray-300 rounded text-sm font-medium text-gray-700 px-4 py-2.5 hover:bg-gray-50 transition">Batal</a>
-                        <button type="button" onclick="showKonfirmasi()" class="bg-[#2d6a4f] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#1b4332] transition">
+                        <a href="{{ route('gaji.index') }}" class="border border-gray-300 rounded text-sm font-medium text-gray-700 px-4 py-2.5 hover:bg-gray-50 transition inline-flex items-center gap-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>Batal</a>
+                        <button type="button" onclick="showKonfirmasi()" class="bg-[#2d6a4f] text-white rounded text-sm font-semibold px-5 py-2.5 hover:bg-[#1b4332] transition inline-flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                             Simpan Gaji
                         </button>
                     </div>
@@ -177,55 +178,34 @@
     {{-- SUMMARY CARDS --}}
     {{-- ============================================================ --}}
     <div id="summaryContainer" class="hidden mb-6">
-        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            <div class="bg-white rounded border border-gray-200 p-4">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Gaji</p>
-                <p id="summaryGrandTotal" class="text-lg font-bold text-gray-900 mt-1">Rp 0</p>
-            </div>
-            <div class="bg-white rounded border border-gray-200 p-4">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Upah</p>
-                <p id="summaryUpah" class="text-lg font-bold text-gray-900 mt-1">Rp 0</p>
-            </div>
-            <div class="bg-white rounded border border-gray-200 p-4">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Solar</p>
-                <p id="summarySolar" class="text-lg font-bold text-gray-900 mt-1">Rp 0</p>
-            </div>
-            <div class="bg-white rounded border border-gray-200 p-4">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total DT</p>
-                <p id="summaryDT" class="text-lg font-bold text-gray-900 mt-1">Rp 0</p>
-            </div>
-            <div class="bg-white rounded border border-gray-200 p-4">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Kompensasi</p>
-                <p id="summaryKompensasi" class="text-lg font-bold text-gray-900 mt-1">Rp 0</p>
-            </div>
-        </div>
-        <div class="flex items-center justify-end gap-3 mt-3">
-            <div class="relative" id="gajiFilterWrap">
-                <button onclick="toggleGajiFilter()" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium bg-white hover:bg-gray-50 transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
-                    Filter
-                    <span class="hidden w-2 h-2 rounded-full bg-green-500" id="gajiFilterBadge"></span>
-                </button>
-                <div class="hidden absolute right-0 mt-2 w-72 bg-white border border-gray-200 rounded-xl shadow-lg z-50 p-4" id="gajiFilterPanel">
-                    <div class="space-y-3">
-                        <div>
-                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Filter Tanggal</label>
-                            <input type="date" id="filterTanggal" class="w-full px-3 py-2 border border-gray-200 rounded text-sm bg-white mt-1">
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="applySearch()" class="flex-1 px-4 py-2 bg-[#2d6a4f] text-white rounded text-sm hover:opacity-90 transition">Terapkan</button>
-                            <button onclick="clearGajiFilter()" class="px-4 py-2 border border-gray-200 rounded text-sm text-gray-600 hover:bg-gray-50 transition">Reset</button>
-                        </div>
-                    </div>
+        <div class="card">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+                <div style="padding:15px 20px" class="ledger-cell lg:border-r">
+                    <p style="font-size:11px;font-weight:600;letter-spacing:0.1em;color:var(--text-dims)">TOTAL GAJI</p>
+                    <p id="summaryGrandTotal" class="dash-num" style="font-size:22px;font-weight:650;color:var(--text);line-height:1.25;letter-spacing:-0.01em">Rp 0</p>
+                </div>
+                <div style="padding:15px 20px" class="ledger-cell lg:border-r">
+                    <p style="font-size:11px;font-weight:600;letter-spacing:0.1em;color:var(--text-dims)">TOTAL UPAH</p>
+                    <p id="summaryUpah" class="dash-num" style="font-size:22px;font-weight:650;color:var(--text);line-height:1.25;letter-spacing:-0.01em">Rp 0</p>
+                </div>
+                <div style="padding:15px 20px" class="ledger-cell lg:border-r">
+                    <p style="font-size:11px;font-weight:600;letter-spacing:0.1em;color:var(--text-dims)">TOTAL SOLAR</p>
+                    <p id="summarySolar" class="dash-num" style="font-size:22px;font-weight:650;color:var(--text);line-height:1.25;letter-spacing:-0.01em">Rp 0</p>
+                </div>
+                <div style="padding:15px 20px" class="ledger-cell lg:border-r">
+                    <p style="font-size:11px;font-weight:600;letter-spacing:0.1em;color:var(--text-dims)">TOTAL DT</p>
+                    <p id="summaryDT" class="dash-num" style="font-size:22px;font-weight:650;color:var(--text);line-height:1.25;letter-spacing:-0.01em">Rp 0</p>
+                </div>
+                <div style="padding:15px 20px" class="ledger-cell lg:border-r">
+                    <p style="font-size:11px;font-weight:600;letter-spacing:0.1em;color:var(--text-dims)">KOMPENSASI</p>
+                    <p id="summaryKompensasi" class="dash-num" style="font-size:22px;font-weight:650;color:var(--text);line-height:1.25;letter-spacing:-0.01em">Rp 0</p>
+                </div>
+                <div style="padding:15px 20px" data-ledger>
+                    <p style="font-size:11px;font-weight:600;letter-spacing:0.1em;color:var(--text-dims)">SOPIR</p>
+                    <p id="summarySopir" class="dash-num" style="font-size:22px;font-weight:650;color:var(--text);line-height:1.25;letter-spacing:-0.01em">0 orang</p>
                 </div>
             </div>
-            <p id="summarySopirCount" class="text-xs text-gray-400"></p>
         </div>
-        <script>
-        function toggleGajiFilter(){const p=document.getElementById('gajiFilterPanel');p.classList.toggle('hidden');}
-        document.addEventListener('click',function(e){const w=document.getElementById('gajiFilterWrap');if(w&&!w.contains(e.target)){document.getElementById('gajiFilterPanel').classList.add('hidden');}});
-        function clearGajiFilter(){document.getElementById('filterTanggal').value='';applySearch();}
-        </script>
     </div>
 
     {{-- ============================================================ --}}
@@ -233,21 +213,62 @@
     {{-- ============================================================ --}}
     <div id="tabelGajiContainer" class="hidden">
         <div class="card mb-6 bg-white border border-gray-200 rounded-lg">
+            <div class="border-b border-gray-200 px-5 py-3 bg-gray-50">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Rincian Gaji Per Sopir
+                            <span class="font-normal text-gray-400 text-xs ml-2" id="periodeLabel">Periode: -</span>
+                        </p>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center w-full sm:w-auto">
+                        <div class="flex flex-row gap-2 items-center w-full sm:w-auto">
+                            <div class="relative flex-1 sm:w-72 sm:flex-none">
+                                <input type="text" id="liveSearch" value=""
+                                    class="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 transition bg-white"
+                                    placeholder="Cari sopir atau tujuan..." autocomplete="off">
+
+                                <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style="color:var(--text-dims)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+
+                                <button id="clearSearch" class="hidden absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded transition" title="Hapus pencarian">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                            </div>
+
+                            <div class="relative shrink-0" id="gajiFilterWrap">
+                                <button onclick="toggleGajiFilter()" class="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-lg text-sm font-medium bg-white hover:bg-gray-50 transition shrink-0">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                                    Filter
+                                    <span class="hidden w-2 h-2 rounded-full bg-green-500" id="gajiFilterBadge"></span>
+                                </button>
+                            <div class="hidden absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-lg z-50 p-4" id="gajiFilterPanel">
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Filter Tanggal</label>
+                                        <input type="date" id="filterTanggal" class="w-full px-3 py-2 border border-gray-200 rounded text-sm bg-white mt-1">
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button onclick="applySearch()" class="flex-1 px-4 py-2 bg-[#2d6a4f] text-white rounded text-sm hover:opacity-90 transition inline-flex items-center justify-center gap-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Terapkan</button>
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+
+                        <a id="downloadSlipBtn" href="{{ $periodeId ? url('/gaji/slip-pdf/' . $periodeId) : '#' }}" class="w-full sm:w-auto text-center text-xs text-gray-600 border border-gray-200 px-3 py-2.5 rounded hover:bg-gray-50 font-medium bg-white {{ $periodeId ? '' : 'hidden' }} inline-flex items-center justify-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            Download Slip PDF
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <script>
+            document.addEventListener('click',function(e){const w=document.getElementById('gajiFilterWrap');if(w&&!w.contains(e.target)){document.getElementById('gajiFilterPanel').classList.add('hidden');}});
+            </script>
             <div class="table-responsive">
                 <table class="w-full">
-                    <thead>
-                        <tr style="background:rgba(255,253,252,0.6);border-bottom:1.5px solid var(--border)">
-                            <th class="text-left text-xs font-semibold uppercase tracking-wider px-5 py-3 whitespace-nowrap" style="color:var(--text-muted)" colspan="8">
-                                Rincian Gaji Per Sopir
-                                <span class="font-normal text-gray-400 text-xs ml-2" id="periodeLabel">Periode: -</span>
-                            </th>
-                            <th class="text-right text-xs font-semibold uppercase tracking-wider px-5 py-3 whitespace-nowrap" style="color:var(--text-muted)">
-                                <a id="downloadSlipBtn" href="{{ $periodeId ? url('/gaji/slip-pdf/' . $periodeId) : '#' }}" class="text-xs text-gray-600 border border-gray-200 px-3 py-1.5 rounded hover:bg-gray-50 font-medium {{ $periodeId ? '' : 'hidden' }}">
-                                    Download Slip PDF
-                                </a>
-                            </th>
-                        </tr>
-                    </thead>
                     <thead style="background:rgba(255,253,252,0.6);border-bottom:1.5px solid var(--border)">
                         <tr>
                             <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 whitespace-nowrap">Sopir</th>
@@ -270,13 +291,11 @@
                             <td colspan="9" class="px-5 py-3 text-right text-sm font-semibold text-gray-700 whitespace-nowrap">TOTAL KESELURUHAN:</td>
                             <td class="px-5 py-3 text-right text-sm font-bold text-gray-900 whitespace-nowrap" id="grandTotalAll">Rp 0</td>
                         </tr>
-                        <tr id="paginationGajiRow" class="border-t border-gray-200 hidden">
-                            <td colspan="8" class="px-5 py-3">
-                                <div id="paginationGaji" class="flex items-center justify-between"></div>
-                            </td>
-                        </tr>
                     </tfoot>
                 </table>
+            </div>
+            <div id="paginationGajiRow" class="border-t border-gray-200 bg-gray-50 px-5 py-3 hidden overflow-hidden">
+                <div id="paginationGaji" class="flex flex-wrap items-center justify-between gap-3 overflow-hidden"></div>
             </div>
         </div>
     </div>
@@ -289,6 +308,64 @@
         window.penggajianAllTujuans = @json($allTujuans ?? []);
         window.penggajianHasErrors = @json($errors->any() ? true : false);
     </script>
-    <script src="{{ asset('js/penggajian.js') }}"></script>
+    <script src="{{ asset('js/penggajian.js') }}?v={{ filemtime(public_path('js/penggajian.js')) }}"></script>
+    @endpush
+
+    @push('scripts')
+    <script>
+    (function(){
+        var input = document.getElementById('liveSearch');
+        var clearBtn = document.getElementById('clearSearch');
+        var badge = document.getElementById('gajiFilterBadge');
+        if (!input) return;
+        var timer = null;
+
+        function syncUI(){
+            var hasQ = input.value.trim() !== '';
+            if (clearBtn) clearBtn.classList.toggle('hidden', !hasQ);
+            var tgl = document.getElementById('filterTanggal');
+            var hasF = hasQ || (tgl && tgl.value !== '');
+            if (badge) badge.classList.toggle('hidden', !hasF);
+        }
+
+        function reload(){
+            syncUI();
+            if (typeof window.applySearch === 'function') window.applySearch();
+        }
+
+        // API gaji tidak menerima ?search= dari JS bawaan — selipkan otomatis
+        if (!window.__gajiSearchFetchWrapped) {
+            window.__gajiSearchFetchWrapped = true;
+            var _fetch = window.fetch.bind(window);
+            window.fetch = function(url, opts){
+                if (typeof url === 'string' && url.indexOf('get-ritase-data') !== -1) {
+                    var el = document.getElementById('liveSearch');
+                    var q = el ? el.value.trim() : '';
+                    if (q !== '' && url.indexOf('search=') === -1) {
+                        url += (url.indexOf('?') === -1 ? '?' : '&') + 'search=' + encodeURIComponent(q);
+                    }
+                }
+                return _fetch(url, opts);
+            };
+        }
+
+        input.addEventListener('input', function(){
+            syncUI();
+            clearTimeout(timer);
+            timer = setTimeout(reload, 400);
+        });
+        input.addEventListener('keydown', function(e){
+            if (e.key === 'Enter') { e.preventDefault(); clearTimeout(timer); reload(); }
+        });
+        if (clearBtn) clearBtn.addEventListener('click', function(){
+            input.value = '';
+            reload();
+            input.focus();
+        });
+        var tglEl = document.getElementById('filterTanggal');
+        if (tglEl) tglEl.addEventListener('change', syncUI);
+        syncUI();
+    })();
+    </script>
     @endpush
 </x-layouts.dashboard>

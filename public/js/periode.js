@@ -124,32 +124,6 @@
         document.getElementById('deleteForm').submit();
     };
 
-    // Live search
-    (function() {
-        var searchInput = document.getElementById('liveSearch');
-        if (!searchInput) return;
-        var clearSearch = document.getElementById('clearSearch');
-        var debounceTimer;
-        function debounce(func, wait) {
-            return function() {
-                var args = arguments;
-                var ctx = this;
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(function() { func.apply(ctx, args); }, wait);
-            };
-        }
-        function performSearch() {
-            var query = searchInput.value.trim();
-            var url = new URL(window.location.href);
-            if (query) { url.searchParams.set('search', query); clearSearch.classList.remove('hidden'); }
-            else { url.searchParams.delete('search'); clearSearch.classList.add('hidden'); }
-            window.location.href = url.toString();
-        }
-        searchInput.addEventListener('input', debounce(performSearch, 500));
-        clearSearch.addEventListener('click', function() { searchInput.value = ''; performSearch(); searchInput.focus(); });
-        if (searchInput.value) clearSearch.classList.remove('hidden');
-    })();
-
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             if (typeof closeTambahModal === 'function') closeTambahModal();

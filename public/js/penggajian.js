@@ -239,11 +239,14 @@
 
             var totalSolar = 0, totalUpah = 0, totalTol = 0, totalLembur = 0;
             Object.keys(sopir.rit_per_tujuan).forEach(function(kodeTujuan) {
-                var rit = sopir.rit_per_tujuan[kodeTujuan].total_rit;
-                totalSolar += (bbmByTujuan[kodeTujuan] || 0) * rit;
-                totalUpah += (upahByTujuan[kodeTujuan] || 0) * rit;
-                totalTol += (tolByTujuan[kodeTujuan] || 0) * rit;
-                totalLembur += (lemburByTujuan[kodeTujuan] || 0) * rit;
+                var item = sopir.rit_per_tujuan[kodeTujuan];
+                // FIX: gagal hanya dapat kompensasi, jangan hitung solar/upah/tol/lembur untuk rit gagal.
+                // Pakai total_rit_valid (valid only), bukan total_rit (yang include gagal).
+                var ritValid = (item.total_rit_valid !== undefined) ? item.total_rit_valid : item.total_rit;
+                totalSolar += (bbmByTujuan[kodeTujuan] || 0) * ritValid;
+                totalUpah += (upahByTujuan[kodeTujuan] || 0) * ritValid;
+                totalTol += (tolByTujuan[kodeTujuan] || 0) * ritValid;
+                totalLembur += (lemburByTujuan[kodeTujuan] || 0) * ritValid;
             });
 
             if (totalSolar === 0 && totalUpah === 0 && !sopir.belum_dihitung) {
@@ -286,7 +289,7 @@
                 '<td class="px-4 py-3 text-right whitespace-nowrap"><span class="text-gray-800 font-medium" id="kompTotal_' + sopir.kode_sopir + '">Rp ' + formatRupiah(totalKompensasi) + '</span></td>' +
                 '<td class="px-4 py-3 text-right whitespace-nowrap"><span class="text-gray-800 font-medium" id="lemburTotal_' + sopir.kode_sopir + '">Rp ' + formatRupiah(totalLembur) + '</span></td>' +
                 '<td class="px-4 py-3 text-right font-bold text-gray-900 whitespace-nowrap" id="grandTotal_' + sopir.kode_sopir + '">Rp ' + formatRupiah(previewGrand) + '</td>' +
-                '<td class="px-4 py-3 text-center whitespace-nowrap"><button onclick="showDetail(' + index + ')" class="text-xs text-gray-600 border border-gray-200 px-2.5 py-1.5 rounded hover:bg-gray-50 font-medium">Detail &amp; Slip</button></td>';
+                '<td class="px-4 py-3 text-center whitespace-nowrap"><button onclick="showDetail(' + index + ')" class="text-xs text-gray-600 border border-gray-200 px-2.5 py-1.5 rounded hover:bg-gray-50 font-medium" style="display:inline-flex;align-items:center;gap:4px"><svg style="width:14px;height:14px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>Detail &amp; Slip</button></td>';
             tbody.appendChild(row);
         });
 
@@ -330,9 +333,9 @@
             return;
         }
 
-        var html = '<div class="flex items-center justify-between w-full gap-3">';
+        var html = '<div class="flex flex-nowrap items-center justify-between w-full gap-2 overflow-hidden">';
         html += '<p class="text-sm text-gray-600 whitespace-nowrap">Halaman ' + currentPage + ' dari ' + totalPages + '</p>';
-        html += '<div class="flex items-center space-x-1.5">';
+        html += '<div class="flex flex-nowrap items-center gap-1 overflow-hidden">';
 
         if (currentPage <= 1) html += '<span class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 rounded cursor-not-allowed">Sebelumnya</span>';
         else html += '<a href="#" onclick="goToPage(' + (currentPage - 1) + '); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded hover:bg-gray-50 font-medium">Sebelumnya</a>';
@@ -397,8 +400,8 @@
         if (elDT) elDT.textContent = 'Rp ' + formatRupiah(totalDT);
         var elKomp = document.getElementById('summaryKompensasi');
         if (elKomp) elKomp.textContent = 'Rp ' + formatRupiah(totalKomp);
-        var elCount = document.getElementById('summarySopirCount');
-        if (elCount) elCount.textContent = data.length + ' sopir';
+        var elSopir = document.getElementById('summarySopir');
+        if (elSopir) elSopir.textContent = data.length + ' orang';
     }
 
     function applySearch() {
@@ -442,6 +445,9 @@
                 styles.forEach(function(s) {
                     var css = s.textContent;
                     css = css.replace(/@page\s*\{[^}]*\}/g, '').replace(/(?:^|\n)\s*\*\s*\{[^}]*\}/g, '').replace(/(?:^|\n)\s*html\s*\{[^}]*\}/g, '').replace(/(?:^|\n)\s*body\s*\{[^}]*\}/g, '');
+                    css = css.replace(/(^|[,\}\n])\s*table\s*\{/g, '$1 .slip-container table {');
+                    css = css.replace(/(^|[,\}\n])\s*th\s*\{/g, '$1 .slip-container th {');
+                    css = css.replace(/(^|[,\}\n])\s*td\s*\{/g, '$1 .slip-container td {');
                     if (css.trim()) styleHtml += '<style>' + css + '</style>';
                 });
                 var containers = doc.querySelectorAll('.slip-container');
@@ -546,3 +552,4 @@
 
     document.addEventListener('DOMContentLoaded', init);
 })();
+

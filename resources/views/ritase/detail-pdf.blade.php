@@ -89,9 +89,10 @@
                             $ritKey = $col['date'] . '_' . $col['waktu'];
                             $idx = $col['rit_idx'];
                             $val = isset($data[$sk][$ritKey][$idx]) ? $data[$sk][$ritKey][$idx] : '-';
+                            $isGagalText = $val === 'Gagal Produksi';
                             if ($val !== '-') $perDayTotals[$col['key']]++;
                         @endphp
-                        <td class="tujuan-cell">{{ $val }}</td>
+                        <td class="tujuan-cell" style="{{ $isGagalText ? 'color:#dc2626;font-weight:600' : '' }}">{{ $val }}</td>
                     @endforeach
                     <td class="dt">{{ $total }}</td>
                     <td class="dt">{{ $eligible }}</td>

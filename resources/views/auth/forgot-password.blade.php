@@ -1,19 +1,6 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lupa Password - SIDIGAS</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * { font-family: 'Inter', sans-serif; }
-        body { background: #f0f0f2; }
-    </style>
-</head>
-<body class="min-h-screen flex items-center justify-center p-4">
+﻿<x-layouts.auth title="Lupa Password">
 
-    <div class="w-full max-w-sm bg-white border border-gray-200 rounded p-6">
+    <div class="w-full max-w-sm bg-white border border-stone-200/80 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.08)] p-6">
         <div class="text-center mb-5">
             <h1 class="text-xl font-bold text-gray-900">SIDIGAS</h1>
             <p class="text-xs text-gray-400 mt-0.5">Lupa Password</p>
@@ -33,7 +20,8 @@
             @enderror
 
             <button type="submit"
-                class="w-full bg-gray-900 text-white rounded text-sm font-semibold py-2.5 hover:bg-gray-800 transition">
+                class="w-full bg-gray-900 text-white rounded text-sm font-semibold py-2.5 hover:bg-gray-800 transition inline-flex items-center justify-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                 Kirim OTP
             </button>
         </form>
@@ -43,5 +31,4 @@
         </div>
     </div>
 
-</body>
-</html>
+</x-layouts.auth>

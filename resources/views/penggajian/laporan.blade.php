@@ -30,26 +30,32 @@
 
     @if($data)
     <div id="reportContent">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-            <div class="border border-gray-200 rounded bg-white px-5 py-4">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Hari Kerja</p>
-                <p class="text-2xl font-bold text-gray-900 mt-1">{{ $data['hari_kerja'] }} Hari</p>
-            </div>
-            <div class="border border-gray-200 rounded bg-white px-5 py-4">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Sopir</p>
-                <p class="text-2xl font-bold text-gray-900 mt-1">{{ $data['total_sopir'] }} Orang</p>
-            </div>
-            <div class="border border-gray-200 rounded bg-white px-5 py-4">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Ritase</p>
-                <p class="text-2xl font-bold text-gray-900 mt-1">{{ $data['total_ritase'] }} Rit</p>
-            </div>
-            <div class="border border-gray-200 rounded bg-white px-5 py-4">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Ritase Gagal</p>
-                <p class="text-2xl font-bold text-gray-900 mt-1">{{ $data['total_ritase_gagal'] }} Rit</p>
-            </div>
-            <div class="border border-gray-200 rounded bg-white px-5 py-4">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Grand Total</p>
-                <p class="text-2xl font-bold text-gray-900 mt-1">Rp {{ number_format($data['grand_total_all'], 0, ',', '.') }}</p>
+        <div class="card mb-6">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+                <div style="padding:15px 20px" class="ledger-cell lg:border-r">
+                    <p style="font-size:11px;font-weight:600;letter-spacing:0.1em;color:var(--text-dims)">HARI KERJA</p>
+                    <p class="dash-num" style="font-size:22px;font-weight:650;color:var(--text);line-height:1.25;letter-spacing:-0.01em">{{ $data['hari_kerja'] }} <span style="font-size:13px;font-weight:500;color:var(--text-dims)">hari</span></p>
+                </div>
+                <div style="padding:15px 20px" class="ledger-cell lg:border-r">
+                    <p style="font-size:11px;font-weight:600;letter-spacing:0.1em;color:var(--text-dims)">SOPIR</p>
+                    <p class="dash-num" style="font-size:22px;font-weight:650;color:var(--text);line-height:1.25;letter-spacing:-0.01em">{{ $data['total_sopir'] }} <span style="font-size:13px;font-weight:500;color:var(--text-dims)">orang</span></p>
+                </div>
+                <div style="padding:15px 20px" class="ledger-cell lg:border-r">
+                    <p style="font-size:11px;font-weight:600;letter-spacing:0.1em;color:var(--text-dims)">TOTAL RITASE</p>
+                    <p class="dash-num" style="font-size:22px;font-weight:650;color:var(--text);line-height:1.25;letter-spacing:-0.01em">{{ $data['total_ritase'] + $data['total_ritase_gagal'] }} <span style="font-size:13px;font-weight:500;color:var(--text-dims)">rit</span></p>
+                </div>
+                <div style="padding:15px 20px" class="ledger-cell lg:border-r">
+                    <p style="font-size:11px;font-weight:600;letter-spacing:0.1em;color:var(--text-dims)">RITASE GAGAL</p>
+                    <p class="dash-num" style="font-size:22px;font-weight:650;color:var(--text);line-height:1.25;letter-spacing:-0.01em">{{ $data['total_ritase_gagal'] }} <span style="font-size:13px;font-weight:500;color:var(--text-dims)">rit</span></p>
+                </div>
+                <div style="padding:15px 20px" class="ledger-cell lg:border-r">
+                    <p style="font-size:11px;font-weight:600;letter-spacing:0.1em;color:var(--text-dims)">RIT BERHASIL</p>
+                    <p class="dash-num" style="font-size:22px;font-weight:650;color:var(--text);line-height:1.25;letter-spacing:-0.01em">{{ $data['total_ritase'] }} <span style="font-size:13px;font-weight:500;color:var(--text-dims)">rit</span></p>
+                </div>
+                <div style="padding:15px 20px" data-ledger>
+                    <p style="font-size:11px;font-weight:600;letter-spacing:0.1em;color:var(--text-dims)">GRAND TOTAL</p>
+                    <p class="dash-num" style="font-size:22px;font-weight:650;color:var(--text);line-height:1.25;letter-spacing:-0.01em">Rp {{ number_format($data['grand_total_all'], 0, ',', '.') }}</p>
+                </div>
             </div>
         </div>
 
@@ -66,6 +72,7 @@
                 <thead class="bg-gray-50 border-b border-gray-200">
                     <tr>
                         <th class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-2 w-10">No</th>
+                        <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-2 whitespace-nowrap">Hari / Tanggal</th>
                         <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Tujuan</th>
                         <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Jenis</th>
                         <th class="text-right text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">@ Harga</th>
@@ -74,44 +81,79 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
-                    @php $lastTujuan = ''; @endphp
+                    @php
+                        $groupCounts = [];
+                        $hariCounts = [];
+                        foreach($data['detail_rows'] as $r){
+                            $k = ($r['hari']??'').'|'.($r['tujuan']??'');
+                            $groupCounts[$k] = ($groupCounts[$k] ?? 0) + 1;
+                            $hk = $r['tanggal'] ?? $r['hari'] ?? '';
+                            $hariCounts[$hk] = ($hariCounts[$hk] ?? 0) + 1;
+                        }
+                        $seen = [];
+                        $seenHari = [];
+                        $hariNo = [];
+                        $hariCounter = 0;
+                    @endphp
                     @forelse($data['detail_rows'] as $row)
                         @php
-                            $showHeader = !$row['is_subtotal'] && $row['tujuan'] !== $lastTujuan;
-                            if (!$row['is_subtotal']) $lastTujuan = $row['tujuan'];
+                            $curKey = ($row['hari'] ?? '') . '|' . ($row['tujuan'] ?? '');
+                            $hariKey = $row['tanggal'] ?? $row['hari'] ?? '';
+                            $isFirstTujuan = !isset($seen[$curKey]);
+                            $isFirstHari = !isset($seenHari[$hariKey]);
+                            $rowspanTujuan = $groupCounts[$curKey] ?? 1;
+                            $rowspanHari = $hariCounts[$hariKey] ?? 1;
+                            if($isFirstTujuan) $seen[$curKey]=true;
+                            if($isFirstHari) $seenHari[$hariKey]=true;
+                            if($isFirstHari){ $hariCounter++; $hariNo[$hariKey] = $hariCounter; }
+                            $hariTanggal = $row['tgl_label'] ?? (($row['hari'] ?? '') . ' ' . ($row['tanggal'] ?? ''));
                         @endphp
-                    @if($row['is_subtotal'])
-                    <tr class="bg-gray-50 font-semibold">
-                        <td class="px-3 py-2.5 text-center text-xs text-gray-400">{{ $row['no'] }}</td>
-                        <td class="px-4 py-2.5 text-sm text-gray-700">{{ $row['tujuan'] }}</td>
-                        <td class="px-4 py-2.5 text-sm font-bold text-gray-800 uppercase tracking-wider">{{ $row['jenis'] }}</td>
-                        <td class="px-4 py-2.5 text-right text-sm text-gray-600">-</td>
-                        <td class="px-4 py-2.5 text-center text-sm font-bold text-gray-800">{{ $row['qty'] }} Rit</td>
-                        <td class="px-4 py-2.5 text-right text-sm font-bold text-gray-900">Rp {{ number_format($row['total'], 0, ',', '.') }}</td>
-                    </tr>
-                    @else
-                    <tr class="hover:bg-gray-50 {{ $row['jenis'] === 'Gagal' ? 'text-red-600' : '' }}">
-                        <td class="px-3 py-2.5 text-center text-sm {{ $showHeader ? 'text-gray-400' : 'text-transparent' }}">{{ $row['no'] }}</td>
-                        <td class="px-4 py-2.5 text-sm text-gray-800">{{ $showHeader ? $row['tujuan'] : '' }}</td>
-                        <td class="px-4 py-2.5 text-sm text-gray-600">{{ $row['jenis'] }}</td>
-                        <td class="px-4 py-2.5 text-right text-sm text-gray-800 font-medium">Rp {{ number_format($row['harga'], 0, ',', '.') }}</td>
-                        <td class="px-4 py-2.5 text-center text-sm text-gray-700">{{ $row['qty'] }} Rit</td>
-                        <td class="px-4 py-2.5 text-right text-sm font-medium text-gray-800">Rp {{ number_format($row['total'], 0, ',', '.') }}</td>
-                    </tr>
-                    @endif
+                        @if($row['is_subtotal'])
+                        <tr class="bg-gray-50 font-semibold">
+                            @if($isFirstHari)
+                                <td class="px-3 py-2.5 text-center text-xs text-gray-400" rowspan="{{ $rowspanHari }}">{{ $hariNo[$hariKey] ?? '' }}</td>
+                            @endif
+                            @if($isFirstHari)
+                                <td class="px-3 py-2.5 text-xs text-gray-700 whitespace-nowrap text-left" rowspan="{{ $rowspanHari }}">{{ $hariTanggal }}</td>
+                            @endif
+                            @if($isFirstTujuan)
+                                <td class="px-4 py-2.5 text-sm text-gray-700 text-left" rowspan="{{ $rowspanTujuan }}">{{ $row['tujuan'] }}</td>
+                            @endif
+                            <td class="px-4 py-2.5 text-sm font-bold text-gray-800 uppercase tracking-wider text-left">{{ $row['jenis'] }}</td>
+                            <td class="px-4 py-2.5 text-right text-sm text-gray-600">-</td>
+                            <td class="px-4 py-2.5 text-center text-sm font-bold text-gray-800">{{ $row['qty'] }} Rit</td>
+                            <td class="px-4 py-2.5 text-right text-sm font-bold text-gray-900">Rp {{ number_format($row['total'], 0, ',', '.') }}</td>
+                        </tr>
+                        @else
+                        <tr class="hover:bg-gray-50 {{ $row['jenis'] === 'Gagal' ? 'text-red-600' : '' }}">
+                            @if($isFirstHari)
+                                <td class="px-3 py-2.5 text-center text-sm text-gray-400" rowspan="{{ $rowspanHari }}">{{ $hariNo[$hariKey] ?? '' }}</td>
+                            @endif
+                            @if($isFirstHari)
+                                <td class="px-3 py-2.5 text-xs text-gray-700 whitespace-nowrap text-left" rowspan="{{ $rowspanHari }}">{{ $hariTanggal }}</td>
+                            @endif
+                            @if($isFirstTujuan)
+                                <td class="px-4 py-2.5 text-sm text-gray-800 text-left" rowspan="{{ $rowspanTujuan }}">{{ $row['tujuan'] }}</td>
+                            @endif
+                            <td class="px-4 py-2.5 text-sm text-gray-600 text-left">{{ $row['jenis'] }}</td>
+                            <td class="px-4 py-2.5 text-right text-sm text-gray-800 font-medium">Rp {{ number_format($row['harga'], 0, ',', '.') }}</td>
+                            <td class="px-4 py-2.5 text-center text-sm text-gray-700">{{ $row['qty'] }} Rit</td>
+                            <td class="px-4 py-2.5 text-right text-sm font-medium text-gray-800">Rp {{ number_format($row['total'], 0, ',', '.') }}</td>
+                        </tr>
+                        @endif
                     @empty
                     <tr>
-                        <td colspan="6" class="px-4 py-8 text-center text-gray-500">Tidak ada data untuk periode ini</td>
+                        <td colspan="7" class="px-4 py-8 text-center text-gray-500">Tidak ada data untuk periode ini</td>
                     </tr>
                     @endforelse
                 </tbody>
                 <tfoot>
                     <tr class="bg-white border-t border-gray-200">
-                        <td colspan="5" class="px-4 py-2.5 text-right text-sm font-medium text-gray-700 uppercase tracking-wider">Pot. Operasional (20rb × {{ $data['unique_kabupaten'] }} trip)</td>
+                        <td colspan="6" class="px-4 py-2.5 text-right text-sm font-medium text-gray-700 uppercase tracking-wider">Pot. Operasional (20rb × {{ $data['unique_kabupaten'] }} trip)</td>
                         <td class="px-4 py-2.5 text-right text-sm font-medium text-gray-700">Rp {{ number_format($data['unique_kabupaten'] * 20000, 0, ',', '.') }}</td>
                     </tr>
                     <tr class="bg-gray-100 border-t-2 border-gray-300">
-                        <td colspan="5" class="px-4 py-3 text-right text-sm font-bold text-gray-900 text-base uppercase tracking-wider">Grand Total (dengan pot. operasional)</td>
+                        <td colspan="6" class="px-4 py-3 text-right text-sm font-bold text-gray-900 text-base uppercase tracking-wider">Grand Total (dengan pot. operasional)</td>
                         <td class="px-4 py-3 text-right text-sm font-bold text-gray-900 text-base">Rp {{ number_format($data['grand_total_all'] + ($data['unique_kabupaten'] * 20000), 0, ',', '.') }}</td>
                     </tr>
                 </tfoot>

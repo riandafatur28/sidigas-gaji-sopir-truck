@@ -42,7 +42,7 @@ class BladeViewTest extends TestCase
         $this->get('/dashboard')
             ->assertOk()
             ->assertSee('Dashboard')
-            ->assertSee('Halo');
+            ->assertSee('OPERASIONAL');
     }
 
     // ─────────────────────────── SOPRIR ───────────────────────────
@@ -179,9 +179,9 @@ class BladeViewTest extends TestCase
     {
         $this->get('/ritase/table')
             ->assertOk()
-            ->assertSee('Total Ritase')
-            ->assertSee('Valid')
-            ->assertSee('Pending');
+            ->assertSee('TOTAL RITASE')
+            ->assertSee('VALID')
+            ->assertSee('PENDING');
     }
 
     public function test_ritase_index_has_filter_dropdown(): void
@@ -374,9 +374,9 @@ class BladeViewTest extends TestCase
             ->assertSee('Pilih Periode')
             ->assertSee('Pilih Sopir')
             // stat-cards component
-            ->assertSee('Total Ritase')
-            ->assertSee('Valid')
-            ->assertSee('Pending')
+            ->assertSee('TOTAL RITASE')
+            ->assertSee('VALID')
+            ->assertSee('PENDING')
             // modal-edit referenced
             ->assertSee('editModal')
             // tab structure

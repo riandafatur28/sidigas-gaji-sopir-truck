@@ -28,7 +28,7 @@
                 </div>
                 <div>
                     <label class="form-label">Tujuan <span class="text-red-500">*</span></label>
-                    <select id="kode_tujuan" name="kode_tujuan" required class="form-input">
+                    <select id="kode_tujuan" name="kode_tujuan" required class="form-input" onchange="autoKabupatenTujuan(this, 'kabupaten')">
                         <option value="">-- Pilih Tujuan --</option>
                         @foreach(\App\Models\Tujuan::orderBy('id', 'asc')->get() as $tujuan)<option value="{{ $tujuan->kode_tujuan }}">{{ $tujuan->nama }} ({{ $tujuan->kode_tujuan }})</option>@endforeach
                     </select>
@@ -119,7 +119,7 @@
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                     Tambah Ritase Otomatis
                 </a>
-                <button type="submit" class="btn btn-primary">Tambah Ritase</button>
+                <button type="submit" class="btn btn-primary"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>Tambah Ritase</button>
             </div>
         </form>
     </div>

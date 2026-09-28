@@ -161,7 +161,7 @@
             function(err) {
                 var msg = '';
                 if (err.code === 1) {
-                    msg = 'GPS diblokir. ' + (location.protocol === 'https:' ? '' : 'Akses via HTTPS (ngrok) biar bisa GPS. ');
+                    msg = 'GPS diblokir. ' + (window.isSecureContext ? '' : 'Akses via HTTPS (ngrok) biar bisa GPS. ');
                 } else if (!tryAgain) {
                     msg = 'GPS lambat, coba lagi 5 detik...';
                     statusLokasi.textContent = msg;
@@ -169,7 +169,7 @@
                     setTimeout(function() { cariGPS(true); }, 5000);
                     return;
                 } else {
-                    msg = 'GPS gagal. ' + (location.protocol === 'https:' ? 'Coba klik tombol "Coba GPS".' : 'Akses via HTTPS (ngrok) biar GPS work.');
+                    msg = 'GPS gagal. ' + (window.isSecureContext ? 'Coba klik tombol "Coba GPS".' : 'Akses via HTTPS (ngrok) biar GPS work.');
                 }
                 statusLokasi.textContent = msg;
                 statusLokasi.className = 'text-xs text-red-600 mt-2 font-medium';
@@ -190,7 +190,7 @@
         statusLokasi.appendChild(btn);
     }
 
-    if (location.protocol === 'https:') {
+    if (window.isSecureContext) {
         cariGPS();
     } else {
         statusLokasi.textContent = '⚠ HTTPS diperlukan untuk GPS. Buka via link ngrok. ';
@@ -257,7 +257,8 @@
 
                 var now = new Date();
                 document.getElementById('waktu_foto').value = now.toISOString();
-                document.getElementById('tanggal').value = now.toISOString().slice(0, 10);
+                var pad2 = function(n) { return (n < 10 ? '0' : '') + n; };
+                document.getElementById('tanggal').value = now.getFullYear() + '-' + pad2(now.getMonth() + 1) + '-' + pad2(now.getDate());
 
                 btnAmbilFoto.classList.add('hidden');
                 var g = document.getElementById('btnGaleri');

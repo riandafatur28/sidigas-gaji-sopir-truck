@@ -26,14 +26,14 @@
             margin-bottom: 12px;
         }
 
-        table {
+        .slip-container table {
             width: 100%;
             border-collapse: collapse;
             font-size: 14pt;
             min-width: 800px;
         }
 
-        th {
+        .slip-container th {
             border: 1.5px solid #000;
             padding: 6px 8px;
             text-align: center;
@@ -42,7 +42,7 @@
             background: white;
         }
 
-        td {
+        .slip-container td {
             border: 1.5px solid #000;
             padding: 6px 8px;
             text-align: center;
@@ -50,10 +50,10 @@
             background: white;
         }
 
-        .text-right { text-align: right; }
-        .text-left { text-align: left; }
-        .font-bold { font-weight: 700; }
-        .label-tujuan-nama { font-weight: 700; }
+        .slip-container .text-right { text-align: right; }
+        .slip-container .text-left { text-align: left; }
+        .slip-container .font-bold { font-weight: 700; }
+        .slip-container .label-tujuan-nama { font-weight: 700; }
 
         .page-break {
             page-break-after: always;
@@ -79,15 +79,15 @@
             .no-print { display: none; }
             .slip-container { border: 2px solid #000; padding: 20px 25px; }
             .page-break { border-top: 2px dashed #000; page-break-after: always; }
-            th { background: white !important; }
-            td { background: white !important; }
+            .slip-container th { background: white !important; }
+            .slip-container td { background: white !important; }
         }
     </style>
 </head>
 <body>
 
-    <button onclick="window.print()" class="print-btn no-print">Cetak Slip</button>
-    <a href="{{ route('gaji.index') }}" class="print-btn no-print" style="background: #666; text-decoration: none; display: inline-block; margin-left: 10px;">← Kembali</a>
+    <button onclick="window.print()" class="print-btn no-print" style="display:inline-flex;align-items:center;gap:8px"><svg style="width:16px;height:16px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4H7v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>Cetak Slip</button>
+    <a href="{{ route('gaji.index') }}" class="print-btn no-print" style="background: #666; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; margin-left: 10px;"><svg style="width:16px;height:16px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>Kembali</a>
 
     @php
         $hasData = isset($gaji) && $gaji && isset($dataPerHari) && count($dataPerHari) > 0;
@@ -103,7 +103,7 @@
                 Periode: {{ $periode->nama_periode }} | Sopir: {{ $sopir->nama }}
             </p>
             <div style="margin-top: 15px;">
-                <a href="{{ route('gaji.index') }}" class="print-btn" style="background: #2d6a4f; text-decoration: none; display: inline-block;">← Kembali ke Data Gaji</a>
+                <a href="{{ route('gaji.index') }}" class="print-btn" style="background: #2d6a4f; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;"><svg style="width:16px;height:16px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>Kembali ke Data Gaji</a>
             </div>
         </div>
     @else
@@ -168,7 +168,7 @@
                             <td class="label-tujuan-nama text-left">Solar</td>
                             @foreach($pageData as $d)
                                 @php
-                                    $display = $d['is_gagal'] ? 'GAGAL' : ($d['solar'] > 0 ? number_format($d['solar'], 0, ',', '.') : '');
+                                    $display = $d['is_gagal'] ? '-' : ($d['solar'] > 0 ? number_format($d['solar'], 0, ',', '.') : '');
                                 @endphp
                                 <td class="text-right">{{ $display }}</td>
                             @endforeach

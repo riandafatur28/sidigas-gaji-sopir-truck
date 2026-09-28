@@ -22,7 +22,7 @@
     </script>
     <style>
         * { font-family: 'Inter', sans-serif; }
-        body { background: #f0f0f2; }
+        body { background: #f3efe7; }
         .sidebar {
             background: #ffffff;
             border-right: 1px solid #e5e7eb;

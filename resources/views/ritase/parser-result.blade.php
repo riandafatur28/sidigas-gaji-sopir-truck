@@ -8,7 +8,7 @@
             <h1 class="text-2xl font-bold text-gray-900">Hasil Parsing Teks Ritase</h1>
             <p class="text-sm text-gray-500 mt-1">Pencocokan otomatis nama sopir dan rute</p>
         </div>
-        <a href="{{ route('ritase.parser') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">← Kembali</a>
+        <a href="{{ route('ritase.parser') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 inline-flex items-center gap-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>Kembali</a>
     </div>
 
     @if (isset($results['errors']) && count($results['errors']) > 0)
@@ -223,9 +223,9 @@
                 </svg>
                 Lanjut ke Hitung Gaji
             </a>
-            <a href="{{ route('ritase.index') }}" class="text-green-600 hover:underline inline-flex items-center">Lihat Data Ritase</a>
+            <a href="{{ route('ritase.index') }}" class="text-green-600 hover:underline inline-flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>Lihat Data Ritase</a>
             <span class="text-gray-400">|</span>
-            <a href="{{ route('ritase.parser') }}" class="text-green-600 hover:underline inline-flex items-center">Parse Lagi</a>
+            <a href="{{ route('ritase.parser') }}" class="text-green-600 hover:underline inline-flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H2m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Parse Lagi</a>
         </div>
         <p class="text-xs text-gray-400 mt-3">Setelah masuk halaman Gaji, tabel akan otomatis terload dengan data ritase terbaru.</p>
     </div>
@@ -236,11 +236,13 @@
             <input type="hidden" name="periode_id" value="{{ request()->periode_id ?? old('periode_id') }}">
             <input type="hidden" name="text" value="{{ request()->text ?? old('text') }}">
             <input type="hidden" name="auto_create" value="1">
-            <button type="submit" class="px-6 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700">
+            <button type="submit" class="px-6 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 inline-flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                 Simpan Semua ke Database
             </button>
         </form>
-        <a href="{{ route('ritase.parser') }}" class="px-6 py-2 bg-gray-200 text-gray-700 font-medium rounded-md hover:bg-gray-300">
+        <a href="{{ route('ritase.parser') }}" class="px-6 py-2 bg-gray-200 text-gray-700 font-medium rounded-md hover:bg-gray-300 inline-flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
             Edit Ulang
         </a>
     </div>

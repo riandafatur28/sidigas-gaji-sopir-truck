@@ -96,10 +96,12 @@
                 </div>
                 <div class="flex gap-2 mt-3">
                     <button type="button" id="btnAmbilFoto"
-                        class="flex-1 bg-green-600 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-green-700 transition">
+                        class="flex-1 bg-green-600 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-green-700 transition inline-flex items-center justify-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                         Ambil Foto
                     </button>
-                    <button type="button" id="btnUlang" class="flex-1 border border-gray-300 rounded text-sm font-medium text-gray-700 px-4 py-2.5 hover:bg-gray-50 transition hidden">
+                    <button type="button" id="btnUlang" class="flex-1 border border-gray-300 rounded text-sm font-medium text-gray-700 px-4 py-2.5 hover:bg-gray-50 transition hidden inline-flex items-center justify-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H2m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                         Ulang
                     </button>
                 </div>
@@ -107,7 +109,8 @@
             </div>
 
             <button type="button" id="btnSubmit"
-                class="w-full bg-gray-300 text-gray-500 rounded text-sm font-semibold px-5 py-3 transition cursor-not-allowed" disabled>
+                class="w-full bg-gray-300 text-gray-500 rounded text-sm font-semibold px-5 py-3 transition cursor-not-allowed inline-flex items-center justify-center gap-1.5" disabled>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                 Kirim Bukti
             </button>
     </form>
@@ -132,11 +135,13 @@
         </div>
         <div class="p-5 border-t border-gray-200 flex gap-3">
             <button type="button" id="btnBatalModal"
-                class="flex-1 border border-gray-300 rounded text-sm font-medium text-gray-700 px-4 py-2.5 hover:bg-gray-50 transition">
+                class="flex-1 border border-gray-300 rounded text-sm font-medium text-gray-700 px-4 py-2.5 hover:bg-gray-50 transition inline-flex items-center justify-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 Batal
             </button>
             <button type="button" id="btnKirimModal"
-                class="flex-1 bg-gray-900 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-gray-800 transition">
+                class="flex-1 bg-gray-900 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-gray-800 transition inline-flex items-center justify-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                 Ya, Kirim
             </button>
         </div>

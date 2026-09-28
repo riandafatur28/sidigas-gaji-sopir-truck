@@ -94,9 +94,10 @@
                                     $ritKey = $col['date'] . '_' . $col['waktu'];
                                     $val = isset($data[$sk][$ritKey][$col['rit_idx']]) ? $data[$sk][$ritKey][$col['rit_idx']] : '-';
                                     $bgClass = $val !== '-' ? ($col['waktu'] == 'P' ? 'bg-amber-50/30' : 'bg-green-50/30') : '';
+                                    $isGagalText = $val === 'Gagal Produksi';
                                     if ($val !== '-') $perDayTotals[$col['key']]++;
                                 @endphp
-                                <td class="px-1 py-2 text-center text-xs font-medium border border-gray-200 {{ $bgClass }}" style="color:var(--text,#374151)">{{ $val }}</td>
+                                <td class="px-1 py-2 text-center text-xs font-medium border border-gray-200 {{ $bgClass }} {{ $isGagalText ? 'text-red-600 font-semibold' : '' }}" style="{{ $isGagalText ? 'color:#dc2626' : 'color:var(--text,#374151)' }}">{{ $val }}</td>
                             @endforeach
                             <td class="px-3 py-2 text-center text-sm font-bold border border-gray-200" style="color:var(--text,#111827)">{{ $total }}</td>
                             <td class="px-3 py-2 text-center text-sm font-bold border border-gray-200" style="color:var(--text,#16a34a)">{{ $eligible }}</td>

@@ -117,55 +117,6 @@
         document.getElementById('editForm').submit();
     };
 
-    // Live search
-    (function() {
-        var searchInput = document.getElementById('liveSearch');
-        if (!searchInput) return;
-        var searchLoading = document.getElementById('searchLoading');
-        var clearSearch = document.getElementById('clearSearch');
-        var debounceTimer;
-
-        function debounce(func, wait) {
-            return function() {
-                var args = arguments;
-                var ctx = this;
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(function() { func.apply(ctx, args); }, wait);
-            };
-        }
-
-        function performSearch() {
-            var query = searchInput.value.trim();
-            if (searchLoading) searchLoading.classList.remove('hidden');
-            if (clearSearch) clearSearch.classList.add('hidden');
-            var url = new URL(window.location.href);
-            if (query) {
-                url.searchParams.set('search', query);
-                if (clearSearch) clearSearch.classList.remove('hidden');
-            } else {
-                url.searchParams.delete('search');
-            }
-            window.location.href = url.toString();
-        }
-
-        searchInput.addEventListener('input', debounce(performSearch, 500));
-        if (clearSearch) {
-            clearSearch.addEventListener('click', function() {
-                searchInput.value = '';
-                performSearch();
-                searchInput.focus();
-            });
-        }
-        searchInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                clearTimeout(debounceTimer);
-                performSearch();
-            }
-        });
-        if (searchInput.value && clearSearch) clearSearch.classList.remove('hidden');
-    })();
-
     // Clear error on typing
     var namaTambah = document.getElementById('namaTambah');
     if (namaTambah) {

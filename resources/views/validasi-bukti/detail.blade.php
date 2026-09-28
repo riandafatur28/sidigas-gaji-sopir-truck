@@ -9,7 +9,7 @@
                 <h1 class="text-3xl font-bold text-gray-900">Detail Bukti</h1>
                 <p class="text-base text-gray-500 mt-1">Periksa bukti sebelum menyetujui atau menolak</p>
             </div>
-            <a href="{{ route('validasi-bukti.kelola') }}" class="text-sm text-gray-600 border border-gray-200 px-3 py-1.5 rounded hover:bg-gray-50 font-medium">&larr; Kembali</a>
+            <a href="{{ route('validasi-bukti.kelola') }}" class="inline-flex items-center gap-1 text-sm text-gray-600 border border-gray-200 px-3 py-1.5 rounded hover:bg-gray-50 font-medium"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>Kembali</a>
         </div>
     </div>
 
@@ -27,7 +27,11 @@
                     <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Foto Bukti</p>
                 </div>
                 <div class="p-4">
+                    @if($item->foto && \Illuminate\Support\Facades\Storage::disk('public')->exists($item->foto))
                     <img src="/storage/{{ $item->foto }}" class="w-full rounded border border-gray-200">
+                    @else
+                    <div class="text-sm text-gray-500 bg-gray-50 border border-dashed border-gray-300 rounded px-4 py-8 text-center">Foto tidak ditemukan di server.</div>
+                    @endif
                 </div>
             </div>
 
@@ -38,7 +42,7 @@
                 <div class="p-4 space-y-2 text-sm">
                     <div><span class="font-medium text-gray-600">Lokasi:</span> <span class="text-gray-800">{{ $item->lokasi ?? '-' }}</span></div>
                     <div><span class="font-medium text-gray-600">Koordinat:</span> <span class="text-gray-800">{{ $item->latitude }}, {{ $item->longitude }}</span></div>
-                    <div><span class="font-medium text-gray-600">Waktu Foto:</span> <span class="text-gray-800">{{ $item->waktu_foto ? \Carbon\Carbon::parse($item->waktu_foto)->format('d/m/Y H:i:s') : '-' }}</span></div>
+                    <div><span class="font-medium text-gray-600">Waktu Foto:</span> <span class="text-gray-800">{{ $item->waktu_foto ? \Carbon\Carbon::parse($item->waktu_foto, 'UTC')->setTimezone('Asia/Jakarta')->format('d/m/Y H:i:s') : '-' }}</span></div>
                     <div><span class="font-medium text-gray-600">Periode:</span> <span class="text-gray-800">{{ $item->periode?->nama_periode ?? '-' }}</span></div>
                 </div>
             </div>
@@ -102,7 +106,8 @@
                             @csrf
                             <label class="block text-sm font-medium text-gray-700 mb-1">Catatan (opsional)</label>
                             <textarea name="catatan_mitra" rows="2" class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-green-500"></textarea>
-                            <button type="submit" class="mt-2 w-full bg-green-600 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-green-700 transition">
+                            <button type="submit" class="mt-2 w-full bg-green-600 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-green-700 transition inline-flex items-center justify-center gap-1.5">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 Setujui
                             </button>
                         </form>
@@ -111,7 +116,8 @@
                             @csrf
                             <label class="block text-sm font-medium text-gray-700 mb-1">Alasan Penolakan <span class="text-red-500">*</span></label>
                             <textarea name="catatan_mitra" rows="2" required class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-red-500"></textarea>
-                            <button type="button" onclick="confirmTolak()" class="mt-2 w-full bg-red-600 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-red-700 transition">
+                            <button type="button" onclick="confirmTolak()" class="mt-2 w-full bg-red-600 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-red-700 transition inline-flex items-center justify-center gap-1.5">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                                 Tolak
                             </button>
                         </form>
@@ -158,8 +164,9 @@
                                 </div>
                             </div>
 
-                            <button type="submit" class="w-full bg-green-600 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-green-700 transition"
+                            <button type="submit" class="w-full bg-green-600 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-green-700 transition inline-flex items-center justify-center gap-1.5"
                                 onclick="return confirm('Pastikan data sudah benar. Lanjutkan?')">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                 Simpan Ritase
                             </button>
                         </form>

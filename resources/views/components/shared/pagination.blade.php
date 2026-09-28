@@ -2,12 +2,12 @@
 @props(['paginator'])
 
 @if($paginator->hasPages())
-    <div class="border-t border-gray-200 px-5 py-3 bg-gray-50">
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p class="text-sm text-gray-600">
+    <div class="border-t border-gray-200 px-5 py-3 bg-gray-50 overflow-hidden">
+        <div class="flex flex-nowrap items-center justify-between w-full gap-2 overflow-hidden">
+            <p class="text-sm text-gray-600 whitespace-nowrap">
                 Halaman {{ $paginator->currentPage() }} dari {{ $paginator->lastPage() }}
             </p>
-            <div class="flex items-center space-x-1.5">
+            <div class="flex flex-nowrap items-center gap-1 overflow-hidden">
                 @if($paginator->onFirstPage())
                     <span class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 rounded cursor-not-allowed">
                         Sebelumnya
@@ -61,3 +61,4 @@
         </div>
     </div>
 @endif
+

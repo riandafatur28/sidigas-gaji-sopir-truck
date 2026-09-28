@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initFilterToggle();
     try { initTomSelects(); } catch(e) { console.error('initTomSelects:', e); }
     try { initFormSubmit(); } catch(e) { console.error('initFormSubmit:', e); }
-    try { initLiveSearch(); } catch(e) { console.error('initLiveSearch:', e); }
     try { initDetailSearch(); } catch(e) { console.error('initDetailSearch:', e); }
     try { initModalOverlayClose(); } catch(e) { console.error('initModalOverlayClose:', e); }
     try { initEscapeKeyClose(); } catch(e) { console.error('initEscapeKeyClose:', e); }
@@ -147,9 +146,10 @@ function loadDetailData() {
                 json.columns.forEach(function(col) {
                     var cell = '';
                     if (json.data[s.kode_sopir] && json.data[s.kode_sopir][col.key]) {
-                        cell = json.data[s.kode_sopir][col.key].join('<br>');
+                        cell = json.data[s.kode_sopir][col.key].map(function(v){ return v === 'Gagal Produksi' ? '<span class="text-red-600 font-semibold">Gagal Produksi</span>' : escapeHtml(v); }).join('<br>');
                     }
-                    html += '<td class="text-center align-middle ' + cellClass + ' ' + (col.waktu === 'P' ? 'bg-amber-50/30' : 'bg-green-50/30') + ' text-gray-700" style="border:1px solid #e5e7eb;font-weight:500">';
+                    var isGagalCell = cell.indexOf('Gagal Produksi') !== -1;
+                    html += '<td class="text-center align-middle ' + cellClass + ' ' + (col.waktu === 'P' ? 'bg-amber-50/30' : 'bg-green-50/30') + (isGagalCell ? ' text-red-600 font-semibold' : ' text-gray-700') + '" style="border:1px solid #e5e7eb;font-weight:500' + (isGagalCell ? ';color:#dc2626' : '') + '">';
                     html += cell || '<span class="text-gray-300">-</span>';
                     html += '</td>';
                 });
@@ -168,8 +168,8 @@ function loadDetailData() {
             html += '</tr></tbody></table></div>';
 
             // PDF buttons + pagination
-            html += '<div class="flex items-center justify-between px-4 py-3 border-t border-gray-100">';
-            html += '<div class="flex items-center gap-2">';
+            html += '<div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-t border-gray-100 overflow-hidden">';
+            html += '<div class="flex flex-nowrap items-center gap-2">';
             html += '<button onclick="openPdfModal(' + periode + ')" class="inline-flex items-center gap-2 px-3 py-2 border border-gray-200 rounded text-sm bg-white hover:bg-gray-50 font-medium" style="color:var(--text);cursor:pointer" type="button">';
             html += '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z"/></svg>';
             html += 'Lihat PDF</button>';
@@ -178,9 +178,9 @@ function loadDetailData() {
             html += 'Download PDF</a></div>';
 
             if (pag.last_page > 1) {
-                html += '<div class="flex items-center gap-3">';
-                html += '<span class="text-sm text-gray-600">Halaman ' + pag.page + ' dari ' + pag.last_page + ' (' + pag.total + ' sopir)</span>';
-                html += '<div class="flex items-center space-x-1.5">';
+                html += '<div class="flex flex-nowrap items-center gap-3 overflow-hidden">';
+                html += '<span class="text-sm text-gray-600 whitespace-nowrap">Halaman ' + pag.page + ' dari ' + pag.last_page + '</span>';
+                html += '<div class="flex flex-nowrap items-center gap-1 overflow-hidden">';
                 html += pag.page <= 1
                     ? '<span class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 rounded cursor-not-allowed">Sebelumnya</span>'
                     : '<a href="#" onclick="loadDetailPage(' + (pag.page - 1) + '); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded hover:bg-gray-50 font-medium">Sebelumnya</a>';
@@ -470,26 +470,6 @@ function initEscapeKeyClose() {
 }
 
 // ===== LIVE SEARCH =====
-function initLiveSearch() {
-    var searchInput = document.getElementById('liveSearch');
-    var clearSearch = document.getElementById('clearSearch');
-    if (!searchInput) return;
-    var debounceTimer;
-
-    searchInput.addEventListener('input', function() {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(function() {
-            var query = searchInput.value.trim();
-            var url = new URL(window.location.href);
-            if (query) { url.searchParams.set('search', query); clearSearch.classList.remove('hidden'); }
-            else { url.searchParams.delete('search'); clearSearch.classList.add('hidden'); }
-            window.location.href = url.toString();
-        }, 500);
-    });
-    clearSearch.addEventListener('click', function() { searchInput.value = ''; searchInput.dispatchEvent(new Event('input')); searchInput.focus(); });
-    if (searchInput.value) clearSearch.classList.remove('hidden');
-}
-
 function initDetailSearch() {
     var ds = document.getElementById('detailSearch');
     if (!ds) return;
@@ -500,3 +480,4 @@ function initDetailSearch() {
         dTimer = setTimeout(loadDetailData, 400);
     });
 }
+
