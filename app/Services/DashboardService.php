@@ -15,6 +15,19 @@ use Carbon\Carbon;
 class DashboardService
 {
     /**
+     * Cache version key — bumped on every ritase/periode write so the
+     * dashboard never serves stale grafik/cards after new data arrives.
+     */
+    public const VERSION_KEY = 'dashboard_version';
+
+    public static function bumpVersion(): void
+    {
+        // Unique value per write. Cache::increment() on a missing key (DatabaseStore)
+        // returns false WITHOUT creating the key, so a counter never invalidates.
+        Cache::forever(static::VERSION_KEY, uniqid());
+    }
+
+    /**
      * Get dashboard index data with caching for performance.
      */
     public function getIndexData(Request $request): array
@@ -23,8 +36,9 @@ class DashboardService
         $filter = $request->get('periode', 'periode_ini');
         $tanggal = $request->get('tanggal', '');
 
-        // Cache key based on user and filter
-        $cacheKey = "dashboard_{$user->id}_{$filter}_" . md5($tanggal);
+        // Cache key based on user, filter, and data version
+        $version = Cache::get(static::VERSION_KEY, 'init');
+        $cacheKey = "dashboard_v{$version}_{$user->id}_{$filter}_" . md5($tanggal);
         $cacheMinutes = 5; // Cache for 5 minutes
 
         return Cache::remember($cacheKey, $cacheMinutes, function () use ($user, $filter, $tanggal) {
@@ -37,7 +51,7 @@ class DashboardService
      */
     private function computeDashboardData(object $user, string $filter, string $tanggal): array
     {
-        [$startDate, $endDate, $periodLabel] = $this->resolveFilter($filter, $tanggal);
+        [$startDate, $endDate, $periodLabel, $periodeId] = $this->resolveFilter($filter, $tanggal);
 
         $totalSopir = Sopir::count();
 
@@ -55,6 +69,12 @@ class DashboardService
 
         if ($startDate) {
             $ritaseQuery->whereBetween('tanggal', [$startDate, $endDate]);
+        }
+        if ($periodeId) {
+            // Sync with riwayat/laporan: sum by periode identity, not date overlap
+            // (touching periodes were double-counted by the inclusive overlap).
+            $gajiQuery->where('periode_id', $periodeId);
+        } elseif ($startDate) {
             $gajiQuery->whereHas('periode', fn($q) => $q->where('tanggal_mulai', '<=', $endDate)->where('tanggal_selesai', '>=', $startDate));
         }
 
@@ -122,18 +142,18 @@ class DashboardService
         $periodLabel = 'Periode Ini';
 
         if ($tanggal) {
-            return [Carbon::parse($tanggal), Carbon::parse($tanggal), $tanggal];
+            return [Carbon::parse($tanggal), Carbon::parse($tanggal), $tanggal, null];
         }
 
         return match ($filter) {
-            'semua' => [null, now(), 'Semua Waktu'],
+            'semua' => [null, now(), 'Semua Waktu', null],
             'periode_ini' => $this->resolvePeriodeAktif(),
             'periode_lalu' => $this->resolvePeriodeLalu(),
-            'bulan_ini' => [now()->startOfMonth(), now(), 'Bulan Ini'],
-            '3_bulan_lalu' => [now()->subMonths(3)->startOfMonth(), now(), '3 Bulan Lalu'],
-            '6_bulan_lalu' => [now()->subMonths(6)->startOfMonth(), now(), '6 Bulan Lalu'],
-            '1_tahun_lalu' => [now()->subYear()->startOfYear(), now(), '1 Tahun Lalu'],
-            default => [$startDate, $endDate, $periodLabel],
+            'bulan_ini' => [now()->startOfMonth(), now(), 'Bulan Ini', null],
+            '3_bulan_lalu' => [now()->subMonths(3)->startOfMonth(), now(), '3 Bulan Lalu', null],
+            '6_bulan_lalu' => [now()->subMonths(6)->startOfMonth(), now(), '6 Bulan Lalu', null],
+            '1_tahun_lalu' => [now()->subYear()->startOfYear(), now(), '1 Tahun Lalu', null],
+            default => [$startDate, $endDate, $periodLabel, null],
         };
     }
 
@@ -143,12 +163,13 @@ class DashboardService
             ->where('tanggal_mulai', '<=', now())
             ->where('tanggal_selesai', '>=', now())
             ->first()
-            ?? \App\Models\Periode::where('status', 'aktif')->first();
+            ?? \App\Models\Periode::where('status', 'aktif')->first()
+            ?? \App\Models\Periode::orderBy('tanggal_selesai', 'desc')->first();
 
         if ($periode) {
-            return [Carbon::parse($periode->tanggal_mulai), Carbon::parse($periode->tanggal_selesai), 'Periode Ini'];
+            return [Carbon::parse($periode->tanggal_mulai), Carbon::parse($periode->tanggal_selesai), 'Periode Ini', $periode->id];
         }
-        return [null, now(), 'Periode Ini'];
+        return [null, now(), 'Periode Ini', null];
     }
 
     private function resolvePeriodeLalu(): array
@@ -157,9 +178,9 @@ class DashboardService
             ->latest('tanggal_selesai')->first();
 
         if ($periodeLalu) {
-            return [Carbon::parse($periodeLalu->tanggal_mulai), Carbon::parse($periodeLalu->tanggal_selesai), 'Periode Lalu'];
+            return [Carbon::parse($periodeLalu->tanggal_mulai), Carbon::parse($periodeLalu->tanggal_selesai), 'Periode Lalu', $periodeLalu->id];
         }
-        return [null, now(), 'Periode Lalu'];
+        return [null, now(), 'Periode Lalu', null];
     }
 
     private function buildRitaseTrend(mixed $startDate, mixed $endDate): array

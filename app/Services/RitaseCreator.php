@@ -40,6 +40,16 @@ class RitaseCreator
             return compact('created', 'skipped', 'errors', 'details');
         }
 
+        $parsedDate = isset($parsed['date']) ? substr((string) $parsed['date'], 0, 10) : null;
+        if ($parsedDate) {
+            $mulai = $periode->tanggal_mulai->format('Y-m-d');
+            $selesai = $periode->tanggal_selesai->format('Y-m-d');
+            if ($parsedDate < $mulai || $parsedDate > $selesai) {
+                $errors[] = "Tanggal {$parsedDate} di luar rentang periode {$periode->nama_periode} ({$mulai} - {$selesai}). Periksa tahun pada teks (contoh: 28 09 26).";
+                return compact('created', 'skipped', 'errors', 'details');
+            }
+        }
+
         $driverMap = collect($driverMatches)->keyBy('input_name');
         $routeMap = collect($routeMatches)->keyBy('input_route');
 
@@ -625,7 +635,7 @@ class RitaseCreator
     {
         $dtValue = Cache::get('dt_nominal', config('dt.value', 330000));
         $kabNorm = strtolower(trim($kabupaten));
-        $specialKabs = array_map('strtolower', config('dt.single_dt_regencies'));
+        $specialKabs = array_map('strtolower', DtConfig::singleRegencies());
         if (in_array($kabNorm, $specialKabs)) {
             $existing = Ritase::where('kode_sopir', $sopir->kode_sopir)->where('tanggal', $date)->where('kabupaten', $kabupaten)->where('waktu', $waktu)->where('status', '!=', 'gagal_produksi')->first();
             if ($existing) $dtValue = 0;

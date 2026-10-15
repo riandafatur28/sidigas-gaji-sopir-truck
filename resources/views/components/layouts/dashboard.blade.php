@@ -161,14 +161,14 @@
         .dark .page-break { border-color: var(--border) !important; }
         .dark .slip-container .print-btn { background: #2d6a4f !important; color: var(--text) !important; border: 1px solid var(--border) !important; }
         /* Red utility — hapus button, error, required marker */
-        .dark .text-red-500 { color: #f87171 !important; }
         .dark .text-red-600 { color: #f87171 !important; }
-        .dark .text-red-700 { color: #fca5a5 !important; }
+        .dark .text-red-600 { color: #f87171 !important; }
+        .dark .text-red-600 { color: #fca5a5 !important; }
         .dark .border-red-200 { border-color: rgba(248,113,113,0.25) !important; }
         .dark .hover\:bg-red-50:hover { background: rgba(248,113,113,0.1) !important; }
         .dark .hover\:bg-red-100:hover { background: rgba(248,113,113,0.15) !important; }
         .dark .bg-red-50 { background: rgba(248,113,113,0.1) !important; }
-        .dark .bg-red-100 { background: rgba(248,113,113,0.15) !important; }
+        .dark .bg-red-50 { background: rgba(248,113,113,0.15) !important; }
         /* Alerts — satu warna dark mode */
         .dark .alert-info,
         .dark .alert-success,
@@ -180,35 +180,35 @@
         }
         /* Semantic backgrounds — satu warna, no tints */
         .dark .bg-green-50,
-        .dark .bg-green-100,
-        .dark .bg-green-500,
         .dark .bg-green-50,
-        .dark .bg-green-100,
+        .dark .bg-green-600,
+        .dark .bg-green-50,
+        .dark .bg-green-50,
         .dark .bg-amber-50,
         .dark .bg-amber-50\/30,
         .dark .bg-green-50,
-        .dark .bg-green-100,
+        .dark .bg-green-50,
         .dark .bg-green-50\/30,
-        .dark .bg-yellow-100,
-        .dark .bg-orange-100 { background: transparent !important; }
+        .dark .bg-amber-50,
+        .dark .bg-amber-50 { background: transparent !important; }
         /* Semantic text — satu warna, pakai var(--text) */
         .dark .text-green-600,
-        .dark .text-green-700,
-        .dark .text-green-800,
         .dark .text-green-600,
-        .dark .text-green-700,
-        .dark .text-green-800,
-        .dark .text-amber-500,
+        .dark .text-green-600,
+        .dark .text-green-600,
+        .dark .text-green-600,
+        .dark .text-green-600,
+        .dark .text-amber-600,
         .dark .text-amber-600,
         .dark .text-green-600,
-        .dark .text-green-700,
-        .dark .text-yellow-600,
-        .dark .text-yellow-700,
-        .dark .text-orange-600,
-        .dark .text-orange-700 { color: var(--text) !important; }
+        .dark .text-green-600,
+        .dark .text-amber-600,
+        .dark .text-amber-600,
+        .dark .text-amber-600,
+        .dark .text-amber-600 { color: var(--text) !important; }
         /* Semantic borders */
-        .dark .border-green-200,
-        .dark .border-green-200 { border-color: var(--border) !important; }
+        .dark .border-green-500,
+        .dark .border-green-500 { border-color: var(--border) !important; }
         /* Hover backgrounds — satu warna */
         .dark .hover\:bg-green-100:hover,
         .dark .hover\:bg-green-100:hover { background: var(--table-hover) !important; }
@@ -254,6 +254,32 @@
         .dark .detail-table tr { background: var(--card-bg) !important; }
         .dark .detail-table th,
         .dark .detail-table td { border-color: var(--border) !important; }
+
+        /* ============================================
+           ROW-ACTIONS DROPDOWN (x-shared.row-actions)
+           Satu dropdown aksi per baris di semua tabel.
+           ============================================ */
+        .row-actions-menu > a,
+        .row-actions-menu > button,
+        .row-actions-menu > form > button {
+            display: flex; align-items: center; gap: 8px; width: 100%;
+            text-align: left; padding: 8px 12px; font-size: 13px; font-weight: 500;
+            color: var(--text, #374151); background: none; border: none;
+            cursor: pointer; text-decoration: none; white-space: nowrap;
+        }
+        .row-actions-menu > a:hover,
+        .row-actions-menu > button:hover,
+        .row-actions-menu > form > button:hover { background: var(--table-hover, #f3f4f6); }
+        .row-actions-menu > a svg,
+        .row-actions-menu > button svg,
+        .row-actions-menu > form > button svg { width: 14px; height: 14px; flex-shrink: 0; }
+        .row-actions-menu > [data-danger],
+        .row-actions-menu > form > [data-danger] { color: #dc2626; }
+        .row-actions-menu > [data-danger]:hover,
+        .row-actions-menu > form > [data-danger]:hover { background: #fef2f2; }
+        .row-actions-menu > form { margin: 0; }
+        .dark .row-actions-menu > [data-danger],
+        .dark .row-actions-menu > form > [data-danger] { color: #f87171 !important; }
 
         * { font-family: 'Inter', 'system-ui', sans-serif !important; }
 
@@ -756,7 +782,7 @@
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                <span>Hitung Gaji</span>
+                <span>Kelola Gaji</span>
             </a>
 
             <a href="{{ route('gaji.riwayat') }}" class="nav-item {{ request()->routeIs('gaji.riwayat') ? 'active' : '' }}">
@@ -781,6 +807,15 @@
                 </svg>
                 <span>Laporan Gaji</span>
             </a>
+
+            @if(auth()->check() && auth()->user()->isSuperadmin())
+            <a href="{{ route('admin.index') }}" class="nav-item {{ request()->routeIs('admin.*') ? 'active' : '' }}">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+                <span>Kelola Admin</span>
+            </a>
+            @endif
 
             <div class="relative" id="userDropdownWrapper" style="margin-top:8px;border-top:1px solid var(--border);padding-top:14px;">
                 <button onclick="toggleUserDropdown()" class="nav-item w-full" style="justify-content:space-between">
@@ -1021,17 +1056,17 @@
         msg.textContent = opts.message || 'Apakah Anda yakin?';
 
         if (opts.type === 'danger') {
-            icon.className = 'w-12 h-12 rounded-full flex items-center justify-center bg-red-100';
+            icon.className = 'w-12 h-12 rounded-full flex items-center justify-center bg-red-50';
             icon.innerHTML = '<svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>';
             btn.className = 'flex-1 rounded-lg text-sm font-semibold px-4 py-2.5 bg-red-600 text-white hover:bg-red-700 transition';
         } else if (opts.type === 'warning') {
-            icon.className = 'w-12 h-12 rounded-full flex items-center justify-center bg-amber-100';
+            icon.className = 'w-12 h-12 rounded-full flex items-center justify-center bg-amber-50';
             icon.innerHTML = '<svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>';
             btn.className = 'flex-1 rounded-lg text-sm font-semibold px-4 py-2.5 bg-amber-600 text-white hover:bg-amber-700 transition';
         } else {
-            icon.className = 'w-12 h-12 rounded-full flex items-center justify-center bg-blue-100';
-            icon.innerHTML = '<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
-            btn.className = 'flex-1 rounded-lg text-sm font-semibold px-4 py-2.5 bg-blue-600 text-white hover:bg-blue-700 transition';
+            icon.className = 'w-12 h-12 rounded-full flex items-center justify-center bg-green-50';
+            icon.innerHTML = '<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+            btn.className = 'flex-1 rounded-lg text-sm font-semibold px-4 py-2.5 bg-green-600 text-white hover:bg-green-700 transition';
         }
 
         btn.textContent = opts.confirmText || 'Ya, Lanjutkan';
@@ -1046,6 +1081,20 @@
         modal.classList.remove('flex');
         window._confirmCallback = null;
     };
+
+    // ===== SHARED ROW-ACTIONS DROPDOWN (x-shared.row-actions) =====
+    window.toggleRowActions = function(btn) {
+        var menu = btn.parentElement.querySelector('.row-actions-menu');
+        var wasHidden = menu.classList.contains('hidden');
+        document.querySelectorAll('.row-actions-menu').forEach(function(m){ m.classList.add('hidden'); });
+        if (wasHidden) menu.classList.remove('hidden');
+    };
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.row-actions')) {
+            document.querySelectorAll('.row-actions-menu').forEach(function(m){ m.classList.add('hidden'); });
+        }
+    });
 
     document.getElementById('confirmActionBtn').addEventListener('click', function() {
         if (window._confirmCallback) window._confirmCallback();
@@ -1062,15 +1111,15 @@
         msg.textContent = message;
 
         if (type === 'success') {
-            icon.className = 'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-green-100';
+            icon.className = 'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-green-50';
             icon.innerHTML = '<svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
-            box.className = 'bg-white border border-green-200 rounded-lg shadow-lg px-4 py-3 flex items-center gap-3 max-w-sm';
+            box.className = 'bg-white border border-green-500 rounded-lg shadow-lg px-4 py-3 flex items-center gap-3 max-w-sm';
         } else if (type === 'error') {
-            icon.className = 'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-red-100';
+            icon.className = 'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-red-50';
             icon.innerHTML = '<svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
             box.className = 'bg-white border border-red-200 rounded-lg shadow-lg px-4 py-3 flex items-center gap-3 max-w-sm';
         } else {
-            icon.className = 'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-amber-100';
+            icon.className = 'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-amber-50';
             icon.innerHTML = '<svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>';
             box.className = 'bg-white border border-amber-200 rounded-lg shadow-lg px-4 py-3 flex items-center gap-3 max-w-sm';
         }

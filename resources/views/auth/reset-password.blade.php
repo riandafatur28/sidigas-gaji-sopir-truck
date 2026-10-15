@@ -1,6 +1,6 @@
-﻿<x-layouts.auth title="Reset Password">
+<x-layouts.auth title="Reset Password">
 
-    <div class="w-full max-w-sm bg-white border border-stone-200/80 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.08)] p-6">
+    <div class="w-full max-w-sm bg-[#fffdfc] rounded-[14px] shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_12px_rgba(74,63,107,0.05)] p-6">
         <div class="text-center mb-5">
             <h1 class="text-xl font-bold text-gray-900">SIDIGAS</h1>
             <p class="text-xs text-gray-400 mt-0.5">Buat Password Baru</p>
@@ -12,7 +12,7 @@
 
             <div class="relative">
                 <input type="password" name="password" id="password" required autofocus
-                    class="w-full px-3.5 py-2.5 pr-10 border border-gray-200 rounded text-sm bg-gray-50 focus:outline-none focus:border-gray-900 focus:bg-white"
+                    class="w-full px-3.5 py-2.5 pr-10 border border-[#e8e4de] rounded-[10px] text-sm bg-white focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]"
                     placeholder="Password baru">
                 <button type="button" onclick="togPass('password',this)"
                     class="toggle-pass absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
@@ -25,7 +25,7 @@
 
             <div class="relative">
                 <input type="password" name="password_confirmation" id="password_confirmation" required
-                    class="w-full px-3.5 py-2.5 pr-10 border border-gray-200 rounded text-sm bg-gray-50 focus:outline-none focus:border-gray-900 focus:bg-white"
+                    class="w-full px-3.5 py-2.5 pr-10 border border-[#e8e4de] rounded-[10px] text-sm bg-white focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]"
                     placeholder="Konfirmasi password">
                 <button type="button" onclick="togPass('password_confirmation',this)"
                     class="toggle-pass absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
@@ -37,11 +37,11 @@
             </div>
 
             @error('password')
-                <p class="text-red-500 text-xs">{{ $message }}</p>
+                <p class="text-red-600 text-xs">{{ $message }}</p>
             @enderror
 
             <button type="submit"
-                class="w-full bg-gray-900 text-white rounded text-sm font-semibold py-2.5 hover:bg-gray-800 transition inline-flex items-center justify-center gap-1.5">
+                class="w-full bg-[#2d6a4f] text-white rounded-[10px] text-sm font-semibold py-2.5 hover:bg-[#1b4332] focus:outline-none focus:ring-2 focus:ring-[#2d6a4f] focus:ring-offset-2 transition inline-flex items-center justify-center gap-1.5">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                 Simpan
             </button>

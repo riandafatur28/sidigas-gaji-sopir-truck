@@ -14,10 +14,17 @@
     </div>
 
     @if(session('success'))
-        <div class="border border-green-200 bg-green-50 text-green-700 px-4 py-3 rounded mb-4 text-sm">{{ session('success') }}</div>
+        <div class="border border-green-500 bg-green-50 text-green-600 px-4 py-3 rounded mb-4 text-sm">{{ session('success') }}</div>
     @endif
     @if(session('error'))
-        <div class="border border-red-200 bg-red-50 text-red-700 px-4 py-3 rounded mb-4 text-sm">{{ session('error') }}</div>
+        <div class="border border-red-200 bg-red-50 text-red-600 px-4 py-3 rounded mb-4 text-sm">{{ session('error') }}</div>
+    @endif
+    @if($errors->any())
+        <div class="border border-red-200 bg-red-50 text-red-600 px-4 py-3 rounded mb-4 text-sm">
+            <ul class="list-disc list-inside">
+                @foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach
+            </ul>
+        </div>
     @endif
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -58,7 +65,7 @@
                         <span class="font-medium text-gray-600">Nama Sopir:</span>
                         <span class="text-gray-800">{{ $item->nama_sopir }}</span>
                         @if($item->sopir_baru)
-                            <span class="text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded ml-1">Sopir Baru</span>
+                            <span class="text-xs bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded ml-1">Sopir Baru</span>
                         @elseif($item->kode_sopir)
                             <span class="text-xs text-gray-400 ml-1">({{ $item->kode_sopir }})</span>
                         @endif
@@ -67,20 +74,20 @@
                         <span class="font-medium text-gray-600">Tujuan:</span>
                         <span class="text-gray-800">{{ $item->nama_tujuan }}</span>
                         @if($item->tujuan_baru)
-                            <span class="text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded ml-1">Tujuan Baru</span>
+                            <span class="text-xs bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded ml-1">Tujuan Baru</span>
                         @elseif($item->kode_tujuan)
                             <span class="text-xs text-gray-400 ml-1">({{ $item->kode_tujuan }})</span>
                         @endif
                     </div>
-                    <div><span class="font-medium text-gray-600">Tanggal:</span> <span class="text-gray-800">{{ \Carbon\Carbon::parse($item->tanggal)->format('d/m/Y') }}</span></div>
+                    <div><span class="font-medium text-gray-600">Tanggal:</span> <span class="text-gray-800">{{ \Carbon\Carbon::parse($item->tanggal)->locale('id')->translatedFormat('d F Y') }}</span></div>
                     <div><span class="font-medium text-gray-600">Catatan Sopir:</span> <span class="text-gray-800">{{ $item->catatan ?? '-' }}</span></div>
                     <div><span class="font-medium text-gray-600">Status:</span>
                         @if($item->status === 'pending')
-                            <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded font-medium">Pending</span>
+                            <span class="text-xs bg-amber-50 text-amber-600 px-2 py-0.5 rounded font-medium">Pending</span>
                         @elseif($item->status === 'disetujui')
-                            <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded font-medium">Disetujui</span>
+                            <span class="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded font-medium">Disetujui</span>
                         @else
-                            <span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded font-medium">Ditolak</span>
+                            <span class="text-xs bg-red-50 text-red-600 px-2 py-0.5 rounded font-medium">Ditolak</span>
                         @endif
                     </div>
                     @if($item->catatan_mitra)
@@ -96,7 +103,7 @@
                     </div>
                     <div class="p-4 space-y-4">
                         @if($item->sopir_baru || $item->tujuan_baru)
-                            <div class="border border-yellow-200 bg-yellow-50 text-yellow-700 px-4 py-3 rounded text-sm">
+                            <div class="border border-amber-200 bg-amber-50 text-amber-600 px-4 py-3 rounded text-sm">
                                 <p class="font-medium">Perhatian: Data Baru</p>
                                 <p class="mt-1">Sopir atau tujuan baru akan ditambahkan ke database setelah disetujui.</p>
                             </div>
@@ -114,8 +121,8 @@
 
                         <form method="POST" action="{{ route('validasi-bukti.tolak', $item->id) }}" class="border border-red-200 rounded p-4 bg-red-50" id="formTolak">
                             @csrf
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Alasan Penolakan <span class="text-red-500">*</span></label>
-                            <textarea name="catatan_mitra" rows="2" required class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-red-500"></textarea>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Alasan Penolakan <span class="text-red-600">*</span></label>
+                            <textarea name="catatan_mitra" rows="2" required class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-red-200"></textarea>
                             <button type="button" onclick="confirmTolak()" class="mt-2 w-full bg-red-600 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-red-700 transition inline-flex items-center justify-center gap-1.5">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                                 Tolak
@@ -137,25 +144,25 @@
                             <input type="hidden" name="kode_tujuan" value="{{ $item->kode_tujuan }}">
                             <input type="hidden" name="tanggal" value="{{ $item->tanggal }}">
 
-                            <div class="border border-green-200 bg-green-50 text-green-700 px-4 py-3 rounded text-sm">
+                            <div class="border border-green-500 bg-green-50 text-green-600 px-4 py-3 rounded text-sm">
                                 Sopir: <strong>{{ $item->nama_sopir }}</strong> ({{ $item->kode_sopir }})
                                 &middot; Tujuan: <strong>{{ $item->nama_tujuan }}</strong> ({{ $item->kode_tujuan }})
                             </div>
 
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Kabupaten <span class="text-red-500">*</span></label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Kabupaten <span class="text-red-600">*</span></label>
                                     <select name="kabupaten" required class="w-full px-3 py-2 border border-gray-200 rounded text-sm bg-white focus:outline-none focus:border-green-500">
                                         <option value="">Pilih</option>
-                                        <option value="bangkalan">Bangkalan</option>
-                                        <option value="sampang">Sampang</option>
-                                        <option value="pamekasan">Pamekasan</option>
-                                        <option value="sumenep">Sumenep</option>
-                                        <option value="lainnya">Lainnya</option>
+                                        <option value="Nganjuk">Nganjuk</option>
+                                        <option value="Kediri">Kediri</option>
+                                        <option value="Kota Kediri">Kota Kediri</option>
+                                        <option value="Jombang">Jombang</option>
+                                        <option value="Lainnya">Lainnya</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Waktu <span class="text-red-500">*</span></label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Waktu <span class="text-red-600">*</span></label>
                                     <select name="waktu" required class="w-full px-3 py-2 border border-gray-200 rounded text-sm bg-white focus:outline-none focus:border-green-500">
                                         <option value="">Pilih</option>
                                         <option value="pagi">Pagi</option>
@@ -176,7 +183,7 @@
 
             @if($item->status === 'ditolak' && $item->catatan_mitra)
                 <div class="border border-red-200 bg-red-50 rounded mt-4 p-4">
-                    <p class="text-sm font-medium text-red-700">Alasan ditolak:</p>
+                    <p class="text-sm font-medium text-red-600">Alasan ditolak:</p>
                     <p class="text-sm text-red-600 mt-1">{{ $item->catatan_mitra }}</p>
                 </div>
             @endif

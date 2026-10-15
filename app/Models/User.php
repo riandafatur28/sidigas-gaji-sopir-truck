@@ -17,6 +17,7 @@ class User extends Authenticatable
         'email',
         'password',
         'phone',
+        'role',
     ];
 
     protected $hidden = [
@@ -30,5 +31,10 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function isSuperadmin(): bool
+    {
+        return ($this->role ?? 'admin') === 'superadmin';
     }
 }

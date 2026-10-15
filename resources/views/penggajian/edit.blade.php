@@ -13,19 +13,19 @@
     </div>
 
     @if(session('success'))
-        <div class="border border-green-200 bg-green-50 text-green-700 px-4 py-3 rounded mb-4 text-sm">
+        <div class="border border-green-500 bg-green-50 text-green-600 px-4 py-3 rounded mb-4 text-sm">
             {{ session('success') }}
         </div>
     @endif
 
     @if(session('error'))
-        <div class="border border-red-200 bg-red-50 text-red-700 px-4 py-3 rounded mb-4 text-sm">
+        <div class="border border-red-200 bg-red-50 text-red-600 px-4 py-3 rounded mb-4 text-sm">
             {{ session('error') }}
         </div>
     @endif
 
     @if($errors->any())
-        <div class="border border-red-200 bg-red-50 text-red-700 px-4 py-3 rounded mb-4 text-sm">
+        <div class="border border-red-200 bg-red-50 text-red-600 px-4 py-3 rounded mb-4 text-sm">
             <ul class="list-disc list-inside">
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -58,7 +58,7 @@
                         <thead class="bg-gray-50 border-b border-gray-200">
                             <tr>
                                 <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Tujuan</th>
-                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">BBM/Rit</th>
+                                <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Solar/Rit</th>
                                 <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Upah/Rit</th>
                                 <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Kompensasi Gagal</th>
                                 <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2">Tol</th>
@@ -80,7 +80,7 @@
                                                placeholder="0"
                                                value="{{ $detailPerTujuan[$tujuan->kode_tujuan]['bbm_per_rit'] ?? 0 }}"
                                                class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 bg-white transition input-bbm">
-                                        <p class="text-red-500 text-xs mt-1 hidden error-edit-bbm">Harus angka positif.</p>
+                                        <p class="text-red-600 text-xs mt-1 hidden error-edit-bbm">Harus angka positif.</p>
                                     </div>
                                 </td>
                                 <td class="px-4 py-2.5">
@@ -91,7 +91,7 @@
                                                placeholder="0"
                                                value="{{ $detailPerTujuan[$tujuan->kode_tujuan]['upah_per_rit'] ?? 0 }}"
                                                class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 bg-white transition input-upah">
-                                        <p class="text-red-500 text-xs mt-1 hidden error-edit-upah">Harus angka positif.</p>
+                                        <p class="text-red-600 text-xs mt-1 hidden error-edit-upah">Harus angka positif.</p>
                                     </div>
                                 </td>
                                 <td class="px-4 py-2.5">
@@ -102,7 +102,7 @@
                                                placeholder="0"
                                                value="{{ $detailPerTujuan[$tujuan->kode_tujuan]['kompensasi_gagal'] ?? 0 }}"
                                                class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 bg-white transition">
-                                        <p class="text-red-500 text-xs mt-1 hidden error-edit-komp">Harus angka positif.</p>
+                                        <p class="text-red-600 text-xs mt-1 hidden error-edit-komp">Harus angka positif.</p>
                                         <input type="hidden" name="detail[{{ $loop->index }}][kode_tujuan]" value="{{ $tujuan->kode_tujuan }}">
                                     </div>
                                 </td>

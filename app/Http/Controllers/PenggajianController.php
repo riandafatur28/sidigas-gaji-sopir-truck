@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePenggajianRequest;
+use App\Services\DashboardService;
 use App\Services\PenggajianService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -38,6 +39,7 @@ class PenggajianController extends Controller
         try {
             $this->penggajianService->storePenggajian($request);
             DB::commit();
+            DashboardService::bumpVersion();
             return redirect()->back()->with('success', 'Data gaji berhasil disimpan!')->withInput();
         } catch (\Exception $e) {
             DB::rollback();
@@ -61,6 +63,7 @@ class PenggajianController extends Controller
         try {
             $this->penggajianService->updatePenggajian($request, $id);
             DB::commit();
+            DashboardService::bumpVersion();
             return redirect()->back()->with('success', 'Data gaji berhasil diupdate!');
         } catch (\Exception $e) {
             DB::rollback();
@@ -72,6 +75,7 @@ class PenggajianController extends Controller
     {
         try {
             \App\Models\Penggajian::where('periode_id', $id)->delete();
+            DashboardService::bumpVersion();
             return redirect()->back()->with('success', 'Data gaji berhasil dihapus!');
         } catch (\Exception $e) {
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());

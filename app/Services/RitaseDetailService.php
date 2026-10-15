@@ -92,7 +92,7 @@ class RitaseDetailService
         $ritases = Ritase::with(['sopir', 'tujuan'])->where('periode_id', $periodeId)->orderBy('tanggal', 'asc')->get();
         $sopirList = $data = $counts = [];
         $maxRitByWaktu = array_fill_keys($dates, ['P' => 0, 'M' => 0]);
-        $kabSatuDt = config('dt.single_dt_regencies');
+        $kabSatuDt = DtConfig::singleRegencies();
         $firstRit = [];
 
         foreach ($ritases as $r) {

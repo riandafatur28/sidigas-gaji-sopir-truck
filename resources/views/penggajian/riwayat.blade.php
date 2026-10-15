@@ -45,7 +45,7 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
                             Filter
                             @if($bulan || $tahun || $sort != 'terbaru')
-                                <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                                <span class="w-2 h-2 rounded-full bg-green-600"></span>
                             @endif
                         </button>
                         <div class="hidden absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-lg z-50 p-4" id="riwFilterPanel">
@@ -107,9 +107,9 @@
                         <td class="px-4 py-2.5">
                             <div class="text-sm font-medium text-gray-800">{{ $periode['nama_periode'] }}</div>
                             <div class="text-xs text-gray-400">
-                                {{ \Carbon\Carbon::parse($periode['tanggal_mulai'])->format('d/m/Y') }}
+                                {{ \Carbon\Carbon::parse($periode['tanggal_mulai'])->locale('id')->translatedFormat('d F Y') }}
                                 -
-                                {{ \Carbon\Carbon::parse($periode['tanggal_selesai'])->format('d/m/Y') }}
+                                {{ \Carbon\Carbon::parse($periode['tanggal_selesai'])->locale('id')->translatedFormat('d F Y') }}
                             </div>
                         </td>
                         <td class="px-4 py-2.5 text-center text-sm font-medium text-gray-700">{{ $periode['jumlah_sopir'] }} org</td>
@@ -120,26 +120,32 @@
                         <td class="px-4 py-2.5 text-right text-sm font-bold text-gray-900">Rp {{ number_format($periode['grand_total'], 0, ',', '.') }}</td>
                         <td class="px-4 py-2.5 text-center">
                             <div class="flex items-center justify-center gap-1.5">
-                                <a href="{{ route('gaji.index', ['periode' => $periode['id']]) }}"
-                                   class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-green-50 text-green-700 rounded text-xs font-medium hover:bg-green-100 transition">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                <x-shared.row-actions>
+                                <a href="{{ route('gaji.index', ['periode' => $periode['id']]) }}">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                     Detail
                                 </a>
-                                <button onclick="lihatSlipModal('{{ $periode['id'] }}')"
-                                   class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-gray-50 text-gray-700 rounded text-xs font-medium hover:bg-gray-100 transition cursor-pointer">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                <button onclick="lihatSlipModal({{ $periode['id'] }})">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                     Lihat
                                 </button>
-                                <a href="{{ route('gaji.slip-pdf', $periode['id']) }}"
-                                   class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-gray-50 text-gray-700 rounded text-xs font-medium hover:bg-gray-100 transition">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                <a href="{{ route('gaji.slip-pdf', $periode['id']) }}">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                     Slip PDF
                                 </a>
-                                <a href="{{ route('gaji.laporan-pdf', $periode['id']) }}"
-                                   class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-green-50 text-green-700 rounded text-xs font-medium hover:bg-green-100 transition">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                <a href="{{ route('gaji.laporan-pdf', $periode['id']) }}">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                     Laporan
                                 </a>
+                                <a href="{{ route('gaji.edit', $periode['id']) }}">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                    Edit
+                                </a>
+                                <button data-danger onclick="confirmDeleteGaji({{ $periode['id'] }}, '{{ $periode['nama_periode'] }}')">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    Hapus
+                                </button>
+                                </x-shared.row-actions>
                             </div>
                         </td>
                     </tr>
@@ -152,7 +158,7 @@
         </table>
         </div>
         @if($periodes->hasPages())
-        <div class="px-4 py-3 border-t border-gray-100">
+        <div class="px-4 py-3 border-t border-gray-200">
             <div class="flex items-center justify-between w-full gap-3">
                 <p class="text-sm text-gray-600 whitespace-nowrap hidden sm:block">Halaman {{ $periodes->currentPage() }} dari {{ $periodes->lastPage() }}</p>
                 <div class="flex items-center space-x-1.5">
@@ -202,6 +208,19 @@
         </div>
     </div>
 <script>
+function confirmDeleteGaji(id, nama) {
+    showConfirmModal({
+        title: 'Hapus Data Gaji?',
+        message: 'Anda yakin ingin menghapus data gaji periode "' + nama + '" beserta rinciannya? Tindakan ini tidak dapat dibatalkan.',
+        type: 'danger',
+        confirmText: 'Ya, Hapus',
+        onConfirm: function() {
+            var f = document.getElementById('deleteGajiForm');
+            f.action = '{{ url("/gaji") }}/' + id;
+            f.submit();
+        }
+    });
+}
 function lihatSlipModal(periodeId) {
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black/40 z-50 flex items-center justify-center';
@@ -244,13 +263,17 @@ function lihatSlipModal(periodeId) {
             document.getElementById('slipViewContent').innerHTML = styleHtml + (slipHtml || '<p class="text-gray-500">Tidak ada data slip</p>');
         })
         .catch(() => {
-            document.getElementById('slipViewContent').innerHTML = '<p class="text-red-500">Gagal memuat slip</p>';
+            document.getElementById('slipViewContent').innerHTML = '<p class="text-red-600">Gagal memuat slip</p>';
         });
 }
 </script>
     @push('scripts')
     <script src="{{ asset('js/live-search.js') }}"></script>
     @endpush
+    <form id="deleteGajiForm" method="POST" style="display: none;">
+        @csrf
+        @method('DELETE')
+    </form>
 </x-layouts.dashboard>
 
 

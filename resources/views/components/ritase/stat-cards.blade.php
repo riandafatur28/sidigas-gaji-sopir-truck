@@ -6,7 +6,7 @@
             <p style="font-size:11px;font-weight:600;letter-spacing:0.1em;color:var(--text-dims)">TOTAL RITASE</p>
             <p class="dash-num" style="font-size:22px;font-weight:650;color:var(--text);line-height:1.25;letter-spacing:-0.01em">{{ number_format($totalRitase) }}</p>
             <p class="dash-num" style="font-size:12px;color:var(--text-muted)">
-                @if($tanggal) per {{ \Carbon\Carbon::parse($tanggal)->locale('id')->translatedFormat('d M Y') }}
+                @if($tanggal) per {{ \Carbon\Carbon::parse($tanggal)->locale('id')->translatedFormat('d F Y') }}
                 @elseif($filterPeriode === 'semua') semua periode
                 @elseif($filterPeriode) {{ \App\Models\Periode::find($filterPeriode)?->nama_periode }}
                 @else semua periode @endif

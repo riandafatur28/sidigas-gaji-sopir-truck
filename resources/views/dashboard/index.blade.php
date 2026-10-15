@@ -57,7 +57,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
                 Filter
                 @if($filter != 'semua' || $tanggal)
-                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                    <span class="w-2 h-2 rounded-full bg-green-600"></span>
                 @endif
                 
             </button>
@@ -109,7 +109,7 @@
                 <span style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:var(--warning)">PERIODE BERAKHIR</span>
                 <span style="margin-left:10px">H-{{ $sisaHari }} — hitung gaji sebelum periode ditutup.</span>
             </p>
-            <a href="{{ route('gaji.index') }}" class="btn btn-primary btn-sm flex-shrink-0"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Hitung Gaji</a>
+            <a href="{{ route('gaji.index') }}" class="btn btn-primary btn-sm flex-shrink-0"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Kelola Gaji</a>
         </div>
     </div>
     @elseif(!$periodeAktif)
@@ -129,7 +129,7 @@
         <div class="card-body" style="padding-top:13px;padding-bottom:13px">
             <div class="flex items-baseline justify-between mb-2">
                 <p class="text-sm font-semibold" style="color:var(--text)">{{ $periodeAktif->nama_periode }}
-                    <span class="font-normal dash-num" style="color:var(--text-muted);font-size:12px;margin-left:8px">{{ $periodeAktif->tanggal_mulai->locale('id')->translatedFormat('d M') }} &ndash; {{ $periodeAktif->tanggal_selesai->locale('id')->translatedFormat('d M Y') }}</span>
+                    <span class="font-normal dash-num" style="color:var(--text-muted);font-size:12px;margin-left:8px">{{ $periodeAktif->tanggal_mulai->locale('id')->translatedFormat('d F') }} &ndash; {{ $periodeAktif->tanggal_selesai->locale('id')->translatedFormat('d F Y') }}</span>
                 </p>
                 <p class="text-sm dash-num" style="color:var(--text-muted)">H-{{ $sisaHari }} &middot; {{ $progressPeriode }}%</p>
             </div>
@@ -272,7 +272,7 @@
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </span>
             <span class="nav-tile-text">
-                <span class="nav-tile-title">Hitung gaji</span>
+                <span class="nav-tile-title">Kelola gaji</span>
                 <span class="nav-tile-sub">Rekap upah per periode</span>
             </span>
         </a>

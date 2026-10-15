@@ -265,7 +265,7 @@
                 if (g) g.classList.add('hidden');
                 btnUlang.classList.remove('hidden');
                 btnSubmit.disabled = false;
-                btnSubmit.className = 'w-full bg-gray-900 text-white rounded text-sm font-semibold px-5 py-3 hover:bg-gray-800 transition';
+                btnSubmit.className = 'w-full bg-green-600 text-white rounded text-sm font-semibold px-5 py-3 hover:bg-green-700 transition cursor-pointer inline-flex items-center justify-center gap-1.5';
                 btnSubmit.textContent = 'Kirim Bukti';
             };
             img.src = e.target.result;

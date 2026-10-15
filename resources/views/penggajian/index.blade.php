@@ -30,21 +30,21 @@
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-2xl font-bold" style="color:var(--text)">Data Gaji</h1>
-                <p class="text-sm mt-1" style="color:var(--text-muted)">Input BBM, Upah per tujuan, dan Kompensasi Gagal Produksi</p>
+                <p class="text-sm mt-1" style="color:var(--text-muted)">Input Solar, Upah per tujuan, dan Kompensasi Gagal Produksi</p>
             </div>
         </div>
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success mb-4 p-4 bg-green-100 text-green-700 rounded">{{ session('success') }}</div>
+        <div class="alert alert-success mb-4 p-4 bg-green-50 text-green-600 rounded">{{ session('success') }}</div>
     @endif
 
     @if(session('error'))
-        <div class="alert alert-error mb-4 p-4 bg-red-100 text-red-700 rounded">{{ session('error') }}</div>
+        <div class="alert alert-error mb-4 p-4 bg-red-50 text-red-600 rounded">{{ session('error') }}</div>
     @endif
 
     @if($errors->any())
-        <div class="alert alert-error mb-4 p-4 bg-red-100 text-red-700 rounded">
+        <div class="alert alert-error mb-4 p-4 bg-red-50 text-red-600 rounded">
             <ul class="list-disc list-inside">
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -66,7 +66,7 @@
             @csrf
             <div class="p-4">
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Periode <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Periode <span class="text-red-600">*</span></label>
                     @php
                         $selectedPeriodeValue = old('periode', old('periode_id', $periodeId ?? ''));
                     @endphp
@@ -89,7 +89,7 @@
                             <thead style="background:rgba(255,253,252,0.6);border-bottom:1.5px solid var(--border)">
                                 <tr>
                                     <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 whitespace-nowrap">Tujuan</th>
-                                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 whitespace-nowrap">BBM/Rit</th>
+                                    <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 whitespace-nowrap">Solar/Rit</th>
                                     <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 whitespace-nowrap">Upah/Rit</th>
                                     <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 whitespace-nowrap">Kompensasi/Rit Gagal</th>
                                     <th class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 whitespace-nowrap">Tol</th>
@@ -127,19 +127,19 @@
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         <div class="w-32">
                                             <input type="number" name="detail[{{ $i }}][bbm_per_rit]" data-tujuan="{{ $tujuan->kode_tujuan }}" data-field="bbm_per_rit" min="0" step="0.01" value="{{ $oldBbm }}" placeholder="0" class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 transition bg-white">
-                                            <p class="text-red-500 text-xs mt-1 hidden" id="error_bbm_{{ $i }}">Harus angka positif.</p>
+                                            <p class="text-red-600 text-xs mt-1 hidden" id="error_bbm_{{ $i }}">Harus angka positif.</p>
                                         </div>
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         <div class="w-32">
                                             <input type="number" name="detail[{{ $i }}][upah_per_rit]" data-tujuan="{{ $tujuan->kode_tujuan }}" data-field="upah_per_rit" min="0" step="0.01" value="{{ $oldUpah }}" placeholder="0" class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 transition bg-white">
-                                            <p class="text-red-500 text-xs mt-1 hidden" id="error_upah_{{ $i }}">Harus angka positif.</p>
+                                            <p class="text-red-600 text-xs mt-1 hidden" id="error_upah_{{ $i }}">Harus angka positif.</p>
                                         </div>
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         <div class="w-32">
                                             <input type="number" name="detail[{{ $i }}][kompensasi_gagal]" data-tujuan="{{ $tujuan->kode_tujuan }}" data-field="kompensasi_gagal" min="0" step="0.01" value="{{ $oldKomp }}" placeholder="0" class="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 transition bg-white">
-                                            <p class="text-red-500 text-xs mt-1 hidden" id="error_kompensasi_{{ $i }}">Harus angka positif.</p>
+                                            <p class="text-red-600 text-xs mt-1 hidden" id="error_kompensasi_{{ $i }}">Harus angka positif.</p>
                                             <input type="hidden" name="detail[{{ $i }}][kode_tujuan]" value="{{ $tujuan->kode_tujuan }}">
                                         </div>
                                     </td>
@@ -241,7 +241,7 @@
                                 <button onclick="toggleGajiFilter()" class="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-lg text-sm font-medium bg-white hover:bg-gray-50 transition shrink-0">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
                                     Filter
-                                    <span class="hidden w-2 h-2 rounded-full bg-green-500" id="gajiFilterBadge"></span>
+                                    <span class="hidden w-2 h-2 rounded-full bg-green-600" id="gajiFilterBadge"></span>
                                 </button>
                             <div class="hidden absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-lg z-50 p-4" id="gajiFilterPanel">
                                 <div class="space-y-3">

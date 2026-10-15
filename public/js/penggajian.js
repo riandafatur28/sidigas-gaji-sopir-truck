@@ -289,7 +289,11 @@
                 '<td class="px-4 py-3 text-right whitespace-nowrap"><span class="text-gray-800 font-medium" id="kompTotal_' + sopir.kode_sopir + '">Rp ' + formatRupiah(totalKompensasi) + '</span></td>' +
                 '<td class="px-4 py-3 text-right whitespace-nowrap"><span class="text-gray-800 font-medium" id="lemburTotal_' + sopir.kode_sopir + '">Rp ' + formatRupiah(totalLembur) + '</span></td>' +
                 '<td class="px-4 py-3 text-right font-bold text-gray-900 whitespace-nowrap" id="grandTotal_' + sopir.kode_sopir + '">Rp ' + formatRupiah(previewGrand) + '</td>' +
-                '<td class="px-4 py-3 text-center whitespace-nowrap"><button onclick="showDetail(' + index + ')" class="text-xs text-gray-600 border border-gray-200 px-2.5 py-1.5 rounded hover:bg-gray-50 font-medium" style="display:inline-flex;align-items:center;gap:4px"><svg style="width:14px;height:14px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>Detail &amp; Slip</button></td>';
+                '<td class="px-4 py-3 text-center whitespace-nowrap"><div class="relative row-actions" style="display:inline-block">' +
+                    '<button type="button" onclick="toggleRowActions(this)" aria-label="Aksi" class="inline-flex items-center justify-center w-8 h-8 border border-gray-200 rounded hover:bg-gray-50 text-gray-500 transition bg-white"><svg style="width:16px;height:16px" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg></button>' +
+                    '<div class="row-actions-menu hidden absolute right-0 mt-1 w-44 rounded-lg shadow-lg z-50 py-1" style="background:var(--card-bg,#ffffff);border:1px solid var(--border,#e5e7eb)">' +
+                    '<button onclick="showDetail(' + index + ')"><svg style="width:14px;height:14px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>Detail &amp; Slip</button>' +
+                    '</div></div></td>';
             tbody.appendChild(row);
         });
 
@@ -337,30 +341,30 @@
         html += '<p class="text-sm text-gray-600 whitespace-nowrap">Halaman ' + currentPage + ' dari ' + totalPages + '</p>';
         html += '<div class="flex flex-nowrap items-center gap-1 overflow-hidden">';
 
-        if (currentPage <= 1) html += '<span class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 rounded cursor-not-allowed">Sebelumnya</span>';
-        else html += '<a href="#" onclick="goToPage(' + (currentPage - 1) + '); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded hover:bg-gray-50 font-medium">Sebelumnya</a>';
+        if (currentPage <= 1) html += '<span class="px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-400 border border-gray-200 rounded cursor-not-allowed">Sebelumnya</span>';
+        else html += '<a href="#" onclick="goToPage(' + (currentPage - 1) + '); return false;" class="px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-700 border border-gray-200 rounded hover:bg-gray-50 font-medium">Sebelumnya</a>';
 
         var w = 2;
         var ss = Math.max(1, currentPage - w);
         var ee = Math.min(totalPages, currentPage + w);
 
         if (ss > 1) {
-            html += '<a href="#" onclick="goToPage(1); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">1</a>';
-            if (ss > 2) html += '<span class="px-3 py-1.5 text-sm text-gray-400">...</span>';
+            html += '<a href="#" onclick="goToPage(1); return false;" class="px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">1</a>';
+            if (ss > 2) html += '<span class="px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-400">...</span>';
         }
 
         for (var p = ss; p <= ee; p++) {
-            if (p == currentPage) html += '<span class="px-3 py-1.5 text-sm font-bold text-white bg-[#2d6a4f] border border-[#2d6a4f] rounded">' + p + '</span>';
-            else html += '<a href="#" onclick="goToPage(' + p + '); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">' + p + '</a>';
+            if (p == currentPage) html += '<span class="px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-bold text-white bg-[#2d6a4f] border border-[#2d6a4f] rounded">' + p + '</span>';
+            else html += '<a href="#" onclick="goToPage(' + p + '); return false;" class="px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">' + p + '</a>';
         }
 
         if (ee < totalPages) {
-            if (ee < totalPages - 1) html += '<span class="px-3 py-1.5 text-sm text-gray-400">...</span>';
-            html += '<a href="#" onclick="goToPage(' + totalPages + '); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">' + totalPages + '</a>';
+            if (ee < totalPages - 1) html += '<span class="px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-400">...</span>';
+            html += '<a href="#" onclick="goToPage(' + totalPages + '); return false;" class="px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">' + totalPages + '</a>';
         }
 
-        if (currentPage >= totalPages) html += '<span class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 rounded cursor-not-allowed">Selanjutnya</span>';
-        else html += '<a href="#" onclick="goToPage(' + (currentPage + 1) + '); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded hover:bg-gray-50 font-medium">Selanjutnya</a>';
+        if (currentPage >= totalPages) html += '<span class="px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-400 border border-gray-200 rounded cursor-not-allowed">Selanjutnya</span>';
+        else html += '<a href="#" onclick="goToPage(' + (currentPage + 1) + '); return false;" class="px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-700 border border-gray-200 rounded hover:bg-gray-50 font-medium">Selanjutnya</a>';
 
         html += '</div></div>';
         container.innerHTML = html;
@@ -502,7 +506,7 @@
             });
         });
 
-        if (hasEmpty) { alert('Silakan isi BBM/Rit dan Upah/Rit untuk semua tujuan yang memiliki ritase!'); return; }
+        if (hasEmpty) { alert('Silakan isi Solar/Rit dan Upah/Rit untuk semua tujuan yang memiliki ritase!'); return; }
         if (hasInvalid) { alert('Nilai harus berupa angka positif!'); return; }
 
         formDataGaji = new FormData(document.getElementById('formGaji'));
@@ -517,7 +521,7 @@
             var bbm = input.value || '0';
             var upahEl = document.querySelector('input[data-tujuan="' + kode + '"][data-field="upah_per_rit"]');
             var upah = upahEl ? upahEl.value || '0' : '0';
-            detailHtml += '<div class="flex justify-between text-sm py-1"><span class="font-medium">' + nama + '</span><span class="text-gray-600">BBM: Rp ' + formatRupiah(bbm) + ' | Upah: Rp ' + formatRupiah(upah) + '</span></div>';
+            detailHtml += '<div class="flex justify-between text-sm py-1"><span class="font-medium">' + nama + '</span><span class="text-gray-600">Solar: Rp ' + formatRupiah(bbm) + ' | Upah: Rp ' + formatRupiah(upah) + '</span></div>';
         });
         detailHtml += '</div><div class="border-t pt-2 mt-2 text-xs text-gray-500">Data akan dihitung ulang berdasarkan ritase yang ada.</div></div>';
 

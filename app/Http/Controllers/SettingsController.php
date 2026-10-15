@@ -13,8 +13,10 @@ class SettingsController extends Controller
     {
         $aturanEnabled = Cache::get('aturan_validasi_enabled', false);
         $dtNominal = Cache::get('dt_nominal', config('dt.value', 330000));
+        $dtSingleRegencies = \App\Services\DtConfig::singleRegencies();
+        $allKabupaten = \App\Services\DtConfig::allKabupaten();
 
-        return view('settings.index', compact('aturanEnabled', 'dtNominal'));
+        return view('settings.index', compact('aturanEnabled', 'dtNominal', 'dtSingleRegencies', 'allKabupaten'));
     }
 
     public function updateDtNominal(Request $request)
@@ -33,5 +35,28 @@ class SettingsController extends Controller
         }
 
         return back()->with('success', 'Nominal sewa DT berhasil diperbarui. ' . $sync['ritase'] . ' ritase dan ' . $sync['gaji'] . ' data gaji periode aktif (' . $sync['periode']->nama_periode . ') ikut disesuaikan.');
+    }
+
+    public function updateDtAturan(Request $request)
+    {
+        $request->validate([
+            'kabupaten' => 'nullable|array',
+            'kabupaten.*' => 'string|max:50',
+        ]);
+
+        $selected = array_values(array_unique(array_map(
+            fn($n) => trim((string) $n),
+            (array) $request->input('kabupaten', [])
+        )));
+        $selected = array_values(array_filter($selected, fn($n) => $n !== ''));
+        Cache::forever('dt_single_regencies', $selected);
+
+        $sync = app(\App\Services\RitaseService::class)->syncActivePeriodeDt(\App\Services\DtConfig::nominal());
+
+        if (!$sync['periode']) {
+            return back()->with('success', 'Ketentuan sewa DT berhasil diperbarui. Tidak ada periode aktif, jadi tidak ada ritase yang diubah.');
+        }
+
+        return back()->with('success', 'Ketentuan sewa DT berhasil diperbarui. ' . $sync['ritase'] . ' ritase dan ' . $sync['gaji'] . ' data gaji periode aktif (' . $sync['periode']->nama_periode . ') ikut disesuaikan.');
     }
 }

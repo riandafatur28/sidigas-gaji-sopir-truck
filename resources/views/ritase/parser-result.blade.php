@@ -12,7 +12,7 @@
     </div>
 
     @if (isset($results['errors']) && count($results['errors']) > 0)
-    <div class="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded">
+    <div class="mb-4 p-4 bg-red-50 border border-red-200 text-red-600 rounded">
         <strong>Error:</strong>
         <ul class="mt-2 list-disc list-inside">
             @foreach ($results['errors'] as $error)
@@ -69,16 +69,16 @@
                         <td class="px-4 py-2 text-sm font-medium">{{ $m['input_name'] }}</td>
                         <td class="px-4 py-2 text-sm">
                             @if ($m['matched'])
-                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Ditemukan</span>
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-50 text-green-600">Ditemukan</span>
                             @else
-                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Tidak Ditemukan</span>
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-50 text-red-600">Tidak Ditemukan</span>
                             @endif
                         </td>
                         <td class="px-4 py-2 text-sm">{{ $m['sopir']['nama'] ?? '-' }}</td>
                         <td class="px-4 py-2 text-sm text-gray-500">{{ $m['sopir']['kode_sopir'] ?? '-' }}</td>
                         <td class="px-4 py-2 text-sm">
                             @if ($m['matched'])
-                            <span class="{{ $m['confidence'] >= 90 ? 'text-green-600' : ($m['confidence'] >= 75 ? 'text-yellow-600' : 'text-orange-600') }}">
+                            <span class="{{ $m['confidence'] >= 90 ? 'text-green-600' : ($m['confidence'] >= 75 ? 'text-amber-600' : 'text-amber-600') }}">
                                 {{ $m['confidence'] }}%
                             </span>
                             @else
@@ -114,16 +114,16 @@
                         <td class="px-4 py-2 text-sm font-medium">{{ $m['input_route'] }}</td>
                         <td class="px-4 py-2 text-sm">
                             @if ($m['matched'])
-                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Ditemukan</span>
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-50 text-green-600">Ditemukan</span>
                             @else
-                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Tidak Ditemukan</span>
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-50 text-red-600">Tidak Ditemukan</span>
                             @endif
                         </td>
                         <td class="px-4 py-2 text-sm">{{ $m['tujuan']['nama'] ?? '-' }}</td>
                         <td class="px-4 py-2 text-sm text-gray-500">{{ $m['tujuan']['kode_tujuan'] ?? '-' }}</td>
                         <td class="px-4 py-2 text-sm">
                             @if ($m['matched'])
-                            <span class="{{ $m['confidence'] >= 80 ? 'text-green-600' : 'text-yellow-600' }}">
+                            <span class="{{ $m['confidence'] >= 80 ? 'text-green-600' : 'text-amber-600' }}">
                                 {{ $m['confidence'] }}%
                             </span>
                             @else
@@ -148,9 +148,9 @@
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="text-md font-semibold text-gray-900">
                         @if (!empty($pkg['is_rit_ke_2']))
-                            <span class="inline-flex px-2 py-0.5 text-xs font-semibold rounded bg-green-100 text-green-800 mr-2">RIT KE 2</span>
+                            <span class="inline-flex px-2 py-0.5 text-xs font-semibold rounded bg-green-50 text-green-600 mr-2">RIT KE 2</span>
                         @elseif (!empty($pkg['is_bongkar']))
-                            <span class="inline-flex px-2 py-0.5 text-xs font-semibold rounded bg-orange-100 text-orange-800 mr-2">BONGKAR</span>
+                            <span class="inline-flex px-2 py-0.5 text-xs font-semibold rounded bg-amber-50 text-amber-600 mr-2">BONGKAR</span>
                         @endif
                         Paket {{ $index + 1 }}: {{ $pkg['route_name'] }}
                     </h3>
@@ -168,9 +168,9 @@
                     @endphp
                     <div class="px-3 py-2 text-sm rounded border
                         @if ($match && $match['matched'])
-                            bg-green-50 border-green-200 text-green-800
+                            bg-green-50 border-green-500 text-green-600
                         @else
-                            bg-red-50 border-red-200 text-red-800
+                            bg-red-50 border-red-200 text-red-600
                         @endif">
                         {{ $driverName }}
                         @if ($match && $match['matched'])
@@ -194,8 +194,8 @@
             <ul class="divide-y divide-gray-200">
                 @foreach ($results['details'] as $detail)
                 <li class="py-2 text-sm {{
-                    $detail['status'] === 'Created' ? 'text-green-700' :
-                    ($detail['status'] === 'Updated lembur' ? 'text-green-700' : 'text-yellow-700')
+                    $detail['status'] === 'Created' ? 'text-green-600' :
+                    ($detail['status'] === 'Updated lembur' ? 'text-green-600' : 'text-amber-600')
                 }}">
                     <strong>{{ $detail['route'] }}</strong>: {{ $detail['status'] }}
                     @if (isset($detail['reason']))
@@ -210,18 +210,18 @@
 
     {{-- Action buttons --}}
     @if (($results['created'] ?? 0) > 0)
-    <div class="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-        <p class="text-green-800"><strong>Berhasil!</strong> {{ $results['created'] }} data ritase telah disimpan.</p>
+    <div class="mt-6 p-4 bg-green-50 border border-green-500 rounded-lg">
+        <p class="text-green-600"><strong>Berhasil!</strong> {{ $results['created'] }} data ritase telah disimpan.</p>
         @if (($results['skipped'] ?? 0) > 0)
-        <p class="text-yellow-700 text-sm mt-1">{{ $results['skipped'] }} data dilewati (duplikat/error).</p>
+        <p class="text-amber-600 text-sm mt-1">{{ $results['skipped'] }} data dilewati (duplikat/error).</p>
         @endif
         <div class="mt-4 flex flex-wrap gap-3">
             <a href="{{ route('gaji.index', ['periode' => $periodeId]) }}"
-               class="inline-flex items-center px-5 py-2.5 bg-[#2d6a4f] text-white font-semibold rounded-md hover:bg-[#1b4332] transition">
+               class="inline-flex items-center px-5 py-2.5 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 transition">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                 </svg>
-                Lanjut ke Hitung Gaji
+                Lanjut ke Kelola Gaji
             </a>
             <a href="{{ route('ritase.index') }}" class="text-green-600 hover:underline inline-flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>Lihat Data Ritase</a>
             <span class="text-gray-400">|</span>

@@ -13,10 +13,10 @@
     </div>
 
     @if(session('success'))
-        <div class="border border-green-200 bg-green-50 text-green-700 px-4 py-3 rounded mb-4 text-sm">{{ session('success') }}</div>
+        <div class="border border-green-500 bg-green-50 text-green-600 px-4 py-3 rounded mb-4 text-sm">{{ session('success') }}</div>
     @endif
     @if($errors->any())
-        <div class="border border-red-200 bg-red-50 text-red-700 px-4 py-3 rounded mb-4 text-sm">
+        <div class="border border-red-200 bg-red-50 text-red-600 px-4 py-3 rounded mb-4 text-sm">
             <ul class="list-disc list-inside">
                 @foreach($errors->all() as $e)
                     <li>{{ $e }}</li>
@@ -42,7 +42,7 @@
                         <p class="text-sm text-gray-400">{{ $user->email }}</p>
                     </div>
                 </div>
-                <div class="border-t border-gray-100 pt-4 space-y-3">
+                <div class="border-t border-gray-200 pt-4 space-y-3">
                     <div class="flex justify-between">
                         <span class="text-sm text-gray-500">Nama</span>
                         <span class="text-sm font-medium text-gray-900">{{ $user->name }}</span>
@@ -53,7 +53,7 @@
                     </div>
                     <div class="flex justify-between">
                         <span class="text-sm text-gray-500">Bergabung</span>
-                        <span class="text-sm font-medium text-gray-900">{{ $user->created_at->format('d/m/Y') }}</span>
+                        <span class="text-sm font-medium text-gray-900">{{ $user->created_at->locale('id')->translatedFormat('d F Y') }}</span>
                     </div>
                 </div>
             </div>
@@ -124,7 +124,7 @@
                         </div>
                     </div>
                     <button type="submit"
-                        class="w-full bg-gray-900 text-white rounded text-sm font-semibold px-5 py-3 hover:bg-gray-800 transition inline-flex items-center justify-center gap-1.5">
+                        class="w-full bg-green-600 text-white rounded text-sm font-semibold px-5 py-3 hover:bg-green-700 transition inline-flex items-center justify-center gap-1.5">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                         Simpan Perubahan
                     </button>

@@ -34,7 +34,7 @@
                         @csrf
                         <button type="submit"
                             class="relative inline-flex h-7 w-12 items-center rounded-full transition-colors
-                                {{ cache('aturan_validasi_enabled', false) ? 'bg-green-500' : 'bg-gray-300' }}">
+                                {{ cache('aturan_validasi_enabled', false) ? 'bg-green-600' : 'bg-gray-300' }}">
                             <span class="inline-block h-5 w-5 transform rounded-full bg-white transition-transform
                                 {{ cache('aturan_validasi_enabled', false) ? 'translate-x-6' : 'translate-x-1' }}"></span>
                         </button>
@@ -64,6 +64,34 @@
                             <span>Simpan</span>
                         </button>
                     </div>
+                </form>
+            </div>
+        </div>
+
+        {{-- KETENTUAN SEWA DT --}}
+        <div class="card lg:col-span-2">
+            <div class="card-header">
+                <span class="text-sm font-semibold uppercase" style="color:var(--text-muted)">Ketentuan Sewa DT per Kabupaten</span>
+            </div>
+            <div class="card-body">
+                <p class="text-sm text-gray-500 mb-4">Centang kabupaten yang hanya mendapat <strong>maksimal 1 DT per hari per waktu</strong> (rit ke-2 di kabupaten, tanggal, dan waktu yang sama = DT Rp 0). Kabupaten yang tidak dicentang mendapat DT penuh untuk setiap rit. Perubahan otomatis menyesuaikan DT ritase & gaji pada periode aktif.</p>
+                <form method="POST" action="{{ route('settings.dt-aturan') }}">
+                    @csrf
+                    @method('PUT')
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 mb-4">
+                        @foreach($allKabupaten as $kab)
+                            <label class="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm cursor-pointer hover:bg-gray-50 transition" style="color:var(--text)">
+                                <input type="checkbox" name="kabupaten[]" value="{{ $kab }}"
+                                    {{ in_array($kab, $dtSingleRegencies) ? 'checked' : '' }}
+                                    class="h-4 w-4 rounded accent-green-700">
+                                <span>{{ $kab }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        <span>Simpan Ketentuan</span>
+                    </button>
                 </form>
             </div>
         </div>

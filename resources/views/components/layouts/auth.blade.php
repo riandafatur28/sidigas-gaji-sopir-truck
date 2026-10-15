@@ -17,9 +17,9 @@
 
 <div class="min-h-screen flex flex-col lg:flex-row items-stretch gap-5 lg:gap-8 p-4 sm:p-6 lg:p-8">
 
-    {{-- PANEL GAMBAR (kiri) — persegi 1:1, rounded + padding, tone disesuaikan --}}
+    {{-- PANEL GAMBAR (kiri) — full-height, margin seragam 32px semua sisi --}}
     <div class="lg:w-1/2 flex items-center justify-center shrink-0">
-        <div class="relative w-full aspect-square max-w-[min(100%,calc(100vh-5rem))] rounded-2xl lg:rounded-3xl overflow-hidden" style="background:linear-gradient(160deg,#f6f3ee,#e7dcc2)">
+        <div class="relative w-full aspect-square lg:aspect-auto lg:h-full rounded-2xl lg:rounded-3xl overflow-hidden" style="background:linear-gradient(160deg,#f6f3ee,#e7dcc2)">
             <img src="/images/auth-hero.jpg" alt="Armada SIDIGAS"
                 class="absolute inset-0 w-full h-full object-cover object-center"
                 onerror="this.remove();document.getElementById('authHeroFallback').hidden=false;">

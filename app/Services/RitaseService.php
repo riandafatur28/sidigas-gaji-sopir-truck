@@ -69,7 +69,7 @@ class RitaseService
             return 0;
         }
 
-        $kabSatuDt = config('dt.single_dt_regencies');
+        $kabSatuDt = DtConfig::singleRegencies();
         $dtValue = Cache::get('dt_nominal', config('dt.value', 330000));
 
         $query = Ritase::where('kode_sopir', $request->kode_sopir)
@@ -107,7 +107,7 @@ class RitaseService
             return ['periode' => null, 'ritase' => 0, 'gaji' => 0];
         }
 
-        $kabSatuDt = array_map('strtolower', config('dt.single_dt_regencies', []));
+        $kabSatuDt = array_map('strtolower', DtConfig::singleRegencies());
         $seen = [];
         $ritUpdated = 0;
 
@@ -223,7 +223,7 @@ class RitaseService
 
         $dt = 0;
         $keterangan = '';
-        $kabSatuDt = config('dt.single_dt_regencies');
+        $kabSatuDt = DtConfig::singleRegencies();
         $dtValue = Cache::get('dt_nominal', config('dt.value', 330000));
 
         if ($status === 'gagal_produksi') {

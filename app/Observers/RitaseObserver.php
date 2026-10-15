@@ -7,6 +7,7 @@ namespace App\Observers;
 use App\Models\Ritase;
 use App\Models\Sopir;
 use App\Models\Tujuan;
+use App\Services\DashboardService;
 
 class RitaseObserver
 {
@@ -25,6 +26,8 @@ class RitaseObserver
                 ->where('status', '!=', 'aktif')
                 ->update(['status' => 'aktif']);
         }
+
+        DashboardService::bumpVersion();
     }
 
     /**
@@ -42,5 +45,15 @@ class RitaseObserver
                 ->where('status', '!=', 'aktif')
                 ->update(['status' => 'aktif']);
         }
+
+        DashboardService::bumpVersion();
+    }
+
+    /**
+     * Handle the Ritase "deleted" event.
+     */
+    public function deleted(Ritase $ritase): void
+    {
+        DashboardService::bumpVersion();
     }
 }

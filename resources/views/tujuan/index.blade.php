@@ -105,7 +105,7 @@
                     <button onclick="toggleTujuanFilter()" class="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-lg text-sm font-medium bg-white hover:bg-gray-50 transition shrink-0">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
                         Filter
-                        @if($statusFilter)<span class="w-2 h-2 rounded-full bg-green-500"></span>@endif
+                        @if($statusFilter)<span class="w-2 h-2 rounded-full bg-green-600"></span>@endif
                     </button>
                     <div class="hidden absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-lg z-50 p-4" id="tujuanFilterPanel">
                         <form method="GET" action="{{ route('tujuan.index') }}" class="space-y-3">
@@ -152,28 +152,25 @@
                             </td>
                             <td class="px-4 py-3">
                                 @if($tujuan->status == 'aktif')
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
-                                        <span class="w-2 h-2 bg-green-500 rounded-full mr-1.5"></span>
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-green-50 text-green-600 text-xs font-semibold">
+                                        <span class="w-2 h-2 bg-green-600 rounded-full mr-1.5"></span>
                                         Aktif
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">
-                                        <span class="w-2 h-2 bg-red-500 rounded-full mr-1.5"></span>
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-red-50 text-red-600 text-xs font-semibold">
+                                        <span class="w-2 h-2 bg-red-600 rounded-full mr-1.5"></span>
                                         Nonaktif
                                     </span>
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-600">
-                                {{ $tujuan->created_at->locale('id')->translatedFormat('d M Y') }}
+                                {{ $tujuan->created_at->locale('id')->translatedFormat('d F Y') }}
                             </td>
-                            <td class="px-4 py-3">
-                                <div class="flex items-center justify-center space-x-2">
-                                    <button onclick="openEditModal({{ $tujuan->id }}, '{{ $tujuan->kode_tujuan }}', '{{ $tujuan->nama }}', '{{ $tujuan->status }}')"
-                                        class="inline-flex items-center gap-1 text-xs text-gray-600 border border-gray-200 px-2.5 py-1.5 rounded hover:bg-gray-50 font-medium"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Edit</button>
-
-                                    <button onclick="confirmDelete({{ $tujuan->id }}, '{{ $tujuan->nama }}')"
-                                        class="inline-flex items-center gap-1 text-xs text-red-600 border border-red-200 px-2.5 py-1.5 rounded hover:bg-red-50 font-medium"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>Hapus</button>
-                                </div>
+                            <td class="px-4 py-3 text-center">
+                                <x-shared.row-actions>
+                                    <button onclick="openEditModal({{ $tujuan->id }}, '{{ $tujuan->kode_tujuan }}', '{{ $tujuan->nama }}', '{{ $tujuan->status }}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Edit</button>
+                                    <button data-danger onclick="confirmDelete({{ $tujuan->id }}, '{{ $tujuan->nama }}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>Hapus</button>
+                                </x-shared.row-actions>
                             </td>
                         </tr>
                     @endforeach

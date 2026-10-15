@@ -62,7 +62,7 @@
             @csrf
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="md:col-span-3">
-                    <label class="form-label">Nama Periode <span class="text-red-500">*</span></label>
+                    <label class="form-label">Nama Periode <span class="text-red-600">*</span></label>
                     <input type="text" id="nama_periode" name="nama_periode" required
                         class="form-input"
                         placeholder="Contoh: Periode 1-7 Juli 2026">
@@ -70,14 +70,14 @@
                 </div>
 
                 <div>
-                    <label class="form-label">Tanggal Mulai <span class="text-red-500">*</span></label>
+                    <label class="form-label">Tanggal Mulai <span class="text-red-600">*</span></label>
                     <input type="date" id="tanggal_mulai" name="tanggal_mulai" required
                         class="form-input">
                     <p class="text-xs font-medium mt-1 hidden" style="color:var(--danger)" id="error_tanggal_mulai"></p>
                 </div>
 
                 <div>
-                    <label class="form-label">Tanggal Selesai <span class="text-red-500">*</span></label>
+                    <label class="form-label">Tanggal Selesai <span class="text-red-600">*</span></label>
                     <input type="date" id="tanggal_selesai" name="tanggal_selesai" required
                         class="form-input">
                     <p class="text-xs font-medium mt-1 hidden" style="color:var(--danger)" id="error_tanggal_selesai"></p>
@@ -119,7 +119,7 @@
                     <button onclick="togglePeriodeFilter()" class="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-lg text-sm font-medium bg-white hover:bg-gray-50 transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
                         Filter
-                        @if($statusFilter)<span class="w-2 h-2 rounded-full bg-green-500"></span>@endif
+                        @if($statusFilter)<span class="w-2 h-2 rounded-full bg-green-600"></span>@endif
                     </button>
                     <div class="hidden absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-lg z-50 p-4" id="periodeFilterPanel">
                         <form method="GET" action="{{ route('periode.index') }}" class="space-y-3">
@@ -164,8 +164,8 @@
                                     </span>
                                 </td>
                                 <td class="px-4 py-2.5 text-sm font-semibold text-gray-900">{{ $periode->nama_periode }}</td>
-                                <td class="px-4 py-2.5 text-sm text-gray-600">{{ $periode->tanggal_mulai->locale('id')->translatedFormat('d M Y') }}</td>
-                                <td class="px-4 py-2.5 text-sm text-gray-600">{{ $periode->tanggal_selesai->locale('id')->translatedFormat('d M Y') }}</td>
+                                <td class="px-4 py-2.5 text-sm text-gray-600">{{ $periode->tanggal_mulai->locale('id')->translatedFormat('d F Y') }}</td>
+                                <td class="px-4 py-2.5 text-sm text-gray-600">{{ $periode->tanggal_selesai->locale('id')->translatedFormat('d F Y') }}</td>
                                 <td class="px-4 py-2.5">
                                     <span class="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-semibold">
                                         {{ $periode->ritase->count() }} ritase
@@ -173,8 +173,8 @@
                                 </td>
                                 <td class="px-4 py-2.5">
                                     @if($periode->status == 'aktif')
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
-                                            <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full bg-green-50 text-green-600 text-xs font-semibold">
+                                            <span class="w-2 h-2 bg-green-600 rounded-full mr-2"></span>
                                             Aktif
                                         </span>
                                     @else
@@ -184,14 +184,11 @@
                                         </span>
                                     @endif
                                 </td>
-                                <td class="px-4 py-2.5">
-                                    <div class="flex items-center justify-center space-x-2">
-                                        <button onclick='openEditModal(@json($periode))'
-                                            class="inline-flex items-center gap-1 text-xs text-gray-600 border border-gray-200 px-2.5 py-1.5 rounded hover:bg-gray-50 font-medium"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Edit</button>
-
-                                        <button onclick="confirmDelete({{ $periode->id }}, '{{ $periode->nama_periode }}')"
-                                            class="inline-flex items-center gap-1 text-xs text-red-600 border border-red-200 px-2.5 py-1.5 rounded hover:bg-red-50 font-medium"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>Hapus</button>
-                                    </div>
+                                <td class="px-4 py-2.5 text-center">
+                                    <x-shared.row-actions>
+                                        <button onclick='openEditModal(@json($periode))'><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Edit</button>
+                                        <button data-danger onclick="confirmDelete({{ $periode->id }}, '{{ $periode->nama_periode }}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>Hapus</button>
+                                    </x-shared.row-actions>
                                 </td>
                             </tr>
                         @endforeach
@@ -263,22 +260,22 @@
                     </div>
 
                     <div>
-                        <label class="form-label">Nama Periode <span class="text-red-500">*</span></label>
+                        <label class="form-label">Nama Periode <span class="text-red-600">*</span></label>
                         <input type="text" id="edit_nama" name="nama_periode" required class="form-input">
                     </div>
 
                     <div>
-                        <label class="form-label">Tanggal Mulai <span class="text-red-500">*</span></label>
+                        <label class="form-label">Tanggal Mulai <span class="text-red-600">*</span></label>
                         <input type="date" id="edit_tanggal_mulai" name="tanggal_mulai" required class="form-input">
                     </div>
 
                     <div>
-                        <label class="form-label">Tanggal Selesai <span class="text-red-500">*</span></label>
+                        <label class="form-label">Tanggal Selesai <span class="text-red-600">*</span></label>
                         <input type="date" id="edit_tanggal_selesai" name="tanggal_selesai" required class="form-input">
                     </div>
 
                     <div>
-                        <label class="form-label">Status <span class="text-red-500">*</span></label>
+                        <label class="form-label">Status <span class="text-red-600">*</span></label>
                         <select id="edit_status" name="status" required class="form-input">
                             <option value="aktif">Aktif</option>
                             <option value="selesai">Selesai</option>

@@ -171,6 +171,8 @@ class ValidasiBuktiService
 
     private function hitungDt($kodeSopir, $tanggal, $kabupaten, $waktu): float
     {
+        $kabSatuDt = DtConfig::singleRegencies();
+
         $exists = Ritase::where('kode_sopir', $kodeSopir)
             ->where('tanggal', $tanggal)
             ->where('kabupaten', $kabupaten)
@@ -178,7 +180,11 @@ class ValidasiBuktiService
             ->where('status', '!=', 'gagal_produksi')
             ->exists();
 
-        return $exists ? 0 : (int) Cache::get('dt_nominal', config('dt.value', 330000));
+        if ($exists && in_array($kabupaten, $kabSatuDt)) {
+            return 0;
+        }
+
+        return (int) Cache::get('dt_nominal', config('dt.value', 330000));
     }
 
     private function parseSearchDate(string $search): ?string

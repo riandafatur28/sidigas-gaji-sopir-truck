@@ -13,21 +13,21 @@
             @csrf
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                    <label class="form-label">Periode <span class="text-red-500">*</span></label>
+                    <label class="form-label">Periode <span class="text-red-600">*</span></label>
                     <select id="periode_id" name="periode_id" required class="form-input">
                         <option value="">-- Pilih Periode --</option>
                         @foreach($periodes as $periode)<option value="{{ $periode->id }}">{{ $periode->nama_periode }}</option>@endforeach
                     </select>
                 </div>
                 <div>
-                    <label class="form-label">Sopir <span class="text-red-500">*</span></label>
+                    <label class="form-label">Sopir <span class="text-red-600">*</span></label>
                     <select id="kode_sopir" name="kode_sopir" required class="form-input">
                         <option value="">-- Pilih Sopir --</option>
                         @foreach($sopirs as $sopir)<option value="{{ $sopir->kode_sopir }}">{{ $sopir->nama }} ({{ $sopir->kode_sopir }})</option>@endforeach
                     </select>
                 </div>
                 <div>
-                    <label class="form-label">Tujuan <span class="text-red-500">*</span></label>
+                    <label class="form-label">Tujuan <span class="text-red-600">*</span></label>
                     <select id="kode_tujuan" name="kode_tujuan" required class="form-input" onchange="autoKabupatenTujuan(this, 'kabupaten')">
                         <option value="">-- Pilih Tujuan --</option>
                         @foreach(\App\Models\Tujuan::orderBy('id', 'asc')->get() as $tujuan)<option value="{{ $tujuan->kode_tujuan }}">{{ $tujuan->nama }} ({{ $tujuan->kode_tujuan }})</option>@endforeach
@@ -36,11 +36,11 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                    <label class="form-label">Tanggal <span class="text-red-500">*</span></label>
+                    <label class="form-label">Tanggal <span class="text-red-600">*</span></label>
                     <input type="date" id="tanggal" name="tanggal" required class="form-input">
                 </div>
                 <div>
-                    <label class="form-label">Waktu <span class="text-red-500">*</span></label>
+                    <label class="form-label">Waktu <span class="text-red-600">*</span></label>
                     <select id="waktu" name="waktu" required class="form-input">
                         <option value="">-- Pilih Waktu --</option>
                         <option value="pagi">Pagi</option>
@@ -48,7 +48,7 @@
                     </select>
                 </div>
                 <div>
-                    <label class="form-label">Kabupaten <span class="text-red-500">*</span></label>
+                    <label class="form-label">Kabupaten <span class="text-red-600">*</span></label>
                     <select id="kabupaten" name="kabupaten" required class="form-input">
                         <option value="">-- Pilih Kabupaten --</option>
                         <option value="Nganjuk">Nganjuk</option>
@@ -61,7 +61,7 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="form-label">Status <span class="text-red-500">*</span></label>
+                    <label class="form-label">Status <span class="text-red-600">*</span></label>
                     <select id="status" name="status" required onchange="toggleKompensasiField()" class="form-input">
                         <option value="pending">Pending</option>
                         <option value="valid">Valid</option>
@@ -84,12 +84,12 @@
                         <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">Rp</span>
                         <input type="number" id="nominal_kompensasi" name="nominal_kompensasi" min="0" class="w-full pl-8 pr-3 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 transition bg-white" placeholder="0">
                     </div>
-                    <p class="text-red-500 text-xs mt-1 hidden" id="error_kompensasi">Nominal harus angka positif.</p>
+                    <p class="text-red-600 text-xs mt-1 hidden" id="error_kompensasi">Nominal harus angka positif.</p>
                 </div>
                 <div>
                     <label class="form-label">Catatan</label>
                     <input type="text" id="catatan" name="catatan" class="form-input" placeholder="Catatan tambahan (opsional)">
-                    <p class="text-red-500 text-xs mt-1 hidden" id="error_catatan">Catatan hanya boleh huruf, angka, spasi, dan strip.</p>
+                    <p class="text-red-600 text-xs mt-1 hidden" id="error_catatan">Catatan hanya boleh huruf, angka, spasi, dan strip.</p>
                 </div>
                 <div>
                     <label class="flex items-center gap-2 mt-5">

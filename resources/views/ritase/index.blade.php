@@ -51,7 +51,7 @@
                             <button onclick="toggleRitFilter()" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium bg-white hover:bg-gray-50 transition">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
                                 Filter
-                                @if($tanggal || $filterPeriode || $filterSopir || $filterTujuan)<span class="w-2 h-2 rounded-full bg-green-500"></span>@endif
+                                @if($tanggal || $filterPeriode || $filterSopir || $filterTujuan)<span class="w-2 h-2 rounded-full bg-green-600"></span>@endif
                             </button>
                             <div class="hidden absolute right-0 mt-2 w-72 bg-white border border-gray-200 rounded-xl shadow-lg z-50 p-4 max-h-96 overflow-y-auto" id="ritFilterPanel">
                                 <form method="GET" action="{{ route('ritase.index') }}" class="space-y-3">
@@ -128,19 +128,19 @@
                                     <td class="px-4 py-3">
                                         @if($ritase->status == 'gagal_produksi')
                                             <p class="text-sm font-semibold text-red-600">Gagal Produksi</p>
-                                            <p class="text-xs text-red-400">-</p>
+                                            <p class="text-xs text-red-600">-</p>
                                         @else
                                             <p class="text-sm font-medium text-gray-900">{{ $ritase->tujuan ? $ritase->tujuan->nama : 'Tujuan tidak ditemukan' }}</p>
                                             <p class="text-xs text-gray-500">{{ $ritase->tujuan ? $ritase->tujuan->kode_tujuan : '-' }}</p>
                                         @endif
                                     </td>
-                                    <td class="px-4 py-3 text-sm text-gray-600">{{ $ritase->tanggal->locale('id')->translatedFormat('d M Y') }}</td>
-                                    <td class="px-4 py-3"><span class="inline-flex items-center px-2 py-1 rounded-full {{ $ritase->waktu == 'pagi' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700' }} text-xs font-semibold">{{ ucfirst($ritase->waktu) }}</span></td>
+                                    <td class="px-4 py-3 text-sm text-gray-600">{{ $ritase->tanggal->locale('id')->translatedFormat('d F Y') }}</td>
+                                    <td class="px-4 py-3"><span class="inline-flex items-center px-2 py-1 rounded-full {{ $ritase->waktu == 'pagi' ? 'bg-amber-50 text-amber-600' : 'bg-green-50 text-green-600' }} text-xs font-semibold">{{ ucfirst($ritase->waktu) }}</span></td>
                                     <td class="px-4 py-3 text-sm text-gray-600">{{ $ritase->kabupaten }}</td>
                                     <td class="px-4 py-3">
-                                        @if($ritase->status == 'valid')<span class="inline-flex items-center px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">Valid</span>
-                                        @elseif($ritase->status == 'pending')<span class="inline-flex items-center px-2 py-1 rounded-full bg-orange-100 text-orange-700 text-xs font-semibold">Pending</span>
-                                        @else<span class="inline-flex items-center px-2 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">Gagal</span>@endif
+                                        @if($ritase->status == 'valid')<span class="inline-flex items-center px-2 py-1 rounded-full bg-green-50 text-green-600 text-xs font-semibold">Valid</span>
+                                        @elseif($ritase->status == 'pending')<span class="inline-flex items-center px-2 py-1 rounded-full bg-amber-50 text-amber-600 text-xs font-semibold">Pending</span>
+                                        @else<span class="inline-flex items-center px-2 py-1 rounded-full bg-red-50 text-red-600 text-xs font-semibold">Gagal</span>@endif
                                     </td>
                                     <td class="px-4 py-3 text-right font-semibold text-gray-800">Rp {{ number_format($ritase->dt ?? 0, 0, ',', '.') }}</td>
                                     <td class="px-4 py-3 text-right">
@@ -149,17 +149,14 @@
                                         @else<span class="text-xs text-gray-400">-</span>@endif
                                     </td>
                                     <td class="px-4 py-3 text-center">
-                                        @if($ritase->is_lembur)<span class="inline-flex items-center px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-semibold">Lembur</span>
+                                        @if($ritase->is_lembur)<span class="inline-flex items-center px-2 py-1 rounded-full bg-amber-50 text-amber-600 text-xs font-semibold">Lembur</span>
                                         @else<span class="text-xs text-gray-400">-</span>@endif
                                     </td>
-                                    <td class="px-4 py-3">
-                                        <div class="flex items-center justify-center space-x-1">
-                                            <button onclick='openEditModal(@json($ritase))' class="inline-flex items-center gap-1 text-xs text-gray-600 border border-gray-200 px-2.5 py-1.5 rounded hover:bg-gray-50 font-medium"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Edit</button>
-                                            <form action="{{ route('ritase.destroy', $ritase->id) }}" method="POST" class="inline" id="deleteRitase_{{ $ritase->id }}">
-                                                @csrf @method('DELETE')
-                                                <button type="button" onclick="confirmDeleteRitase({{ $ritase->id }}, '{{ $ritase->kode_ritase }}')" class="inline-flex items-center gap-1 text-xs text-red-600 border border-red-200 px-2.5 py-1.5 rounded hover:bg-red-50 font-medium"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>Hapus</button>
-                                            </form>
-                                        </div>
+                                    <td class="px-4 py-3 text-center">
+                                        <x-shared.row-actions>
+                                            <button onclick='openEditModal(@json($ritase))'><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Edit</button>
+                                            <button data-danger onclick="confirmDeleteRitase({{ $ritase->id }}, '{{ $ritase->kode_ritase }}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>Hapus</button>
+                                        </x-shared.row-actions>
                                     </td>
                                 </tr>
                             @endforeach
@@ -191,11 +188,28 @@
                             <input type="text" id="detailSearch" class="w-full pl-10 pr-10 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-[#2d6a4f] focus:ring-1 focus:ring-[#2d6a4f]/20 transition bg-white" placeholder="Cari nama sopir atau tujuan..." autocomplete="off">
                             <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style="color:var(--text-dims)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </div>
+                        <div class="relative shrink-0" id="unduhWrap">
+                            <button onclick="toggleUnduhMenu(event)" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium bg-white hover:bg-gray-50 transition" type="button">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                Unduh
+                                <svg id="unduhChevron" class="w-3.5 h-3.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+                            <div class="hidden absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-xl shadow-lg z-50 py-1.5" id="unduhMenu">
+                                <button onclick="openUnduhPreview()" class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 text-left font-medium" type="button">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    Lihat PDF
+                                </button>
+                                <a id="unduhDownloadLink" href="#" class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 text-left font-medium">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                    Download PDF
+                                </a>
+                            </div>
+                        </div>
                         <div class="relative shrink-0" id="detailFilterWrap">
                             <button onclick="toggleDetailFilter()" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium bg-white hover:bg-gray-50 transition">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
                                 Filter
-                                @if($filterPeriode)<span class="w-2 h-2 rounded-full bg-green-500"></span>@endif
+                                @if($filterPeriode)<span class="w-2 h-2 rounded-full bg-green-600"></span>@endif
                             </button>
                             <div class="hidden absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-lg z-50 p-4" id="detailFilterPanel">
                                 <div class="space-y-3">
@@ -228,13 +242,19 @@
     document.addEventListener('click',function(e){const w=document.getElementById('ritFilterWrap');if(w&&!w.contains(e.target)){document.getElementById('ritFilterPanel').classList.add('hidden');}});
     function toggleDetailFilter(){document.getElementById('detailFilterPanel').classList.toggle('hidden');}
     document.addEventListener('click',function(e){const w=document.getElementById('detailFilterWrap');if(w&&!w.contains(e.target)){document.getElementById('detailFilterPanel').classList.add('hidden');}});
+    function currentDetailPeriode(){var d=document.getElementById('detailPeriode');return d?d.value:'';}
+    function closeUnduhMenu(){var m=document.getElementById('unduhMenu'),c=document.getElementById('unduhChevron');if(m)m.classList.add('hidden');if(c)c.style.transform='';}
+    function syncUnduhLink(){var p=currentDetailPeriode(),a=document.getElementById('unduhDownloadLink');if(a)a.href=p?'/ritase/detail-pdf?periode='+encodeURIComponent(p):'#';}
+    function toggleUnduhMenu(e){if(e)e.stopPropagation();var m=document.getElementById('unduhMenu'),c=document.getElementById('unduhChevron');if(!m)return;var willOpen=m.classList.contains('hidden');if(willOpen)syncUnduhLink();m.classList.toggle('hidden');if(c)c.style.transform=willOpen?'rotate(180deg)':'';}
+    function openUnduhPreview(){var p=currentDetailPeriode();if(!p){alert('Pilih periode terlebih dahulu.');return;}closeUnduhMenu();openPdfModal(p);}
+    document.addEventListener('click',function(e){var w=document.getElementById('unduhWrap');if(w&&!w.contains(e.target)){closeUnduhMenu();}});
     function updateDetailDot(){
         var det=document.getElementById('detailPeriode');
         var btn=document.querySelector('#detailFilterWrap button');
         if(!btn) return;
         var dot=btn.querySelector('span.rounded-full');
         var has=det&&det.value!=='';
-        if(has&&!dot){var s=document.createElement('span');s.className='w-2 h-2 rounded-full bg-green-500';btn.appendChild(s);}
+        if(has&&!dot){var s=document.createElement('span');s.className='w-2 h-2 rounded-full bg-green-600';btn.appendChild(s);}
         if(!has&&dot) dot.remove();
     }
     function isDetailTabActive(){
@@ -304,8 +324,8 @@
     <x-ritase.modal-pdf />
 
     @push('scripts')
-    <script src="{{ asset('js/ritase.js') }}"></script>
-    <script src="{{ asset('js/live-search.js') }}"></script>
+    <script src="{{ asset('js/ritase.js') }}?v={{ filemtime(public_path('js/ritase.js')) }}"></script>
+    <script src="{{ asset('js/live-search.js') }}?v={{ filemtime(public_path('js/live-search.js')) }}"></script>
     <script>
     (function(){
         var stats = document.getElementById('liveStats');

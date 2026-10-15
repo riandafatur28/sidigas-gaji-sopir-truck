@@ -7,6 +7,7 @@ namespace App\Observers;
 use App\Models\Periode;
 use App\Models\Sopir;
 use App\Models\Tujuan;
+use App\Services\DashboardService;
 
 class PeriodeObserver
 {
@@ -16,6 +17,7 @@ class PeriodeObserver
     public function created(Periode $periode): void
     {
         Periode::syncActiveStatus();
+        DashboardService::bumpVersion();
     }
 
     /**
@@ -24,6 +26,7 @@ class PeriodeObserver
     public function updated(Periode $periode): void
     {
         Periode::syncActiveStatus();
+        DashboardService::bumpVersion();
     }
 
     /**
@@ -32,5 +35,6 @@ class PeriodeObserver
     public function deleted(Periode $periode): void
     {
         Periode::syncActiveStatus();
+        DashboardService::bumpVersion();
     }
 }

@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/js/exifr.min.js"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+<body class="bg-[#f3efe7] min-h-screen flex items-center justify-center p-4">
     <div class="w-full max-w-lg bg-white rounded shadow border border-gray-200">
         <div class="px-6 py-5 border-b border-gray-200">
             <h1 class="text-xl font-bold text-gray-900">Validasi Bukti</h1>
@@ -15,13 +15,13 @@
         </div>
 
         @if(session('success'))
-            <div class="mx-6 mt-4 border border-green-200 bg-green-50 text-green-700 px-4 py-3 rounded text-sm">
+            <div class="mx-6 mt-4 border border-green-500 bg-green-50 text-green-600 px-4 py-3 rounded text-sm">
                 {{ session('success') }}
             </div>
         @endif
 
         @if($errors->any())
-            <div class="mx-6 mt-4 border border-red-200 bg-red-50 text-red-700 px-4 py-3 rounded text-sm">
+            <div class="mx-6 mt-4 border border-red-200 bg-red-50 text-red-600 px-4 py-3 rounded text-sm">
                 <ul class="list-disc list-inside">
                     @foreach($errors->all() as $e)
                         <li>{{ $e }}</li>
@@ -140,7 +140,7 @@
                 Batal
             </button>
             <button type="button" id="btnKirimModal"
-                class="flex-1 bg-gray-900 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-gray-800 transition inline-flex items-center justify-center gap-1.5">
+                class="flex-1 bg-green-600 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-green-700 transition inline-flex items-center justify-center gap-1.5">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                 Ya, Kirim
             </button>

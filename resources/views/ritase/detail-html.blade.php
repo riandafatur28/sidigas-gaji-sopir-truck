@@ -17,7 +17,7 @@
         .dark .text-gray-400 { color: #6b6b6b !important; }
         .dark .text-gray-700 { color: #cccccc !important; }
         .dark .text-gray-900 { color: #e5e5e5 !important; }
-        .dark .text-green-700, .dark .text-green-800 { color: #e5e5e5 !important; }
+        .dark .text-green-600, .dark .text-green-600 { color: #e5e5e5 !important; }
         .dark .text-amber-600, .dark .text-green-600 { color: #e5e5e5 !important; }
         /* Red kept for gagal column */
         .dark .text-red-600 { color: #f87171 !important; }
@@ -37,7 +37,7 @@
     <div class="max-w-full">
         <div class="text-center mb-4">
             <h1 class="text-lg font-bold text-gray-900">Detail Ritase per Sopir</h1>
-            <p class="text-sm text-gray-500">{{ $periode->nama_periode }} ({{ \Carbon\Carbon::parse($periode->tanggal_mulai)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($periode->tanggal_selesai)->format('d/m/Y') }})</p>
+            <p class="text-sm text-gray-500">{{ $periode->nama_periode }} ({{ \Carbon\Carbon::parse($periode->tanggal_mulai)->locale('id')->translatedFormat('d F Y') }} - {{ \Carbon\Carbon::parse($periode->tanggal_selesai)->locale('id')->translatedFormat('d F Y') }})</p>
         </div>
 
         <div class="table-responsive">

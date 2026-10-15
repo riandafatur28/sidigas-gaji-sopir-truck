@@ -18,7 +18,7 @@
                         <input type="text" id="edit_kode_ritase" disabled class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm bg-gray-100 text-gray-600 cursor-not-allowed">
                     </div>
                     <div>
-                        <label class="form-label">Periode <span class="text-red-500">*</span></label>
+                        <label class="form-label">Periode <span class="text-red-600">*</span></label>
                         <select id="edit_periode_id" name="periode_id" required class="form-input">
                             @foreach($periodes as $periode)
                                 <option value="{{ $periode->id }}">{{ $periode->nama_periode }}</option>
@@ -26,7 +26,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="form-label">Sopir <span class="text-red-500">*</span></label>
+                        <label class="form-label">Sopir <span class="text-red-600">*</span></label>
                         <select id="edit_kode_sopir" name="kode_sopir" required class="form-input">
                             @foreach($sopirs as $sopir)
                                 <option value="{{ $sopir->kode_sopir }}">{{ $sopir->nama }} ({{ $sopir->kode_sopir }})</option>
@@ -34,7 +34,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="form-label">Tujuan <span class="text-red-500">*</span></label>
+                        <label class="form-label">Tujuan <span class="text-red-600">*</span></label>
                         <select id="edit_kode_tujuan" name="kode_tujuan" required class="form-input" onchange="autoKabupatenTujuan(this, 'edit_kabupaten')">
                             @foreach(\App\Models\Tujuan::where('status', 'aktif')->orderBy('id', 'asc')->get() as $tujuan)
                                 <option value="{{ $tujuan->kode_tujuan }}">{{ $tujuan->nama }} ({{ $tujuan->kode_tujuan }})</option>
@@ -42,18 +42,18 @@
                         </select>
                     </div>
                     <div>
-                        <label class="form-label">Tanggal <span class="text-red-500">*</span></label>
+                        <label class="form-label">Tanggal <span class="text-red-600">*</span></label>
                         <input type="date" id="edit_tanggal" name="tanggal" required class="form-input">
                     </div>
                     <div>
-                        <label class="form-label">Waktu <span class="text-red-500">*</span></label>
+                        <label class="form-label">Waktu <span class="text-red-600">*</span></label>
                         <select id="edit_waktu" name="waktu" required class="form-input">
                             <option value="pagi">Pagi</option>
                             <option value="malam">Malam</option>
                         </select>
                     </div>
                     <div>
-                        <label class="form-label">Kabupaten <span class="text-red-500">*</span></label>
+                        <label class="form-label">Kabupaten <span class="text-red-600">*</span></label>
                         <select id="edit_kabupaten" name="kabupaten" required class="form-input">
                             <option value="Nganjuk">Nganjuk</option>
                             <option value="Kediri">Kediri</option>
@@ -63,7 +63,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="form-label">Status <span class="text-red-500">*</span></label>
+                        <label class="form-label">Status <span class="text-red-600">*</span></label>
                         <select id="edit_status" name="status" required onchange="toggleEditKompensasiField()" class="form-input">
                             <option value="pending">Pending</option>
                             <option value="valid">Valid</option>

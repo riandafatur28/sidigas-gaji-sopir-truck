@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SopirController;
@@ -120,4 +121,13 @@ Route::middleware('auth')->group(function () {
     // Pengaturan
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::put('/settings/dt-nominal', [SettingsController::class, 'updateDtNominal'])->name('settings.dt-nominal');
+    Route::put('/settings/dt-aturan', [SettingsController::class, 'updateDtAturan'])->name('settings.dt-aturan');
+
+    // Kelola Admin (khusus superadmin)
+    Route::middleware(\App\Http\Middleware\EnsureSuperadmin::class)->group(function () {
+        Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+        Route::post('/admin', [AdminController::class, 'store'])->name('admin.store');
+        Route::put('/admin/{id}', [AdminController::class, 'update'])->name('admin.update');
+        Route::delete('/admin/{id}', [AdminController::class, 'destroy'])->name('admin.destroy');
+    });
 });

@@ -59,6 +59,7 @@ function switchTab(tab) {
 
 // ===== DETAIL RITASE (TAB 2) =====
 var detailCurrentPage = 1;
+var detailRequestSeq = 0;
 
 function loadDetailPage(page) {
     if (page) detailCurrentPage = page;
@@ -67,21 +68,23 @@ function loadDetailPage(page) {
 
 function loadDetailData() {
     var periode = document.getElementById('detailPeriode').value;
-    var search = document.getElementById('detailSearch').value;
+    var search = document.getElementById('detailSearch').value.trim();
     var container = document.getElementById('detailContainer');
 
     if (!periode) {
-        container.innerHTML = '<div class="text-center py-16"><svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg><p class="text-gray-500 font-semibold">Pilih periode untuk menampilkan detail ritase</p><p class="text-gray-400 text-sm mt-1">Gunakan filter periode di atas untuk melihat data.</p></div>';
+        container.innerHTML = '<div class="text-center py-16"><svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg><p class="text-gray-500 font-semibold">Pilih periode untuk menampilkan detail ritase</p><p class="text-gray-400 text-sm mt-1">Gunakan filter periode di atas untuk melihat data.</p></div>';
         return;
     }
 
     container.innerHTML = '<div class="flex items-center justify-center py-16"><svg class="animate-spin h-8 w-8 text-gray-400" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/></svg><p class="text-sm text-gray-500 ml-3">Memuat data...</p></div>';
 
+    var seq = ++detailRequestSeq;
     fetch('/ritase/detail-data?periode=' + encodeURIComponent(periode) + '&search=' + encodeURIComponent(search) + '&page=' + detailCurrentPage, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
         .then(function(r) { return r.json(); })
         .then(function(json) {
+            if (seq !== detailRequestSeq) return;
             if (!json.sopirs || json.sopirs.length === 0) {
                 if (json.pagination && json.pagination.total > 0) {
                     detailCurrentPage = Math.max(1, json.pagination.page - 1);
@@ -167,28 +170,20 @@ function loadDetailData() {
             html += '<td class="text-center align-middle px-3 py-2.5 text-sm font-bold text-red-600" style="border:1px solid #e5e7eb">' + pageGagal + '</td>';
             html += '</tr></tbody></table></div>';
 
-            // PDF buttons + pagination
-            html += '<div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-t border-gray-100 overflow-hidden">';
-            html += '<div class="flex flex-nowrap items-center gap-2">';
-            html += '<button onclick="openPdfModal(' + periode + ')" class="inline-flex items-center gap-2 px-3 py-2 border border-gray-200 rounded text-sm bg-white hover:bg-gray-50 font-medium" style="color:var(--text);cursor:pointer" type="button">';
-            html += '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z"/></svg>';
-            html += 'Lihat PDF</button>';
-            html += '<a href="/ritase/detail-pdf?periode=' + periode + '" class="inline-flex items-center gap-2 px-3 py-2 border border-gray-200 rounded text-sm bg-white hover:bg-gray-50 font-medium" style="color:var(--text)">';
-            html += '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>';
-            html += 'Download PDF</a></div>';
-
             if (pag.last_page > 1) {
-                html += '<div class="flex flex-nowrap items-center gap-3 overflow-hidden">';
-                html += '<span class="text-sm text-gray-600 whitespace-nowrap">Halaman ' + pag.page + ' dari ' + pag.last_page + '</span>';
-                html += '<div class="flex flex-nowrap items-center gap-1 overflow-hidden">';
+                html += '<div class="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 px-4 py-3 border-t border-gray-100">';
+                html += '<div class="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 w-full sm:w-auto">';
+                html += '<span class="text-sm text-gray-600 whitespace-nowrap text-center sm:text-right">Halaman ' + pag.page + ' dari ' + pag.last_page + '</span>';
+                html += '<div class="flex items-center justify-start sm:justify-end gap-1.5 overflow-x-auto max-w-full py-0.5">';
                 html += pag.page <= 1
-                    ? '<span class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 rounded cursor-not-allowed">Sebelumnya</span>'
-                    : '<a href="#" onclick="loadDetailPage(' + (pag.page - 1) + '); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded hover:bg-gray-50 font-medium">Sebelumnya</a>';
+                    ? '<span class="shrink-0 px-2.5 sm:px-3 py-1.5 text-sm text-gray-400 border border-gray-200 rounded cursor-not-allowed whitespace-nowrap">Sebelumnya</span>'
+                    : '<a href="#" onclick="loadDetailPage(' + (pag.page - 1) + '); return false;" class="shrink-0 px-2.5 sm:px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded hover:bg-gray-50 font-medium whitespace-nowrap">Sebelumnya</a>';
 
+                html += '<div class="flex items-center gap-1 shrink-0">';
                 var w = 2, ss = Math.max(1, pag.page - w), ee = Math.min(pag.last_page, pag.page + w);
                 if (ss > 1) {
                     html += '<a href="#" onclick="loadDetailPage(1); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">1</a>';
-                    if (ss > 2) html += '<span class="px-3 py-1.5 text-sm text-gray-400">...</span>';
+                    if (ss > 2) html += '<span class="px-2 py-1.5 text-sm text-gray-400">...</span>';
                 }
                 for (var p = ss; p <= ee; p++) {
                     html += p == pag.page
@@ -196,18 +191,19 @@ function loadDetailData() {
                         : '<a href="#" onclick="loadDetailPage(' + p + '); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">' + p + '</a>';
                 }
                 if (ee < pag.last_page) {
-                    if (ee < pag.last_page - 1) html += '<span class="px-3 py-1.5 text-sm text-gray-400">...</span>';
+                    if (ee < pag.last_page - 1) html += '<span class="px-2 py-1.5 text-sm text-gray-400">...</span>';
                     html += '<a href="#" onclick="loadDetailPage(' + pag.last_page + '); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 rounded font-medium">' + pag.last_page + '</a>';
                 }
+                html += '</div>';
                 html += pag.page >= pag.last_page
-                    ? '<span class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 rounded cursor-not-allowed">Selanjutnya</span>'
-                    : '<a href="#" onclick="loadDetailPage(' + (pag.page + 1) + '); return false;" class="px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded hover:bg-gray-50 font-medium">Selanjutnya</a>';
+                    ? '<span class="shrink-0 px-2.5 sm:px-3 py-1.5 text-sm text-gray-400 border border-gray-200 rounded cursor-not-allowed whitespace-nowrap">Selanjutnya</span>'
+                    : '<a href="#" onclick="loadDetailPage(' + (pag.page + 1) + '); return false;" class="shrink-0 px-2.5 sm:px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded hover:bg-gray-50 font-medium whitespace-nowrap">Selanjutnya</a>';
                 html += '</div></div>';
             }
-            html += '</div>';
             container.innerHTML = html;
         })
         .catch(function(err) {
+            if (seq !== detailRequestSeq) return;
             container.innerHTML = '<div class="text-center py-16"><p class="text-red-500">Gagal memuat data: ' + err.message + '</p></div>';
         });
 }

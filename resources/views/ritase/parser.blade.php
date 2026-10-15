@@ -9,7 +9,7 @@
     </div>
 
     @if ($errors->any())
-    <div class="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded">
+    <div class="mb-4 p-4 bg-red-50 border border-red-200 text-red-600 rounded">
         <ul class="list-disc list-inside">
             @foreach ($errors->all() as $error)
             <li>{{ $error }}</li>
@@ -34,7 +34,7 @@
                     </div>
 
                     <div>
-                        <label for="periode_id" class="block text-sm font-medium text-gray-700 mb-2">Periode <span class="text-red-500">*</span></label>
+                        <label for="periode_id" class="block text-sm font-medium text-gray-700 mb-2">Periode <span class="text-red-600">*</span></label>
                         <select name="periode_id" id="periode_id" required
                             class="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
                             <option value="">-- Pilih Periode --</option>

@@ -6,7 +6,7 @@
 <title>Terlalu Banyak Percobaan - SIDIGAS</title>
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: #f9fafb; color: #111827; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+    body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: #f3efe7; color: #111827; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
     .card { width: 100%; max-width: 26rem; background: #fff; border: 1px solid #e5e7eb; border-radius: .5rem; padding: 2rem 1.75rem; text-align: center; }
     .code { font-size: 3rem; font-weight: 800; color: #111827; line-height: 1; }
     h1 { font-size: 1.125rem; font-weight: 700; margin-top: .75rem; }

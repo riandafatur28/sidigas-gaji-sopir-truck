@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Periode;
 
 class UpdateRitaseRequest extends FormRequest
 {
@@ -27,7 +28,17 @@ class UpdateRitaseRequest extends FormRequest
             'periode_id' => 'required|exists:periodes,id',
             'kode_sopir' => 'required|exists:sopirs,kode_sopir',
             'kode_tujuan' => 'required|exists:tujuans,kode_tujuan',
-            'tanggal' => 'required|date',
+            'tanggal' => ['required', 'date', function ($attribute, $value, $fail) {
+                $periode = $this->input('periode_id') ? Periode::find($this->input('periode_id')) : null;
+                if ($periode) {
+                    $tgl = substr((string) $value, 0, 10);
+                    $mulai = $periode->tanggal_mulai->format('Y-m-d');
+                    $selesai = $periode->tanggal_selesai->format('Y-m-d');
+                    if ($tgl < $mulai || $tgl > $selesai) {
+                        $fail('Tanggal harus dalam rentang periode (' . $periode->tanggal_mulai->locale('id')->translatedFormat('d F Y') . ' - ' . $periode->tanggal_selesai->locale('id')->translatedFormat('d F Y') . ').');
+                    }
+                }
+            }],
             'waktu' => 'required|in:pagi,malam',
             'kabupaten' => 'required|in:Nganjuk,Kediri,Kota Kediri,Jombang,Lainnya',
             'status' => 'required|in:valid,pending,gagal_produksi',

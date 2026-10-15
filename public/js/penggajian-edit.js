@@ -113,7 +113,7 @@
             var tolNum = parseInt(tolVal) || 0;
             var lemburTujuanNum = parseInt(lemburTujuanVal) || 0;
             if (bbmNum > 0 || upahNum > 0 || kompNum > 0 || tolNum > 0 || lemburTujuanNum > 0) {
-                var line = namaTujuan + ' <span class="text-gray-600">BBM: Rp ' + bbmNum.toLocaleString('id-ID') + ' | Upah: Rp ' + upahNum.toLocaleString('id-ID');
+                var line = namaTujuan + ' <span class="text-gray-600">Solar: Rp ' + bbmNum.toLocaleString('id-ID') + ' | Upah: Rp ' + upahNum.toLocaleString('id-ID');
                 if (kompNum > 0) line += ' | Kompensasi: Rp ' + kompNum.toLocaleString('id-ID');
                 if (tolNum > 0) line += ' | Tol: Rp ' + tolNum.toLocaleString('id-ID');
                 if (lemburTujuanNum > 0) line += ' | Lembur: Rp ' + lemburTujuanNum.toLocaleString('id-ID');
