@@ -134,6 +134,12 @@ class RitaseController extends Controller
             'auto_create' => 'boolean',
         ]);
 
+        // Simpan teks & periode agar "Kembali / Edit Ulang" tidak kehilangan input.
+        $request->session()->put([
+            'parser_text' => $request->text,
+            'parser_periode' => $request->periode_id,
+        ]);
+
         try {
             $results = $this->ritaseService->processParser($request);
             return view('ritase.parser-result', ['results' => $results, 'periodeId' => $request->periode_id]);
