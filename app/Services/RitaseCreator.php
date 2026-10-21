@@ -152,6 +152,9 @@ class RitaseCreator
             }
 
             $dtValue = $this->calculateDt($sopir, $parsed['date'], $kabupaten, $waktu);
+            $ritKe = Ritase::where('kode_sopir', $sopir->kode_sopir)
+                ->where('tanggal', $parsed['date'])
+                ->count() + 1;
 
             try {
                 $ritase = new Ritase();
@@ -166,7 +169,7 @@ class RitaseCreator
                 $ritase->catatan = $isRitKe2 ? "Rit ke-2 (parser)" : "Auto-create from parser (mode: " . ($parsed['source'] ?? 'rule-based') . ")";
                 $ritase->save();
                 $created++;
-                $details[] = ['route' => $routeName, 'status' => 'Created', 'sopir' => $sopir->nama, 'kode_sopir' => $sopir->kode_sopir, 'kode_tujuan' => $kodeTujuan, 'waktu' => $waktu, 'kabupaten' => $kabupaten];
+                $details[] = ['route' => $routeName, 'status' => 'Created', 'sopir' => $sopir->nama, 'kode_sopir' => $sopir->kode_sopir, 'kode_tujuan' => $kodeTujuan, 'tujuan' => $tujuan->nama ?? $routeName, 'tanggal' => $parsed['date'], 'rit_ke' => $ritKe, 'waktu' => $waktu, 'kabupaten' => $kabupaten];
             } catch (\Exception $e) {
                 $errors[] = "Failed to create for '{$routeName}' / {$sopir->nama}: " . $e->getMessage();
                 $skipped++;

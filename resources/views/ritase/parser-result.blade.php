@@ -191,19 +191,52 @@
             <h2 class="text-lg font-semibold text-gray-900">Log Aksi</h2>
         </div>
         <div class="p-4">
-            <ul class="divide-y divide-gray-200">
-                @foreach ($results['details'] as $detail)
-                <li class="py-2 text-sm {{
-                    $detail['status'] === 'Created' ? 'text-green-600' :
-                    ($detail['status'] === 'Updated lembur' ? 'text-green-600' : 'text-amber-600')
-                }}">
-                    <strong>{{ $detail['route'] }}</strong>: {{ $detail['status'] }}
-                    @if (isset($detail['reason']))
-                    <em>({{ $detail['reason'] }})</em>
-                    @endif
-                </li>
-                @endforeach
-            </ul>
+            <div class="table-responsive">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Hari</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Sopir</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Kode Sopir</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tujuan</th>
+                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">Rit Ke-</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Jam</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        @foreach ($results['details'] as $detail)
+                        @php
+                            $tgl = null;
+                            try { $tgl = \Illuminate\Support\Carbon::parse($detail['tanggal'] ?? $results['date'] ?? null)->locale('id'); } catch (\Exception $e) {}
+                        @endphp
+                        <tr class="{{ ($detail['status'] ?? '') === 'Created' ? '' : 'bg-amber-50' }}">
+                            <td class="px-3 py-2">{{ $tgl ? $tgl->translatedFormat('l') : '-' }}</td>
+                            <td class="px-3 py-2 whitespace-nowrap">{{ $tgl ? $tgl->translatedFormat('d M Y') : '-' }}</td>
+                            <td class="px-3 py-2 font-medium">{{ $detail['sopir'] ?? '-' }}</td>
+                            <td class="px-3 py-2 text-gray-500">{{ $detail['kode_sopir'] ?? '-' }}</td>
+                            <td class="px-3 py-2">
+                                {{ $detail['tujuan'] ?? $detail['route'] ?? '-' }}
+                                @if (!empty($detail['kode_tujuan']))
+                                <span class="text-xs text-gray-500">({{ $detail['kode_tujuan'] }})</span>
+                                @endif
+                            </td>
+                            <td class="px-3 py-2 text-center">{{ $detail['rit_ke'] ?? '-' }}</td>
+                            <td class="px-3 py-2 whitespace-nowrap">{{ $detail['waktu'] ?? '-' }}</td>
+                            <td class="px-3 py-2">
+                                <span class="inline-flex px-2 py-0.5 text-xs font-semibold rounded-full {{ ($detail['status'] ?? '') === 'Created' ? 'bg-green-50 text-green-600' : 'bg-amber-50 text-amber-600' }}">
+                                    {{ $detail['status'] ?? '-' }}
+                                </span>
+                                @if (!empty($detail['reason']))
+                                <span class="text-xs text-gray-500">({{ $detail['reason'] }})</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
     @endif
