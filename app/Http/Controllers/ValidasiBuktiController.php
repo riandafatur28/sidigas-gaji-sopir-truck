@@ -83,7 +83,7 @@ class ValidasiBuktiController extends Controller
             'kode_tujuan' => 'required|exists:tujuans,kode_tujuan',
             'tanggal' => 'required|date',
             'waktu' => 'required|in:pagi,malam',
-            'kabupaten' => 'required|in:Nganjuk,Kediri,Kota Kediri,Jombang,Lainnya',
+            'kabupaten' => 'nullable|in:Nganjuk,Kediri,Kota Kediri,Jombang,Lainnya',
         ]);
 
         DB::beginTransaction();

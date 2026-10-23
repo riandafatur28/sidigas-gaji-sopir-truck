@@ -20,7 +20,7 @@ Route::get('/', function () {
 
 // ================= PUBLIC ROUTES (no auth) =================
 Route::get('/validasi-bukti', [ValidasiBuktiController::class, 'form'])->name('validasi-bukti.form');
-Route::post('/validasi-bukti', [ValidasiBuktiController::class, 'submit'])->name('validasi-bukti.submit')->middleware('throttle:5,3');
+Route::post('/validasi-bukti', [ValidasiBuktiController::class, 'submit'])->name('validasi-bukti.submit')->middleware('throttle:20,10');
 
 // ================= GUEST ROUTES =================
 Route::middleware(['guest', 'throttle:10,3'])->group(function () {

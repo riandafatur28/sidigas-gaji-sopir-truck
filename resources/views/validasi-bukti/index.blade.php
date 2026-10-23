@@ -148,6 +148,22 @@
     </div>
 </div>
 
+<!-- Modal Peringatan -->
+<div id="modalAlert" class="fixed inset-0 bg-black/60 z-[60] flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-lg max-w-sm w-full">
+        <div class="p-6 text-center">
+            <div class="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center mx-auto mb-4">
+                <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Perhatian</h3>
+            <p id="modalAlertMsg" class="text-sm text-gray-600"></p>
+        </div>
+        <div class="px-6 pb-6">
+            <button type="button" id="btnAlertOk" class="w-full bg-gray-900 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-gray-800 transition">Mengerti</button>
+        </div>
+    </div>
+</div>
+
 <script>
     window.validasiBuktiNgrokUrl = '{{ config("app.url", "") }}/validasi-bukti';
 </script>

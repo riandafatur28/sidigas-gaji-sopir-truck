@@ -343,13 +343,28 @@
     var btnBatalModal = document.getElementById('btnBatalModal');
     var btnKirimModal = document.getElementById('btnKirimModal');
 
+    // Modal peringatan (pengganti alert bawaan browser)
+    function showAlert(msg) {
+        var box = document.getElementById('modalAlert');
+        if (!box) { window.alert(msg); return; }
+        document.getElementById('modalAlertMsg').textContent = msg;
+        box.classList.remove('hidden');
+    }
+
+    var btnAlertOk = document.getElementById('btnAlertOk');
+    if (btnAlertOk) {
+        btnAlertOk.addEventListener('click', function() {
+            document.getElementById('modalAlert').classList.add('hidden');
+        });
+    }
+
     btnSubmit.addEventListener('click', function() {
         if (btnSubmit.disabled) return;
         var nama = namaSopirHidden.value || sopirBaruInput.value;
-        if (!nama) { alert('Silakan pilih atau masukkan nama sopir!'); return; }
+        if (!nama) { showAlert('Silakan pilih atau masukkan nama sopir!'); return; }
         var tujuan = namaTujuanHidden.value || tujuanBaruInput.value;
-        if (!tujuan) { alert('Silakan pilih atau masukkan tujuan!'); return; }
-        if (!fotoInput.value) { alert('Silakan ambil foto terlebih dahulu!'); return; }
+        if (!tujuan) { showAlert('Silakan pilih atau masukkan tujuan!'); return; }
+        if (!fotoInput.value) { showAlert('Silakan ambil foto terlebih dahulu!'); return; }
 
         document.getElementById('modalFoto').src = canvas.toDataURL('image/jpeg');
         document.getElementById('modalSopir').textContent = nama;

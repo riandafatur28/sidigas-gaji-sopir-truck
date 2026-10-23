@@ -341,12 +341,24 @@ class RitaseService
         ];
     }
 
-    public function storeRitase($request): float
+    /**
+     * Normalize nominal_kompensasi / lembur fields from a validated request.
+     *
+     * @return array{0: float, 1: bool, 2: float} [nominalKompensasi, isLembur, upahLembur]
+     */
+    private function normalizeKompensasi($request): array
     {
         $validated = $request->validated();
-        $validated['nominal_kompensasi'] = is_numeric($validated['nominal_kompensasi'] ?? 0) ? (float) $validated['nominal_kompensasi'] : 0;
+        $nominal = (float) ($validated['nominal_kompensasi'] ?? 0);
         $isLembur = $request->boolean('is_lembur');
         $upahLembur = $isLembur ? (float) ($request->upah_lembur ?? 0) : 0;
+
+        return [$nominal, $isLembur, $upahLembur];
+    }
+
+    public function storeRitase($request): float
+    {
+        [$nominalKompensasi, $isLembur, $upahLembur] = $this->normalizeKompensasi($request);
 
         if (cache()->get('aturan_validasi_enabled', false)) {
             $validasi = \App\Models\ValidasiBukti::where('kode_sopir', $request->kode_sopir)
@@ -374,7 +386,7 @@ class RitaseService
             'status' => $request->status,
             'dt' => $dtValue,
             'upah_sopir' => $this->resolveUpahSopir($request->periode_id, $request->kode_tujuan),
-            'nominal_kompensasi' => $validated['nominal_kompensasi'],
+            'nominal_kompensasi' => $nominalKompensasi,
             'catatan' => $request->catatan,
             'is_lembur' => $isLembur,
             'upah_lembur' => $upahLembur,
@@ -385,10 +397,7 @@ class RitaseService
 
     public function updateRitase($request, $id): float
     {
-        $validated = $request->validated();
-        $validated['nominal_kompensasi'] = is_numeric($validated['nominal_kompensasi'] ?? 0) ? (float) $validated['nominal_kompensasi'] : 0;
-        $isLembur = $request->boolean('is_lembur');
-        $upahLembur = $isLembur ? (float) ($request->upah_lembur ?? 0) : 0;
+        [$nominalKompensasi, $isLembur, $upahLembur] = $this->normalizeKompensasi($request);
 
         Sopir::where('kode_sopir', $request->kode_sopir)->where('status', '!=', 'aktif')->update(['status' => 'aktif']);
         Tujuan::where('kode_tujuan', $request->kode_tujuan)->where('status', '!=', 'aktif')->update(['status' => 'aktif']);
@@ -405,7 +414,7 @@ class RitaseService
             'kabupaten' => $request->kabupaten,
             'status' => $request->status,
             'dt' => $dtValue,
-            'nominal_kompensasi' => $validated['nominal_kompensasi'],
+            'nominal_kompensasi' => $nominalKompensasi,
             'catatan' => $request->catatan,
             'is_lembur' => $isLembur,
             'upah_lembur' => $upahLembur,

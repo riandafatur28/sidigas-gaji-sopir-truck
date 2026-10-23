@@ -61,8 +61,7 @@ class AdminController extends Controller
             return redirect()->back()->with('error', 'Tidak dapat menurunkan role akun sendiri!');
         }
 
-        if ($user->role === 'superadmin' && $request->role !== 'superadmin'
-            && User::where('role', 'superadmin')->count() <= 1) {
+        if ($this->isLastSuperadmin($user, $request->role)) {
             return redirect()->back()->with('error', 'Minimal harus ada 1 superadmin!');
         }
 
@@ -89,12 +88,19 @@ class AdminController extends Controller
             return redirect()->back()->with('error', 'Tidak dapat menghapus akun sendiri!');
         }
 
-        if ($user->role === 'superadmin' && User::where('role', 'superadmin')->count() <= 1) {
+        if ($this->isLastSuperadmin($user)) {
             return redirect()->back()->with('error', 'Minimal harus ada 1 superadmin!');
         }
 
         $user->delete();
 
         return redirect()->back()->with('success', 'Data admin berhasil dihapus!');
+    }
+
+    private function isLastSuperadmin(User $user, ?string $newRole = null): bool
+    {
+        return $user->role === 'superadmin'
+            && $newRole !== 'superadmin'
+            && User::where('role', 'superadmin')->count() <= 1;
     }
 }

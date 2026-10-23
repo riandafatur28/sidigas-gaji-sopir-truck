@@ -94,7 +94,8 @@ class ValidasiBuktiService
         $item = ValidasiBukti::with(['sopir', 'tujuan', 'periode'])->findOrFail($id);
         $sopirs = Sopir::orderBy('nama')->get(['kode_sopir', 'nama']);
         $tujuans = Tujuan::orderBy('nama')->get(['kode_tujuan', 'nama']);
-        return compact('item', 'sopirs', 'tujuans');
+        $kabupatenTebakan = (new RitaseCreator())->guessKabupaten($item->nama_tujuan);
+        return compact('item', 'sopirs', 'tujuans', 'kabupatenTebakan');
     }
 
     public function setujui(Request $request, $id): void
@@ -134,6 +135,10 @@ class ValidasiBuktiService
     {
         $item = ValidasiBukti::findOrFail($id);
 
+        if ($item->kode_ritase) {
+            throw new \Exception("Ritase {$item->kode_ritase} sudah dibuat dari bukti ini.");
+        }
+
         $periode = $item->periode_id
             ? Periode::find($item->periode_id)
             : Periode::where('tanggal_mulai', '<=', $request->tanggal)
@@ -147,7 +152,12 @@ class ValidasiBuktiService
         $newNumber = $lastRit ? (int) substr($lastRit->kode_ritase, 4) + 1 : 1;
         $kodeRitase = 'RIT-' . str_pad((string) $newNumber, 3, '0', STR_PAD_LEFT);
 
-        $dt = $this->hitungDt($request->kode_sopir, $request->tanggal, $request->kabupaten, $request->waktu);
+        // Kabupaten diturunkan dari nama tujuan; form hanya mengirimkannya bila mitra mengubahnya.
+        $kabupaten = $request->filled('kabupaten')
+            ? $request->kabupaten
+            : (new RitaseCreator())->guessKabupaten($item->nama_tujuan);
+
+        $dt = $this->hitungDt($request->kode_sopir, $request->tanggal, $kabupaten, $request->waktu);
 
         Ritase::create([
             'kode_ritase' => $kodeRitase,
@@ -156,7 +166,7 @@ class ValidasiBuktiService
             'kode_tujuan' => $request->kode_tujuan,
             'tanggal' => $request->tanggal,
             'waktu' => $request->waktu,
-            'kabupaten' => $request->kabupaten,
+            'kabupaten' => $kabupaten,
             'status' => 'valid',
             'dt' => $dt,
             'upah_sopir' => 0,
@@ -164,7 +174,7 @@ class ValidasiBuktiService
             'catatan' => $item->catatan,
         ]);
 
-        $item->update(['status' => 'disetujui']);
+        $item->update(['status' => 'disetujui', 'kode_ritase' => $kodeRitase]);
 
         return $kodeRitase;
     }

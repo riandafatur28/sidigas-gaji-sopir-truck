@@ -132,13 +132,18 @@
                 </div>
             @endif
 
-            @if($item->status === 'disetujui')
+            @if($item->status === 'disetujui' && $item->kode_ritase)
+                <div class="border border-green-500 bg-green-50 rounded mt-4 p-4">
+                    <p class="text-sm font-medium text-green-700">Sudah ditambahkan ke ritase</p>
+                    <p class="text-sm text-green-700 mt-1">Kode ritase: <strong>{{ $item->kode_ritase }}</strong></p>
+                </div>
+            @elseif($item->status === 'disetujui')
                 <div class="border border-gray-200 rounded bg-white mt-4 overflow-hidden">
                     <div class="bg-gray-50 border-b border-gray-200 px-5 py-3">
                         <p class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Tambah Ritase</p>
                     </div>
                     <div class="p-4">
-                        <form method="POST" action="{{ route('validasi-bukti.ritase', $item->id) }}" class="space-y-3">
+                        <form method="POST" action="{{ route('validasi-bukti.ritase', $item->id) }}" class="space-y-3" id="formRitase">
                             @csrf
                             <input type="hidden" name="kode_sopir" value="{{ $item->kode_sopir }}">
                             <input type="hidden" name="kode_tujuan" value="{{ $item->kode_tujuan }}">
@@ -151,15 +156,13 @@
 
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Kabupaten <span class="text-red-600">*</span></label>
-                                    <select name="kabupaten" required class="w-full px-3 py-2 border border-gray-200 rounded text-sm bg-white focus:outline-none focus:border-green-500">
-                                        <option value="">Pilih</option>
-                                        <option value="Nganjuk">Nganjuk</option>
-                                        <option value="Kediri">Kediri</option>
-                                        <option value="Kota Kediri">Kota Kediri</option>
-                                        <option value="Jombang">Jombang</option>
-                                        <option value="Lainnya">Lainnya</option>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Kabupaten</label>
+                                    <select name="kabupaten" class="w-full px-3 py-2 border border-gray-200 rounded text-sm bg-white focus:outline-none focus:border-green-500">
+                                        @foreach(['Nganjuk', 'Kediri', 'Kota Kediri', 'Jombang', 'Lainnya'] as $kab)
+                                            <option value="{{ $kab }}" {{ $kabupatenTebakan === $kab ? 'selected' : '' }}>{{ $kab }}</option>
+                                        @endforeach
                                     </select>
+                                    <p class="text-xs text-gray-400 mt-1">Otomatis dari tujuan</p>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Waktu <span class="text-red-600">*</span></label>
@@ -171,8 +174,7 @@
                                 </div>
                             </div>
 
-                            <button type="submit" class="w-full bg-green-600 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-green-700 transition inline-flex items-center justify-center gap-1.5"
-                                onclick="return confirm('Pastikan data sudah benar. Lanjutkan?')">
+                            <button type="button" onclick="confirmSimpanRitase()" class="w-full bg-green-600 text-white rounded text-sm font-semibold px-4 py-2.5 hover:bg-green-700 transition inline-flex items-center justify-center gap-1.5">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                 Simpan Ritase
                             </button>
@@ -191,6 +193,27 @@
     </div>
 
     <script>
+        function confirmSimpanRitase() {
+            var form = document.getElementById('formRitase');
+            if (!form.waktu.value) {
+                showConfirmModal({
+                    title: 'Waktu Belum Dipilih',
+                    message: 'Pilih waktu ritase (Pagi atau Malam) terlebih dahulu.',
+                    type: 'warning',
+                    confirmText: 'Mengerti',
+                    onConfirm: function() {}
+                });
+                return;
+            }
+            showConfirmModal({
+                title: 'Simpan Ritase?',
+                message: 'Data ritase akan ditambahkan dengan kabupaten ' + form.kabupaten.value + '. Pastikan data sudah benar.',
+                type: 'success',
+                confirmText: 'Ya, Simpan',
+                onConfirm: function() { form.submit(); }
+            });
+        }
+
         function confirmTolak() {
             showConfirmModal({
                 title: 'Tolak Permintaan?',

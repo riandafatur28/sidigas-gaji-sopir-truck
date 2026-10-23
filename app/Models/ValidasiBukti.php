@@ -30,6 +30,7 @@ class ValidasiBukti extends Model
         'catatan',
         'status',
         'catatan_mitra',
+        'kode_ritase',
     ];
 
     protected $casts = [

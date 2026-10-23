@@ -12,8 +12,9 @@
     h1 { font-size: 1.125rem; font-weight: 700; margin-top: .75rem; }
     p { font-size: .875rem; color: #4b5563; margin-top: .5rem; line-height: 1.5; }
     .count { font-size: 2rem; font-weight: 800; color: #2d6a4f; margin-top: 1rem; }
-    .btn { display: inline-block; margin-top: 1.25rem; background: #111827; color: #fff; font-size: .875rem; font-weight: 600; padding: .625rem 1.5rem; border-radius: .375rem; text-decoration: none; }
+    .btn { display: inline-block; margin-top: 1.25rem; background: #111827; color: #fff; font-size: .875rem; font-weight: 600; padding: .625rem 1.5rem; border: 0; border-radius: .375rem; text-decoration: none; cursor: pointer; font-family: inherit; }
     .btn:hover { background: #000; }
+    .btn:disabled { background: #9ca3af; cursor: not-allowed; }
     .hint { font-size: .75rem; color: #9ca3af; margin-top: 1rem; }
 </style>
 </head>
@@ -24,19 +25,30 @@
 @endphp
 <div class="card">
     <div class="code">429</div>
-    <h1>Terlalu Banyak Percobaan</h1>
-    <p>Demi keamanan, login dan OTP dibatasi beberapa kali percobaan per menit. Silakan tunggu sebentar lalu coba lagi.</p>
+    <h1>Terlalu Banyak Permintaan</h1>
+    <p>Permintaan Anda dibatasi sementara untuk mencegah penyalahgunaan. Tunggu sebentar, lalu coba lagi.</p>
     <div class="count"><span id="cd" data-retry="{{ $retry }}">{{ $retry }}</span> dtk</div>
-    <a class="btn" href="{{ route('login') }}">Kembali ke Login</a>
-    <p class="hint">Jangan spam tombol — setiap percobaan gagal ikut dihitung.</p>
+    <button type="button" class="btn" id="btnKembali" disabled>Kembali</button>
+    <p class="hint">Jangan menekan tombol berulang kali — setiap percobaan ikut dihitung.</p>
 </div>
 <script>
     (function () {
         var el = document.getElementById('cd');
+        var btn = document.getElementById('btnKembali');
         var s = parseInt(el.getAttribute('data-retry'), 10) || 60;
+
+        btn.addEventListener('click', function () {
+            if (history.length > 1) { history.back(); } else { location.href = '/'; }
+        });
+
         var t = setInterval(function () {
             s -= 1;
-            if (s <= 0) { clearInterval(t); el.textContent = '0'; location.reload(); return; }
+            if (s <= 0) {
+                clearInterval(t);
+                el.textContent = '0';
+                btn.disabled = false;
+                return;
+            }
             el.textContent = s;
         }, 1000);
     })();
