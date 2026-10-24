@@ -3,8 +3,8 @@
     :pageTitle="'Parser Ritase'"
     >
 <div class="max-w-4xl mx-auto py-6">
-    <div class="mb-6 flex items-start gap-4">
-        <a href="{{ route('ritase.index') }}" class="mt-0.5 px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-300 inline-flex items-center gap-1.5 shrink-0">
+    <div class="mb-6 flex flex-col gap-3">
+        <a href="{{ route('ritase.index') }}" class="self-start px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-300 inline-flex items-center gap-1.5">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
             Kembali
         </a>
