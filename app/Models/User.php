@@ -37,4 +37,18 @@ class User extends Authenticatable
     {
         return ($this->role ?? 'admin') === 'superadmin';
     }
+
+    /**
+     * Mitra saat ini diidentifikasi dari email (sementara). Bisa diganti
+     * dengan kolom role tersendiri nantinya.
+     */
+    public function isMitra(): bool
+    {
+        return in_array(strtolower((string) $this->email), array_map('strtolower', (array) config('app.mitra_emails', [])), true);
+    }
+
+    public function canManageSettings(): bool
+    {
+        return $this->isSuperadmin() || $this->isMitra();
+    }
 }

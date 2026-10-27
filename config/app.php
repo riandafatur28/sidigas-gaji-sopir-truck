@@ -69,6 +69,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Email Mitra
+    |--------------------------------------------------------------------------
+    |
+    | Akun dengan email ini diperlakukan sebagai mitra dan mendapat akses
+    | ke halaman Pengaturan selain superadmin.
+    |
+    */
+
+    'mitra_emails' => explode(',', (string) env('MITRA_EMAILS', 'senjanugraha320@gmail.com')),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------
     |

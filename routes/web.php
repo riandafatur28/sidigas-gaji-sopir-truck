@@ -115,13 +115,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/validasi-bukti/{id}/ritase', [ValidasiBuktiController::class, 'tambahRitase'])->name('validasi-bukti.ritase');
     Route::delete('/validasi-bukti/{id}', [ValidasiBuktiController::class, 'destroy'])->name('validasi-bukti.destroy');
 
-    // Toggle aturan validasi
-    Route::post('/settings/toggle-validasi', [ValidasiBuktiController::class, 'toggleAturan'])->name('settings.toggle-validasi');
+    // Pengaturan & toggle aturan validasi (khusus superadmin / mitra)
+    Route::middleware(\App\Http\Middleware\EnsureSettingsAccess::class)->group(function () {
+        Route::post('/settings/toggle-validasi', [ValidasiBuktiController::class, 'toggleAturan'])->name('settings.toggle-validasi');
 
-    // Pengaturan
-    Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
-    Route::put('/settings/dt-nominal', [SettingsController::class, 'updateDtNominal'])->name('settings.dt-nominal');
-    Route::put('/settings/dt-aturan', [SettingsController::class, 'updateDtAturan'])->name('settings.dt-aturan');
+        Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+        Route::put('/settings/dt-nominal', [SettingsController::class, 'updateDtNominal'])->name('settings.dt-nominal');
+        Route::put('/settings/dt-aturan', [SettingsController::class, 'updateDtAturan'])->name('settings.dt-aturan');
+    });
 
     // Kelola Admin (khusus superadmin)
     Route::middleware(\App\Http\Middleware\EnsureSuperadmin::class)->group(function () {
