@@ -103,8 +103,17 @@ class RitaseService
     public function syncActivePeriodeDt(int $nominal): array
     {
         $periode = Periode::syncActiveStatus();
+        $isFallback = false;
         if (!$periode) {
-            return ['periode' => null, 'ritase' => 0, 'gaji' => 0];
+            // Tidak ada periode aktif: pakai periode terakhir yang sudah selesai.
+            $periode = Periode::where('tanggal_selesai', '<', now()->startOfDay())
+                ->orderBy('tanggal_selesai', 'desc')
+                ->orderBy('id', 'desc')
+                ->first();
+            $isFallback = (bool) $periode;
+        }
+        if (!$periode) {
+            return ['periode' => null, 'ritase' => 0, 'gaji' => 0, 'fallback' => false];
         }
 
         $kabSatuDt = array_map('strtolower', DtConfig::singleRegencies());
@@ -147,7 +156,7 @@ class RitaseService
             }
         }
 
-        return ['periode' => $periode, 'ritase' => $ritUpdated, 'gaji' => $gajiUpdated];
+        return ['periode' => $periode, 'ritase' => $ritUpdated, 'gaji' => $gajiUpdated, 'fallback' => $isFallback];
     }
 
     /**

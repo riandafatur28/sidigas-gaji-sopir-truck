@@ -106,4 +106,82 @@ class DtSettingsPersistenceTest extends TestCase
         Cache::flush();
         $this->assertSame(400000, DtConfig::nominal());
     }
+
+    public function test_update_nominal_syncs_last_finished_periode_when_none_active(): void
+    {
+        $periode = Periode::create([
+            'nama_periode' => 'Periode Selesai Tes',
+            'tanggal_mulai' => now()->subDays(3)->toDateString(),
+            'tanggal_selesai' => now()->subDay()->toDateString(),
+            'status' => 'selesai',
+        ]);
+        $sopir = Sopir::create(['nama' => 'Budi', 'status' => 'aktif']);
+        $tujuan = Tujuan::create(['nama' => 'Nganjuk', 'status' => 'aktif']);
+        $ritase = Ritase::create([
+            'periode_id' => $periode->id,
+            'kode_sopir' => $sopir->kode_sopir,
+            'kode_tujuan' => $tujuan->kode_tujuan,
+            'tanggal' => now()->subDay()->toDateString(),
+            'waktu' => 'pagi',
+            'kabupaten' => 'Nganjuk',
+            'status' => 'valid',
+            'dt' => 330000,
+        ]);
+        Penggajian::create([
+            'periode_id' => $periode->id,
+            'tujuan_id' => $tujuan->id,
+            'kode_sopir' => $sopir->kode_sopir,
+            'tanggal' => now()->subDay()->toDateString(),
+            'dt' => 330000,
+            'total' => 330000,
+        ]);
+
+        $this->actingAs($this->superadmin());
+        $this->put('/settings/dt-nominal', ['nominal' => 400000])->assertRedirect();
+
+        $this->assertSame(400000, (int) $ritase->fresh()->dt);
+        $this->assertSame(400000, (int) Penggajian::first()->dt);
+        $this->assertStringContainsString('nonaktif terakhir', (string) session('success'));
+    }
+
+    public function test_update_nominal_prefers_active_periode_over_finished(): void
+    {
+        $lama = Periode::create([
+            'nama_periode' => 'Periode Lama',
+            'tanggal_mulai' => now()->subDays(5)->toDateString(),
+            'tanggal_selesai' => now()->subDay()->toDateString(),
+            'status' => 'selesai',
+        ]);
+        $aktif = Periode::create([
+            'nama_periode' => 'Periode Aktif Tes',
+            'tanggal_mulai' => now()->subDay()->toDateString(),
+            'tanggal_selesai' => now()->addDay()->toDateString(),
+            'status' => 'aktif',
+        ]);
+        $sopir = Sopir::create(['nama' => 'Budi', 'status' => 'aktif']);
+        $tujuan = Tujuan::create(['nama' => 'Nganjuk', 'status' => 'aktif']);
+        $mk = function ($periodeId) use ($sopir, $tujuan) {
+            return Ritase::create([
+                'periode_id' => $periodeId,
+                'kode_sopir' => $sopir->kode_sopir,
+                'kode_tujuan' => $tujuan->kode_tujuan,
+                'tanggal' => now()->toDateString(),
+                'waktu' => 'pagi',
+                'kabupaten' => 'Jombang',
+                'status' => 'valid',
+                'dt' => 330000,
+            ]);
+        };
+        // Sync hanya memproses baris periode target; baris periode lama tidak disentuh.
+        $ritaseLama = $mk($lama->id);
+        $ritaseAktif = $mk($aktif->id);
+
+        $this->actingAs($this->superadmin());
+        $this->put('/settings/dt-nominal', ['nominal' => 400000])->assertRedirect();
+
+        $this->assertSame(330000, (int) $ritaseLama->fresh()->dt);
+        $this->assertSame(400000, (int) $ritaseAktif->fresh()->dt);
+        $this->assertStringContainsString('periode aktif', (string) session('success'));
+        $this->assertStringNotContainsString('nonaktif', (string) session('success'));
+    }
 }

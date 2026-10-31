@@ -32,10 +32,12 @@ class SettingsController extends Controller
         $sync = app(\App\Services\RitaseService::class)->syncActivePeriodeDt($nominal);
 
         if (!$sync['periode']) {
-            return back()->with('success', 'Nominal sewa DT berhasil diperbarui. Tidak ada periode aktif, jadi tidak ada ritase yang diubah.');
+            return back()->with('success', 'Nominal sewa DT berhasil diperbarui. Tidak ada periode aktif maupun periode selesai, jadi tidak ada ritase yang diubah.');
         }
 
-        return back()->with('success', 'Nominal sewa DT berhasil diperbarui. ' . $sync['ritase'] . ' ritase dan ' . $sync['gaji'] . ' data gaji periode aktif (' . $sync['periode']->nama_periode . ') ikut disesuaikan.');
+        $label = ($sync['fallback'] ?? false) ? 'periode nonaktif terakhir' : 'periode aktif';
+
+        return back()->with('success', 'Nominal sewa DT berhasil diperbarui. ' . $sync['ritase'] . ' ritase dan ' . $sync['gaji'] . ' data gaji ' . $label . ' (' . $sync['periode']->nama_periode . ') ikut disesuaikan.');
     }
 
     public function updateDtAturan(Request $request)
@@ -55,9 +57,11 @@ class SettingsController extends Controller
         $sync = app(\App\Services\RitaseService::class)->syncActivePeriodeDt(\App\Services\DtConfig::nominal());
 
         if (!$sync['periode']) {
-            return back()->with('success', 'Ketentuan sewa DT berhasil diperbarui. Tidak ada periode aktif, jadi tidak ada ritase yang diubah.');
+            return back()->with('success', 'Ketentuan sewa DT berhasil diperbarui. Tidak ada periode aktif maupun periode selesai, jadi tidak ada ritase yang diubah.');
         }
 
-        return back()->with('success', 'Ketentuan sewa DT berhasil diperbarui. ' . $sync['ritase'] . ' ritase dan ' . $sync['gaji'] . ' data gaji periode aktif (' . $sync['periode']->nama_periode . ') ikut disesuaikan.');
+        $label = ($sync['fallback'] ?? false) ? 'periode nonaktif terakhir' : 'periode aktif';
+
+        return back()->with('success', 'Ketentuan sewa DT berhasil diperbarui. ' . $sync['ritase'] . ' ritase dan ' . $sync['gaji'] . ' data gaji ' . $label . ' (' . $sync['periode']->nama_periode . ') ikut disesuaikan.');
     }
 }

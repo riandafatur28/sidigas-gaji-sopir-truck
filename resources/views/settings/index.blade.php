@@ -49,7 +49,7 @@
                 <span class="text-sm font-semibold uppercase" style="color:var(--text-muted)">Nominal Sewa DT</span>
             </div>
             <div class="card-body">
-                <p class="text-sm text-gray-500 mb-4">Atur nominal uang transport (DT) per ritase. Nilai awal Rp 330.000. Setiap perubahan otomatis memperbarui DT ritase & gaji pada periode aktif (periode sebelumnya tidak berubah).</p>
+                <p class="text-sm text-gray-500 mb-4">Atur nominal uang transport (DT) per ritase. Nilai awal Rp 330.000. Setiap perubahan otomatis memperbarui DT ritase & gaji pada periode aktif, atau periode terakhir yang sudah selesai bila tidak ada periode aktif.</p>
                 <form method="POST" action="{{ route('settings.dt-nominal') }}">
                     @csrf
                     @method('PUT')
@@ -74,7 +74,7 @@
                 <span class="text-sm font-semibold uppercase" style="color:var(--text-muted)">Ketentuan Sewa DT per Kabupaten</span>
             </div>
             <div class="card-body">
-                <p class="text-sm text-gray-500 mb-4">Centang kabupaten yang hanya mendapat <strong>maksimal 1 DT per hari per waktu</strong> (rit ke-2 di kabupaten, tanggal, dan waktu yang sama = DT Rp 0). Kabupaten yang tidak dicentang mendapat DT penuh untuk setiap rit. Perubahan otomatis menyesuaikan DT ritase & gaji pada periode aktif.</p>
+                <p class="text-sm text-gray-500 mb-4">Centang kabupaten yang hanya mendapat <strong>maksimal 1 DT per hari per waktu</strong> (rit ke-2 di kabupaten, tanggal, dan waktu yang sama = DT Rp 0). Kabupaten yang tidak dicentang mendapat DT penuh untuk setiap rit. Perubahan otomatis menyesuaikan DT ritase & gaji pada periode aktif, atau periode terakhir yang sudah selesai bila tidak ada periode aktif.</p>
                 <form method="POST" action="{{ route('settings.dt-aturan') }}">
                     @csrf
                     @method('PUT')
