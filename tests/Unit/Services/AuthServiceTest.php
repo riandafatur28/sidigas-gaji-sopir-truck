@@ -8,7 +8,7 @@ use App\Services\AuthService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class AuthServiceTest extends TestCase
@@ -25,7 +25,9 @@ class AuthServiceTest extends TestCase
 
     public function test_send_otp_creates_otp_record(): void
     {
-        Mail::fake();
+        config(['mail.relay_url' => 'https://relay.example.test/send']);
+        config(['mail.relay_secret' => 'test-secret']);
+        Http::fake(['https://relay.example.test/*' => Http::response([], 200)]);
 
         $this->service->sendOtp('test@example.com');
 
@@ -41,7 +43,9 @@ class AuthServiceTest extends TestCase
 
     public function test_send_otp_deletes_previous_otp(): void
     {
-        Mail::fake();
+        config(['mail.relay_url' => 'https://relay.example.test/send']);
+        config(['mail.relay_secret' => 'test-secret']);
+        Http::fake(['https://relay.example.test/*' => Http::response([], 200)]);
 
         Otp::create([
             'email' => 'test@example.com',

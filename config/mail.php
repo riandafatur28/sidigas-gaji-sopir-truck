@@ -16,6 +16,11 @@ return [
 
     'default' => env('MAIL_MAILER', 'log'),
 
+    // Relay email via Cloudflare Worker -> Resend (menggantikan SMTP yang
+    // diblokir egress VM). Dipakai WorkerMailService untuk email OTP.
+    'relay_url' => env('MAIL_RELAY_URL'),
+    'relay_secret' => env('MAIL_RELAY_SECRET'),
+
     /*
     |--------------------------------------------------------------------------
     | Mailer Configurations

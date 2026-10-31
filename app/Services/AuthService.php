@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Mail\OtpMail;
 use App\Models\Otp;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Laravel\Socialite\Facades\Socialite;
 
 class AuthService
@@ -23,7 +21,7 @@ class AuthService
             'otp' => $otp,
             'expires_at' => Carbon::now()->addMinutes(15),
         ]);
-        Mail::to($email)->send(new OtpMail($otp, $email));
+        app(WorkerMailService::class)->sendOtp($email, $otp);
     }
 
     public function verifyOtp(string $email, string $otp): bool
