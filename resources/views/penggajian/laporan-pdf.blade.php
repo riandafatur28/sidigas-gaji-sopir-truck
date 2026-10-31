@@ -228,16 +228,17 @@
                 @endforelse
             </tbody>
             <tfoot>
-                @php
+                {{-- Disembunyikan sementara 31 Okt 2026: baris Pot. Operasional + potongan di Grand Total. Pulihkan: hapus komentar ini dan kembalikan rumus Grand Total ke grand_total_all + (unique_kabupaten ?? total_ritase ?? 0) * 20000. --}}
+                {{-- @php
                     $potonganOp = ($data['unique_kabupaten'] ?? $data['total_ritase'] ?? 0) * 20000;
                 @endphp
                 <tr style="background:white;">
                     <td colspan="6" style="text-align:right;padding:2mm 1.5mm;font-size:8.5pt;font-weight:600;border-bottom:1px solid #000;color:black;background:white;">Pot. Operasional (20rb × {{ $data['unique_kabupaten'] ?? $data['total_ritase'] ?? 0 }} trip)</td>
                     <td style="padding:2mm 1.5mm;font-size:8.5pt;font-weight:600;text-align:right;border-bottom:1px solid #000;color:black;background:white;">Rp {{ number_format($potonganOp, 0, ',', '.') }}</td>
-                </tr>
+                </tr> --}}
                 <tr class="grand-total-row">
-                    <td colspan="6" style="text-align:right;background:white;color:black;border:1.5px solid #000;">GRAND TOTAL (termasuk pot. operasional)</td>
-                    <td style="text-align:right;background:white;color:black;border:1.5px solid #000;">Rp {{ number_format($data['grand_total_all'] + ($data['unique_kabupaten'] ?? $data['total_ritase'] ?? 0) * 20000, 0, ',', '.') }}</td>
+                    <td colspan="6" style="text-align:right;background:white;color:black;border:1.5px solid #000;">GRAND TOTAL</td>
+                    <td style="text-align:right;background:white;color:black;border:1.5px solid #000;">Rp {{ number_format($data['grand_total_all'], 0, ',', '.') }}</td>
                 </tr>
             </tfoot>
         </table>
