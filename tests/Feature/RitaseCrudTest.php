@@ -163,6 +163,35 @@ class RitaseCrudTest extends TestCase
         $this->assertDatabaseMissing('ritases', ['id' => $ritase->id]);
     }
 
+    public function test_index_renders_delete_form_for_each_ritase(): void
+    {
+        $periode = Periode::create([
+            'nama_periode' => 'Juli 2026',
+            'tanggal_mulai' => '2026-07-01',
+            'tanggal_selesai' => '2026-07-31',
+            'status' => 'aktif',
+        ]);
+
+        $sopir = Sopir::create(['nama' => 'Budi', 'status' => 'aktif']);
+        $tujuan = Tujuan::create(['nama' => 'Nganjuk', 'status' => 'aktif']);
+
+        $ritase = Ritase::create([
+            'periode_id' => $periode->id,
+            'kode_sopir' => $sopir->kode_sopir,
+            'kode_tujuan' => $tujuan->kode_tujuan,
+            'tanggal' => '2026-07-15',
+            'waktu' => 'pagi',
+            'kabupaten' => 'Nganjuk',
+            'status' => 'valid',
+            'dt' => 330000,
+        ]);
+
+        $this->actingAs($this->user);
+        $this->get('/ritase/table')
+            ->assertOk()
+            ->assertSee('id="deleteRitase_' . $ritase->id . '"', false);
+    }
+
     public function test_cek_aturan_dt(): void
     {
         $sopir = Sopir::create(['nama' => 'Budi', 'status' => 'aktif']);
