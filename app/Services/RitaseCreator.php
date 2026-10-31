@@ -10,7 +10,6 @@ use App\Models\Sopir;
 use App\Models\Tujuan;
 use App\Services\Ml\TujuanMlService;
 use App\Data\DesaData;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * Create ritase records from parsed data with auto-matching and auto-create.
@@ -636,7 +635,7 @@ class RitaseCreator
 
     private function calculateDt(Sopir $sopir, $date, string $kabupaten, string $waktu): int
     {
-        $dtValue = Cache::get('dt_nominal', config('dt.value', 330000));
+        $dtValue = DtConfig::nominal();
         $kabNorm = strtolower(trim($kabupaten));
         $specialKabs = array_map('strtolower', DtConfig::singleRegencies());
         if (in_array($kabNorm, $specialKabs)) {

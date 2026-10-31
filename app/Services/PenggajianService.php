@@ -103,7 +103,7 @@ class PenggajianService
 
     private function preparePenggajian($periodeId, array $map): void
     {
-        if (cache()->get('aturan_validasi_enabled', false)) {
+        if (\App\Models\Setting::getValue('aturan_validasi_enabled', false)) {
             $this->validateBukti($periodeId);
         }
 

@@ -27,16 +27,16 @@
                     <div>
                         <p class="font-medium text-sm" style="color:var(--text)">Status Aturan</p>
                         <p class="text-xs text-gray-400 mt-1">
-                            {{ cache('aturan_validasi_enabled', false) ? 'Aktif — Sopir wajib kirim bukti' : 'Nonaktif — Bukti tidak wajib' }}
+                            {{ $aturanEnabled ? 'Aktif — Sopir wajib kirim bukti' : 'Nonaktif — Bukti tidak wajib' }}
                         </p>
                     </div>
                     <form method="POST" action="{{ route('settings.toggle-validasi') }}">
                         @csrf
                         <button type="submit"
                             class="relative inline-flex h-7 w-12 items-center rounded-full transition-colors
-                                {{ cache('aturan_validasi_enabled', false) ? 'bg-green-600' : 'bg-gray-300' }}">
+                                {{ $aturanEnabled ? 'bg-green-600' : 'bg-gray-300' }}">
                             <span class="inline-block h-5 w-5 transform rounded-full bg-white transition-transform
-                                {{ cache('aturan_validasi_enabled', false) ? 'translate-x-6' : 'translate-x-1' }}"></span>
+                                {{ $aturanEnabled ? 'translate-x-6' : 'translate-x-1' }}"></span>
                         </button>
                     </form>
                 </div>

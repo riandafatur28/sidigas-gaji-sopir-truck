@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Cache;
+use App\Models\Setting;
 
 /**
  * Single access point for DT (uang transport) rules.
@@ -16,7 +16,7 @@ class DtConfig
 {
     public static function nominal(): int
     {
-        return (int) Cache::get('dt_nominal', config('dt.value', 330000));
+        return (int) Setting::getValue('dt_nominal', config('dt.value', 330000));
     }
 
     /**
@@ -24,7 +24,7 @@ class DtConfig
      */
     public static function singleRegencies(): array
     {
-        $stored = Cache::get('dt_single_regencies');
+        $stored = Setting::getValue('dt_single_regencies');
 
         if (is_array($stored)) {
             return array_values($stored);

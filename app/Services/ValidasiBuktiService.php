@@ -12,7 +12,6 @@ use App\Models\ValidasiBukti;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Cache;
 
 class ValidasiBuktiService
 {
@@ -194,7 +193,7 @@ class ValidasiBuktiService
             return 0;
         }
 
-        return (int) Cache::get('dt_nominal', config('dt.value', 330000));
+        return DtConfig::nominal();
     }
 
     private function parseSearchDate(string $search): ?string

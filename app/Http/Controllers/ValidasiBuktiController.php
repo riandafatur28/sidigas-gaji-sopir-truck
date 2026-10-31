@@ -100,8 +100,8 @@ class ValidasiBuktiController extends Controller
 
     public function toggleAturan()
     {
-        $status = !cache()->get('aturan_validasi_enabled', false);
-        cache()->forever('aturan_validasi_enabled', $status);
+        $status = !\App\Models\Setting::getValue('aturan_validasi_enabled', false);
+        \App\Models\Setting::setValue('aturan_validasi_enabled', $status);
         return back()->with('success', 'Aturan validasi bukti ' . ($status ? 'diaktifkan' : 'dinonaktifkan'));
     }
 }

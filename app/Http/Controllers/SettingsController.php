@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Models\Setting;
+use App\Services\DtConfig;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class SettingsController extends Controller
 {
     public function index()
     {
-        $aturanEnabled = Cache::get('aturan_validasi_enabled', false);
-        $dtNominal = Cache::get('dt_nominal', config('dt.value', 330000));
+        $aturanEnabled = (bool) Setting::getValue('aturan_validasi_enabled', false);
+        $dtNominal = DtConfig::nominal();
         $dtSingleRegencies = \App\Services\DtConfig::singleRegencies();
         $allKabupaten = \App\Services\DtConfig::allKabupaten();
 
@@ -26,7 +27,7 @@ class SettingsController extends Controller
         ]);
 
         $nominal = (int) $request->nominal;
-        Cache::forever('dt_nominal', $nominal);
+        Setting::setValue('dt_nominal', $nominal);
 
         $sync = app(\App\Services\RitaseService::class)->syncActivePeriodeDt($nominal);
 
@@ -49,7 +50,7 @@ class SettingsController extends Controller
             (array) $request->input('kabupaten', [])
         )));
         $selected = array_values(array_filter($selected, fn($n) => $n !== ''));
-        Cache::forever('dt_single_regencies', $selected);
+        Setting::setValue('dt_single_regencies', $selected);
 
         $sync = app(\App\Services\RitaseService::class)->syncActivePeriodeDt(\App\Services\DtConfig::nominal());
 

@@ -70,7 +70,7 @@ class RitaseService
         }
 
         $kabSatuDt = DtConfig::singleRegencies();
-        $dtValue = Cache::get('dt_nominal', config('dt.value', 330000));
+        $dtValue = DtConfig::nominal();
 
         $query = Ritase::where('kode_sopir', $request->kode_sopir)
             ->where('tanggal', $request->tanggal)
@@ -224,7 +224,7 @@ class RitaseService
         $dt = 0;
         $keterangan = '';
         $kabSatuDt = DtConfig::singleRegencies();
-        $dtValue = Cache::get('dt_nominal', config('dt.value', 330000));
+        $dtValue = DtConfig::nominal();
 
         if ($status === 'gagal_produksi') {
             $dt = 0;
@@ -360,7 +360,7 @@ class RitaseService
     {
         [$nominalKompensasi, $isLembur, $upahLembur] = $this->normalizeKompensasi($request);
 
-        if (cache()->get('aturan_validasi_enabled', false)) {
+        if (\App\Models\Setting::getValue('aturan_validasi_enabled', false)) {
             $validasi = \App\Models\ValidasiBukti::where('kode_sopir', $request->kode_sopir)
                 ->where('tanggal', $request->tanggal)
                 ->where('kode_tujuan', $request->kode_tujuan)
