@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use App\Models\Otp;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
@@ -69,6 +70,56 @@ class WorkerMailRelayTest extends TestCase
         $this->post('/forgot-password', ['email' => 'user@gmail.com'])
             ->assertRedirect()
             ->assertSessionHas('error');
+    }
+
+    public function test_connection_failure_retries_then_succeeds(): void
+    {
+        $this->relayConfig();
+        $this->gmailUser();
+
+        $calls = 0;
+        Http::fake(['https://relay.example.test/*' => function () use (&$calls) {
+            $calls++;
+            if ($calls === 1) {
+                throw new ConnectionException('cURL error 35: SSL routines::wrong version number');
+            }
+
+            return Http::response(['id' => 'x'], 200);
+        }]);
+
+        $this->post('/forgot-password', ['email' => 'user@gmail.com'])
+            ->assertRedirect(route('verify.otp.form', ['email' => 'user@gmail.com']))
+            ->assertSessionHas('success');
+
+        $this->assertSame(1, Otp::where('email', 'user@gmail.com')->count());
+        $this->assertSame(2, $calls);
+    }
+
+    public function test_connection_failure_after_retries_shows_error_flash_not_500(): void
+    {
+        $this->relayConfig();
+        $this->gmailUser();
+
+        $calls = 0;
+        Http::fake(['https://relay.example.test/*' => function () use (&$calls) {
+            $calls++;
+
+            throw new ConnectionException('cURL error 35: SSL routines::wrong version number');
+        }]);
+
+        $this->post('/forgot-password', ['email' => 'user@gmail.com'])
+            ->assertRedirect()
+            ->assertSessionHas('error');
+
+        $this->assertSame(3, $calls);
+    }
+
+    public function test_forgot_password_page_shows_error_flash(): void
+    {
+        $this->withSession(['error' => 'Kode OTP gagal dikirim. Coba lagi sebentar, atau hubungi admin bila berlanjut.'])
+            ->get('/forgot-password')
+            ->assertOk()
+            ->assertSee('Kode OTP gagal dikirim');
     }
 
     public function test_missing_relay_config_shows_error_flash_not_500(): void

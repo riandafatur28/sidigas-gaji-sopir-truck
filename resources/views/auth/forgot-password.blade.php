@@ -10,6 +10,10 @@
             <div class="bg-green-50 border border-green-500 text-green-600 text-sm px-3 py-2 rounded mb-3">{{ session('success') }}</div>
         @endif
 
+        @if(session('error'))
+            <div class="bg-red-50 border border-red-500 text-red-600 text-sm px-3 py-2 rounded mb-3">{{ session('error') }}</div>
+        @endif
+
         <form method="POST" action="{{ route('password.email') }}" class="space-y-3.5">
             @csrf
             <input type="email" name="email" value="{{ old('email') }}" required autofocus
