@@ -4,12 +4,12 @@
     >
 
     <div class="border-b border-gray-200 pb-4 mb-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900">Detail Bukti</h1>
-                <p class="text-base text-gray-500 mt-1">Periksa bukti sebelum menyetujui atau menolak</p>
-            </div>
-            <a href="{{ route('validasi-bukti.kelola') }}" class="inline-flex items-center gap-1 text-sm text-gray-600 border border-gray-200 px-3 py-1.5 rounded hover:bg-gray-50 font-medium"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>Kembali</a>
+        <div class="mb-3">
+            <a href="{{ route('validasi-bukti.kelola') }}" class="inline-flex items-center gap-1.5 text-sm text-gray-700 bg-white border border-gray-200 px-3 py-1.5 rounded-md shadow-sm hover:bg-gray-50 font-medium"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>Kembali</a>
+        </div>
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Detail Bukti</h1>
+            <p class="text-base text-gray-500 mt-1">Periksa bukti sebelum menyetujui atau menolak</p>
         </div>
     </div>
 
