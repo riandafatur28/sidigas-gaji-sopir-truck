@@ -114,6 +114,36 @@ class WorkerMailRelayTest extends TestCase
         $this->assertSame(3, $calls);
     }
 
+    public function test_relay_with_proxy_options_configured_sends_successfully(): void
+    {
+        $this->relayConfig();
+        config(['mail.relay_proxy' => 'http://proxy.example.test:3128']);
+        config(['mail.relay_ca_bundle' => __FILE__]);
+        $this->gmailUser();
+
+        Http::fake(['https://relay.example.test/*' => Http::response(['id' => 'x'], 200)]);
+
+        $this->post('/forgot-password', ['email' => 'user@gmail.com'])
+            ->assertRedirect(route('verify.otp.form', ['email' => 'user@gmail.com']))
+            ->assertSessionHas('success');
+
+        $this->assertSame(1, Otp::where('email', 'user@gmail.com')->count());
+    }
+
+    public function test_missing_ca_bundle_falls_back_to_system_ca(): void
+    {
+        $this->relayConfig();
+        config(['mail.relay_proxy' => 'http://proxy.example.test:3128']);
+        config(['mail.relay_ca_bundle' => '/nonexistent/ca-bundle.pem']);
+        $this->gmailUser();
+
+        Http::fake(['https://relay.example.test/*' => Http::response(['id' => 'x'], 200)]);
+
+        $this->post('/forgot-password', ['email' => 'user@gmail.com'])
+            ->assertRedirect(route('verify.otp.form', ['email' => 'user@gmail.com']))
+            ->assertSessionHas('success');
+    }
+
     public function test_forgot_password_page_shows_error_flash(): void
     {
         $this->withSession(['error' => 'Kode OTP gagal dikirim. Coba lagi sebentar, atau hubungi admin bila berlanjut.'])

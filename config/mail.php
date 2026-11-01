@@ -21,6 +21,15 @@ return [
     'relay_url' => env('MAIL_RELAY_URL'),
     'relay_secret' => env('MAIL_RELAY_SECRET'),
 
+    // Proxy egress + bundle CA untuk request relay. WAJIB di VM ini: anak
+    // proses `php -S` (artisan serve) hanya menerima allowlist env Laravel
+    // (ServeCommand::$passthroughVariables) sehingga var proxy proses induk
+    // tidak pernah sampai ke request web — tanpa opsi eksplisit ini, cURL
+    // konek langsung dan gagal error 35. Di laptop, biarkan keduanya kosong
+    // (koneksi langsung + CA sistem).
+    'relay_proxy' => env('MAIL_RELAY_PROXY'),
+    'relay_ca_bundle' => env('MAIL_RELAY_CA_BUNDLE'),
+
     /*
     |--------------------------------------------------------------------------
     | Mailer Configurations
