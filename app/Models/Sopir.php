@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\RecordsAuthor;
 use App\Traits\HasUniqueKode;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class Sopir extends Model
 {
-    use HasFactory, HasUniqueKode;
+    use HasFactory, HasUniqueKode, RecordsAuthor;
 
     protected $table = 'sopirs';
 
@@ -20,6 +21,7 @@ class Sopir extends Model
         'kode_sopir',
         'nama',
         'status',
+        'created_by',
     ];
 
     protected static function boot(): void

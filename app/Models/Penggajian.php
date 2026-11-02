@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\RecordsAuthor;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Penggajian extends Model
 {
-    use HasFactory;
+    use HasFactory, RecordsAuthor;
 
     protected $table = 'penggajian';
 
@@ -24,6 +25,7 @@ class Penggajian extends Model
         'upah_lembur',
         'total',
         'kompensasi_gagal',
+        'created_by',
     ];
 
         protected $casts = [

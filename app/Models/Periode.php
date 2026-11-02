@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\RecordsAuthor;
 use App\Traits\HasUniqueKode;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Periode extends Model
 {
-    use HasFactory, HasUniqueKode;
+    use HasFactory, HasUniqueKode, RecordsAuthor;
 
     protected $table = 'periodes';
 
@@ -21,6 +22,7 @@ class Periode extends Model
         'tanggal_mulai',
         'tanggal_selesai',
         'status',
+        'created_by',
     ];
 
     protected $casts = [
