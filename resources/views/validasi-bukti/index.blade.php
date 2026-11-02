@@ -6,6 +6,7 @@
     <title>Validasi Bukti</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/js/exifr.min.js"></script>
+    <script defer src="{{ asset('js/submit-guard.js') }}?v=1"></script>
 </head>
 <body class="bg-[#f3efe7] min-h-screen flex items-center justify-center p-4">
     <div class="w-full max-w-lg bg-white rounded shadow border border-gray-200">
