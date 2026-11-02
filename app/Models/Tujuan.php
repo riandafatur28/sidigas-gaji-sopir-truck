@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\RecordsAuthor;
 use App\Traits\HasUniqueKode;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Tujuan extends Model
 {
-    use HasFactory, HasUniqueKode;
+    use HasFactory, HasUniqueKode, RecordsAuthor;
 
     protected $table = 'tujuans';
 
@@ -18,6 +19,7 @@ class Tujuan extends Model
         'kode_tujuan',
         'nama',
         'status',
+        'created_by',
     ];
 
     protected static function boot()

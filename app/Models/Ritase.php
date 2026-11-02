@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\RecordsAuthor;
 use App\Traits\HasUniqueKode;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Ritase extends Model
 {
-    use HasFactory, HasUniqueKode;
+    use HasFactory, HasUniqueKode, RecordsAuthor;
 
     protected $table = 'ritases';
 
@@ -30,6 +32,7 @@ class Ritase extends Model
         'is_lembur',
         'upah_lembur',
         'catatan',
+        'created_by',
     ];
 
     protected $casts = [
@@ -65,5 +68,11 @@ class Ritase extends Model
     public function tujuan(): BelongsTo
     {
         return $this->belongsTo(Tujuan::class, 'kode_tujuan', 'kode_tujuan');
+    }
+
+    // RELATIONSHIP: satu ritase bisa dirujuk oleh baris bukti validasi (kode_ritase)
+    public function validasiBuktis(): HasMany
+    {
+        return $this->hasMany(ValidasiBukti::class, 'kode_ritase', 'kode_ritase');
     }
 }

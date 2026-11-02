@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\RecordsAuthor;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ValidasiBukti extends Model
 {
-    use HasFactory;
+    use HasFactory, RecordsAuthor;
 
     protected $table = 'validasi_bukti';
 
@@ -31,6 +32,7 @@ class ValidasiBukti extends Model
         'status',
         'catatan_mitra',
         'kode_ritase',
+        'created_by',
     ];
 
     protected $casts = [
@@ -55,5 +57,11 @@ class ValidasiBukti extends Model
     public function periode()
     {
         return $this->belongsTo(Periode::class, 'periode_id');
+    }
+
+    // RELATIONSHIP: bukti validasi menjadi dasar pembuatan satu ritase (kode_ritase)
+    public function ritase()
+    {
+        return $this->belongsTo(Ritase::class, 'kode_ritase', 'kode_ritase');
     }
 }

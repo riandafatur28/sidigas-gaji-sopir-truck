@@ -17,6 +17,7 @@ class AuthService
         Otp::where('email', $email)->delete();
         $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         Otp::create([
+            'user_id' => User::where('email', $email)->value('id'),
             'email' => $email,
             'otp' => $otp,
             'expires_at' => Carbon::now()->addMinutes(15),

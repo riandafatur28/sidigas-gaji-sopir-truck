@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\RecordsAuthor;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class PenggajianDetail extends Model
 {
-    use HasFactory;
+    use HasFactory, RecordsAuthor;
 
     protected $table = 'penggajian_details';
 
@@ -25,6 +26,7 @@ class PenggajianDetail extends Model
         'tol_per_rit',
         'total_tol',
         'subtotal',
+        'created_by',
     ];
 
         protected $casts = [
