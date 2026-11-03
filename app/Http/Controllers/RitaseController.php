@@ -13,6 +13,7 @@ use App\Http\Requests\UpdateRitaseRequest;
 use App\Services\RitaseService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class RitaseController extends Controller
@@ -68,7 +69,16 @@ class RitaseController extends Controller
     public function destroy(int $id)
     {
         try {
-            Ritase::findOrFail($id)->delete();
+            $ritase = Ritase::findOrFail($id);
+            $periodeId = (int) $ritase->periode_id;
+
+            // Ritase bersifat lunak (soft delete); tautan bukti validasi dan
+            // hitungan DT/gaji dibersihkan di dalam transaction.
+            DB::transaction(function () use ($ritase, $periodeId): void {
+                $ritase->delete();
+                $this->ritaseService->recalculateDtForPeriode($periodeId);
+            });
+
             return redirect()->back()->with('success', 'Data ritase berhasil dihapus!');
         } catch (\Exception $e) {
             report($e);

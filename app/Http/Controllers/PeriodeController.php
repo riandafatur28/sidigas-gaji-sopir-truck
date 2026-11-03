@@ -26,13 +26,15 @@ class PeriodeController extends Controller
                 })
                 ->when($statusFilter, fn($q) => $q->where('status', $statusFilter));
 
-        $periodes = (clone $base)->orderBy('id', 'asc')
+        $periodes = (clone $base)->withCount('ritase')
+                ->orderBy('id', 'asc')
                 ->paginate(10)
                 ->withQueryString();
 
-        $totalPeriode = (clone $base)->count();
-        $periodeAktif = (clone $base)->where('status', 'aktif')->count();
-        $periodeSelesai = (clone $base)->where('status', 'selesai')->count();
+        // Kartu statistik memakai angka global (tidak ikut filter pencarian)
+        $totalPeriode = Periode::count();
+        $periodeAktif = Periode::where('status', 'aktif')->count();
+        $periodeSelesai = Periode::where('status', 'selesai')->count();
         $totalRitase = Ritase::count();
 
         return view('periode.index', compact(
@@ -83,15 +85,33 @@ class PeriodeController extends Controller
             'nama_periode' => 'required|string|max:255|min:3',
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-            'status' => 'required|in:aktif,selesai',
         ]);
 
         $periode = Periode::findOrFail($id);
+
+        // Cek overlap periode (kecualikan periode yang sedang diedit)
+        $overlap = Periode::where('id', '!=', $periode->id)
+            ->where(function ($q) use ($request) {
+                $q->whereBetween('tanggal_mulai', [$request->tanggal_mulai, $request->tanggal_selesai])
+                  ->orWhereBetween('tanggal_selesai', [$request->tanggal_mulai, $request->tanggal_selesai])
+                  ->orWhere(function ($q2) use ($request) {
+                      $q2->where('tanggal_mulai', '<=', $request->tanggal_mulai)
+                         ->where('tanggal_selesai', '>=', $request->tanggal_selesai);
+                  });
+            })->exists();
+
+        if ($overlap) {
+            return redirect()->back()
+                ->with('error', 'Periode ini beririsan dengan periode yang sudah ada!')
+                ->withInput();
+        }
+
+        // Status tidak diambil dari form: selalu diturunkan dari tanggal
+        // oleh PeriodeObserver -> Periode::syncActiveStatus().
         $periode->update([
             'nama_periode' => $request->nama_periode,
             'tanggal_mulai' => $request->tanggal_mulai,
             'tanggal_selesai' => $request->tanggal_selesai,
-            'status' => $request->status,
         ]);
 
         $this->lampirkanBuktiTanpaPeriode($periode);
@@ -126,11 +146,18 @@ class PeriodeController extends Controller
                     ->with('error', 'Periode tidak dapat dihapus karena sudah memiliki data validasi bukti!');
             }
 
+            // FK penggajian.periode_id bersifat ON DELETE CASCADE.
+            if ($periode->gaji()->count() > 0) {
+                return redirect()->back()
+                    ->with('error', 'Periode tidak dapat dihapus karena sudah memiliki data penggajian!');
+            }
+
             $periode->delete();
 
             return redirect()->back()
                 ->with('success', 'Data periode berhasil dihapus!');
         } catch (\Exception $e) {
+            report($e);
             return redirect()->back()->with('error', 'Gagal menghapus data: ' . $e->getMessage());
         }
     }

@@ -34,9 +34,10 @@ class TujuanController extends Controller
                 ->paginate(10)
                 ->withQueryString();
 
-        $totalTujuan = (clone $base)->count();
-        $tujuanAktif = (clone $base)->where('status', 'aktif')->count();
-        $tujuanNonaktif = (clone $base)->where('status', 'nonaktif')->count();
+        // Kartu statistik memakai angka global (tidak ikut filter pencarian)
+        $totalTujuan = Tujuan::count();
+        $tujuanAktif = Tujuan::where('status', 'aktif')->count();
+        $tujuanNonaktif = Tujuan::where('status', 'nonaktif')->count();
         $totalRitase = Ritase::count();
 
         return view('tujuan.index', compact('tujuans', 'search', 'statusFilter', 'totalTujuan', 'tujuanAktif', 'tujuanNonaktif', 'totalRitase'));
@@ -104,6 +105,12 @@ class TujuanController extends Controller
             if ($tujuan->ritase()->count() > 0) {
                 return redirect()->back()
                     ->with('error', 'Tujuan tidak dapat dihapus karena sudah memiliki data ritase!');
+            }
+
+            // FK penggajian_details.kode_tujuan bersifat ON DELETE CASCADE.
+            if ($tujuan->penggajianDetails()->count() > 0) {
+                return redirect()->back()
+                    ->with('error', 'Tujuan tidak dapat dihapus karena sudah dipakai pada rincian penggajian!');
             }
 
             $tujuan->delete();

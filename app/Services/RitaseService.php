@@ -107,11 +107,32 @@ class RitaseService
             return ['periode' => null, 'ritase' => 0, 'gaji' => 0];
         }
 
+        $result = $this->recalculateDtForPeriode($periode->id, $nominal);
+
+        return [
+            'periode' => $periode,
+            'ritase' => $result['ritase'],
+            'gaji' => $result['gaji'],
+        ];
+    }
+
+    /**
+     * Hitung ulang DT setiap ritase pada satu periode + agregat DT pada
+     * Penggajian periode tersebut. Dipakai setiap kali komposisi ritase
+     * berubah (create / update / delete / parser) agar nilai DT dan total
+     * gaji tidak menyimpang dari data ritase yang tersisa.
+     *
+     * @return array{ritase: int, gaji: int, nominal: int}
+     */
+    public function recalculateDtForPeriode(int $periodeId, ?int $nominal = null): array
+    {
+        $nominal ??= (int) Cache::get('dt_nominal', config('dt.value', 330000));
+
         $kabSatuDt = array_map('strtolower', DtConfig::singleRegencies());
         $seen = [];
         $ritUpdated = 0;
 
-        $ritases = Ritase::where('periode_id', $periode->id)->orderBy('id')->get();
+        $ritases = Ritase::where('periode_id', $periodeId)->orderBy('id')->get();
         foreach ($ritases as $r) {
             if ($r->status === 'gagal_produksi') {
                 $newDt = 0;
@@ -132,13 +153,13 @@ class RitaseService
         }
 
         $gajiUpdated = 0;
-        $sums = Ritase::where('periode_id', $periode->id)
+        $sums = Ritase::where('periode_id', $periodeId)
             ->where('status', '!=', 'gagal_produksi')
             ->selectRaw('kode_sopir, SUM(dt) as total')
             ->groupBy('kode_sopir')
             ->pluck('total', 'kode_sopir');
 
-        foreach (Penggajian::where('periode_id', $periode->id)->get() as $g) {
+        foreach (Penggajian::where('periode_id', $periodeId)->get() as $g) {
             $newDt = (int) ($sums[$g->kode_sopir] ?? 0);
             $oldDt = (int) $g->dt;
             if ($newDt !== $oldDt) {
@@ -147,7 +168,7 @@ class RitaseService
             }
         }
 
-        return ['periode' => $periode, 'ritase' => $ritUpdated, 'gaji' => $gajiUpdated];
+        return ['ritase' => $ritUpdated, 'gaji' => $gajiUpdated, 'nominal' => $nominal];
     }
 
     /**
@@ -376,7 +397,7 @@ class RitaseService
 
         $dtValue = $this->hitungDT($request, null);
 
-        Ritase::create([
+        $ritase = Ritase::create([
             'periode_id' => $request->periode_id,
             'kode_sopir' => $request->kode_sopir,
             'kode_tujuan' => $request->kode_tujuan,
@@ -392,6 +413,9 @@ class RitaseService
             'upah_lembur' => $upahLembur,
         ]);
 
+        // Sinkronkan DT seluruh periode + agregat penggajian.
+        $this->recalculateDtForPeriode((int) $ritase->periode_id);
+
         return $dtValue;
     }
 
@@ -403,6 +427,7 @@ class RitaseService
         Tujuan::where('kode_tujuan', $request->kode_tujuan)->where('status', '!=', 'aktif')->update(['status' => 'aktif']);
 
         $ritase = Ritase::findOrFail($id);
+        $oldPeriodeId = (int) $ritase->periode_id;
         $dtValue = $this->hitungDT($request, $id);
 
         $ritase->update([
@@ -419,6 +444,13 @@ class RitaseService
             'is_lembur' => $isLembur,
             'upah_lembur' => $upahLembur,
         ]);
+
+        // Ritase bisa berpindah periode: hitung ulang periode tujuan,
+        // dan periode lama agar agregat gajinya tidak tertinggal.
+        $this->recalculateDtForPeriode((int) $ritase->periode_id);
+        if ($oldPeriodeId !== (int) $ritase->periode_id) {
+            $this->recalculateDtForPeriode($oldPeriodeId);
+        }
 
         return $dtValue;
     }
@@ -459,6 +491,11 @@ class RitaseService
             $results['skipped'] = $createResult['skipped'];
             $results['errors'] = array_merge($results['errors'], $createResult['errors']);
             $results['details'] = $createResult['details'];
+
+            // Pastikan DT + agregat penggajian sinkron setelah batch parser.
+            if ($results['created'] > 0) {
+                $this->recalculateDtForPeriode((int) $request->periode_id);
+            }
         }
 
         return $results;

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Traits;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -39,14 +40,27 @@ trait HasUniqueKode
         /** @var Model $this */
         return DB::transaction(function () use ($prefix, $column, $padLength) {
             $modelClass = get_class($this);
-            /** @var Model $last */
-            $last = $modelClass::query()->orderBy('id', 'desc')->lockForUpdate()->first();
 
+            /** @var \Illuminate\Database\Eloquent\Builder $query */
+            $query = $modelClass::query();
+
+            // Baris yang sudah di-soft-delete tetap menempati indeks UNIQUE,
+            // jadi nomornya harus ikut diperhitungkan.
+            if (in_array(SoftDeletes::class, class_uses_recursive($modelClass), true)) {
+                $query->withTrashed();
+            }
+
+            // Urutkan numerik (bukan leksikal) agar SPR-1000 > SPR-999.
+            $last = $query->orderByRaw("LENGTH({$column}) DESC, {$column} DESC")
+                ->lockForUpdate()
+                ->first();
+
+            $newNumber = 1;
             if ($last) {
-                $lastNumber = (int) substr($last->$column, strlen($prefix) + 1);
-                $newNumber = $lastNumber + 1;
-            } else {
-                $newNumber = 1;
+                $value = (string) $last->$column;
+                if (preg_match('/(\d+)$/', $value, $matches) === 1) {
+                    $newNumber = ((int) $matches[1]) + 1;
+                }
             }
 
             return $prefix . '-' . str_pad((string) $newNumber, $padLength, '0', STR_PAD_LEFT);
