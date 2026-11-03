@@ -1,0 +1,28 @@
+BAND 0  x[-30..580] y[2..913] n=27
+x=    0 y=    2 PiIvOlXCaiVOVlH7BzCM-105 edgeLabel              | Tidak
+x=  185 y=   30 1zDQF__BqGE2Fv26uxO--39  rounded=1              | Mulai
+x=  145 y=   90 8FK9DfTvh0lG-2RUyGW6-26  rounded=0              | Buka /login
+x=  110 y=  162 8FK9DfTvh0lG-2RUyGW6-2   text                   | Tidak
+x=  165 y=  162 1zDQF__BqGE2Fv26uxO--41  rhombus                | Login?
+x=  444 y=  162 8FK9DfTvh0lG-2RUyGW6-3   rhombus                | Metode Login?
+x=  280 y=  170 8FK9DfTvh0lG-2RUyGW6-5   text                   | Ya
+x=  370 y=  210 8FK9DfTvh0lG-2RUyGW6-9   text                   | Normal
+x=  514 y=  210 8FK9DfTvh0lG-2RUyGW6-7   text                   | Google
+x=  110 y=  245 1zDQF__BqGE2Fv26uxO--42  shape=parallelogram    | Masukkan email (@gmail.com) & password
+x=  455 y=  250 8FK9DfTvh0lG-2RUyGW6-22  rounded=0              | Klik Login Google
+x=  165 y=  300 1zDQF__BqGE2Fv26uxO--43  rhombus                | Credentials valid?
+x=  580 y=  330 8FK9DfTvh0lG-2RUyGW6-21  shape=mxgraph.flowchart.display | Error: Email tidak terdaftar
+x=  -30 y=  350 1zDQF__BqGE2Fv26uxO--44  shape=parallelogram    | Dashboard
+x=  130 y=  380 8FK9DfTvh0lG-2RUyGW6-20  shape=mxgraph.flowchart.display | Error: Email/Password salah
+x=  445 y=  425 1zDQF__BqGE2Fv26uxO--47  rhombus                | Email terdaftar?
+x=  400 y=  443 mA_3SP3UA-tVyplOZskD-2   text                   | Ya
+x=   30 y=  500 8FK9DfTvh0lG-2RUyGW6-23  rounded=0              | Klik Lupa password
+x=    9 y=  560 1zDQF__BqGE2Fv26uxO--51  shape=parallelogram    | Masukkan email (@gmail.com)
+x=    5 y=  615 8FK9DfTvh0lG-2RUyGW6-33  rounded=0              | Kirim OTP (6 digit, 15 menit)
+x=    9 y=  670 8FK9DfTvh0lG-2RUyGW6-16  shape=parallelogram    | Inputkan kode OTP
+x=   45 y=  730 8FK9DfTvh0lG-2RUyGW6-10  rhombus                | OTP valid?
+x=  150 y=  730 8FK9DfTvh0lG-2RUyGW6-25  text                   | Tidak
+x=   90 y=  770 8FK9DfTvh0lG-2RUyGW6-14  text                   | Ya
+x=   14 y=  800 1zDQF__BqGE2Fv26uxO--54  shape=parallelogram    | Masukkan password baru
+x=   -1 y=  860 8FK9DfTvh0lG-2RUyGW6-24  shape=mxgraph.flowchart.display | Password berhasil diubah
+x=  200 y=  913 1zDQF__BqGE2Fv26uxO--77  rounded=1              | Selesai

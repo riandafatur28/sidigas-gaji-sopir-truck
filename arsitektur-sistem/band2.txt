@@ -1,0 +1,54 @@
+BAND 2  x[2320..3424] y[150..2790] n=53
+x= 3424 y=  150 4TlUftNjc2H9GhOi7wGK-1   rounded=1              | Mulai
+x= 3394 y=  210 8FK9DfTvh0lG-2RUyGW6-63  rounded=0              | Buka /sopir
+x= 3354 y=  270 4TlUftNjc2H9GhOi7wGK-4   shape=parallelogram    | Tampilkan daftar sopir (kode, nama, status)
+x= 3404 y=  367 4TlUftNjc2H9GhOi7wGK-5   rhombus                | Ingin tambah sopir?
+x= 3068 y=  380 8FK9DfTvh0lG-2RUyGW6-53  shape=parallelogram    | Isi form: nama sopir
+x= 3270 y=  450 8FK9DfTvh0lG-2RUyGW6-55  shape=mxgraph.flowchart.display | Tampilkan error
+x= 3069 y=  490 8FK9DfTvh0lG-2RUyGW6-54  rounded=0              | Validasi: nama min 3 karakter
+x= 3104 y=  570 4TlUftNjc2H9GhOi7wGK-8   rhombus                | Valid?
+x= 3049 y=  660 8FK9DfTvh0lG-2RUyGW6-56  rounded=0              | Simpan (kode SPR otomatis, status aktif)
+x= 3404 y=  705 4TlUftNjc2H9GhOi7wGK-11  rhombus                | Ingin edit sopir?
+x= 3069 y=  710 8FK9DfTvh0lG-2RUyGW6-57  rounded=0              | Pilih sopir dari daftar
+x= 3039 y=  780 8FK9DfTvh0lG-2RUyGW6-58  shape=parallelogram    | Ubah: nama, status (aktif/nonaktif)
+x= 3018 y=  851 zdst4hzUN3gGA2vajSD1-17  text                   | Tidak
+x= 3074 y=  854 zdst4hzUN3gGA2vajSD1-13  rhombus                | Konfirmasi edit?
+x= 3129 y=  903 zdst4hzUN3gGA2vajSD1-15  text                   | Ya
+x= 3064 y=  937 8FK9DfTvh0lG-2RUyGW6-59  rounded=0              | Update database
+x= 3404 y=  940 4TlUftNjc2H9GhOi7wGK-15  rhombus                | Ingin hapus sopir?
+x= 3060 y= 1015 8FK9DfTvh0lG-2RUyGW6-60  rounded=0              | Pilih sopir dari daftar
+x= 3245 y= 1071 8FK9DfTvh0lG-2RUyGW6-61  shape=mxgraph.flowchart.display | Tampilkan 'tidak bisa hapus, masih punya ritase'
+x= 3083 y= 1131 4TlUftNjc2H9GhOi7wGK-17  rhombus                | Punya data ritase?
+x= 3209 y= 1152 zdst4hzUN3gGA2vajSD1-9   text                   | Ya
+x= 3024 y= 1231 zdst4hzUN3gGA2vajSD1-12  text                   | Tidak
+x= 3084 y= 1233 4TlUftNjc2H9GhOi7wGK-18  rhombus                | Konfirmasi hapus?
+x= 3070 y= 1376 8FK9DfTvh0lG-2RUyGW6-62  rounded=0              | Hapus dari database
+x= 3424 y= 1376 4TlUftNjc2H9GhOi7wGK-21  rounded=1              | Selesai
+x= 2836 y= 1750 PiIvOlXCaiVOVlH7BzCM-16  rounded=1              | Mulai
+x= 2821 y= 1810 PiIvOlXCaiVOVlH7BzCM-57  rounded=0              | Buka /tujuan
+x= 2761 y= 1870 PiIvOlXCaiVOVlH7BzCM-17  shape=parallelogram    | Tampilkan daftar tujuan (kode, nama, status)
+x= 2531 y= 1940 PiIvOlXCaiVOVlH7BzCM-58  shape=parallelogram    | Isi form: nama tujuan
+x= 2816 y= 1940 PiIvOlXCaiVOVlH7BzCM-18  rhombus                | Ingin tambah tujuan?
+x= 2558 y= 2020 PiIvOlXCaiVOVlH7BzCM-61  rounded=0              | Validasi: nama min 3 karakter
+x= 2576 y= 2090 PiIvOlXCaiVOVlH7BzCM-20  rhombus                | Valid?
+x= 2438 y= 2100 PiIvOlXCaiVOVlH7BzCM-63  shape=mxgraph.flowchart.display | Tampilkan error
+x= 2541 y= 2115 PiIvOlXCaiVOVlH7BzCM-66  text                   | Tidak
+x= 2620 y= 2140 PiIvOlXCaiVOVlH7BzCM-69  text                   | Ya
+x= 2525 y= 2190 PiIvOlXCaiVOVlH7BzCM-62  rounded=0              | Simpan (kode TUJ otomatis, status aktif)
+x= 2816 y= 2250 PiIvOlXCaiVOVlH7BzCM-23  rhombus                | Ingin edit tujuan?
+x= 2556 y= 2257 PiIvOlXCaiVOVlH7BzCM-73  rounded=0              | Pilih tujuan dari daftar
+x= 2531 y= 2324 PiIvOlXCaiVOVlH7BzCM-74  shape=parallelogram    | Ubah: nama, status (aktif/nonaktif)
+x= 2521 y= 2390 zdst4hzUN3gGA2vajSD1-31  text                   | Tidak
+x= 2573 y= 2390 zdst4hzUN3gGA2vajSD1-26  rhombus                | Konfirmasi edit?
+x= 2628 y= 2435 zdst4hzUN3gGA2vajSD1-29  text                   | Ya
+x= 2554 y= 2466 PiIvOlXCaiVOVlH7BzCM-75  rounded=0              | Update database
+x= 2818 y= 2509 PiIvOlXCaiVOVlH7BzCM-27  rhombus                | Ingin hapus tujuan?
+x= 2528 y= 2517 PiIvOlXCaiVOVlH7BzCM-76  rounded=0              | Pilih tujuan dari daftar
+x= 2320 y= 2550 PiIvOlXCaiVOVlH7BzCM-29  rhombus                | Punya data ritase?
+x= 2450 y= 2550 PiIvOlXCaiVOVlH7BzCM-72  text                   | Ya
+x= 2838 y= 2630 PiIvOlXCaiVOVlH7BzCM-33  rounded=1              | Selesai
+x= 2450 y= 2640 PiIvOlXCaiVOVlH7BzCM-77  shape=mxgraph.flowchart.display | Tampilkan 'tidak bisa hapus, masih punya ritase'
+x= 2320 y= 2710 PiIvOlXCaiVOVlH7BzCM-30  rhombus                | Konfirmasi hapus?
+x= 2450 y= 2710 PiIvOlXCaiVOVlH7BzCM-79  text                   | Tidak
+x= 2377 y= 2760 PiIvOlXCaiVOVlH7BzCM-84  text                   | Ya
+x= 2335 y= 2790 PiIvOlXCaiVOVlH7BzCM-81  rounded=0              | Hapus dari database

@@ -1,0 +1,36 @@
+00 User x=40 y=80 350x1160 kids=13 :: Buka halaman login / Login dengan Google? / Klik Login Google / Lupa password? / Input OTP&nbsp; / Input email & password, kl
+01 Sistem x=390 y=80 375x1160 kids=14 :: Terima callback dari Googl / Generate session, redirect / Data valid? / Generate session, redirect / Tampilkan error: Email/Pas / Email terdaftar?
+02 Database x=765 y=80 350x1160 kids=3 :: Cari&nbsp; data user / Update password di databas / Cari user & validasi data
+03 User x=1210 y=110 250x570 kids=3 :: Buka /dashboard
+04 Sistem x=1460 y=110 325x570 kids=6 :: Tampilkan ringkasan ke Adm / Cek cache metrics / Cache valid? / Load dari cache / Simpan ke cache (5 menit) / Render dashboard
+05 Database x=1785 y=110 275x570 kids=1 :: Hitung ringkasan data
+06 User (Admin) x=2140 y=120 350x1204 kids=23 :: Buka halaman /sopir / Tambah data? / Isi form: nama sopir / Edit data? / Pilih sopir dari daftar / Hapus data?
+07 Sistem x=2490 y=120 375x1204 kids=9 :: Tampilkan error: Masih ada / Tampilkan data sopir / Punya data ritase? / Inputan sudah benar? / Ya / Tidak
+08 Database x=2865 y=120 325x1204 kids=5 :: Simpan sopir (kode auto: S / Perbarui data / Hapus data sopir / cek data ritase / Ambil data sopir
+09 Database x=4167 y=179 325x1085 kids=4 :: Simpan data ritase / Update ritases / ritase dihapus / Ambil data ritase
+10 User (Admin) x=3320 y=180 410x1085 kids=21 :: Buka halaman Ritase / Isi form ritase / Edit data? / Klik Edit, ubah data via m / Hapus data? / input data
+11 Sistem x=3730 y=180 437x1085 kids=12 :: Hitung DT&nbsp; / Hitung ulang DT / Hapus ritase / Tampilkan data ritase / Tampilkan ritase sopir x t / Download detail PDF
+12 Admin x=6860 y=210 300x790 kids=10 :: Buka /validasi-bukti/kelol / Lihat detail & foto bukti / Bukti valid? / Klik Setujui / Tambah ritase? / Isi form ritase & simpan
+13 Sistem x=7160 y=210 350x790 kids=3 :: Query daftar bukti (filter / Update status = ditolak / Update status disetujui
+14 Database x=7510 y=210 320x790 kids=5 :: Ambil data validasi_bukti / Update ditolak / Buat ritase: hitung DT, up / Simpan ritase + update dis
+15 Sopir (Publik) x=5810 y=220 300x700 kids=8 :: Buka /validasi-bukti / Isi: sopir, tujuan, foto,  / Klik Kirim / Lihat 'Bukti dikirim'
+16 Sistem x=6110 y=220 350x700 kids=4 :: Validasi: foto & data / Lengkap? / Tampilkan error / Tampilkan 'Bukti dikirim, 
+17 Database x=6460 y=220 300x700 kids=2 :: Simpan validasi_bukti (pen / Database
+18 User (Admin) x=8000 y=230 350x1220 kids=23 :: Buka halaman /periode / Isi form: nama, tanggal mu / Edit data? / Pilih periode diedit / Hapus data? / Data berhasil disimpan
+19 Sistem x=8350 y=230 375x1220 kids=8 :: Tampilkan error: Masih ada / Tampilkan data periode / Validasi: nama min 3, tgl  / Tampilkan error: Beririsan / Punya data ritase?
+20 Database x=8725 y=230 325x1220 kids=5 :: Simpan periode baru (statu / Perbarui data / Hapus data periode / cek data ritase / Ambil data periode
+21 User (Admin) x=9170 y=240 350x1210 kids=23 :: Buka halaman /tujuan / Tambah data? / Isi form nama tujuan / Edit data? / Pilih data yang diedit / Hapus data?
+22 Sistem x=9520 y=240 375x1210 kids=6 :: Tampilkan data tujuan / Tampilkan error: Masih ada / Punya data ritase?
+23 Database x=9895 y=240 325x1210 kids=4 :: Simpan tujuan (kode auto:  / Perbarui data / Hapus data tujuan / Ambil data tujuan
+24 User (Admin) x=10320 y=240 300x780 kids=5 :: Buka /gaji, pilih periode / Jenis unduhan? / Pilih sopir dari daftar
+25 Sistem x=10620 y=240 350x780 kids=6 :: Preview slip gaji (HTML) / Generate PDF (4 slip/halam / Generate rekap data pengga / Preview laporan / Download slip gaji (PDF) / Download laporan PDF (foli
+26 Database x=10970 y=240 300x780 kids=2 :: ambil data gaji sopir / ambil laporan gaji sopir
+27 User (Admin) x=8348 y=1548 350x1204 kids=23 :: Buka halaman /sopir / Tambah data? / Isi form: nama sopir / Edit data? / Pilih sopir dari daftar / Hapus data?
+28 Sistem x=8698 y=1548 375x1204 kids=9 :: Tampilkan error: Masih ada / Tampilkan data sopir / Punya data ritase? / Inputan sudah benar? / Ya / Tidak
+29 Database x=9073 y=1548 325x1204 kids=5 :: Simpan sopir (kode auto: S / Perbarui data / Hapus data sopir / cek data ritase / Ambil data sopir
+30 User (Admin) x=4649 y=1708 382x1420 kids=25 :: Buka halaman /gaji / Ingin hitung gaji? / Pilih periode / Ingin edit gaji? / Pilih penggajian dari riwa / Ingin hapus gaji?
+31 Sistem x=5031 y=1708 467x1420 kids=12 :: Ada kondisi khusus? / Tampilkan daftar periode & / Data ritase ada? / Tampilkan 'tidak ada data  / Tampilkan daftar riwayat p / Hitung: solar, upah, DT, t
+32 Database x=5498 y=1708 431x1420 kids=4 :: Ambil data ritase per sopi / Simpan hasil penggajian / Update hasil penggajian / Hapus penggajian &amp; det
+33 User x=11668 y=2935 248x967 kids=2 :: 
+34 Sistem x=11916 y=2935 279x967 kids=0 :: 
+35 Database x=12195 y=2935 248x967 kids=0 :: 

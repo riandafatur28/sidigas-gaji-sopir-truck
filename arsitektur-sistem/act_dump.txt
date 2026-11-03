@@ -1,0 +1,346 @@
+TOTAL LANES 37
+=== LANE KP4m3JPJJn46gkEY44BP-1 'User' (40.0,80.0 350.0x1160.0)
+    N KP4m3JPJJn46gkEY44BP-2 ellipse (156.0,75.0 30.0x30.0) 
+    N KP4m3JPJJn46gkEY44BP-3 rounded=1 (91.0,130.0 160.0x35.0) Buka halaman login
+    N KP4m3JPJJn46gkEY44BP-4 rhombus (100.0,190.0 140.0x55.0) Login dengan Google?
+    N KP4m3JPJJn46gkEY44BP-5 rounded=1 (90.0,280.0 160.0x35.0) Klik Login Google
+    N KP4m3JPJJn46gkEY44BP-6 rhombus (110.0,360.0 120.0x55.0) Lupa password?
+    N KP4m3JPJJn46gkEY44BP-7 rounded=1 (80.0,590.0 180.0x40.0) Input OTP&nbsp;
+    N KP4m3JPJJn46gkEY44BP-8 rounded=1 (60.0,805.0 180.0x45.0) Input email & password, klik Login
+    E KP4m3JPJJn46gkEY44BP-9 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N KP4m3JPJJn46gkEY44BP-10 rounded=1 (80.0,515.0 180.0x40.0) Input email, klik Kirim OTP
+    E KP4m3JPJJn46gkEY44BP-11 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) Ya
+    E KP4m3JPJJn46gkEY44BP-12 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    E KP4m3JPJJn46gkEY44BP-13 edgeStyle=orthogonalEdgeStyle (-0.9446,-8.0 0.0x0.0) Tidak
+    N rW7Lr7LsUyXcqE5DB8c--17 rounded=1 (80.0,726.0 180.0x40.0) Input password baru
+=== LANE KP4m3JPJJn46gkEY44BP-14 'Sistem' (390.0,80.0 375.0x1160.0)
+    N KP4m3JPJJn46gkEY44BP-15 rounded=1 (50.0,203.5 220.0x40.0) Terima callback dari Google
+    N KP4m3JPJJn46gkEY44BP-16 rounded=1 (50.0,427.0 220.0x40.0) Generate session, redirect ke dashboard
+    N KP4m3JPJJn46gkEY44BP-17 rhombus (112.5,780.0 150.0x55.0) Data valid?
+    N KP4m3JPJJn46gkEY44BP-18 rounded=1 (77.5,940.0 220.0x40.0) Generate session, redirect ke dashboard
+    N KP4m3JPJJn46gkEY44BP-20 rounded=1 (-7.5,870.0 180.0x35.0) Tampilkan error: Email/Password salah
+    E KP4m3JPJJn46gkEY44BP-21 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) Tidak
+    E rW7Lr7LsUyXcqE5DB8c--26 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N 8AGBAH3dBqCAF0QWSdv1-74 rhombus (95.0,278.5 130.0x55.0) Email terdaftar?
+    N 8AGBAH3dBqCAF0QWSdv1-75 rounded=1 (52.5,371.0 210.0x35.0) Tampilkan error: Email tidak terdaftar
+    N rW7Lr7LsUyXcqE5DB8c--11 ellipse (172.5,1020.0 30.0x30.0) 
+    N KP4m3JPJJn46gkEY44BP-24 rounded=1 (40.0,515.0 240.0x40.0) Kirim kode OTP ke email (6 digit, 15 menit)
+    N rW7Lr7LsUyXcqE5DB8c--12 rhombus (40.0,644.0 103.0x48.0) OTP valid?
+    N rW7Lr7LsUyXcqE5DB8c--16 text (0.0,647.0 60.0x30.0) Tidak
+    N rW7Lr7LsUyXcqE5DB8c--22 text (35.0,688.0 60.0x30.0) Ya
+=== LANE KP4m3JPJJn46gkEY44BP-22 'Database' (765.0,80.0 350.0x1160.0)
+    N KP4m3JPJJn46gkEY44BP-23 rounded=1 (41.0,206.0 220.0x35.0) Cari&nbsp; data user
+    N KP4m3JPJJn46gkEY44BP-25 rounded=1 (45.0,612.5 220.0x35.0) Update password di database
+    N KP4m3JPJJn46gkEY44BP-26 rounded=1 (45.0,790.0 220.0x35.0) Cari user & validasi data
+=== LANE KP4m3JPJJn46gkEY44BP-44 'User' (1210.0,110.0 250.0x570.0)
+    N KP4m3JPJJn46gkEY44BP-45 ellipse (106.0,75.0 30.0x30.0) 
+    N KP4m3JPJJn46gkEY44BP-46 rounded=1 (51.0,130.0 140.0x35.0) Buka /dashboard
+    N R7UtL8hy0-FL8zJC06OZ-28 ellipse (101.0,482.0 30.0x30.0) 
+=== LANE KP4m3JPJJn46gkEY44BP-49 'Sistem' (1460.0,110.0 325.0x570.0)
+    N KP4m3JPJJn46gkEY44BP-47 rounded=1 (59.0,480.0 170.0x40.0) Tampilkan ringkasan ke Admin
+    N KP4m3JPJJn46gkEY44BP-50 rounded=1 (54.0,130.0 180.0x35.0) Cek cache metrics
+    N KP4m3JPJJn46gkEY44BP-51 rhombus (69.0,190.0 150.0x55.0) Cache valid?
+    N KP4m3JPJJn46gkEY44BP-52 rounded=1 (54.0,280.0 180.0x35.0) Load dari cache
+    N KP4m3JPJJn46gkEY44BP-53 rounded=1 (54.0,340.0 180.0x35.0) Simpan ke cache (5 menit)
+    N KP4m3JPJJn46gkEY44BP-54 rounded=1 (54.0,405.0 180.0x35.0) Render dashboard
+=== LANE KP4m3JPJJn46gkEY44BP-55 'Database' (1785.0,110.0 275.0x570.0)
+    N KP4m3JPJJn46gkEY44BP-56 rounded=1 (35.0,200.0 180.0x35.0) Hitung ringkasan data
+=== LANE KP4m3JPJJn46gkEY44BP-67 'User (Admin)' (2140.0,120.0 350.0x1204.0)
+    N KP4m3JPJJn46gkEY44BP-68 ellipse (156.0,45.0 30.0x30.0) 
+    N KP4m3JPJJn46gkEY44BP-69 rounded=1 (81.0,120.0 180.0x35.0) Buka halaman /sopir
+    N KP4m3JPJJn46gkEY44BP-70 rhombus (100.0,200.0 120.0x60.0) Tambah data?
+    N KP4m3JPJJn46gkEY44BP-71 rounded=1 (70.0,300.0 180.0x35.0) Isi form: nama sopir
+    N KP4m3JPJJn46gkEY44BP-72 rhombus (100.0,374.0 120.0x60.0) Edit data?
+    N KP4m3JPJJn46gkEY44BP-73 rounded=1 (70.0,454.0 180.0x35.0) Pilih sopir dari daftar
+    E rW7Lr7LsUyXcqE5DB8c--35 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    E rW7Lr7LsUyXcqE5DB8c--49 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N KP4m3JPJJn46gkEY44BP-74 rhombus (104.0,676.0 120.0x60.0) Hapus data?
+    N KP4m3JPJJn46gkEY44BP-76 rhombus (74.0,876.0 120.0x60.0) Konfirmasi hapus?
+    N KP4m3JPJJn46gkEY44BP-77 rounded=1 (56.0,1072.0 180.0x35.0) Data berhasil disimpan
+    E KP4m3JPJJn46gkEY44BP-106 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N rW7Lr7LsUyXcqE5DB8c--28 ellipse (131.0,1146.0 30.0x30.0) 
+    N rW7Lr7LsUyXcqE5DB8c--34 rounded=1 (74.0,767.0 180.0x35.0) Pilih sopir dari daftar
+    N rW7Lr7LsUyXcqE5DB8c--48 text (56.0,706.0 60.0x30.0) Tidak
+    N rW7Lr7LsUyXcqE5DB8c--45 text (29.0,872.0 60.0x30.0) Tidak
+    N rW7Lr7LsUyXcqE5DB8c--50 text (148.0,732.0 60.0x30.0) Ya
+    E KP4m3JPJJn46gkEY44BP-98 edgeStyle=orthogonalEdgeStyle (-0.9048,-10.0 0.0x0.0) Tidak
+    E 2YkYedGEJKIRC33SAiIS-2 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N KP4m3JPJJn46gkEY44BP-81 rounded=1 (70.0,509.0 180.0x35.0) Ubah: nama, status
+    E KP4m3JPJJn46gkEY44BP-95 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N 2YkYedGEJKIRC33SAiIS-1 rhombus (97.5,570.0 126.5x64.0) Konfirmasi edit?
+    N 2YkYedGEJKIRC33SAiIS-4 text (183.0,561.0 60.0x30.0) Tidak
+=== LANE KP4m3JPJJn46gkEY44BP-78 'Sistem' (2490.0,120.0 375.0x1204.0)
+    N KP4m3JPJJn46gkEY44BP-75 rounded=1 (60.0,45.0 200.0x35.0) Tampilkan error: Masih ada ritase
+    N KP4m3JPJJn46gkEY44BP-79 rounded=1 (87.5,212.5 200.0x35.0) Tampilkan data sopir
+    E rW7Lr7LsUyXcqE5DB8c--42 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N KP4m3JPJJn46gkEY44BP-82 rhombus (127.5,809.0 160.0x55.0) Punya data ritase?
+    N rW7Lr7LsUyXcqE5DB8c--29 rhombus (126.0,278.0 113.0x80.0) Inputan sudah benar?
+    E rW7Lr7LsUyXcqE5DB8c--33 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N rW7Lr7LsUyXcqE5DB8c--43 text (200.0,702.0 60.0x30.0) Ya
+    N rW7Lr7LsUyXcqE5DB8c--32 text (99.0,341.0 60.0x30.0) Tidak
+    N rW7Lr7LsUyXcqE5DB8c--30 text (212.0,318.0 60.0x30.0) Ya
+=== LANE KP4m3JPJJn46gkEY44BP-83 'Database' (2865.0,120.0 325.0x1204.0)
+    N KP4m3JPJJn46gkEY44BP-84 rounded=1 (35.0,300.0 220.0x35.0) Simpan sopir (kode auto: SPR-NNN)
+    N KP4m3JPJJn46gkEY44BP-85 rounded=1 (35.0,500.0 180.0x35.0) Perbarui data
+    N KP4m3JPJJn46gkEY44BP-86 rounded=1 (39.0,888.5 180.0x35.0) Hapus data sopir
+    N rW7Lr7LsUyXcqE5DB8c--38 rounded=1 (58.0,819.0 180.0x35.0) cek data ritase
+    N READCRUD-sopir-1 rounded=1 (72.5,177.5 180.0x35.0) Ambil data sopir
+=== LANE KP4m3JPJJn46gkEY44BP-109 'User (Admin)' (3320.0,180.0 410.0x1085.0)
+    N KP4m3JPJJn46gkEY44BP-110 ellipse (156.0,45.0 30.0x30.0) 
+    N KP4m3JPJJn46gkEY44BP-112 rounded=1 (81.0,97.0 180.0x35.0) Buka halaman Ritase
+    N KP4m3JPJJn46gkEY44BP-113 rounded=1 (80.0,222.0 180.0x40.0) Isi form ritase
+    N KP4m3JPJJn46gkEY44BP-114 rhombus (113.0,336.0 120.0x60.0) Edit data?
+    E C0_24crrdnlDlqLrcLww-8 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N KP4m3JPJJn46gkEY44BP-115 rounded=1 (83.0,423.0 180.0x40.0) Klik Edit, ubah data via modal
+    E C0_24crrdnlDlqLrcLww-14 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N KP4m3JPJJn46gkEY44BP-116 rhombus (100.0,550.0 120.0x60.0) Hapus data?
+    E KP4m3JPJJn46gkEY44BP-117 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    E KP4m3JPJJn46gkEY44BP-118 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N KP4m3JPJJn46gkEY44BP-119 rhombus (110.0,143.0 120.0x60.0) input data
+    N KP4m3JPJJn46gkEY44BP-120 text (203.0,719.0 60.0x30.0) Ya
+    N 8AGBAH3dBqCAF0QWSdv1-80 rhombus (95.0,798.0 130.0x55.0) Lihat detail ritase?
+    N 8AGBAH3dBqCAF0QWSdv1-81 rounded=1 (74.0,939.0 170.0x35.0) Pilih periode
+    N WpcCDpAhJl4UG5Pb1kpe-2 text (64.0,152.0 60.0x30.0) Tidak
+    N WpcCDpAhJl4UG5Pb1kpe-1 text (159.0,195.0 60.0x30.0) Ya
+    N C0_24crrdnlDlqLrcLww-7 rhombus (255.0,463.0 120.0x60.0) konfirmasi edit?
+    N KP4m3JPJJn46gkEY44BP-145 rhombus (100.0,693.0 120.0x60.0) Konfirmasi hapus
+    E C0_24crrdnlDlqLrcLww-16 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N C0_24crrdnlDlqLrcLww-13 rounded=1 (70.0,634.0 180.0x35.0) Pilih ritase dari daftar
+    N C0_24crrdnlDlqLrcLww-23 ellipse (144.0,1023.0 30.0x30.0) 
+=== LANE KP4m3JPJJn46gkEY44BP-122 'Sistem' (3730.0,180.0 437.0x1085.0)
+    N KP4m3JPJJn46gkEY44BP-123 rounded=1 (75.0,208.0 200.0x40.0) Hitung DT&nbsp;
+    N KP4m3JPJJn46gkEY44BP-124 rounded=1 (57.0,423.0 200.0x40.0) Hitung ulang DT
+    N KP4m3JPJJn46gkEY44BP-125 rounded=1 (70.0,703.0 200.0x40.0) Hapus ritase
+    N C0_24crrdnlDlqLrcLww-4 rounded=1 (75.0,155.0 200.0x35.0) Tampilkan data ritase
+    N C0_24crrdnlDlqLrcLww-21 rounded=1 (81.0,836.0 200.0x40.0) Tampilkan ritase sopir x tanggal
+    N C0_24crrdnlDlqLrcLww-22 rounded=1 (75.0,908.0 200.0x40.0) Download detail PDF
+    E C0_24crrdnlDlqLrcLww-103 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N C0_24crrdnlDlqLrcLww-1 rhombus (0.0,332.0 120.0x60.0) validasi input?
+    E C0_24crrdnlDlqLrcLww-3 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N C0_24crrdnlDlqLrcLww-96 rounded=1 (75.0,786.0 200.0x40.0) Data berhasil disimpan
+    E C0_24crrdnlDlqLrcLww-101 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N C0_24crrdnlDlqLrcLww-102 rounded=1 (0.0,265.0 157.0x30.0) muncul pesan error validasi gagal
+=== LANE KP4m3JPJJn46gkEY44BP-127 'Database' (4167.0,179.5 325.0x1085.0)
+    N KP4m3JPJJn46gkEY44BP-128 rounded (75.0,267.5 180.0x35.0) Simpan data ritase
+    N KP4m3JPJJn46gkEY44BP-129 rounded (66.0,423.5 180.0x35.0) Update ritases
+    N KP4m3JPJJn46gkEY44BP-130 rounded (92.0,706.0 180.0x35.0) ritase dihapus
+    N READCRUD-ritase-1 rounded=1 (75.0,103.5 180.0x35.0) Ambil data ritase
+=== LANE KP4m3JPJJn46gkEY44BP-187 'Sopir (Publik)' (5810.0,220.0 300.0x700.0)
+    N KP4m3JPJJn46gkEY44BP-188 ellipse (135.0,75.0 30.0x30.0) 
+    N KP4m3JPJJn46gkEY44BP-189 rounded=1 (60.0,130.0 180.0x35.0) Buka /validasi-bukti
+    E KP4m3JPJJn46gkEY44BP-190 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N KP4m3JPJJn46gkEY44BP-191 rounded=1 (60.0,200.0 180.0x40.0) Isi: sopir, tujuan, foto, lokasi, catatan
+    N KP4m3JPJJn46gkEY44BP-192 rounded=1 (60.0,280.0 180.0x35.0) Klik Kirim
+    N KP4m3JPJJn46gkEY44BP-193 rounded=1 (60.0,509.0 180.0x35.0) Lihat 'Bukti dikirim'
+    N R7UtL8hy0-FL8zJC06OZ-30 ellipse (30.0,543.0 30.0x30.0) 
+    E R7UtL8hy0-FL8zJC06OZ-31 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+=== LANE KP4m3JPJJn46gkEY44BP-195 'Sistem' (6110.0,220.0 350.0x700.0)
+    N KP4m3JPJJn46gkEY44BP-196 rounded=1 (75.0,280.0 200.0x35.0) Validasi: foto & data
+    N KP4m3JPJJn46gkEY44BP-197 rhombus (105.0,350.0 140.0x55.0) Lengkap?
+    N KP4m3JPJJn46gkEY44BP-198 rounded=1 (85.0,440.0 180.0x35.0) Tampilkan error
+    N KP4m3JPJJn46gkEY44BP-199 rounded=1 (65.0,506.0 220.0x40.0) Tampilkan 'Bukti dikirim, menunggu review'
+=== LANE KP4m3JPJJn46gkEY44BP-200 'Database' (6460.0,220.0 300.0x700.0)
+    N KP4m3JPJJn46gkEY44BP-201 rounded=1 (50.0,356.0 200.0x40.0) Simpan validasi_bukti (pending/disetejui)
+    N rW7Lr7LsUyXcqE5DB8c--56 swimlane (0.0,0.0 300.0x700.0) Database
+=== LANE rW7Lr7LsUyXcqE5DB8c--56 'Database' (0.0,0.0 300.0x700.0)
+=== LANE KP4m3JPJJn46gkEY44BP-212 'Admin' (6860.0,210.0 300.0x790.0)
+    N KP4m3JPJJn46gkEY44BP-213 ellipse (135.0,75.0 30.0x30.0) 
+    N KP4m3JPJJn46gkEY44BP-214 rounded=1 (60.0,130.0 180.0x35.0) Buka /validasi-bukti/kelola
+    N KP4m3JPJJn46gkEY44BP-215 rounded=1 (60.0,200.0 180.0x35.0) Lihat detail & foto bukti
+    N KP4m3JPJJn46gkEY44BP-216 rhombus (80.0,270.0 140.0x60.0) Bukti valid?
+    N KP4m3JPJJn46gkEY44BP-217 rounded=1 (60.0,363.0 180.0x35.0) Klik Setujui
+    N KP4m3JPJJn46gkEY44BP-219 rhombus (60.0,420.0 180.0x35.0) Tambah ritase?
+    N 8AGBAH3dBqCAF0QWSdv1-90 shape=hexagon (60.0,520.0 180.0x40.0) Isi form ritase & simpan
+    N KP4m3JPJJn46gkEY44BP-218 rounded=1 (60.0,590.0 180.0x35.0) Klik Tolak + catat alasan
+    E KP4m3JPJJn46gkEY44BP-237 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) Tidak
+    N R7UtL8hy0-FL8zJC06OZ-29 ellipse (110.0,681.0 30.0x30.0) 
+=== LANE KP4m3JPJJn46gkEY44BP-221 'Sistem' (7160.0,210.0 350.0x790.0)
+    N KP4m3JPJJn46gkEY44BP-222 rounded=1 (65.0,130.0 220.0x35.0) Query daftar bukti (filter status)
+    N KP4m3JPJJn46gkEY44BP-224 rounded=1 (80.0,590.0 200.0x35.0) Update status = ditolak
+    N 8AGBAH3dBqCAF0QWSdv1-92 rounded=1 (80.0,420.0 190.0x35.0) Update status disetujui
+=== LANE KP4m3JPJJn46gkEY44BP-226 'Database' (7510.0,210.0 320.0x790.0)
+    N KP4m3JPJJn46gkEY44BP-227 rounded=1 (50.0,130.0 200.0x35.0) Ambil data validasi_bukti
+    N KP4m3JPJJn46gkEY44BP-229 rounded=1 (70.0,590.0 200.0x35.0) Update ditolak
+    N KP4m3JPJJn46gkEY44BP-223 rounded=1 (60.0,521.0 200.0x35.0) Buat ritase: hitung DT, upah=0
+    N KP4m3JPJJn46gkEY44BP-228 rounded=1 (40.0,678.5 200.0x35.0) Simpan ritase + update disetujui
+    E KP4m3JPJJn46gkEY44BP-239 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+=== LANE KP4m3JPJJn46gkEY44BP-293 'User (Admin)' (9170.0,240.0 350.0x1210.0)
+    N KP4m3JPJJn46gkEY44BP-294 ellipse (156.0,45.0 30.0x30.0) 
+    N KP4m3JPJJn46gkEY44BP-295 rounded=1 (71.0,96.0 200.0x35.0) Buka halaman /tujuan
+    N KP4m3JPJJn46gkEY44BP-296 rhombus (100.0,161.0 120.0x60.0) Tambah data?
+    E Fp_J39lF49Cnk1DptyT2-22 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N KP4m3JPJJn46gkEY44BP-297 rounded=1 (60.0,264.0 200.0x35.0) Isi form nama tujuan
+    N KP4m3JPJJn46gkEY44BP-298 rhombus (100.0,429.0 120.0x60.0) Edit data?
+    N KP4m3JPJJn46gkEY44BP-299 rounded=1 (60.0,522.0 200.0x35.0) Pilih data yang diedit
+    E Fp_J39lF49Cnk1DptyT2-44 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N KP4m3JPJJn46gkEY44BP-300 rhombus (90.0,847.0 120.0x60.0) Hapus data?
+    E Fp_J39lF49Cnk1DptyT2-46 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N KP4m3JPJJn46gkEY44BP-301 rhombus (94.0,953.0 120.0x60.0) Konfirmasi hapus?
+    E Fp_J39lF49Cnk1DptyT2-29 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N KP4m3JPJJn46gkEY44BP-302 rounded=1 (60.0,1067.0 200.0x35.0) Data berhasil disimpan
+    N Fp_J39lF49Cnk1DptyT2-21 rhombus (100.0,329.0 120.0x60.0) validasi input?
+    N Fp_J39lF49Cnk1DptyT2-27 text (188.0,314.0 76.0x30.0) Tidak
+    N Fp_J39lF49Cnk1DptyT2-28 ellipse (145.0,1149.0 30.0x30.0) 
+    E Fp_J39lF49Cnk1DptyT2-35 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N KP4m3JPJJn46gkEY44BP-310 rounded=1 (71.0,580.0 180.0x35.0) Ubah nama & status
+    E KP4m3JPJJn46gkEY44BP-326 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N Fp_J39lF49Cnk1DptyT2-34 rhombus (101.0,685.0 120.0x60.0) konfirmasi edit?
+    N Fp_J39lF49Cnk1DptyT2-37 text (196.0,715.0 60.0x30.0) Ya
+    N Fp_J39lF49Cnk1DptyT2-40 text (180.0,636.0 60.0x30.0) Tidak
+    N Fp_J39lF49Cnk1DptyT2-25 text (200.0,356.0 60.0x30.0) Ya
+=== LANE KP4m3JPJJn46gkEY44BP-307 'Sistem' (9520.0,240.0 375.0x1210.0)
+    N KP4m3JPJJn46gkEY44BP-308 rounded=1 (87.5,96.0 200.0x35.0) Tampilkan data tujuan
+    N KP4m3JPJJn46gkEY44BP-311 rounded=1 (49.0,738.0 220.0x35.0) Tampilkan error: Masih ada ritase
+    E KP4m3JPJJn46gkEY44BP-312 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    E Fp_J39lF49Cnk1DptyT2-31 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N KP4m3JPJJn46gkEY44BP-304 rhombus (79.0,852.0 160.0x55.0) Punya data ritase?
+    E Fp_J39lF49Cnk1DptyT2-43 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+=== LANE KP4m3JPJJn46gkEY44BP-313 'Database' (9895.0,240.0 325.0x1210.0)
+    N KP4m3JPJJn46gkEY44BP-314 rounded=1 (40.0,341.5 220.0x35.0) Simpan tujuan (kode auto: TUJ-NNN)
+    N KP4m3JPJJn46gkEY44BP-315 rounded=1 (45.0,630.0 180.0x35.0) Perbarui data
+    N KP4m3JPJJn46gkEY44BP-316 rounded=1 (55.0,965.5 180.0x35.0) Hapus data tujuan
+    N READCRUD-tujuan-1 rounded=1 (72.0,96.0 180.0x35.0) Ambil data tujuan
+=== LANE KP4m3JPJJn46gkEY44BP-336 'User (Admin)' (10320.0,240.0 300.0x780.0)
+    N KP4m3JPJJn46gkEY44BP-337 ellipse (131.0,75.0 30.0x30.0) 
+    N KP4m3JPJJn46gkEY44BP-338 rounded=1 (55.0,165.0 180.0x35.0) Buka /gaji, pilih periode
+    N KP4m3JPJJn46gkEY44BP-339 rhombus (85.0,240.0 120.0x60.0) Jenis unduhan?
+    N KP4m3JPJJn46gkEY44BP-340 rounded=1 (55.0,372.5 180.0x35.0) Pilih sopir dari daftar
+    N R7UtL8hy0-FL8zJC06OZ-32 ellipse (131.0,706.0 30.0x30.0) 
+=== LANE KP4m3JPJJn46gkEY44BP-342 'Sistem' (10620.0,240.0 350.0x780.0)
+    N KP4m3JPJJn46gkEY44BP-343 rounded=1 (40.0,372.5 200.0x35.0) Preview slip gaji (HTML)
+    N KP4m3JPJJn46gkEY44BP-344 rounded=1 (40.0,460.0 200.0x40.0) Generate PDF (4 slip/halaman F4)
+    N KP4m3JPJJn46gkEY44BP-345 rounded=1 (40.0,565.0 200.0x40.0) Generate rekap data penggajian
+    N KP4m3JPJJn46gkEY44BP-346 rounded=1 (40.0,720.0 200.0x35.0) Preview laporan
+    N KP4m3JPJJn46gkEY44BP-348 rounded=1 (38.0,515.0 180.0x35.0) Download slip gaji (PDF)
+    N KP4m3JPJJn46gkEY44BP-349 rounded=1 (18.0,637.5 220.0x40.0) Download laporan PDF (folio landscape)
+=== LANE KP4m3JPJJn46gkEY44BP-347 'Database' (10970.0,240.0 300.0x780.0)
+    N R7UtL8hy0-FL8zJC06OZ-35 rounded=1 (82.0,372.5 180.0x35.0) ambil data gaji sopir
+    N R7UtL8hy0-FL8zJC06OZ-38 rounded=1 (69.0,567.5 180.0x35.0) ambil laporan gaji sopir
+=== LANE uRxybQW1aLmUJJFt0OdV-92 'User (Admin)' (8000.0,230.0 350.0x1220.0)
+    N uRxybQW1aLmUJJFt0OdV-93 ellipse (156.0,45.0 30.0x30.0) 
+    N uRxybQW1aLmUJJFt0OdV-94 rounded=1 (71.0,101.0 200.0x35.0) Buka halaman /periode
+    N uRxybQW1aLmUJJFt0OdV-95 rounded=1 (61.0,282.5 220.0x40.0) Isi form: nama, tanggal mulai/selesai
+    N uRxybQW1aLmUJJFt0OdV-96 rhombus (100.0,430.0 120.0x60.0) Edit data?
+    E Fp_J39lF49Cnk1DptyT2-10 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N uRxybQW1aLmUJJFt0OdV-97 rounded=1 (60.0,510.0 200.0x35.0) Pilih periode diedit
+    E Fp_J39lF49Cnk1DptyT2-17 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    E Fp_J39lF49Cnk1DptyT2-108 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    E Fp_J39lF49Cnk1DptyT2-113 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N uRxybQW1aLmUJJFt0OdV-98 rhombus (111.0,735.0 120.0x60.0) Hapus data?
+    N uRxybQW1aLmUJJFt0OdV-99 rounded=1 (75.0,1070.0 200.0x35.0) Data berhasil disimpan
+    N uRxybQW1aLmUJJFt0OdV-101 rhombus (111.0,200.0 120.0x60.0) Tambah data?
+    E uRxybQW1aLmUJJFt0OdV-102 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) Ya
+    E uRxybQW1aLmUJJFt0OdV-103 edgeStyle=orthogonalEdgeStyle (-0.9705,20.0 0.0x0.0) Tidak
+    N uRxybQW1aLmUJJFt0OdV-104 rhombus (115.0,962.0 120.0x60.0) Konfirmasi hapus?
+    N rW7Lr7LsUyXcqE5DB8c--58 ellipse (160.0,1140.0 30.0x30.0) 
+    E Fp_J39lF49Cnk1DptyT2-11 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N uRxybQW1aLmUJJFt0OdV-111 rounded=1 (61.0,560.0 200.0x35.0) Ubah nama, tanggal, status
+    N dh2zkJc3AsnFGlMXGrA0-2 text (66.0,966.0 60.0x30.0) Tidak
+    N Fp_J39lF49Cnk1DptyT2-3 rhombus (100.0,618.0 120.0x50.0) Konfirmasi edit?
+    N Fp_J39lF49Cnk1DptyT2-13 text (201.0,642.0 60.0x30.0) Ya
+    N Fp_J39lF49Cnk1DptyT2-2 text (60.0,761.0 60.0x30.0) Tidak
+    N Fp_J39lF49Cnk1DptyT2-112 rounded=1 (81.0,827.0 180.0x35.0) Pilih periode dari daftar
+=== LANE uRxybQW1aLmUJJFt0OdV-107 'Sistem' (8350.0,230.0 375.0x1220.0)
+    E Fp_J39lF49Cnk1DptyT2-16 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N uRxybQW1aLmUJJFt0OdV-108 rounded=1 (77.5,797.0 220.0x35.0) Tampilkan error: Masih ada ritase
+    N uRxybQW1aLmUJJFt0OdV-109 rounded=1 (112.5,120.0 200.0x35.0) Tampilkan data periode
+    N uRxybQW1aLmUJJFt0OdV-110 rhombus (112.0,275.0 150.0x55.0) Validasi: nama min 3, tgl mulai <= selesai, tidak overlap?
+    N uRxybQW1aLmUJJFt0OdV-112 rounded=1 (67.5,360.0 240.0x50.0) Tampilkan error: Beririsan dengan periode lain
+    E uRxybQW1aLmUJJFt0OdV-113 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) Tidak
+    E Fp_J39lF49Cnk1DptyT2-110 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N uRxybQW1aLmUJJFt0OdV-136 rhombus (107.5,862.0 160.0x55.0) Punya data ritase?
+=== LANE uRxybQW1aLmUJJFt0OdV-115 'Database' (8725.0,230.0 325.0x1220.0)
+    N uRxybQW1aLmUJJFt0OdV-116 rounded=1 (50.0,282.5 220.0x40.0) Simpan periode baru (status: aktif)
+    N uRxybQW1aLmUJJFt0OdV-117 rounded=1 (70.0,625.5 180.0x35.0) Perbarui data
+    N uRxybQW1aLmUJJFt0OdV-118 rounded=1 (41.0,974.5 200.0x35.0) Hapus data periode
+    N Fp_J39lF49Cnk1DptyT2-107 rounded=1 (72.5,871.0 180.0x35.0) cek data ritase
+    N READCRUD-periode-1 rounded=1 (72.0,120.0 180.0x35.0) Ambil data periode
+=== LANE Fp_J39lF49Cnk1DptyT2-48 'User (Admin)' (8348.0,1548.0 350.0x1204.0)
+    N Fp_J39lF49Cnk1DptyT2-49 ellipse (156.0,45.0 30.0x30.0) 
+    N Fp_J39lF49Cnk1DptyT2-50 rounded=1 (81.0,120.0 180.0x35.0) Buka halaman /sopir
+    N Fp_J39lF49Cnk1DptyT2-51 rhombus (100.0,200.0 120.0x60.0) Tambah data?
+    N Fp_J39lF49Cnk1DptyT2-52 rounded=1 (70.0,300.0 180.0x35.0) Isi form: nama sopir
+    N Fp_J39lF49Cnk1DptyT2-53 rhombus (100.0,374.0 120.0x60.0) Edit data?
+    N Fp_J39lF49Cnk1DptyT2-54 rounded=1 (70.0,454.0 180.0x35.0) Pilih sopir dari daftar
+    E Fp_J39lF49Cnk1DptyT2-55 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    E Fp_J39lF49Cnk1DptyT2-56 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N Fp_J39lF49Cnk1DptyT2-57 rhombus (104.0,676.0 120.0x60.0) Hapus data?
+    N Fp_J39lF49Cnk1DptyT2-58 rhombus (74.0,876.0 120.0x60.0) Konfirmasi hapus?
+    N Fp_J39lF49Cnk1DptyT2-59 rounded=1 (56.0,1072.0 180.0x35.0) Data berhasil disimpan
+    E Fp_J39lF49Cnk1DptyT2-60 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N Fp_J39lF49Cnk1DptyT2-61 ellipse (131.0,1146.0 30.0x30.0) 
+    N Fp_J39lF49Cnk1DptyT2-62 rounded=1 (74.0,767.0 180.0x35.0) Pilih sopir dari daftar
+    N Fp_J39lF49Cnk1DptyT2-63 text (56.0,706.0 60.0x30.0) Tidak
+    N Fp_J39lF49Cnk1DptyT2-64 text (29.0,872.0 60.0x30.0) Tidak
+    N Fp_J39lF49Cnk1DptyT2-65 text (148.0,732.0 60.0x30.0) Ya
+    E Fp_J39lF49Cnk1DptyT2-66 edgeStyle=orthogonalEdgeStyle (-0.9048,-10.0 0.0x0.0) Tidak
+    E Fp_J39lF49Cnk1DptyT2-67 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N Fp_J39lF49Cnk1DptyT2-68 rounded=1 (70.0,509.0 180.0x35.0) Ubah: nama, status
+    E Fp_J39lF49Cnk1DptyT2-69 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N Fp_J39lF49Cnk1DptyT2-70 rhombus (97.5,570.0 126.5x64.0) Konfirmasi edit?
+    N Fp_J39lF49Cnk1DptyT2-71 text (183.0,561.0 60.0x30.0) Tidak
+=== LANE Fp_J39lF49Cnk1DptyT2-72 'Sistem' (8698.0,1548.0 375.0x1204.0)
+    N Fp_J39lF49Cnk1DptyT2-73 rounded=1 (60.0,45.0 200.0x35.0) Tampilkan error: Masih ada ritase
+    N Fp_J39lF49Cnk1DptyT2-74 rounded=1 (87.5,212.5 200.0x35.0) Tampilkan data sopir
+    E Fp_J39lF49Cnk1DptyT2-75 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N Fp_J39lF49Cnk1DptyT2-76 rhombus (127.5,809.0 160.0x55.0) Punya data ritase?
+    N Fp_J39lF49Cnk1DptyT2-77 rhombus (126.0,278.0 113.0x80.0) Inputan sudah benar?
+    E Fp_J39lF49Cnk1DptyT2-78 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N Fp_J39lF49Cnk1DptyT2-79 text (200.0,702.0 60.0x30.0) Ya
+    N Fp_J39lF49Cnk1DptyT2-80 text (99.0,341.0 60.0x30.0) Tidak
+    N Fp_J39lF49Cnk1DptyT2-81 text (212.0,318.0 60.0x30.0) Ya
+=== LANE Fp_J39lF49Cnk1DptyT2-82 'Database' (9073.0,1548.0 325.0x1204.0)
+    N Fp_J39lF49Cnk1DptyT2-83 rounded=1 (35.0,300.0 220.0x35.0) Simpan sopir (kode auto: SPR-NNN)
+    N Fp_J39lF49Cnk1DptyT2-84 rounded=1 (35.0,500.0 180.0x35.0) Perbarui data
+    N Fp_J39lF49Cnk1DptyT2-85 rounded=1 (39.0,888.5 180.0x35.0) Hapus data sopir
+    N Fp_J39lF49Cnk1DptyT2-86 rounded=1 (58.0,819.0 180.0x35.0) cek data ritase
+    N READCRUD-sopir-2 rounded=1 (72.0,212.0 180.0x35.0) Ambil data sopir
+=== LANE C0_24crrdnlDlqLrcLww-24 'User (Admin)' (4649.0,1708.0 382.0x1420.0)
+    N C0_24crrdnlDlqLrcLww-25 ellipse (135.0,80.0 30.0x30.0) 
+    N C0_24crrdnlDlqLrcLww-26 rounded=1 (60.0,150.0 180.0x35.0) Buka halaman /gaji
+    N C0_24crrdnlDlqLrcLww-27 rhombus (80.0,220.0 120.0x60.0) Ingin hitung gaji?
+    N C0_24crrdnlDlqLrcLww-28 rounded=1 (50.0,320.0 180.0x35.0) Pilih periode
+    N C0_24crrdnlDlqLrcLww-30 rhombus (80.0,570.0 120.0x60.0) Ingin edit gaji?
+    N C0_24crrdnlDlqLrcLww-31 rounded=1 (50.0,664.0 180.0x35.0) Pilih penggajian dari riwayat
+    E R7UtL8hy0-FL8zJC06OZ-14 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N C0_24crrdnlDlqLrcLww-32 rhombus (102.5,860.0 120.0x60.0) Ingin hapus gaji?
+    N C0_24crrdnlDlqLrcLww-33 rhombus (102.5,1021.0 120.0x60.0) Konfirmasi hapus?
+    E C0_24crrdnlDlqLrcLww-34 edgeStyle=orthogonalEdgeStyle (-0.9737,20.0 0.0x0.0) Tidak
+    E C0_24crrdnlDlqLrcLww-36 edgeStyle=orthogonalEdgeStyle (-0.9737,20.0 0.0x0.0) Tidak
+    N C0_24crrdnlDlqLrcLww-40 rhombus (87.0,1175.0 120.0x60.0) Lihat riwayat?
+    N C0_24crrdnlDlqLrcLww-55 rounded=1 (71.0,452.5 200.0x35.0) Sesuaikan kompensasi & lembur
+    E R7UtL8hy0-FL8zJC06OZ-2 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N C0_24crrdnlDlqLrcLww-44 rhombus (223.75,611.0 120.0x60.0) Konfirmasi simpan?
+    E C0_24crrdnlDlqLrcLww-56 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N R7UtL8hy0-FL8zJC06OZ-3 text (298.0,576.0 60.0x30.0) Tidak
+    E R7UtL8hy0-FL8zJC06OZ-7 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N C0_24crrdnlDlqLrcLww-58 rounded=1 (40.0,727.0 200.0x35.0) Ubah solar &amp; upah per tujuan
+    E C0_24crrdnlDlqLrcLww-74 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N R7UtL8hy0-FL8zJC06OZ-4 rhombus (80.0,775.0 120.0x60.0) Konfirmasi edit?
+    N R7UtL8hy0-FL8zJC06OZ-6 text (162.5,816.0 60.0x30.0) Ya
+    N R7UtL8hy0-FL8zJC06OZ-10 rounded=1 (62.5,947.0 200.0x35.0) <div>Pilih penggajian dari riwayat</div>
+    E R7UtL8hy0-FL8zJC06OZ-16 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N R7UtL8hy0-FL8zJC06OZ-18 ellipse (102.5,1330.0 30.0x30.0) 
+=== LANE C0_24crrdnlDlqLrcLww-42 'Sistem' (5031.0,1708.0 467.0x1420.0)
+    N C0_24crrdnlDlqLrcLww-43 rhombus (67.0,450.0 180.0x40.0) Ada kondisi khusus?
+    N C0_24crrdnlDlqLrcLww-45 rounded=1 (67.0,150.0 220.0x35.0) Tampilkan daftar periode & status
+    N C0_24crrdnlDlqLrcLww-46 rhombus (84.0,310.0 150.0x55.0) Data ritase ada?
+    N C0_24crrdnlDlqLrcLww-47 rounded=1 (60.0,560.0 200.0x40.0) Tampilkan 'tidak ada data ritase'
+    E C0_24crrdnlDlqLrcLww-48 edgeStyle=orthogonalEdgeStyle (-0.966,-17.0 0.0x0.0) Tidak
+    E C0_24crrdnlDlqLrcLww-50 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    E R7UtL8hy0-FL8zJC06OZ-27 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N C0_24crrdnlDlqLrcLww-51 rounded=1 (103.0,1286.0 220.0x35.0) Tampilkan daftar riwayat penggajian
+    N C0_24crrdnlDlqLrcLww-52 rounded=1 (60.0,390.0 200.0x35.0) Hitung: solar, upah, DT, tol
+    E C0_24crrdnlDlqLrcLww-53 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) Ya
+    E C0_24crrdnlDlqLrcLww-54 edgeStyle=orthogonalEdgeStyle (0.0,0.0 0.0x0.0) 
+    N C0_24crrdnlDlqLrcLww-59 rounded=1 (26.0,1187.5 180.0x35.0) Buka /gaji/riwayat
+=== LANE C0_24crrdnlDlqLrcLww-61 'Database' (5498.0,1708.0 431.0x1420.0)
+    N C0_24crrdnlDlqLrcLww-62 rounded=1 (107.0,270.0 220.0x35.0) Ambil data ritase per sopir
+    N C0_24crrdnlDlqLrcLww-63 rounded=1 (81.0,730.0 200.0x35.0) Simpan hasil penggajian
+    N C0_24crrdnlDlqLrcLww-64 rounded=1 (87.0,803.0 200.0x35.0) Update hasil penggajian
+    N C0_24crrdnlDlqLrcLww-49 rounded=1 (39.0,1124.0 180.0x35.0) Hapus penggajian &amp; detail
+=== LANE edV1kq30rZ7yItqZJPiS-29 'User' (11668.0,2935.0 248.0x967.0)
+    N edV1kq30rZ7yItqZJPiS-30 ellipse (85.0,871.0 30.0x30.0) 
+    N edV1kq30rZ7yItqZJPiS-31 ellipse (80.0,28.0 40.0x40.0) 
+=== LANE edV1kq30rZ7yItqZJPiS-32 'Sistem' (11916.0,2935.0 279.0x967.0)
+=== LANE edV1kq30rZ7yItqZJPiS-34 'Database' (12195.0,2935.0 248.0x967.0)

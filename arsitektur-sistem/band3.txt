@@ -1,0 +1,72 @@
+BAND 3  x[3910..5945] y[70..2938] n=71
+x= 5945 y=   70 PqfLxWIM4CLN1Nra3jIJ-1   rounded=1              | Mulai
+x= 5135 y=   80 lCzril13CjKYt5D0kKxF-1   rounded=1              | Mulai
+x= 5930 y=  130 PiIvOlXCaiVOVlH7BzCM-85  rounded=0              | Buka /gaji
+x= 5120 y=  143 8FK9DfTvh0lG-2RUyGW6-66  rounded=0              | Buka /periode
+x= 5890 y=  190 PqfLxWIM4CLN1Nra3jIJ-4   shape=parallelogram    | Tampilkan daftar periode & status penggajian
+x= 5030 y=  200 lCzril13CjKYt5D0kKxF-3   shape=parallelogram    | Tampilkan daftar periode (kode, nama, tanggal, status)
+x= 5115 y=  270 lCzril13CjKYt5D0kKxF-4   rhombus                | Ingin tambah periode?
+x= 4780 y=  278 PiIvOlXCaiVOVlH7BzCM-1   shape=parallelogram    | Isi form: nama periode, tanggal mulai, tanggal selesai
+x= 5925 y=  278 PqfLxWIM4CLN1Nra3jIJ-5   rhombus                | Ingin hitung gaji?
+x= 5478 y=  288 PiIvOlXCaiVOVlH7BzCM-87  rounded=0              | Pilih periode yang akan dihitung
+x= 4115 y=  340 H7dGhY_njGfQpPlwNiv3-1   rounded=1              | Mulai
+x= 4782 y=  357 PiIvOlXCaiVOVlH7BzCM-2   rounded=0              | Validasi: nama min 3, tanggal mulai &lt;= selesai, tidak overlap
+x= 5485 y=  365 PiIvOlXCaiVOVlH7BzCM-100 rounded=0              | Ambil data ritase per sopir
+x= 4100 y=  400 PiIvOlXCaiVOVlH7BzCM-106 rounded=0              | Buka halaman Dashboard
+x= 5743 y=  439 PiIvOlXCaiVOVlH7BzCM-88  shape=mxgraph.flowchart.display | Tampilkan 'tidak ada data ritase'
+x= 4845 y=  445 lCzril13CjKYt5D0kKxF-7   rhombus                | Valid?
+x= 5515 y=  445 PqfLxWIM4CLN1Nra3jIJ-8   rhombus                | Data ritase ada?
+x= 5010 y=  452 PiIvOlXCaiVOVlH7BzCM-3   shape=mxgraph.flowchart.display | Tampilkan error
+x= 4095 y=  470 H7dGhY_njGfQpPlwNiv3-3   rhombus                | Cache valid?
+x= 4790 y=  540 PiIvOlXCaiVOVlH7BzCM-4   rounded=0              | Simpan (kode PER otomatis, status aktif)
+x= 3910 y=  550 PiIvOlXCaiVOVlH7BzCM-108 rounded=0              | Ambil dari cache
+x= 4290 y=  550 PiIvOlXCaiVOVlH7BzCM-110 rounded=0              | Hitung ringkasan data
+x= 5475 y=  560 PiIvOlXCaiVOVlH7BzCM-90  rounded=0              | Hitung gaji per sopir (DT, upah, tol, kompensasi, lembur)
+x= 5115 y=  590 lCzril13CjKYt5D0kKxF-10  rhombus                | Ingin edit periode?
+x= 4800 y=  597 E5XVnkVfhdu6OxxgI7V7-2   shape=parallelogram    | Pilih periode dari daftar
+x= 4290 y=  607 PiIvOlXCaiVOVlH7BzCM-109 rounded=0              | Simpan ke cache (5 menit)
+x= 5515 y=  637 PqfLxWIM4CLN1Nra3jIJ-10  rhombus                | Ada kondisi khusus?
+x= 5735 y=  645 PqfLxWIM4CLN1Nra3jIJ-12  shape=parallelogram    | Sesuaikan kompensasi & lembur
+x= 4080 y=  670 H7dGhY_njGfQpPlwNiv3-7   shape=parallelogram    | Tampilkan ringkasan
+x= 4742 y=  670 PiIvOlXCaiVOVlH7BzCM-6   shape=parallelogram    | Ubah: nama, tanggal mulai, tanggal selesai, status (aktif/selesai)
+x= 5515 y=  735 PqfLxWIM4CLN1Nra3jIJ-67  rhombus                | Konfirmasi simpan?
+x= 4115 y=  740 H7dGhY_njGfQpPlwNiv3-8   rounded=1              | Selesai
+x= 4772 y=  749 zdst4hzUN3gGA2vajSD1-24  text                   | Tidak
+x= 4825 y=  749 zdst4hzUN3gGA2vajSD1-19  rhombus                | Konfirmasi edit?
+x= 4890 y=  795 zdst4hzUN3gGA2vajSD1-22  text                   | Ya
+x= 4812 y=  822 PiIvOlXCaiVOVlH7BzCM-7   rounded=0              | Update database
+x= 5473 y=  825 PiIvOlXCaiVOVlH7BzCM-91  rounded=0              | Simpan hasil penggajian
+x= 5118 y=  860 lCzril13CjKYt5D0kKxF-14  rhombus                | Ingin hapus periode?
+x= 4777 y=  865 E5XVnkVfhdu6OxxgI7V7-1   shape=parallelogram    | Pilih periode dari daftar
+x= 5930 y=  870 PqfLxWIM4CLN1Nra3jIJ-15  rhombus                | Ingin edit penggajian?
+x= 5475 y=  877 PiIvOlXCaiVOVlH7BzCM-92  rounded=0              | Pilih penggajian dari riwayat
+x= 5781 y=  913 zdst4hzUN3gGA2vajSD1-39  text                   | Tidak
+x= 4740 y=  922 E5XVnkVfhdu6OxxgI7V7-3   shape=parallelogram    | Pilih periode dari daftar
+x= 5006 y=  937 PiIvOlXCaiVOVlH7BzCM-11  shape=mxgraph.flowchart.display | Tampilkan 'tidak bisa hapus, masih punya ritase'
+x= 5729 y=  942 zdst4hzUN3gGA2vajSD1-32  rhombus                | Konfirmasi edit?
+x= 4800 y=  946 lCzril13CjKYt5D0kKxF-16  rhombus                | Punya data ritase?
+x= 5488 y=  950 PiIvOlXCaiVOVlH7BzCM-94  shape=parallelogram    | Ubah detail: solar_per_rit, upah_per_rit per tujuan
+x= 5779 y=  987 zdst4hzUN3gGA2vajSD1-35  text                   | Ya
+x= 5495 y= 1011 PiIvOlXCaiVOVlH7BzCM-95  rounded=0              | Update database
+x= 4800 y= 1042 lCzril13CjKYt5D0kKxF-17  rhombus                | Konfirmasi hapus?
+x= 5925 y= 1055 PqfLxWIM4CLN1Nra3jIJ-19  rhombus                | Ingin hapus penggajian?
+x= 5504 y= 1062 PiIvOlXCaiVOVlH7BzCM-96  rounded=0              | Pilih penggajian dari riwayat
+x= 5470 y= 1150 PqfLxWIM4CLN1Nra3jIJ-50  text                   | Tidak
+x= 5523 y= 1150 PqfLxWIM4CLN1Nra3jIJ-22  rhombus                | Konfirmasi hapus?
+x= 5925 y= 1150 PqfLxWIM4CLN1Nra3jIJ-60  rhombus                | Lihat riwayat?
+x= 5710 y= 1157 PiIvOlXCaiVOVlH7BzCM-98  rounded=0              | Buka /gaji/riwayat
+x= 5138 y= 1166 lCzril13CjKYt5D0kKxF-20  rounded=1              | Selesai
+x= 4782 y= 1170 PiIvOlXCaiVOVlH7BzCM-10  rounded=0              | Hapus dari database
+x= 5509 y= 1230 PiIvOlXCaiVOVlH7BzCM-99  rounded=0              | Hapus penggajian &amp; detail
+x= 5678 y= 1235 PqfLxWIM4CLN1Nra3jIJ-62  shape=parallelogram    | Tampilkan daftar riwayat penggajian
+x= 5945 y= 1250 PqfLxWIM4CLN1Nra3jIJ-24  rounded=1              | Selesai
+x= 4245 y= 2313 hvQUhVooKiPRSI-0ZxWm-1   rounded=0              | Buka /profil
+x= 4245 y= 2388 hvQUhVooKiPRSI-0ZxWm-2   rounded=0              | Tampilkan info profil + form edit
+x= 4249 y= 2467 hvQUhVooKiPRSI-0ZxWm-20  shape=parallelogram    | Ubah nama/email/password, klik Simpan
+x= 4265 y= 2538 hvQUhVooKiPRSI-0ZxWm-3   rhombus                | Isian valid?
+x= 4505 y= 2559 hvQUhVooKiPRSI-0ZxWm-21  shape=mxgraph.flowchart.display | Tampilkan error
+x= 4265 y= 2658 hvQUhVooKiPRSI-0ZxWm-5   rhombus                | Password baru diisi?
+x= 4515 y= 2675 hvQUhVooKiPRSI-0ZxWm-7   rounded=0              | Simpan nama + email
+x= 4245 y= 2778 hvQUhVooKiPRSI-0ZxWm-6   rounded=0              | Hash password baru + simpan
+x= 4259 y= 2865 hvQUhVooKiPRSI-0ZxWm-22  shape=mxgraph.flowchart.display | Tampilkan pesan sukses
+x= 4310 y= 2938 hvQUhVooKiPRSI-0ZxWm-8   rounded=1              | Selesai

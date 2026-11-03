@@ -98,20 +98,37 @@
     };
 
     window.confirmDelete = function(id, nama, jumlahRitase) {
-        document.getElementById('deleteForm').action = window.crudDeleteUrl + '/' + id;
-        var pesan = document.getElementById('delete_pesan');
-        if (jumlahRitase > 0) {
-            pesan.innerHTML = 'Periode <strong class="text-gray-900">' + nama + '</strong> memiliki <strong class="text-red-600">' + jumlahRitase + ' ritase</strong> dan <strong class="text-red-600">tidak dapat dihapus</strong>!';
-            document.querySelector('#deleteModal button.bg-red-600').disabled = true;
-            document.querySelector('#deleteModal button.bg-red-600').classList.add('opacity-50', 'cursor-not-allowed');
-        } else {
-            pesan.innerHTML = 'Anda yakin ingin menghapus periode <strong class="text-gray-900">' + nama + '</strong>?<br><span class="text-xs text-red-500 mt-1 block">Tindakan ini tidak dapat dibatalkan.</span>';
-            document.querySelector('#deleteModal button.bg-red-600').disabled = false;
-            document.querySelector('#deleteModal button.bg-red-600').classList.remove('opacity-50', 'cursor-not-allowed');
+        var form = document.getElementById('deleteForm');
+
+        // Fallback bila shared modal tidak tersedia
+        if (typeof showConfirmModal !== 'function') {
+            if (!confirm('Hapus periode ' + nama + '?')) return;
+            form.action = window.crudDeleteUrl + '/' + id;
+            form.submit();
+            return;
         }
-        var modal = document.getElementById('deleteModal');
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+
+        // Punya ritase -> tidak boleh dihapus
+        if (jumlahRitase > 0) {
+            showConfirmModal({
+                title: 'Tidak Dapat Dihapus',
+                message: 'Periode ' + nama + ' memiliki ' + jumlahRitase + ' ritase dan tidak dapat dihapus.',
+                type: 'warning',
+                confirmText: 'Mengerti'
+            });
+            return;
+        }
+
+        showConfirmModal({
+            title: 'Hapus Periode?',
+            message: 'Anda yakin ingin menghapus periode ' + nama + '? Tindakan ini tidak dapat dibatalkan.',
+            type: 'danger',
+            confirmText: 'Ya, Hapus',
+            onConfirm: function() {
+                form.action = window.crudDeleteUrl + '/' + id;
+                form.submit();
+            }
+        });
     };
 
     window.closeDeleteModal = function() {
