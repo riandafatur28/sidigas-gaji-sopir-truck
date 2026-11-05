@@ -152,6 +152,9 @@
                         @elseif (!empty($pkg['is_bongkar']))
                             <span class="inline-flex px-2 py-0.5 text-xs font-semibold rounded bg-amber-50 text-amber-600 mr-2">BONGKAR</span>
                         @endif
+                        @if (!empty($pkg['lembur_drivers']))
+                            <span class="inline-flex px-2 py-0.5 text-xs font-semibold rounded bg-amber-50 text-amber-600 mr-2">LEMBUR: {{ count($pkg['lembur_drivers']) }} sopir</span>
+                        @endif
                         Paket {{ $index + 1 }}: {{ $pkg['route_name'] }}
                     </h3>
                     <span style="color:var(--text-muted);font-size:13px">
@@ -176,6 +179,9 @@
                         @if ($match && $match['matched'])
                         <span class="ml-1 text-xs opacity-75">({{ $match['confidence'] }}%)</span>
                         @endif
+                        @if (!empty($pkg['lembur_drivers']) && in_array(strtolower($driverName), array_map('strtolower', $pkg['lembur_drivers']), true))
+                        <span class="ml-1 text-xs font-semibold">LEMBUR</span>
+                        @endif
                     </div>
                     @endforeach
                 </div>
@@ -183,6 +189,14 @@
             @endforeach
         </div>
     </div>
+
+    @if (!empty($results['lembur_unmatched']))
+    <div class="mt-6 bg-red-50 border border-red-200 rounded-lg shadow-sm overflow-hidden">
+        <div class="p-4">
+            <p class="text-sm text-red-600">Peringatan: ada daftar lembur yang tujuannya tidak ditemukan di teks yang sama, jadi tidak dibuat ritase baru untuk daftar itu.</p>
+        </div>
+    </div>
+    @endif
 
     {{-- Details log --}}
     @if (isset($results['details']) && count($results['details']) > 0)

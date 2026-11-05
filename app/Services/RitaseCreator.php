@@ -62,6 +62,17 @@ class RitaseCreator
             $details = array_merge($details, $result['details']);
         }
 
+        // Lembur sections that could not be matched to a base package must
+        // never silently become a new tujuan or new ritase. Report them.
+        foreach ($parsed['lembur_unmatched'] ?? [] as $section) {
+            $details[] = [
+                'route' => $section['route_name'] ?? 'lembur',
+                'status' => 'Skipped',
+                'sopir' => implode(', ', $section['drivers'] ?? []),
+                'reason' => 'Lembur: tujuan dasar tidak ditemukan di teks yang sama, tidak dibuat ritase baru',
+            ];
+        }
+
         return compact('created', 'skipped', 'errors', 'details');
     }
 
@@ -175,7 +186,63 @@ class RitaseCreator
             }
         }
 
+        // Lembur: flag the base ritase of the same driver, date, waktu and
+        // tujuan. Never create a second ritase for a lembur driver, and
+        // never set upah_lembur here -- that nominal is entered in
+        // penggajian, per already-flagged row.
+        $details = array_merge($details, $this->applyLemburFlags($package, $parsed, $periodeId, $driverMap, $kodeTujuan, $waktu));
+
         return compact('created', 'skipped', 'errors', 'details');
+    }
+
+    private function applyLemburFlags(array $package, array $parsed, int $periodeId, $driverMap, ?string $kodeTujuan, string $waktu): array
+    {
+        $details = [];
+        $lemburNames = $package['lembur_drivers'] ?? [];
+        if (empty($lemburNames) || $kodeTujuan === null) return $details;
+
+        $lowerMap = [];
+        foreach ($driverMap as $key => $dm) {
+            $lowerMap[strtolower((string) $key)] = $dm;
+            if (isset($dm['input_name'])) $lowerMap[strtolower((string) $dm['input_name'])] = $dm;
+            if (isset($dm['sopir'])) $lowerMap[strtolower((string) $dm['sopir']->nama)] = $dm;
+        }
+
+        foreach ($lemburNames as $name) {
+            $dm = $lowerMap[strtolower($name)] ?? null;
+            if (!$dm || !$dm['matched']) {
+                $details[] = ['route' => $package['route_name'], 'status' => 'Skipped', 'sopir' => $name, 'reason' => 'Lembur: sopir tidak cocok / tidak ada ritase dasar'];
+                continue;
+            }
+            $sopir = $dm['sopir'];
+            // whereDate, not where('tanggal', ...): the tanggal cast turns
+            // a bare date into a datetime string, which never matches a
+            // DATE column in SQLite -- the same mismatch that broke the
+            // duplicate guard elsewhere. whereDate matches both.
+            $base = Ritase::where('periode_id', $periodeId)
+                ->where('kode_sopir', $sopir->kode_sopir)
+                ->whereDate('tanggal', $parsed['date'])
+                ->where('kode_tujuan', $kodeTujuan)
+                ->where('waktu', $waktu)
+                ->where('status', '!=', 'gagal_produksi')
+                ->latest('id')->first();
+            if (!$base) {
+                $base = Ritase::where('periode_id', $periodeId)
+                    ->where('kode_sopir', $sopir->kode_sopir)
+                    ->whereDate('tanggal', $parsed['date'])
+                    ->where('kode_tujuan', $kodeTujuan)
+                    ->where('status', '!=', 'gagal_produksi')
+                    ->latest('id')->first();
+            }
+            if (!$base) {
+                $details[] = ['route' => $package['route_name'], 'status' => 'Skipped', 'sopir' => $sopir->nama, 'reason' => 'Lembur: tidak ada ritase dasar di tanggal dan tujuan ini'];
+                continue;
+            }
+            if (!$base->is_lembur) $base->update(['is_lembur' => true]);
+            $details[] = ['route' => $package['route_name'], 'status' => 'Updated lembur', 'sopir' => $sopir->nama, 'kode_sopir' => $sopir->kode_sopir, 'kode_tujuan' => $kodeTujuan, 'tanggal' => $parsed['date']];
+        }
+
+        return $details;
     }
 
     private function handleGagal(array $package, array $parsed, int $periodeId, string $routeName, array $matchedSopirs, string $kabupaten, string $waktu): array

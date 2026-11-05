@@ -116,9 +116,22 @@ class PenggajianService
                     ->where('status', 'gagal_produksi')
                     ->update(['nominal_kompensasi' => $b['kompensasi_gagal']]);
             }
+            // Lembur is per sopir per tanggal, as flagged on the ritase row
+            // (by the parser or by the manual ritase form). The penggajian
+            // form only supplies the nominal per tujuan, so it must only
+            // fill upah_lembur on rows already flagged lembur. It must
+            // never turn every driver of a tujuan lembur, and never clear
+            // a per-driver flag just because lembur_per_rit is 0 -- a
+            // flagged row with nominal 0 simply pays 0 lembur, and keeps
+            // its flag so a later nominal can pay it without re-parsing.
+            // Consequence, stated plainly: ticking lembur for a tujuan
+            // alone no longer makes all its drivers lembur. Drivers must
+            // already be flagged, otherwise nobody of that tujuan is paid
+            // lembur, by design, so the 13-of-21 case cannot recur.
             Ritase::where('periode_id', $periodeId)->where('kode_tujuan', $kt)
                 ->where('status', '!=', 'gagal_produksi')
-                ->update(['is_lembur' => $b['lembur_per_rit'] > 0, 'upah_lembur' => $b['lembur_per_rit']]);
+                ->where('is_lembur', true)
+                ->update(['upah_lembur' => $b['lembur_per_rit']]);
         }
     }
 

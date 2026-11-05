@@ -450,7 +450,7 @@ class RitaseService
         }
 
         $driverMatches = $parser->matchDrivers(
-            collect($parsed['packages'])->pluck('drivers')->flatten()->unique()->values()->all()
+            collect($parsed['packages'])->flatMap(fn($p) => array_merge($p['drivers'] ?? [], $p['lembur_drivers'] ?? []))->unique()->values()->all()
         );
         $routeMatches = $parser->matchRoutes(
             collect($parsed['packages'])->pluck('route_name')->unique()->values()->all()
@@ -458,6 +458,7 @@ class RitaseService
 
         $results = [
             'date' => $parsed['date'], 'packages' => $parsed['packages'],
+            'lembur_unmatched' => $parsed['lembur_unmatched'] ?? [],
             'driver_matches' => $driverMatches, 'route_matches' => $routeMatches,
             'created' => 0, 'skipped' => 0, 'errors' => [], 'details' => [],
         ];

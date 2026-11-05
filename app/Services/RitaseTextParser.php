@@ -28,6 +28,10 @@ class RitaseTextParser
         $this->parseRouteAndDriverLines($lines, $result);
 
         $this->mergePackages($result);
+        // Lembur is a marker on drivers of an already-parsed route, never a
+        // new route. Resolve it after merging so "Paket candirejo" and
+        // "paket Candirejo" match the same base package.
+        $this->resolveLemburSections($result);
         $this->postProcessBongkar($result);
         $this->postProcessGagal($result);
 
@@ -90,33 +94,131 @@ class RitaseTextParser
     private function parseRouteAndDriverLines(array $lines, array &$result): void
     {
         $currentPackage = null;
+        // A lembur section is NOT a package. It is collected separately and
+        // resolved onto its base package by resolveLemburSections().
+        $currentLembur = null;
+        $result['lembur_sections'] = [];
+
+        $flushPackage = function () use (&$currentPackage, &$result) {
+            if ($currentPackage !== null) $result['packages'][] = $currentPackage;
+            $currentPackage = null;
+        };
+        $flushLembur = function () use (&$currentLembur, &$result) {
+            if ($currentLembur !== null) $result['lembur_sections'][] = $currentLembur;
+            $currentLembur = null;
+        };
 
         for ($i = 1; $i < count($lines); $i++) {
             $line = $lines[$i];
 
             if (str_starts_with(strtolower($line), 'bbm') || preg_match('/^\d+\s+sopir$/i', $line)) continue;
 
+            if ($this->isLemburLine($line)) {
+                $flushPackage();
+                $flushLembur();
+                $currentLembur = ['route_name' => $this->parseLemburRoute($line), 'drivers' => []];
+                continue;
+            }
+
             if (!$this->looksLikeDriverName($line)) {
-                if ($currentPackage !== null) $result['packages'][] = $currentPackage;
+                $flushPackage();
+                $flushLembur();
                 $currentPackage = $this->parseRouteLine($line);
                 continue;
             }
 
             if (preg_match('/^\d+\.(.*)$/', $line, $m)) {
+                $driverName = $this->cleanDriverName(trim($m[1]));
+                if (empty($driverName)) continue;
+                $lower = strtolower($driverName);
+                if ($currentLembur !== null) {
+                    if (!in_array($lower, array_map('strtolower', $currentLembur['drivers']), true)) {
+                        $currentLembur['drivers'][] = $driverName;
+                    }
+                    continue;
+                }
                 if ($currentPackage === null) {
                     $currentPackage = ['route_name' => 'Unknown Route', 'drivers' => []];
                 }
-                $driverName = $this->cleanDriverName(trim($m[1]));
-                if (!empty($driverName)) {
-                    $lower = strtolower($driverName);
-                    if (!in_array($lower, array_map('strtolower', $currentPackage['drivers']), true)) {
-                        $currentPackage['drivers'][] = $driverName;
-                    }
+                if (!in_array($lower, array_map('strtolower', $currentPackage['drivers']), true)) {
+                    $currentPackage['drivers'][] = $driverName;
                 }
             }
         }
 
-        if ($currentPackage !== null) $result['packages'][] = $currentPackage;
+        $flushPackage();
+        $flushLembur();
+    }
+
+    private function isLemburLine(string $line): bool
+    {
+        return (bool) preg_match('/^lembur\b/i', trim($line));
+    }
+
+    private function parseLemburRoute(string $line): string
+    {
+        $route = trim((string) preg_replace('/^lembur\s*:?\s*/i', '', trim($line)));
+        $route = trim((string) preg_replace('/^Paket\s*\d+\s*:\s*/i', '', $route));
+        return $route;
+    }
+
+    /**
+     * Normalised route key for matching a lembur section to its base package
+     * and for merging duplicate packages: case-insensitive, whitespace
+     * collapsed, leading route keywords stripped.
+     */
+    private function normalizeRouteKey(string $route): string
+    {
+        $key = strtolower(trim((string) preg_replace('/\s+/u', ' ', $route)));
+        $keywords = ['paket cmm', 'paket', 'patching', 'overlay', 'cmm', 'kormuling', 'rekon', 'bongkar'];
+        $changed = true;
+        while ($changed) {
+            $changed = false;
+            foreach ($keywords as $kw) {
+                if (str_starts_with($key, $kw . ' ')) {
+                    $key = trim(substr($key, strlen($kw) + 1));
+                    $changed = true;
+                } elseif ($key === $kw) {
+                    $key = '';
+                    $changed = true;
+                }
+            }
+        }
+        return $key;
+    }
+
+    private function resolveLemburSections(array &$result): void
+    {
+        $unmatched = [];
+        foreach ($result['lembur_sections'] ?? [] as $section) {
+            $targetKey = $this->normalizeRouteKey($section['route_name']);
+            $foundIdx = null;
+            if ($targetKey === '') {
+                // "lembur" with no route: it marks the previous package.
+                if (!empty($result['packages'])) $foundIdx = count($result['packages']) - 1;
+            } else {
+                foreach ($result['packages'] as $idx => $pkg) {
+                    if ($this->normalizeRouteKey($pkg['route_name']) === $targetKey) {
+                        $foundIdx = $idx;
+                        break;
+                    }
+                }
+            }
+            if ($foundIdx === null) {
+                $unmatched[] = $section;
+                continue;
+            }
+            $existing = $result['packages'][$foundIdx]['lembur_drivers'] ?? [];
+            foreach ($section['drivers'] as $d) {
+                if (!in_array(strtolower($d), array_map('strtolower', $existing), true)) {
+                    $existing[] = $d;
+                }
+            }
+            $result['packages'][$foundIdx]['lembur_drivers'] = $existing;
+            $result['packages'][$foundIdx]['has_lembur'] = true;
+        }
+        $result['lembur_unmatched'] = $unmatched;
+        unset($result['lembur_sections']);
     }
 
     private function parseRouteLine(string $line): array
@@ -152,13 +254,18 @@ class RitaseTextParser
     {
         $merged = [];
         foreach ($result['packages'] as $pkg) {
-            $key = $pkg['route_name'];
+            // Normalised key: "Paket candirejo nganjuk" and
+            // "paket Candirejo nganjuk" are the same route. A rit-ke-2
+            // package is kept separate, it must not be merged into the
+            // first rit or its second-rit flag would be lost.
+            $key = $this->normalizeRouteKey($pkg['route_name']) . '|' . (!empty($pkg['is_rit_ke_2']) ? 'rit2' : 'normal');
             if (!isset($merged[$key])) { $merged[$key] = $pkg; continue; }
             foreach ($pkg['drivers'] as $d) {
                 if (!in_array(strtolower($d), array_map('strtolower', $merged[$key]['drivers']))) {
                     $merged[$key]['drivers'][] = $d;
                 }
             }
+            if (!empty($pkg['is_rit_ke_2'])) $merged[$key]['is_rit_ke_2'] = true;
         }
         $result['packages'] = array_values($merged);
     }
