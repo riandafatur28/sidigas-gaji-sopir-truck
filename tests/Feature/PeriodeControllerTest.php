@@ -103,7 +103,7 @@ class PeriodeControllerTest extends TestCase
 
         $response = $this->delete("/periode/{$periode->id}");
         $response->assertRedirect();
-        $this->assertDatabaseMissing('periodes', ['id' => $periode->id]);
+        $this->assertSoftDeleted('periodes', ['id' => $periode->id]);
     }
 
     public function test_destroy_blocks_periode_with_ritase(): void

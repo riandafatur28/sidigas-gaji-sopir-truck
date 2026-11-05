@@ -327,8 +327,9 @@ class BladeViewTest extends TestCase
 
     public function test_penggajian_riwayat_renders(): void
     {
-        // Skip: SQLite tidak support YEAR() function
-        $this->markTestSkipped('SQLite tidak support YEAR() — hanya jalan di MySQL');
+        $this->get('/gaji/riwayat')
+            ->assertOk()
+            ->assertSee('Riwayat');
     }
 
     // ─────────────────────────── PROFILE ───────────────────────────
@@ -405,7 +406,7 @@ class BladeViewTest extends TestCase
         $sopir = Sopir::create(['nama' => 'Budi']);
 
         $this->delete("/sopir/{$sopir->id}")->assertRedirect();
-        $this->assertDatabaseMissing('sopirs', ['id' => $sopir->id]);
+        $this->assertSoftDeleted('sopirs', ['id' => $sopir->id]);
     }
 
     public function test_tujuan_delete_form_exists(): void
@@ -413,6 +414,6 @@ class BladeViewTest extends TestCase
         $tujuan = Tujuan::create(['nama' => 'Jombang']);
 
         $this->delete("/tujuan/{$tujuan->id}")->assertRedirect();
-        $this->assertDatabaseMissing('tujuans', ['id' => $tujuan->id]);
+        $this->assertSoftDeleted('tujuans', ['id' => $tujuan->id]);
     }
 }

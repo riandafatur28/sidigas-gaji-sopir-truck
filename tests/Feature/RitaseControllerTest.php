@@ -106,7 +106,7 @@ class RitaseControllerTest extends TestCase
 
         $this->delete("/ritase/table/{$ritase->id}")->assertRedirect();
 
-        $this->assertDatabaseMissing('ritases', ['id' => $ritase->id]);
+        $this->assertSoftDeleted('ritases', ['id' => $ritase->id]);
     }
 
     public function test_api_get_ritase_data_returns_json(): void

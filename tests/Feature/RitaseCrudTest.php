@@ -160,7 +160,7 @@ class RitaseCrudTest extends TestCase
         $response = $this->delete("/ritase/table/{$ritase->id}");
 
         $response->assertRedirect();
-        $this->assertDatabaseMissing('ritases', ['id' => $ritase->id]);
+        $this->assertSoftDeleted('ritases', ['id' => $ritase->id]);
     }
 
     public function test_index_renders_delete_form_for_each_ritase(): void

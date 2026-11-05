@@ -67,7 +67,7 @@ class TujuanControllerTest extends TestCase
 
         $this->delete("/tujuan/{$tujuan->id}")->assertRedirect();
 
-        $this->assertDatabaseMissing('tujuans', ['id' => $tujuan->id]);
+        $this->assertSoftDeleted('tujuans', ['id' => $tujuan->id]);
     }
 
     public function test_destroy_blocks_tujuan_with_ritase(): void

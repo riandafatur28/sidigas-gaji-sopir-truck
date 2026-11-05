@@ -76,7 +76,7 @@ class ValidasiSearchDeleteGajiSearchTest extends TestCase
 
         $this->delete('/validasi-bukti/' . $vb->id)
             ->assertRedirect();
-        $this->assertDatabaseMissing('validasi_bukti', ['id' => $vb->id]);
+        $this->assertSoftDeleted('validasi_bukti', ['id' => $vb->id]);
     }
 
     public function test_gaji_search_filters_by_sopir_name(): void

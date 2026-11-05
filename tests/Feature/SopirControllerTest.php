@@ -67,7 +67,7 @@ class SopirControllerTest extends TestCase
 
         $this->delete("/sopir/{$sopir->id}")->assertRedirect();
 
-        $this->assertDatabaseMissing('sopirs', ['id' => $sopir->id]);
+        $this->assertSoftDeleted('sopirs', ['id' => $sopir->id]);
     }
 
     public function test_destroy_blocks_sopir_with_ritase(): void
