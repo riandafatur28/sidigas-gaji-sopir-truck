@@ -35,6 +35,10 @@ class ValidasiBuktiService
         $periode = Periode::where('tanggal_mulai', '<=', $request->tanggal)
             ->where('tanggal_selesai', '>=', $request->tanggal)->first();
 
+        if (!$periode) {
+            throw new \Exception('Tidak ada periode aktif yang mencakup tanggal pengambilan bukti.');
+        }
+
         ValidasiBukti::create([
             'kode_sopir' => $request->kode_sopir,
             'nama_sopir' => $request->nama_sopir,
@@ -147,10 +151,6 @@ class ValidasiBuktiService
             throw new \Exception('Tidak ada periode yang mencakup tanggal ini. Buat periode terlebih dahulu.');
         }
 
-        $lastRit = Ritase::orderBy('id', 'desc')->first();
-        $newNumber = $lastRit ? (int) substr($lastRit->kode_ritase, 4) + 1 : 1;
-        $kodeRitase = 'RIT-' . str_pad((string) $newNumber, 3, '0', STR_PAD_LEFT);
-
         // Kabupaten diturunkan dari nama tujuan; form hanya mengirimkannya bila mitra mengubahnya.
         $kabupaten = $request->filled('kabupaten')
             ? $request->kabupaten
@@ -158,8 +158,9 @@ class ValidasiBuktiService
 
         $dt = $this->hitungDt($request->kode_sopir, $request->tanggal, $kabupaten, $request->waktu);
 
-        Ritase::create([
-            'kode_ritase' => $kodeRitase,
+        // Model Ritase memiliki boot() HasUniqueKode: kolom kode_ritase digenerate
+        // secara atomik (transaction + lockForUpdate) bila dikosongkan.
+        $ritase = Ritase::create([
             'periode_id' => $periode->id,
             'kode_sopir' => $request->kode_sopir,
             'kode_tujuan' => $request->kode_tujuan,
@@ -173,9 +174,12 @@ class ValidasiBuktiService
             'catatan' => $item->catatan,
         ]);
 
-        $item->update(['status' => 'disetujui', 'kode_ritase' => $kodeRitase]);
+        $item->update(['status' => 'disetujui', 'kode_ritase' => $ritase->kode_ritase]);
 
-        return $kodeRitase;
+        // Sinkronkan DT & agregat penggajian periode karena ada ritase baru.
+        (new RitaseService())->recalculateDtForPeriode((int) $periode->id);
+
+        return $ritase->kode_ritase;
     }
 
     private function hitungDt($kodeSopir, $tanggal, $kabupaten, $waktu): float

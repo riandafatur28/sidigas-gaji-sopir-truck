@@ -10,10 +10,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Ritase extends Model
 {
-    use HasFactory, HasUniqueKode, RecordsAuthor;
+    use HasFactory, HasUniqueKode, RecordsAuthor, SoftDeletes;
 
     protected $table = 'ritases';
 
@@ -52,6 +53,21 @@ class Ritase extends Model
             if (empty($ritase->kode_ritase)) {
                 $ritase->kode_ritase = $ritase->generateUniqueKode('RIT');
             }
+        });
+    }
+
+    protected static function booted(): void
+    {
+        // Mirror FK `validasi_bukti.kode_ritase` -> nullOnDelete() pada DB.
+        // Karena baris tidak lagi benar-benar dihapus, tautan harus dilepas manual
+        // supaya bukti validasi tidak menunjuk ke ritase yang sudah dibuang.
+        static::deleting(function (Ritase $ritase): void {
+            if ($ritase->isForceDeleting() || empty($ritase->kode_ritase)) {
+                return;
+            }
+
+            ValidasiBukti::where('kode_ritase', $ritase->kode_ritase)
+                ->update(['kode_ritase' => null]);
         });
     }
 

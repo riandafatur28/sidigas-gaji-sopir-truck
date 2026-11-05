@@ -9,10 +9,11 @@ use App\Traits\HasUniqueKode;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Periode extends Model
 {
-    use HasFactory, HasUniqueKode, RecordsAuthor;
+    use HasFactory, HasUniqueKode, RecordsAuthor, SoftDeletes;
 
     protected $table = 'periodes';
 

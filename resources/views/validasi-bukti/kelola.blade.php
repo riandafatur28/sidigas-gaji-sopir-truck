@@ -8,6 +8,20 @@
         <p class="text-sm mt-1" style="color:var(--text-muted)">Verifikasi bukti dari sopir sebelum menambah ritase.</p>
     </div>
 
+    {{-- ALERT SUCCESS --}}
+    @if(session('success'))
+        <div class="alert alert-success mb-4">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    {{-- ALERT ERROR --}}
+    @if(session('error'))
+        <div class="alert alert-error mb-4">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="card mb-6">
         <div class="grid grid-cols-2 lg:grid-cols-4">
             <div style="padding:15px 20px" class="ledger-cell lg:border-r">

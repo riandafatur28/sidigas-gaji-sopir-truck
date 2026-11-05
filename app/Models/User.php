@@ -6,12 +6,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -32,6 +33,29 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Soft delete user; email lama dibebaskan agar bisa dipakai ulang
+     * (kolom email tetap UNIQUE di database).
+     */
+    protected static function booted(): void
+    {
+        static::deleting(function (User $user): void {
+            if ($user->isForceDeleting()) {
+                return;
+            }
+
+            $email = (string) $user->email;
+            if (str_starts_with($email, 'deleted+')) {
+                return;
+            }
+
+            $at = strrpos($email, '@');
+            $domain = $at !== false ? substr($email, $at) : '';
+            $user->email = 'deleted+' . $user->id . '+' . time() . $domain;
+            $user->saveQuietly();
+        });
     }
 
     public function isSuperadmin(): bool

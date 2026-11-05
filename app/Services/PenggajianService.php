@@ -107,7 +107,12 @@ class PenggajianService
             $this->validateBukti($periodeId);
         }
 
-        Penggajian::where('periode_id', $periodeId)->delete();
+        // Hapus data gaji periode ini lalu bangun ulang. Iterasi per baris
+        // (bukan mass delete) supaya Penggajian::booted() ikut berjalan dan
+        // penggajian_details-nya ter-soft delete (bukan jadi baris yatim).
+        Penggajian::where('periode_id', $periodeId)->get()->each(
+            fn (Penggajian $gaji) => $gaji->delete()
+        );
         Ritase::where('periode_id', $periodeId)->update(['upah_sopir' => 0, 'nominal_kompensasi' => 0]);
 
         foreach ($map as $kt => $b) {

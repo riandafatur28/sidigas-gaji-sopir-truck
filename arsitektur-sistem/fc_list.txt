@@ -1,0 +1,442 @@
+00 N rounded=1 1445,80,90,35 2Fn--1 | Mulai
+01 N shape=parallelogram 1390,200,200,45 2Fn--3 | Tampilkan tabel ritase (filter periode)
+02 E edgeStyle=orthogonalEdgeStyle  Fn--79 | 
+03 N rhombus 1425,263,130,55 2Fn--4 | Ingin tambah ritase?
+04 N rhombus 1429,695,130,55 Fn--18 | Ingin edit ritase?
+05 E edgeStyle=orthogonalEdgeStyle  Fn--85 | 
+06 E edgeStyle=orthogonalEdgeStyle  GW6-41 | 
+07 N rhombus 1429,830,130,55 Fn--22 | Ingin hapus ritase?
+08 E edgeStyle=orthogonalEdgeStyle  GW6-45 | 
+09 N rhombus 1236.5,920,130,55 Fn--24 | Konfirmasi hapus?
+10 E edgeStyle=orthogonalEdgeStyle  Fn--90 | 
+11 E edgeStyle=orthogonalEdgeStyle  GW6-47 | 
+12 N rhombus 1432.5,1055,130,55 Fn--26 | Lihat detail ritase?
+13 N shape=parallelogram 1120,1125,200,40 Fn--28 | Tampilkan ritase sopir x tanggal
+14 N shape=parallelogram 1130,1220,180,35 Fn--29 | Download detail PDF
+15 N rounded=1 1449,1220,90,35 Fn--30 | Selesai
+16 E edgeStyle=orthogonalEdgeStyle  Fn--31 | 
+17 E edgeStyle=orthogonalEdgeStyle  Fn--32 | 
+18 E edgeStyle=orthogonalEdgeStyle  Fn--33 | 
+19 E edgeStyle=orthogonalEdgeStyle  Fn--34 | Ya
+20 E edgeStyle=orthogonalEdgeStyle  Fn--55 | Tidak
+21 E edgeStyle=orthogonalEdgeStyle  Fn--58 | Ya
+22 E edgeStyle=orthogonalEdgeStyle  Fn--60 | Tidak
+23 E edgeStyle=orthogonalEdgeStyle  Fn--64 | 
+24 E edgeStyle=orthogonalEdgeStyle  Fn--65 | 
+25 E edgeStyle=orthogonalEdgeStyle -0.9163,18,None,None Fn--66 | Tidak
+26 N shape=parallelogram 1389,427,200,45 Fn--67 | Isi form: sopir, tujuan, tanggal, waktu,
+27 N rhombus 1429,510,120,55 Fn--69 | Valid?
+28 E edgeStyle=orthogonalEdgeStyle  Fn--84 | 
+29 E edgeStyle=orthogonalEdgeStyle  Fn--72 | 
+30 E edgeStyle=orthogonalEdgeStyle  Fn--74 | 
+31 E edgeStyle=orthogonalEdgeStyle  Fn--75 | Ya
+32 E edgeStyle=orthogonalEdgeStyle  Fn--76 | Tidak
+33 E edgeStyle=orthogonalEdgeStyle  Fn--77 | 
+34 N text 1549,263,60,30 Fn--80 | Tidak
+35 E edgeStyle=orthogonalEdgeStyle  jk2-37 | 
+36 N rounded=1 4115,340,90,35 Niv3-1 | Mulai
+37 N rhombus 4095,470,130,55 Niv3-3 | Cache valid?
+38 N shape=parallelogram 4080,670,160,40 Niv3-7 | Tampilkan ringkasan
+39 N rounded=1 4115,740,90,35 Niv3-8 | Selesai
+40 E edgeStyle=orthogonalEdgeStyle  Niv3-9 | 
+41 E edgeStyle=orthogonalEdgeStyle  iv3-11 | Ya
+42 E edgeStyle=orthogonalEdgeStyle  iv3-12 | Tidak
+43 E edgeStyle=orthogonalEdgeStyle  iv3-13 | 
+44 E edgeStyle=orthogonalEdgeStyle  iv3-15 | 
+45 E edgeStyle=orthogonalEdgeStyle  iv3-16 | 
+46 N rounded=1 5135,80,90,35 kKxF-1 | Mulai
+47 N shape=parallelogram 5030,200,300,40 kKxF-3 | Tampilkan daftar periode (kode, nama, ta
+48 N rhombus 5115,270,130,55 kKxF-4 | Ingin tambah periode?
+49 N rhombus 4845,445,110,55 kKxF-7 | Valid?
+50 N rhombus 5115,590,130,55 KxF-10 | Ingin edit periode?
+51 N rhombus 5118,860.5,130,55 KxF-14 | Ingin hapus periode?
+52 N rhombus 4800,946,150,55 KxF-16 | Punya data ritase?
+53 N rhombus 4800,1042,150,55 KxF-17 | Konfirmasi hapus?
+54 N rounded=1 5138,1166,90,35 KxF-20 | Selesai
+55 E edgeStyle=orthogonalEdgeStyle  KxF-21 | 
+56 E edgeStyle=orthogonalEdgeStyle  KxF-22 | 
+57 E edgeStyle=orthogonalEdgeStyle  KxF-23 | 
+58 E edgeStyle=orthogonalEdgeStyle  KxF-24 | Ya
+59 E edgeStyle=orthogonalEdgeStyle  KxF-25 | 
+60 E edgeStyle=orthogonalEdgeStyle  KxF-26 | 
+61 E edgeStyle=orthogonalEdgeStyle  KxF-27 | Ya
+62 E edgeStyle=orthogonalEdgeStyle  KxF-28 | Tidak
+63 E edgeStyle=orthogonalEdgeStyle  KxF-29 | Tidak
+64 E edgeStyle=orthogonalEdgeStyle  KxF-30 | 
+65 E edgeStyle=orthogonalEdgeStyle  KxF-31 | Ya
+66 E edgeStyle=orthogonalEdgeStyle  KxF-32 | 
+67 E edgeStyle=orthogonalEdgeStyle  KxF-33 | 
+68 E edgeStyle=orthogonalEdgeStyle  KxF-34 | Tidak
+69 E edgeStyle=orthogonalEdgeStyle  KxF-35 | 
+70 E edgeStyle=orthogonalEdgeStyle  KxF-36 | Ya
+71 E edgeStyle=orthogonalEdgeStyle  KxF-37 | Tidak
+72 E edgeStyle=orthogonalEdgeStyle  KxF-39 | Ya
+73 E edgeStyle=orthogonalEdgeStyle  KxF-40 | Tidak
+74 E edgeStyle=orthogonalEdgeStyle  KxF-41 | Ya
+75 E edgeStyle=orthogonalEdgeStyle -0.8707,-11,None,None KxF-43 | Tidak
+76 N rounded=1 3424.95,150,90,35 7wGK-1 | Mulai
+77 N shape=parallelogram 3354.95,270,230,40 7wGK-4 | Tampilkan daftar sopir (kode, nama, stat
+78 N rhombus 3404.95,367,130,55 7wGK-5 | Ingin tambah sopir?
+79 N rhombus 3104.95,570,110,55 7wGK-8 | Valid?
+80 N rhombus 3404.95,705,130,55 wGK-11 | Ingin edit sopir?
+81 N rhombus 3404.95,940,130,55 wGK-15 | Ingin hapus sopir?
+82 E edgeStyle=orthogonalEdgeStyle  jSD1-8 | 
+83 N rhombus 3083.95,1131,150,55 wGK-17 | Punya data ritase?
+84 E edgeStyle=orthogonalEdgeStyle  SD1-11 | 
+85 N rhombus 3084.95,1233,150,55 wGK-18 | Konfirmasi hapus?
+86 N rounded=1 3424.95,1376,90,35 wGK-21 | Selesai
+87 E edgeStyle=orthogonalEdgeStyle  wGK-22 | 
+88 E edgeStyle=orthogonalEdgeStyle  wGK-23 | 
+89 E edgeStyle=orthogonalEdgeStyle  wGK-24 | 
+90 E edgeStyle=orthogonalEdgeStyle  wGK-25 | Ya
+91 E edgeStyle=orthogonalEdgeStyle  wGK-26 | 
+92 E edgeStyle=orthogonalEdgeStyle  wGK-27 | 
+93 E edgeStyle=orthogonalEdgeStyle  wGK-28 | Ya
+94 E edgeStyle=orthogonalEdgeStyle -0.9599,8,None,None wGK-29 | Tidak
+95 E edgeStyle=orthogonalEdgeStyle  wGK-30 | 
+96 E edgeStyle=orthogonalEdgeStyle  wGK-31 | Tidak
+97 E edgeStyle=orthogonalEdgeStyle  wGK-32 | 
+98 E edgeStyle=orthogonalEdgeStyle  wGK-33 | Ya
+99 E edgeStyle=orthogonalEdgeStyle  wGK-34 | 
+100 E edgeStyle=orthogonalEdgeStyle  wGK-35 | 
+101 E edgeStyle=orthogonalEdgeStyle  wGK-36 | Tidak
+102 E edgeStyle=orthogonalEdgeStyle  wGK-37 | 
+103 E edgeStyle=orthogonalEdgeStyle -0.905,7,None,None wGK-38 | Ya
+104 E edgeStyle=orthogonalEdgeStyle  wGK-39 | Tidak
+105 E edgeStyle=orthogonalEdgeStyle  wGK-40 | 
+106 E edgeStyle=orthogonalEdgeStyle  wGK-42 | Tidak
+107 E edgeStyle=orthogonalEdgeStyle  wGK-43 | Ya
+108 N rounded=1 5945,70,90,35 3jIJ-1 | Mulai
+109 N shape=parallelogram 5890,190,200,45 3jIJ-4 | Tampilkan daftar periode & status pengga
+110 N rhombus 5925,278,130,55 3jIJ-5 | Ingin hitung gaji?
+111 N rhombus 5515,445,130,55 3jIJ-8 | Data ritase ada?
+112 N rhombus 5515,637.5,130,55 jIJ-10 | Ada kondisi khusus?
+113 E edgeStyle=orthogonalEdgeStyle  jIJ-11 | 
+114 N shape=parallelogram 5735,645,220,40 jIJ-12 | Sesuaikan kompensasi & lembur
+115 N rhombus 5930,870,130,55 jIJ-15 | Ingin edit penggajian?
+116 N rhombus 5925,1055,130,55 jIJ-19 | Ingin hapus penggajian?
+117 E edgeStyle=orthogonalEdgeStyle  jIJ-21 | 
+118 N rhombus 5523,1150,130,55 jIJ-22 | Konfirmasi hapus?
+119 N rounded=1 5945,1250,90,35 jIJ-24 | Selesai
+120 E edgeStyle=orthogonalEdgeStyle  jIJ-25 | 
+121 E edgeStyle=orthogonalEdgeStyle  jIJ-26 | 
+122 E edgeStyle=orthogonalEdgeStyle  jIJ-27 | 
+123 E edgeStyle=orthogonalEdgeStyle  jIJ-28 | Ya
+124 E edgeStyle=orthogonalEdgeStyle  jIJ-29 | 
+125 E edgeStyle=orthogonalEdgeStyle  jIJ-30 | 
+126 E edgeStyle=orthogonalEdgeStyle  jIJ-31 | Ya
+127 E edgeStyle=orthogonalEdgeStyle  jIJ-32 | Tidak
+128 E edgeStyle=orthogonalEdgeStyle  jIJ-34 | 
+129 E edgeStyle=orthogonalEdgeStyle  jIJ-35 | Ya
+130 E edgeStyle=orthogonalEdgeStyle  jIJ-36 | Tidak
+131 E edgeStyle=orthogonalEdgeStyle  jIJ-37 | 
+132 E edgeStyle=orthogonalEdgeStyle  jIJ-38 | Tidak
+133 E edgeStyle=orthogonalEdgeStyle  jIJ-39 | Ya
+134 E edgeStyle=orthogonalEdgeStyle  jIJ-40 | 
+135 E edgeStyle=orthogonalEdgeStyle  jIJ-42 | 
+136 E edgeStyle=orthogonalEdgeStyle  jIJ-43 | Tidak
+137 E edgeStyle=orthogonalEdgeStyle  jIJ-44 | Ya
+138 E edgeStyle=orthogonalEdgeStyle  jIJ-45 | 
+139 E edgeStyle=orthogonalEdgeStyle  jIJ-46 | Ya
+140 E edgeStyle=orthogonalEdgeStyle  jIJ-47 | 
+141 E edgeStyle=orthogonalEdgeStyle  jIJ-48 | Tidak
+142 E edgeStyle=orthogonalEdgeStyle  jIJ-49 | 
+143 N text 5470,1150,60,30 jIJ-50 | Tidak
+144 N rounded=1 185,30,90,35 xO--39 | Mulai
+145 E edgeStyle=orthogonalEdgeStyle  yGW6-1 | 
+146 E edgeStyle=orthogonalEdgeStyle  yGW6-4 | 
+147 N rhombus 165,162,130,55 xO--41 | Login?
+148 N shape=parallelogram 110,245,240,40 xO--42 | Masukkan email (@gmail.com) & password
+149 N rhombus 165,300,130,50 xO--43 | Credentials valid?
+150 N shape=parallelogram -30,350,110,35 xO--44 | Dashboard
+151 E edgeStyle=orthogonalEdgeStyle  ZskD-1 | 
+152 N rhombus 445,425,130,50 xO--47 | Email terdaftar?
+153 N shape=parallelogram 9,560,200,35 xO--51 | Masukkan email (@gmail.com)
+154 E edgeStyle=orthogonalEdgeStyle  GW6-11 | 
+155 N shape=parallelogram 14,800,190,35 xO--54 | Masukkan password baru
+156 E edgeStyle=orthogonalEdgeStyle  xO--56 | 
+157 E edgeStyle=orthogonalEdgeStyle  xO--57 | 
+158 E edgeStyle=orthogonalEdgeStyle  xO--59 | 
+159 E edgeStyle=orthogonalEdgeStyle  xO--60 | Ya
+160 E edgeStyle=orthogonalEdgeStyle  xO--61 | Tidak
+161 E edgeStyle=orthogonalEdgeStyle  xO--62 | 
+162 E edgeStyle=orthogonalEdgeStyle  xO--64 | 
+163 E edgeStyle=orthogonalEdgeStyle -1,11,None,None xO--66 | Tidak
+164 E edgeStyle=orthogonalEdgeStyle  xO--67 | 
+165 E edgeStyle=orthogonalEdgeStyle  xO--69 | 
+166 E edgeStyle=orthogonalEdgeStyle  xO--70 | 
+167 E edgeStyle=orthogonalEdgeStyle  xO--71 | 
+168 E edgeStyle=orthogonalEdgeStyle  xO--73 | 
+169 E edgeStyle=orthogonalEdgeStyle  xO--74 | 
+170 E edgeStyle=orthogonalEdgeStyle  xO--75 | 
+171 N rounded=1 200,913,90,35 xO--77 | Selesai
+172 N rounded=1 6855,100,90,35 xO--78 | Mulai
+173 N shape=parallelogram 6790,220,220,35 xO--80 | Tampilkan form submit bukti
+174 N shape=parallelogram 6770,305,260,40 xO--81 | Isi form: nama sopir, tujuan, foto, loka
+175 N rhombus 6830,378,140,55 xO--82 | Form lengkap & valid?
+176 N rounded=1 6855,610,90,35 xO--86 | Selesai
+177 E edgeStyle=orthogonalEdgeStyle  xO--87 | 
+178 E edgeStyle=orthogonalEdgeStyle  xO--88 | 
+179 E edgeStyle=orthogonalEdgeStyle  xO--89 | 
+180 E edgeStyle=orthogonalEdgeStyle  xO--90 | 
+181 E edgeStyle=orthogonalEdgeStyle  xO--91 | Ya
+182 E edgeStyle=orthogonalEdgeStyle  xO--92 | Tidak
+183 E edgeStyle=orthogonalEdgeStyle  xO--93 | 
+184 E edgeStyle=orthogonalEdgeStyle  xO--94 | 
+185 E edgeStyle=orthogonalEdgeStyle  xO--95 | 
+186 N rounded=1 6945,820,90,35 xO--96 | Mulai
+187 N shape=parallelogram 6840,950,300,35 xO--98 | Daftar bukti (pending/disetujui/ditolak)
+188 E edgeStyle=orthogonalEdgeStyle  CM-119 | 
+189 N rhombus 6935,1015,110,50 xO--99 | Ada pending?
+190 N shape=parallelogram 6900,1100,180,35 O--101 | Lihat detail & foto
+191 N rhombus 6935,1165,110,50 O--102 | Bukti valid?
+192 N rhombus 6770,1300,110,50 O--105 | Tambah ritase?
+193 N rhombus 6935,1440,110,50 O--107 | Aksi lain?
+194 N rounded=1 6945,1530,90,35 O--108 | Selesai
+195 E edgeStyle=orthogonalEdgeStyle  O--109 | 
+196 E edgeStyle=orthogonalEdgeStyle  O--110 | 
+197 E edgeStyle=orthogonalEdgeStyle  O--111 | 
+198 E edgeStyle=orthogonalEdgeStyle  O--112 | Ya
+199 E edgeStyle=orthogonalEdgeStyle  O--114 | 
+200 E edgeStyle=orthogonalEdgeStyle  O--115 | Ya
+201 E edgeStyle=orthogonalEdgeStyle  O--116 | Tidak
+202 E edgeStyle=orthogonalEdgeStyle  O--117 | 
+203 E edgeStyle=orthogonalEdgeStyle  O--118 | 
+204 E edgeStyle=orthogonalEdgeStyle  O--119 | Ya
+205 E edgeStyle=orthogonalEdgeStyle -0.448,5,None,None O--120 | Tidak
+206 E edgeStyle=orthogonalEdgeStyle  O--121 | 
+207 E edgeStyle=orthogonalEdgeStyle -0.9641,15,None,None O--122 | Ya
+208 E edgeStyle=orthogonalEdgeStyle  O--123 | 
+209 N rounded=1 7710,127.5,90,35 O--124 | Mulai
+210 N rhombus 7695,252.5,120,55 O--126 | Jenis unduhan?
+211 N shape=parallelogram 7480,397.5,190,35 O--128 | Preview slip gaji (HTML)
+212 N shape=parallelogram 7485,527.5,180,35 O--130 | Download slip gaji (PDF)
+213 N shape=parallelogram 7965,397.5,160,35 O--132 | Preview laporan
+214 N shape=parallelogram 7960,527.5,170,35 O--134 | Download laporan (PDF)
+215 N rounded=1 7710,617.5,90,35 O--135 | Selesai
+216 E edgeStyle=orthogonalEdgeStyle  O--136 | 
+217 E edgeStyle=orthogonalEdgeStyle  O--137 | 
+218 E edgeStyle=orthogonalEdgeStyle  O--138 | Slip Gaji
+219 E edgeStyle=orthogonalEdgeStyle  O--139 | 
+220 E edgeStyle=orthogonalEdgeStyle  O--140 | 
+221 E edgeStyle=orthogonalEdgeStyle  O--141 | 
+222 E edgeStyle=orthogonalEdgeStyle  O--142 | 
+223 E edgeStyle=orthogonalEdgeStyle  O--143 | Laporan
+224 E edgeStyle=orthogonalEdgeStyle  O--144 | 
+225 E edgeStyle=orthogonalEdgeStyle  O--145 | 
+226 E edgeStyle=orthogonalEdgeStyle  O--146 | 
+227 E edgeStyle=orthogonalEdgeStyle  O--147 | 
+228 N rhombus 5925,1150,130,55 jIJ-60 | Lihat riwayat?
+229 N shape=parallelogram 5678,1235,220,35 jIJ-62 | Tampilkan daftar riwayat penggajian
+230 E edgeStyle=orthogonalEdgeStyle  jIJ-63 | Ya
+231 E edgeStyle=orthogonalEdgeStyle  jIJ-65 | 
+232 E edgeStyle=orthogonalEdgeStyle  jIJ-66 | Tidak
+233 E edgeStyle=orthogonalEdgeStyle  CM-104 | 
+234 N edgeLabel -0.9085,2,None,None CM-105 | Tidak
+235 N rhombus 5515,735,130,55 jIJ-67 | Konfirmasi simpan?
+236 E edgeStyle=orthogonalEdgeStyle  jIJ-68 | Ya
+237 N text 400,443,60,30 ZskD-2 | Ya
+238 N text 110,162,60,30 yGW6-2 | Tidak
+239 E edgeStyle=orthogonalEdgeStyle  yGW6-6 | 
+240 E edgeStyle=orthogonalEdgeStyle  yGW6-8 | 
+241 N rhombus 444,162,130,55 yGW6-3 | Metode Login?
+242 N text 280,170,60,30 yGW6-5 | Ya
+243 N text 514,210,60,30 yGW6-7 | Google
+244 N text 370,210,60,30 yGW6-9 | Normal
+245 E edgeStyle=orthogonalEdgeStyle  GW6-13 | 
+246 N rhombus 45,730,130,50 GW6-10 | OTP valid?
+247 N text 90,770,60,30 GW6-14 | Ya
+248 E edgeStyle=orthogonalEdgeStyle  GW6-15 | 
+249 N shape=parallelogram 9,670,200,40 GW6-16 | Inputkan kode OTP
+250 N shape=mxgraph.flowchart.display 130,380,200,30 GW6-20 | Error: Email/Password salah
+251 N shape=mxgraph.flowchart.display 580,330,200,30 GW6-21 | Error: Email tidak terdaftar
+252 N rounded=0 455,250,120,40 GW6-22 | Klik Login Google
+253 N rounded=0 30,500,155,40 GW6-23 | Klik Lupa password
+254 N shape=mxgraph.flowchart.display -1,860,200,30 GW6-24 | Password berhasil diubah
+255 N text 150,730,60,30 GW6-25 | Tidak
+256 N rounded=0 145,90,175,40 GW6-26 | Buka /login
+257 N rounded=0 1401.5,138,175,40 GW6-29 | Buka /ritase
+258 N rounded=0 1429,350,120,45 GW6-30 | Pilih periode
+259 N shape=mxgraph.flowchart.display 1700,435,120,30 GW6-31 | Tampilkan error
+260 E edgeStyle=orthogonalEdgeStyle  GW6-44 | 
+261 N rounded=0 1214,837.5,175,40 GW6-32 | Pilih ritase dari tabel
+262 N rounded=0 5,615,214,40 GW6-33 | Kirim OTP (6 digit, 15 menit)
+263 E edgeStyle=orthogonalEdgeStyle  GW6-40 | 
+264 N shape=parallelogram 1562.5,765,240,40 GW6-35 | Edit tujuan, waktu, kabupaten, catatan
+265 E edgeStyle=orthogonalEdgeStyle  GW6-49 | 
+266 N rounded=0 1130,1062.5,175,40 GW6-36 | Pilih periode
+267 E edgeStyle=orthogonalEdgeStyle  GW6-37 | 
+268 E edgeStyle=orthogonalEdgeStyle  GW6-39 | 
+269 N rounded=0 1595,707.5,175,30 GW6-34 | Pilih ritase dari tabel
+270 N text 1540,690,60,30 GW6-38 | Ya
+271 N text 1380,830,60,30 GW6-42 | Ya
+272 N text 1180,920,60,30 GW6-46 | Tidak
+273 N text 1380,1050,60,30 GW6-48 | Ya
+274 N rounded=0 1389,610,190,45 GW6-50 | Simpan ritase (hitung DT otomatis)
+275 N rounded=0 1587.5,940,190,45 GW6-51 | Update database (rehitung DT)
+276 N rounded=0 1214,1020,155,30 GW6-52 | Hapus dari database
+277 N shape=parallelogram 3068.95,380,200,35 GW6-53 | Isi form: nama sopir
+278 N rounded=0 3069.95,490,171,40 GW6-54 | Validasi: nama min 3 karakter
+279 N shape=mxgraph.flowchart.display 3270,450,165.05,35 GW6-55 | Tampilkan error
+280 N rounded=0 3049.95,660,210.05,40 GW6-56 | Simpan (kode SPR otomatis, status aktif)
+281 N rounded=0 3069.9,710,171,40 GW6-57 | Pilih sopir dari daftar
+282 N shape=parallelogram 3039.95,780,220,47.5 GW6-58 | Ubah: nama, status (aktif/nonaktif)
+283 N rounded=0 3064.9700000000003,937,180,35 GW6-59 | Update database
+284 N rounded=0 3060.95,1015,180,40 GW6-60 | Pilih sopir dari daftar
+285 E edgeStyle=orthogonalEdgeStyle  SD1-10 | 
+286 N shape=mxgraph.flowchart.display 3245.05,1071,190,60 GW6-61 | Tampilkan 'tidak bisa hapus, masih punya
+287 E edgeStyle=orthogonalEdgeStyle  GW6-65 | 
+288 N rounded=0 3070,1376,190,40 GW6-62 | Hapus dari database
+289 N rounded=0 3394.95,210,150,35 GW6-63 | Buka /sopir
+290 N rounded=0 5120,143,120,30 GW6-66 | Buka /periode
+291 N shape=parallelogram 4780,278,260,40 BzCM-1 | Isi form: nama periode, tanggal mulai, t
+292 N rounded=0 4782.5,357,235,50 BzCM-2 | Validasi: nama min 3, tanggal mulai &lt;
+293 N shape=mxgraph.flowchart.display 5010,452.5,120,40 BzCM-3 | Tampilkan error
+294 N rounded=0 4790,540,200,40 BzCM-4 | Simpan (kode PER otomatis, status aktif)
+295 N shape=parallelogram 4742.5,670,315,45 BzCM-6 | Ubah: nama, tanggal mulai, tanggal seles
+296 N rounded=0 4812,822,180,30 BzCM-7 | Update database
+297 E edgeStyle=orthogonalEdgeStyle  BzCM-8 | 
+298 E edgeStyle=orthogonalEdgeStyle  SD1-18 | 
+299 N rounded=0 4782.5,1170,180,40 zCM-10 | Hapus dari database
+300 E edgeStyle=orthogonalEdgeStyle  SD1-25 | 
+301 N shape=mxgraph.flowchart.display 5006,937.25,165,72.5 zCM-11 | Tampilkan 'tidak bisa hapus, masih punya
+302 E edgeStyle=orthogonalEdgeStyle  zCM-12 | 
+303 N rounded=1 2836,1750,90,35 zCM-16 | Mulai
+304 N shape=parallelogram 2761,1870,240,40 zCM-17 | Tampilkan daftar tujuan (kode, nama, sta
+305 N rhombus 2816,1940,130,55 zCM-18 | Ingin tambah tujuan?
+306 E edgeStyle=orthogonalEdgeStyle  zCM-65 | 
+307 E edgeStyle=orthogonalEdgeStyle  zCM-68 | 
+308 N rhombus 2576,2090,110,55 zCM-20 | Valid?
+309 N rhombus 2816,2250,130,55 zCM-23 | Ingin edit tujuan?
+310 E edgeStyle=orthogonalEdgeStyle  zCM-59 | 
+311 N rhombus 2818,2509.5,130,55 zCM-27 | Ingin hapus tujuan?
+312 N rhombus 2320,2550,150,55 zCM-29 | Punya data ritase?
+313 E edgeStyle=orthogonalEdgeStyle  zCM-83 | 
+314 N rhombus 2320,2710,150,55 zCM-30 | Konfirmasi hapus?
+315 N rounded=1 2838,2630,90,35 zCM-33 | Selesai
+316 E edgeStyle=orthogonalEdgeStyle  zCM-34 | 
+317 E edgeStyle=orthogonalEdgeStyle  zCM-35 | 
+318 E edgeStyle=orthogonalEdgeStyle  zCM-36 | 
+319 E edgeStyle=orthogonalEdgeStyle  zCM-37 | Ya
+320 E edgeStyle=orthogonalEdgeStyle  zCM-38 | 
+321 E edgeStyle=orthogonalEdgeStyle  zCM-39 | 
+322 E edgeStyle=orthogonalEdgeStyle  zCM-43 | Tidak
+323 E edgeStyle=orthogonalEdgeStyle  zCM-45 | Ya
+324 E edgeStyle=orthogonalEdgeStyle  zCM-46 | 
+325 E edgeStyle=orthogonalEdgeStyle  zCM-47 | 
+326 E edgeStyle=orthogonalEdgeStyle  zCM-48 | Tidak
+327 E edgeStyle=orthogonalEdgeStyle  zCM-49 | Ya
+328 E edgeStyle=orthogonalEdgeStyle  zCM-50 | Tidak
+329 E edgeStyle=orthogonalEdgeStyle  zCM-51 | 
+330 E edgeStyle=orthogonalEdgeStyle  zCM-53 | Tidak
+331 N rounded=0 2821,1810,120,40 zCM-57 | Buka /tujuan
+332 N shape=parallelogram 2531,1940,200,47.5 zCM-58 | Isi form: nama tujuan
+333 E edgeStyle=orthogonalEdgeStyle  zCM-60 | 
+334 N rounded=0 2558,2020,150,35 zCM-61 | Validasi: nama min 3 karakter
+335 N rounded=0 2525.5,2190,211,35 zCM-62 | Simpan (kode TUJ otomatis, status aktif)
+336 E edgeStyle=orthogonalEdgeStyle  zCM-67 | 
+337 N shape=mxgraph.flowchart.display 2438,2100,120,35 zCM-63 | Tampilkan error
+338 N text 2541,2115,60,30 zCM-66 | Tidak
+339 N text 2620,2140,60,30 zCM-69 | Ya
+340 E edgeStyle=orthogonalEdgeStyle  zCM-70 | 
+341 E edgeStyle=orthogonalEdgeStyle  zCM-71 | 
+342 N text 2450,2550,60,30 zCM-72 | Ya
+343 N rounded=0 2556.5,2257,180,40 zCM-73 | Pilih tujuan dari daftar
+344 N shape=parallelogram 2531.5,2324,230,40 zCM-74 | Ubah: nama, status (aktif/nonaktif)
+345 N rounded=0 2554,2466,180,40 zCM-75 | Update database
+346 N rounded=0 2528,2517,180,40 zCM-76 | Pilih tujuan dari daftar
+347 E edgeStyle=orthogonalEdgeStyle  zCM-80 | 
+348 N shape=mxgraph.flowchart.display 2450,2640,180,40 zCM-77 | Tampilkan 'tidak bisa hapus, masih punya
+349 E edgeStyle=orthogonalEdgeStyle  zCM-78 | 
+350 N text 2450,2710,60,30 zCM-79 | Tidak
+351 N rounded=0 2335,2790,120,40 zCM-81 | Hapus dari database
+352 N text 2377,2760,60,30 zCM-84 | Ya
+353 N rounded=0 5930,130,120,40 zCM-85 | Buka /gaji
+354 N rounded=0 5478,288,210,40 zCM-87 | Pilih periode yang akan dihitung
+355 E edgeStyle=orthogonalEdgeStyle -0.1054,None,None,None CM-101 | 
+356 N shape=mxgraph.flowchart.display 5743,439,150,72.5 zCM-88 | Tampilkan 'tidak ada data ritase'
+357 N rounded=0 5475,560,210,50 zCM-90 | Hitung gaji per sopir (DT, upah, tol, ko
+358 N rounded=0 5473,825,200,40 zCM-91 | Simpan hasil penggajian
+359 N rounded=0 5475,877.5,210,40 zCM-92 | Pilih penggajian dari riwayat
+360 E edgeStyle=orthogonalEdgeStyle  SD1-33 | 
+361 N shape=parallelogram 5488,950,190,40 zCM-94 | Ubah detail: solar_per_rit, upah_per_rit
+362 N rounded=0 5495,1011,168,40 zCM-95 | Update database
+363 N rounded=0 5504,1062.5,168,40 zCM-96 | Pilih penggajian dari riwayat
+364 E edgeStyle=orthogonalEdgeStyle  zCM-97 | 
+365 N rounded=0 5710,1157.5,140,40 zCM-98 | Buka /gaji/riwayat
+366 N rounded=0 5509,1230,140,40 zCM-99 | Hapus penggajian &amp; detail
+367 N rounded=0 5485,365,190,50 CM-100 | Ambil data ritase per sopir
+368 E edgeStyle=orthogonalEdgeStyle  CM-107 | 
+369 N rounded=0 4100,400,120,40 CM-106 | Buka halaman Dashboard
+370 N rounded=0 3910,550,120,30 CM-108 | Ambil dari cache
+371 N rounded=0 4290,607.5,120,30 CM-109 | Simpan ke cache (5 menit)
+372 N rounded=0 4290,550,120,40 CM-110 | Hitung ringkasan data
+373 E edgeStyle=orthogonalEdgeStyle  CM-111 | 
+374 N rounded=0 6795,158,230,40 CM-112 | Buka /validasi-bukti (publik, tidak perl
+375 N rounded=0 6805,470,190,45 CM-115 | Simpan sebagai pending (auto-cari period
+376 N shape=mxgraph.flowchart.display 6797.5,543,205,40 CM-116 | Tampilkan 'Bukti berhasil dikirim, menun
+377 N shape=mxgraph.flowchart.display 7010,385.5,155,40 CM-117 | Tampilkan error validasi
+378 N rounded=0 6930,890,120,40 CM-118 | Buka /validasi-bukti/kelola
+379 N text 7020,1010,60,30 CM-120 | Tidak
+380 N rounded=0 6770,1225,120,35 CM-121 | Setujui
+381 N rounded=0 7110,1225,120,35 CM-122 | Tolak
+382 N rounded=0 6530,1305,160,40 CM-123 | Isi form ritase &amp; simpan
+383 N text 6980,1480,60,30 CM-125 | Tidak
+384 N rounded=0 7672,190,155,40 CM-126 | Buka /gaji, pilih periode
+385 N rounded=0 7490,460,170,40 CM-127 | Generate PDF slip gaji (4 per halaman F4
+386 N rounded=0 7960,458,170,45 CM-128 | Download laporan PDF (folio landscape)
+387 N rounded=0 7515,340,120,40 CM-129 | Pilih sopir dari daftar
+388 N rounded=0 7975,337.5,140,35 CM-130 | Generate rekap data penggajian
+389 E edgeStyle=orthogonalEdgeStyle  jSD1-4 | 
+390 E edgeStyle=orthogonalEdgeStyle  jSD1-6 | 
+391 N rhombus 1617.5,845,130,55 jSD1-3 | Konfirmasi edit?
+392 N text 1668,895,60,30 jSD1-5 | Ya
+393 N text 1726,847,60,30 jSD1-7 | Tidak
+394 N text 3209,1152,60,30 jSD1-9 | Ya
+395 N text 3024,1231,60,30 SD1-12 | Tidak
+396 E edgeStyle=orthogonalEdgeStyle  SD1-16 | 
+397 N rhombus 3074.95,854,150,55 SD1-13 | Konfirmasi edit?
+398 E edgeStyle=orthogonalEdgeStyle  SD1-14 | 
+399 N text 3129,903,60,30 SD1-15 | Ya
+400 N text 3018,851,60,30 SD1-17 | Tidak
+401 E edgeStyle=orthogonalEdgeStyle  SD1-21 | 
+402 E edgeStyle=orthogonalEdgeStyle  SD1-23 | 
+403 N rhombus 4825,749,150,55 SD1-19 | Konfirmasi edit?
+404 N text 4890,795,60,30 SD1-22 | Ya
+405 N text 4772,749,60,30 SD1-24 | Tidak
+406 E edgeStyle=orthogonalEdgeStyle  SD1-30 | 
+407 N rhombus 2573.5,2390,150,55 SD1-26 | Konfirmasi edit?
+408 E edgeStyle=orthogonalEdgeStyle  SD1-28 | 
+409 N text 2628,2435,60,30 SD1-29 | Ya
+410 N text 2521,2390,60,30 SD1-31 | Tidak
+411 E edgeStyle=orthogonalEdgeStyle  SD1-34 | 
+412 N rhombus 5729,942.5,130,55 SD1-32 | Konfirmasi edit?
+413 N text 5779,987,60,30 SD1-35 | Ya
+414 E edgeStyle=orthogonalEdgeStyle  SD1-36 | 
+415 N text 5781,913,60,30 SD1-39 | Tidak
+416 N rounded=0 4245,2313,220,45 ZxWm-1 | Buka /profil
+417 N rounded=0 4245,2388,220,45 ZxWm-2 | Tampilkan info profil + form edit
+418 N rhombus 4265,2538,180,80 ZxWm-3 | Isian valid?
+419 E edgeStyle=orthogonalEdgeStyle  ZxWm-4 | 
+420 N rhombus 4265,2658,180,80 ZxWm-5 | Password baru diisi?
+421 N rounded=0 4245,2778,220,45 ZxWm-6 | Hash password baru + simpan
+422 N rounded=0 4515,2675,170,45 ZxWm-7 | Simpan nama + email
+423 N rounded=1 4310,2938,90,35 ZxWm-8 | Selesai
+424 E edgeStyle=orthogonalEdgeStyle  ZxWm-9 | 
+425 E edgeStyle=orthogonalEdgeStyle  xWm-10 | 
+426 E edgeStyle=orthogonalEdgeStyle  xWm-11 | 
+427 E edgeStyle=orthogonalEdgeStyle  xWm-12 | 
+428 E edgeStyle=orthogonalEdgeStyle  xWm-13 | Tidak
+429 E edgeStyle=orthogonalEdgeStyle  xWm-14 | Ya
+430 E edgeStyle=orthogonalEdgeStyle  xWm-15 | Ya
+431 E edgeStyle=orthogonalEdgeStyle  xWm-16 | Tidak
+432 E edgeStyle=orthogonalEdgeStyle  xWm-17 | 
+433 E edgeStyle=orthogonalEdgeStyle  xWm-18 | 
+434 E edgeStyle=orthogonalEdgeStyle  xWm-19 | 
+435 N shape=parallelogram 4249,2467,206,38 xWm-20 | Ubah nama/email/password, klik Simpan
+436 N shape=mxgraph.flowchart.display 4505,2559,206,38 xWm-21 | Tampilkan error
+437 N shape=mxgraph.flowchart.display 4259,2865,213,45 xWm-22 | Tampilkan pesan sukses
+438 N shape=parallelogram 4777,865,196,45 I7V7-1 | Pilih periode dari daftar
+439 E edgeStyle=orthogonalEdgeStyle  I7V7-5 | 
+440 N shape=parallelogram 4800,597.5,200,40 I7V7-2 | Pilih periode dari daftar
+441 N shape=parallelogram 4740,922,210,40 I7V7-3 | Pilih periode dari daftar

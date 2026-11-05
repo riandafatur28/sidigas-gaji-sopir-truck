@@ -1,0 +1,216 @@
+000 x=    0 y=    2 PiIvOlXCaiVOVlH7BzCM-105 | edgeLabel;html=1;align=center;verticalAl | Tidak
+001 x=  -30 y=  350 1zDQF__BqGE2Fv26uxO--44 | shape=parallelogram;whiteSpace=wrap;html | Dashboard
+002 x=   -1 y=  860 8FK9DfTvh0lG-2RUyGW6-24 | shape=mxgraph.flowchart.display;whiteSpa | Password berhasil diubah
+003 x=  185 y=   30 1zDQF__BqGE2Fv26uxO--39 | rounded=1;arcSize=50;whiteSpace=wrap;htm | Mulai
+004 x=  145 y=   90 8FK9DfTvh0lG-2RUyGW6-26 | rounded=0;whiteSpace=wrap;html=1; | Buka /login
+005 x=  165 y=  162 1zDQF__BqGE2Fv26uxO--41 | rhombus;whiteSpace=wrap;html=1; | Login?
+006 x=  110 y=  162 8FK9DfTvh0lG-2RUyGW6-2 | text;html=1;whiteSpace=wrap;strokeColor= | Tidak
+007 x=  444 y=  162 8FK9DfTvh0lG-2RUyGW6-3 | rhombus;whiteSpace=wrap;html=1; | Metode Login?
+008 x=  280 y=  170 8FK9DfTvh0lG-2RUyGW6-5 | text;html=1;whiteSpace=wrap;strokeColor= | Ya
+009 x=  370 y=  210 8FK9DfTvh0lG-2RUyGW6-9 | text;html=1;whiteSpace=wrap;strokeColor= | Normal
+010 x=  110 y=  245 1zDQF__BqGE2Fv26uxO--42 | shape=parallelogram;whiteSpace=wrap;html | Masukkan email (@gmail.com) & password
+011 x=  455 y=  250 8FK9DfTvh0lG-2RUyGW6-22 | rounded=0;whiteSpace=wrap;html=1; | Klik Login Google
+012 x=  165 y=  300 1zDQF__BqGE2Fv26uxO--43 | rhombus;whiteSpace=wrap;html=1; | Credentials valid?
+013 x=  130 y=  380 8FK9DfTvh0lG-2RUyGW6-20 | shape=mxgraph.flowchart.display;whiteSpa | Error: Email/Password salah
+014 x=  445 y=  425 1zDQF__BqGE2Fv26uxO--47 | rhombus;whiteSpace=wrap;html=1; | Email terdaftar?
+015 x=  400 y=  443 mA_3SP3UA-tVyplOZskD-2 | text;html=1;whiteSpace=wrap;align=center | Ya
+016 x=   30 y=  500 8FK9DfTvh0lG-2RUyGW6-23 | rounded=0;whiteSpace=wrap;html=1; | Klik Lupa password
+017 x=    9 y=  560 1zDQF__BqGE2Fv26uxO--51 | shape=parallelogram;whiteSpace=wrap;html | Masukkan email (@gmail.com)
+018 x=    5 y=  615 8FK9DfTvh0lG-2RUyGW6-33 | rounded=0;whiteSpace=wrap;html=1; | Kirim OTP (6 digit, 15 menit)
+019 x=    9 y=  670 8FK9DfTvh0lG-2RUyGW6-16 | shape=parallelogram;perimeter=parallelog | Inputkan kode OTP
+020 x=   45 y=  730 8FK9DfTvh0lG-2RUyGW6-10 | rhombus;whiteSpace=wrap;html=1; | OTP valid?
+021 x=  150 y=  730 8FK9DfTvh0lG-2RUyGW6-25 | text;html=1;whiteSpace=wrap;strokeColor= | Tidak
+022 x=   90 y=  770 8FK9DfTvh0lG-2RUyGW6-14 | text;html=1;whiteSpace=wrap;strokeColor= | Ya
+023 x=   14 y=  800 1zDQF__BqGE2Fv26uxO--54 | shape=parallelogram;whiteSpace=wrap;html | Masukkan password baru
+024 x=  200 y=  913 1zDQF__BqGE2Fv26uxO--77 | rounded=1;arcSize=50;whiteSpace=wrap;htm | Selesai
+025 x=  514 y=  210 8FK9DfTvh0lG-2RUyGW6-7 | text;html=1;whiteSpace=wrap;strokeColor= | Google
+026 x=  580 y=  330 8FK9DfTvh0lG-2RUyGW6-21 | shape=mxgraph.flowchart.display;whiteSpa | Error: Email tidak terdaftar
+027 x= 1445 y=   80 ZCn41M8rbhQ9AeKk2Fn--1 | rounded=1;arcSize=50;whiteSpace=wrap;htm | Mulai
+028 x= 1401 y=  138 8FK9DfTvh0lG-2RUyGW6-29 | rounded=0;whiteSpace=wrap;html=1; | Buka /ritase
+029 x= 1390 y=  200 ZCn41M8rbhQ9AeKk2Fn--3 | shape=parallelogram;whiteSpace=wrap;html | Tampilkan tabel ritase (filter periode)
+030 x= 1425 y=  263 ZCn41M8rbhQ9AeKk2Fn--4 | rhombus;whiteSpace=wrap;html=1;fillColor | Ingin tambah ritase?
+031 x= 1429 y=  350 8FK9DfTvh0lG-2RUyGW6-30 | rounded=0;whiteSpace=wrap;html=1; | Pilih periode
+032 x= 1389 y=  427 ZCn41M8rbhQ9AeKk2Fn--67 | shape=parallelogram;whiteSpace=wrap;html | Isi form: sopir, tujuan, tanggal, waktu, kabupaten
+033 x= 1429 y=  510 ZCn41M8rbhQ9AeKk2Fn--69 | rhombus;whiteSpace=wrap;html=1;fillColor | Valid?
+034 x= 1389 y=  610 8FK9DfTvh0lG-2RUyGW6-50 | rounded=0;whiteSpace=wrap;html=1; | Simpan ritase (hitung DT otomatis)
+035 x= 1429 y=  695 ZCn41M8rbhQ9AeKk2Fn--18 | rhombus;whiteSpace=wrap;html=1;fillColor | Ingin edit ritase?
+036 x= 1429 y=  830 ZCn41M8rbhQ9AeKk2Fn--22 | rhombus;whiteSpace=wrap;html=1;fillColor | Ingin hapus ritase?
+037 x= 1380 y=  830 8FK9DfTvh0lG-2RUyGW6-42 | text;html=1;whiteSpace=wrap;strokeColor= | Ya
+038 x= 1214 y=  837 8FK9DfTvh0lG-2RUyGW6-32 | rounded=0;whiteSpace=wrap;html=1; | Pilih ritase dari tabel
+039 x= 1236 y=  920 ZCn41M8rbhQ9AeKk2Fn--24 | rhombus;whiteSpace=wrap;html=1;fillColor | Konfirmasi hapus?
+040 x= 1180 y=  920 8FK9DfTvh0lG-2RUyGW6-46 | text;html=1;whiteSpace=wrap;strokeColor= | Tidak
+041 x= 1214 y= 1020 8FK9DfTvh0lG-2RUyGW6-52 | rounded=0;whiteSpace=wrap;html=1; | Hapus dari database
+042 x= 1380 y= 1050 8FK9DfTvh0lG-2RUyGW6-48 | text;html=1;whiteSpace=wrap;strokeColor= | Ya
+043 x= 1432 y= 1055 ZCn41M8rbhQ9AeKk2Fn--26 | rhombus;whiteSpace=wrap;html=1;fillColor | Lihat detail ritase?
+044 x= 1130 y= 1062 8FK9DfTvh0lG-2RUyGW6-36 | rounded=0;whiteSpace=wrap;html=1; | Pilih periode
+045 x= 1120 y= 1125 ZCn41M8rbhQ9AeKk2Fn--28 | shape=parallelogram;whiteSpace=wrap;html | Tampilkan ritase sopir x tanggal
+046 x= 1130 y= 1220 ZCn41M8rbhQ9AeKk2Fn--29 | shape=parallelogram;whiteSpace=wrap;html | Download detail PDF
+047 x= 1449 y= 1220 ZCn41M8rbhQ9AeKk2Fn--30 | rounded=1;arcSize=50;whiteSpace=wrap;htm | Selesai
+048 x= 1549 y=  263 ZCn41M8rbhQ9AeKk2Fn--80 | text;html=1;whiteSpace=wrap;strokeColor= | Tidak
+049 x= 1700 y=  435 8FK9DfTvh0lG-2RUyGW6-31 | shape=mxgraph.flowchart.display;whiteSpa | Tampilkan error
+050 x= 1540 y=  690 8FK9DfTvh0lG-2RUyGW6-38 | text;html=1;whiteSpace=wrap;strokeColor= | Ya
+051 x= 1595 y=  707 8FK9DfTvh0lG-2RUyGW6-34 | rounded=0;whiteSpace=wrap;html=1; | Pilih ritase dari tabel
+052 x= 1562 y=  765 8FK9DfTvh0lG-2RUyGW6-35 | shape=parallelogram;perimeter=parallelog | Edit tujuan, waktu, kabupaten, catatan
+053 x= 1617 y=  845 zdst4hzUN3gGA2vajSD1-3 | rhombus;whiteSpace=wrap;html=1;fillColor | Konfirmasi edit?
+054 x= 1726 y=  847 zdst4hzUN3gGA2vajSD1-7 | text;html=1;whiteSpace=wrap;strokeColor= | Tidak
+055 x= 1668 y=  895 zdst4hzUN3gGA2vajSD1-5 | text;html=1;whiteSpace=wrap;strokeColor= | Ya
+056 x= 1587 y=  940 8FK9DfTvh0lG-2RUyGW6-51 | rounded=0;whiteSpace=wrap;html=1; | Update database (rehitung DT)
+057 x= 2438 y= 2100 PiIvOlXCaiVOVlH7BzCM-63 | shape=mxgraph.flowchart.display;whiteSpa | Tampilkan error
+058 x= 2320 y= 2550 PiIvOlXCaiVOVlH7BzCM-29 | rhombus;whiteSpace=wrap;html=1;fillColor | Punya data ritase?
+059 x= 2450 y= 2550 PiIvOlXCaiVOVlH7BzCM-72 | text;html=1;whiteSpace=wrap;strokeColor= | Ya
+060 x= 2450 y= 2640 PiIvOlXCaiVOVlH7BzCM-77 | shape=mxgraph.flowchart.display;whiteSpa | Tampilkan 'tidak bisa hapus, masih punya ritase'
+061 x= 2320 y= 2710 PiIvOlXCaiVOVlH7BzCM-30 | rhombus;whiteSpace=wrap;html=1;fillColor | Konfirmasi hapus?
+062 x= 2450 y= 2710 PiIvOlXCaiVOVlH7BzCM-79 | text;html=1;whiteSpace=wrap;strokeColor= | Tidak
+063 x= 2377 y= 2760 PiIvOlXCaiVOVlH7BzCM-84 | text;html=1;whiteSpace=wrap;strokeColor= | Ya
+064 x= 2335 y= 2790 PiIvOlXCaiVOVlH7BzCM-81 | rounded=0;whiteSpace=wrap;html=1; | Hapus dari database
+065 x= 2836 y= 1750 PiIvOlXCaiVOVlH7BzCM-16 | rounded=1;arcSize=50;whiteSpace=wrap;htm | Mulai
+066 x= 2821 y= 1810 PiIvOlXCaiVOVlH7BzCM-57 | rounded=0;whiteSpace=wrap;html=1; | Buka /tujuan
+067 x= 2761 y= 1870 PiIvOlXCaiVOVlH7BzCM-17 | shape=parallelogram;whiteSpace=wrap;html | Tampilkan daftar tujuan (kode, nama, status)
+068 x= 2816 y= 1940 PiIvOlXCaiVOVlH7BzCM-18 | rhombus;whiteSpace=wrap;html=1;fillColor | Ingin tambah tujuan?
+069 x= 2531 y= 1940 PiIvOlXCaiVOVlH7BzCM-58 | shape=parallelogram;perimeter=parallelog | Isi form: nama tujuan
+070 x= 2558 y= 2020 PiIvOlXCaiVOVlH7BzCM-61 | rounded=0;whiteSpace=wrap;html=1; | Validasi: nama min 3 karakter
+071 x= 2576 y= 2090 PiIvOlXCaiVOVlH7BzCM-20 | rhombus;whiteSpace=wrap;html=1;fillColor | Valid?
+072 x= 2541 y= 2115 PiIvOlXCaiVOVlH7BzCM-66 | text;html=1;whiteSpace=wrap;strokeColor= | Tidak
+073 x= 2620 y= 2140 PiIvOlXCaiVOVlH7BzCM-69 | text;html=1;whiteSpace=wrap;strokeColor= | Ya
+074 x= 2525 y= 2190 PiIvOlXCaiVOVlH7BzCM-62 | rounded=0;whiteSpace=wrap;html=1; | Simpan (kode TUJ otomatis, status aktif)
+075 x= 2816 y= 2250 PiIvOlXCaiVOVlH7BzCM-23 | rhombus;whiteSpace=wrap;html=1;fillColor | Ingin edit tujuan?
+076 x= 2556 y= 2257 PiIvOlXCaiVOVlH7BzCM-73 | rounded=0;whiteSpace=wrap;html=1; | Pilih tujuan dari daftar
+077 x= 2531 y= 2324 PiIvOlXCaiVOVlH7BzCM-74 | shape=parallelogram;perimeter=parallelog | Ubah: nama, status (aktif/nonaktif)
+078 x= 2573 y= 2390 zdst4hzUN3gGA2vajSD1-26 | rhombus;whiteSpace=wrap;html=1;fillColor | Konfirmasi edit?
+079 x= 2521 y= 2390 zdst4hzUN3gGA2vajSD1-31 | text;html=1;whiteSpace=wrap;strokeColor= | Tidak
+080 x= 2628 y= 2435 zdst4hzUN3gGA2vajSD1-29 | text;html=1;whiteSpace=wrap;strokeColor= | Ya
+081 x= 2554 y= 2466 PiIvOlXCaiVOVlH7BzCM-75 | rounded=0;whiteSpace=wrap;html=1; | Update database
+082 x= 2818 y= 2509 PiIvOlXCaiVOVlH7BzCM-27 | rhombus;whiteSpace=wrap;html=1;fillColor | Ingin hapus tujuan?
+083 x= 2528 y= 2517 PiIvOlXCaiVOVlH7BzCM-76 | rounded=0;whiteSpace=wrap;html=1; | Pilih tujuan dari daftar
+084 x= 2838 y= 2630 PiIvOlXCaiVOVlH7BzCM-33 | rounded=1;arcSize=50;whiteSpace=wrap;htm | Selesai
+085 x= 3424 y=  150 4TlUftNjc2H9GhOi7wGK-1 | rounded=1;arcSize=50;whiteSpace=wrap;htm | Mulai
+086 x= 3394 y=  210 8FK9DfTvh0lG-2RUyGW6-63 | rounded=0;whiteSpace=wrap;html=1; | Buka /sopir
+087 x= 3354 y=  270 4TlUftNjc2H9GhOi7wGK-4 | shape=parallelogram;whiteSpace=wrap;html | Tampilkan daftar sopir (kode, nama, status)
+088 x= 3404 y=  367 4TlUftNjc2H9GhOi7wGK-5 | rhombus;whiteSpace=wrap;html=1;fillColor | Ingin tambah sopir?
+089 x= 3068 y=  380 8FK9DfTvh0lG-2RUyGW6-53 | shape=parallelogram;perimeter=parallelog | Isi form: nama sopir
+090 x= 3270 y=  450 8FK9DfTvh0lG-2RUyGW6-55 | shape=mxgraph.flowchart.display;whiteSpa | Tampilkan error
+091 x= 3069 y=  490 8FK9DfTvh0lG-2RUyGW6-54 | rounded=0;whiteSpace=wrap;html=1; | Validasi: nama min 3 karakter
+092 x= 3104 y=  570 4TlUftNjc2H9GhOi7wGK-8 | rhombus;whiteSpace=wrap;html=1;fillColor | Valid?
+093 x= 3049 y=  660 8FK9DfTvh0lG-2RUyGW6-56 | rounded=0;whiteSpace=wrap;html=1; | Simpan (kode SPR otomatis, status aktif)
+094 x= 3404 y=  705 4TlUftNjc2H9GhOi7wGK-11 | rhombus;whiteSpace=wrap;html=1;fillColor | Ingin edit sopir?
+095 x= 3069 y=  710 8FK9DfTvh0lG-2RUyGW6-57 | rounded=0;whiteSpace=wrap;html=1; | Pilih sopir dari daftar
+096 x= 3039 y=  780 8FK9DfTvh0lG-2RUyGW6-58 | shape=parallelogram;perimeter=parallelog | Ubah: nama, status (aktif/nonaktif)
+097 x= 3018 y=  851 zdst4hzUN3gGA2vajSD1-17 | text;html=1;whiteSpace=wrap;strokeColor= | Tidak
+098 x= 3074 y=  854 zdst4hzUN3gGA2vajSD1-13 | rhombus;whiteSpace=wrap;html=1;fillColor | Konfirmasi edit?
+099 x= 3129 y=  903 zdst4hzUN3gGA2vajSD1-15 | text;html=1;whiteSpace=wrap;strokeColor= | Ya
+100 x= 3064 y=  937 8FK9DfTvh0lG-2RUyGW6-59 | rounded=0;whiteSpace=wrap;html=1; | Update database
+101 x= 3404 y=  940 4TlUftNjc2H9GhOi7wGK-15 | rhombus;whiteSpace=wrap;html=1;fillColor | Ingin hapus sopir?
+102 x= 3060 y= 1015 8FK9DfTvh0lG-2RUyGW6-60 | rounded=0;whiteSpace=wrap;html=1; | Pilih sopir dari daftar
+103 x= 3245 y= 1071 8FK9DfTvh0lG-2RUyGW6-61 | shape=mxgraph.flowchart.display;whiteSpa | Tampilkan 'tidak bisa hapus, masih punya ritase'
+104 x= 3083 y= 1131 4TlUftNjc2H9GhOi7wGK-17 | rhombus;whiteSpace=wrap;html=1;fillColor | Punya data ritase?
+105 x= 3209 y= 1152 zdst4hzUN3gGA2vajSD1-9 | text;html=1;whiteSpace=wrap;strokeColor= | Ya
+106 x= 3024 y= 1231 zdst4hzUN3gGA2vajSD1-12 | text;html=1;whiteSpace=wrap;strokeColor= | Tidak
+107 x= 3084 y= 1233 4TlUftNjc2H9GhOi7wGK-18 | rhombus;whiteSpace=wrap;html=1;fillColor | Konfirmasi hapus?
+108 x= 3424 y= 1376 4TlUftNjc2H9GhOi7wGK-21 | rounded=1;arcSize=50;whiteSpace=wrap;htm | Selesai
+109 x= 3070 y= 1376 8FK9DfTvh0lG-2RUyGW6-62 | rounded=0;whiteSpace=wrap;html=1; | Hapus dari database
+110 x= 3910 y=  550 PiIvOlXCaiVOVlH7BzCM-108 | rounded=0;whiteSpace=wrap;html=1; | Ambil dari cache
+111 x= 4115 y=  340 H7dGhY_njGfQpPlwNiv3-1 | rounded=1;arcSize=50;whiteSpace=wrap;htm | Mulai
+112 x= 4100 y=  400 PiIvOlXCaiVOVlH7BzCM-106 | rounded=0;whiteSpace=wrap;html=1; | Buka halaman Dashboard
+113 x= 4095 y=  470 H7dGhY_njGfQpPlwNiv3-3 | rhombus;whiteSpace=wrap;html=1;fillColor | Cache valid?
+114 x= 4290 y=  550 PiIvOlXCaiVOVlH7BzCM-110 | rounded=0;whiteSpace=wrap;html=1; | Hitung ringkasan data
+115 x= 4290 y=  607 PiIvOlXCaiVOVlH7BzCM-109 | rounded=0;whiteSpace=wrap;html=1; | Simpan ke cache (5 menit)
+116 x= 4080 y=  670 H7dGhY_njGfQpPlwNiv3-7 | shape=parallelogram;whiteSpace=wrap;html | Tampilkan ringkasan
+117 x= 4115 y=  740 H7dGhY_njGfQpPlwNiv3-8 | rounded=1;arcSize=50;whiteSpace=wrap;htm | Selesai
+118 x= 4245 y= 2313 hvQUhVooKiPRSI-0ZxWm-1 | rounded=0;whiteSpace=wrap;html=1;fillCol | Buka /profil
+119 x= 4245 y= 2388 hvQUhVooKiPRSI-0ZxWm-2 | rounded=0;whiteSpace=wrap;html=1;fillCol | Tampilkan info profil + form edit
+120 x= 4249 y= 2467 hvQUhVooKiPRSI-0ZxWm-20 | shape=parallelogram;perimeter=parallelog | Ubah nama/email/password, klik Simpan
+121 x= 4265 y= 2538 hvQUhVooKiPRSI-0ZxWm-3 | rhombus;whiteSpace=wrap;html=1;fillColor | Isian valid?
+122 x= 4265 y= 2658 hvQUhVooKiPRSI-0ZxWm-5 | rhombus;whiteSpace=wrap;html=1;fillColor | Password baru diisi?
+123 x= 4245 y= 2778 hvQUhVooKiPRSI-0ZxWm-6 | rounded=0;whiteSpace=wrap;html=1;fillCol | Hash password baru + simpan
+124 x= 4259 y= 2865 hvQUhVooKiPRSI-0ZxWm-22 | shape=mxgraph.flowchart.display;whiteSpa | Tampilkan pesan sukses
+125 x= 4310 y= 2938 hvQUhVooKiPRSI-0ZxWm-8 | rounded=1;arcSize=50;whiteSpace=wrap;htm | Selesai
+126 x= 4780 y=  278 PiIvOlXCaiVOVlH7BzCM-1 | shape=parallelogram;perimeter=parallelog | Isi form: nama periode, tanggal mulai, tanggal selesai
+127 x= 4782 y=  357 PiIvOlXCaiVOVlH7BzCM-2 | rounded=0;whiteSpace=wrap;html=1; | Validasi: nama min 3, tanggal mulai &lt;= selesai, tidak ove
+128 x= 4845 y=  445 lCzril13CjKYt5D0kKxF-7 | rhombus;whiteSpace=wrap;html=1;fillColor | Valid?
+129 x= 4790 y=  540 PiIvOlXCaiVOVlH7BzCM-4 | rounded=0;whiteSpace=wrap;html=1; | Simpan (kode PER otomatis, status aktif)
+130 x= 4800 y=  597 E5XVnkVfhdu6OxxgI7V7-2 | shape=parallelogram;perimeter=parallelog | Pilih periode dari daftar
+131 x= 4742 y=  670 PiIvOlXCaiVOVlH7BzCM-6 | shape=parallelogram;perimeter=parallelog | Ubah: nama, tanggal mulai, tanggal selesai, status (aktif/se
+132 x= 4825 y=  749 zdst4hzUN3gGA2vajSD1-19 | rhombus;whiteSpace=wrap;html=1;fillColor | Konfirmasi edit?
+133 x= 4772 y=  749 zdst4hzUN3gGA2vajSD1-24 | text;html=1;whiteSpace=wrap;strokeColor= | Tidak
+134 x= 4890 y=  795 zdst4hzUN3gGA2vajSD1-22 | text;html=1;whiteSpace=wrap;strokeColor= | Ya
+135 x= 4812 y=  822 PiIvOlXCaiVOVlH7BzCM-7 | rounded=0;whiteSpace=wrap;html=1; | Update database
+136 x= 4777 y=  865 E5XVnkVfhdu6OxxgI7V7-1 | shape=parallelogram;perimeter=parallelog | Pilih periode dari daftar
+137 x= 4740 y=  922 E5XVnkVfhdu6OxxgI7V7-3 | shape=parallelogram;perimeter=parallelog | Pilih periode dari daftar
+138 x= 4800 y=  946 lCzril13CjKYt5D0kKxF-16 | rhombus;whiteSpace=wrap;html=1;fillColor | Punya data ritase?
+139 x= 4800 y= 1042 lCzril13CjKYt5D0kKxF-17 | rhombus;whiteSpace=wrap;html=1;fillColor | Konfirmasi hapus?
+140 x= 4782 y= 1170 PiIvOlXCaiVOVlH7BzCM-10 | rounded=0;whiteSpace=wrap;html=1; | Hapus dari database
+141 x= 4505 y= 2559 hvQUhVooKiPRSI-0ZxWm-21 | shape=mxgraph.flowchart.display;whiteSpa | Tampilkan error
+142 x= 4515 y= 2675 hvQUhVooKiPRSI-0ZxWm-7 | rounded=0;whiteSpace=wrap;html=1;fillCol | Simpan nama + email
+143 x= 5135 y=   80 lCzril13CjKYt5D0kKxF-1 | rounded=1;arcSize=50;whiteSpace=wrap;htm | Mulai
+144 x= 5120 y=  143 8FK9DfTvh0lG-2RUyGW6-66 | rounded=0;whiteSpace=wrap;html=1; | Buka /periode
+145 x= 5030 y=  200 lCzril13CjKYt5D0kKxF-3 | shape=parallelogram;whiteSpace=wrap;html | Tampilkan daftar periode (kode, nama, tanggal, status)
+146 x= 5115 y=  270 lCzril13CjKYt5D0kKxF-4 | rhombus;whiteSpace=wrap;html=1;fillColor | Ingin tambah periode?
+147 x= 5478 y=  288 PiIvOlXCaiVOVlH7BzCM-87 | rounded=0;whiteSpace=wrap;html=1; | Pilih periode yang akan dihitung
+148 x= 5485 y=  365 PiIvOlXCaiVOVlH7BzCM-100 | rounded=0;whiteSpace=wrap;html=1; | Ambil data ritase per sopir
+149 x= 5010 y=  452 PiIvOlXCaiVOVlH7BzCM-3 | shape=mxgraph.flowchart.display;whiteSpa | Tampilkan error
+150 x= 5475 y=  560 PiIvOlXCaiVOVlH7BzCM-90 | rounded=0;whiteSpace=wrap;html=1; | Hitung gaji per sopir (DT, upah, tol, kompensasi, lembur)
+151 x= 5115 y=  590 lCzril13CjKYt5D0kKxF-10 | rhombus;whiteSpace=wrap;html=1;fillColor | Ingin edit periode?
+152 x= 5473 y=  825 PiIvOlXCaiVOVlH7BzCM-91 | rounded=0;whiteSpace=wrap;html=1; | Simpan hasil penggajian
+153 x= 5118 y=  860 lCzril13CjKYt5D0kKxF-14 | rhombus;whiteSpace=wrap;html=1;fillColor | Ingin hapus periode?
+154 x= 5475 y=  877 PiIvOlXCaiVOVlH7BzCM-92 | rounded=0;whiteSpace=wrap;html=1; | Pilih penggajian dari riwayat
+155 x= 5006 y=  937 PiIvOlXCaiVOVlH7BzCM-11 | shape=mxgraph.flowchart.display;whiteSpa | Tampilkan 'tidak bisa hapus, masih punya ritase'
+156 x= 5488 y=  950 PiIvOlXCaiVOVlH7BzCM-94 | shape=parallelogram;perimeter=parallelog | Ubah detail: solar_per_rit, upah_per_rit per tujuan
+157 x= 5495 y= 1011 PiIvOlXCaiVOVlH7BzCM-95 | rounded=0;whiteSpace=wrap;html=1; | Update database
+158 x= 5470 y= 1150 PqfLxWIM4CLN1Nra3jIJ-50 | text;html=1;whiteSpace=wrap;strokeColor= | Tidak
+159 x= 5138 y= 1166 lCzril13CjKYt5D0kKxF-20 | rounded=1;arcSize=50;whiteSpace=wrap;htm | Selesai
+160 x= 5945 y=   70 PqfLxWIM4CLN1Nra3jIJ-1 | rounded=1;arcSize=50;whiteSpace=wrap;htm | Mulai
+161 x= 5930 y=  130 PiIvOlXCaiVOVlH7BzCM-85 | rounded=0;whiteSpace=wrap;html=1; | Buka /gaji
+162 x= 5890 y=  190 PqfLxWIM4CLN1Nra3jIJ-4 | shape=parallelogram;whiteSpace=wrap;html | Tampilkan daftar periode & status penggajian
+163 x= 5925 y=  278 PqfLxWIM4CLN1Nra3jIJ-5 | rhombus;whiteSpace=wrap;html=1;fillColor | Ingin hitung gaji?
+164 x= 5743 y=  439 PiIvOlXCaiVOVlH7BzCM-88 | shape=mxgraph.flowchart.display;whiteSpa | Tampilkan 'tidak ada data ritase'
+165 x= 5515 y=  445 PqfLxWIM4CLN1Nra3jIJ-8 | rhombus;whiteSpace=wrap;html=1;fillColor | Data ritase ada?
+166 x= 5515 y=  637 PqfLxWIM4CLN1Nra3jIJ-10 | rhombus;whiteSpace=wrap;html=1;fillColor | Ada kondisi khusus?
+167 x= 5735 y=  645 PqfLxWIM4CLN1Nra3jIJ-12 | shape=parallelogram;whiteSpace=wrap;html | Sesuaikan kompensasi & lembur
+168 x= 5515 y=  735 PqfLxWIM4CLN1Nra3jIJ-67 | rhombus;whiteSpace=wrap;html=1;fillColor | Konfirmasi simpan?
+169 x= 5930 y=  870 PqfLxWIM4CLN1Nra3jIJ-15 | rhombus;whiteSpace=wrap;html=1;fillColor | Ingin edit penggajian?
+170 x= 5781 y=  913 zdst4hzUN3gGA2vajSD1-39 | text;html=1;whiteSpace=wrap;strokeColor= | Tidak
+171 x= 5729 y=  942 zdst4hzUN3gGA2vajSD1-32 | rhombus;whiteSpace=wrap;html=1;fillColor | Konfirmasi edit?
+172 x= 5779 y=  987 zdst4hzUN3gGA2vajSD1-35 | text;html=1;whiteSpace=wrap;strokeColor= | Ya
+173 x= 5925 y= 1055 PqfLxWIM4CLN1Nra3jIJ-19 | rhombus;whiteSpace=wrap;html=1;fillColor | Ingin hapus penggajian?
+174 x= 5504 y= 1062 PiIvOlXCaiVOVlH7BzCM-96 | rounded=0;whiteSpace=wrap;html=1; | Pilih penggajian dari riwayat
+175 x= 5523 y= 1150 PqfLxWIM4CLN1Nra3jIJ-22 | rhombus;whiteSpace=wrap;html=1;fillColor | Konfirmasi hapus?
+176 x= 5925 y= 1150 PqfLxWIM4CLN1Nra3jIJ-60 | rhombus;whiteSpace=wrap;html=1;fillColor | Lihat riwayat?
+177 x= 5710 y= 1157 PiIvOlXCaiVOVlH7BzCM-98 | rounded=0;whiteSpace=wrap;html=1; | Buka /gaji/riwayat
+178 x= 5509 y= 1230 PiIvOlXCaiVOVlH7BzCM-99 | rounded=0;whiteSpace=wrap;html=1; | Hapus penggajian &amp; detail
+179 x= 5678 y= 1235 PqfLxWIM4CLN1Nra3jIJ-62 | shape=parallelogram;whiteSpace=wrap;html | Tampilkan daftar riwayat penggajian
+180 x= 5945 y= 1250 PqfLxWIM4CLN1Nra3jIJ-24 | rounded=1;arcSize=50;whiteSpace=wrap;htm | Selesai
+181 x= 6855 y=  100 1zDQF__BqGE2Fv26uxO--78 | rounded=1;arcSize=50;whiteSpace=wrap;htm | Mulai
+182 x= 6795 y=  158 PiIvOlXCaiVOVlH7BzCM-112 | rounded=0;whiteSpace=wrap;html=1; | Buka /validasi-bukti (publik, tidak perlu login)
+183 x= 6790 y=  220 1zDQF__BqGE2Fv26uxO--80 | shape=parallelogram;whiteSpace=wrap;html | Tampilkan form submit bukti
+184 x= 6770 y=  305 1zDQF__BqGE2Fv26uxO--81 | shape=parallelogram;whiteSpace=wrap;html | Isi form: nama sopir, tujuan, foto, lokasi, catatan
+185 x= 6830 y=  378 1zDQF__BqGE2Fv26uxO--82 | rhombus;whiteSpace=wrap;html=1;fillColor | Form lengkap & valid?
+186 x= 6805 y=  470 PiIvOlXCaiVOVlH7BzCM-115 | rounded=0;whiteSpace=wrap;html=1; | Simpan sebagai pending (auto-cari periode aktif)
+187 x= 6797 y=  543 PiIvOlXCaiVOVlH7BzCM-116 | shape=mxgraph.flowchart.display;whiteSpa | Tampilkan 'Bukti berhasil dikirim, menunggu review admin'
+188 x= 6855 y=  610 1zDQF__BqGE2Fv26uxO--86 | rounded=1;arcSize=50;whiteSpace=wrap;htm | Selesai
+189 x= 6945 y=  820 1zDQF__BqGE2Fv26uxO--96 | rounded=1;arcSize=50;whiteSpace=wrap;htm | Mulai
+190 x= 6930 y=  890 PiIvOlXCaiVOVlH7BzCM-118 | rounded=0;whiteSpace=wrap;html=1; | Buka /validasi-bukti/kelola
+191 x= 6840 y=  950 1zDQF__BqGE2Fv26uxO--98 | shape=parallelogram;whiteSpace=wrap;html | Daftar bukti (pending/disetujui/ditolak)
+192 x= 6935 y= 1015 1zDQF__BqGE2Fv26uxO--99 | rhombus;whiteSpace=wrap;html=1;fillColor | Ada pending?
+193 x= 6900 y= 1100 1zDQF__BqGE2Fv26uxO--101 | shape=parallelogram;whiteSpace=wrap;html | Lihat detail & foto
+194 x= 6935 y= 1165 1zDQF__BqGE2Fv26uxO--102 | rhombus;whiteSpace=wrap;html=1;fillColor | Bukti valid?
+195 x= 6770 y= 1225 PiIvOlXCaiVOVlH7BzCM-121 | rounded=0;whiteSpace=wrap;html=1; | Setujui
+196 x= 6770 y= 1300 1zDQF__BqGE2Fv26uxO--105 | rhombus;whiteSpace=wrap;html=1;fillColor | Tambah ritase?
+197 x= 6530 y= 1305 PiIvOlXCaiVOVlH7BzCM-123 | rounded=0;whiteSpace=wrap;html=1; | Isi form ritase &amp; simpan
+198 x= 6935 y= 1440 1zDQF__BqGE2Fv26uxO--107 | rhombus;whiteSpace=wrap;html=1;fillColor | Aksi lain?
+199 x= 6980 y= 1480 PiIvOlXCaiVOVlH7BzCM-125 | text;html=1;whiteSpace=wrap;strokeColor= | Tidak
+200 x= 6945 y= 1530 1zDQF__BqGE2Fv26uxO--108 | rounded=1;arcSize=50;whiteSpace=wrap;htm | Selesai
+201 x= 7010 y=  385 PiIvOlXCaiVOVlH7BzCM-117 | shape=mxgraph.flowchart.display;whiteSpa | Tampilkan error validasi
+202 x= 7480 y=  397 1zDQF__BqGE2Fv26uxO--128 | shape=parallelogram;whiteSpace=wrap;html | Preview slip gaji (HTML)
+203 x= 7490 y=  460 PiIvOlXCaiVOVlH7BzCM-127 | rounded=0;whiteSpace=wrap;html=1; | Generate PDF slip gaji (4 per halaman F4)
+204 x= 7485 y=  527 1zDQF__BqGE2Fv26uxO--130 | shape=parallelogram;whiteSpace=wrap;html | Download slip gaji (PDF)
+205 x= 7020 y= 1010 PiIvOlXCaiVOVlH7BzCM-120 | text;html=1;whiteSpace=wrap;strokeColor= | Tidak
+206 x= 7110 y= 1225 PiIvOlXCaiVOVlH7BzCM-122 | rounded=0;whiteSpace=wrap;html=1; | Tolak
+207 x= 7710 y=  127 1zDQF__BqGE2Fv26uxO--124 | rounded=1;arcSize=50;whiteSpace=wrap;htm | Mulai
+208 x= 7672 y=  190 PiIvOlXCaiVOVlH7BzCM-126 | rounded=0;whiteSpace=wrap;html=1; | Buka /gaji, pilih periode
+209 x= 7695 y=  252 1zDQF__BqGE2Fv26uxO--126 | rhombus;whiteSpace=wrap;html=1;fillColor | Jenis unduhan?
+210 x= 7975 y=  337 PiIvOlXCaiVOVlH7BzCM-130 | rounded=0;whiteSpace=wrap;html=1; | Generate rekap data penggajian
+211 x= 7515 y=  340 PiIvOlXCaiVOVlH7BzCM-129 | rounded=0;whiteSpace=wrap;html=1; | Pilih sopir dari daftar
+212 x= 7965 y=  397 1zDQF__BqGE2Fv26uxO--132 | shape=parallelogram;whiteSpace=wrap;html | Preview laporan
+213 x= 7960 y=  458 PiIvOlXCaiVOVlH7BzCM-128 | rounded=0;whiteSpace=wrap;html=1; | Download laporan PDF (folio landscape)
+214 x= 7960 y=  527 1zDQF__BqGE2Fv26uxO--134 | shape=parallelogram;whiteSpace=wrap;html | Download laporan (PDF)
+215 x= 7710 y=  617 1zDQF__BqGE2Fv26uxO--135 | rounded=1;arcSize=50;whiteSpace=wrap;htm | Selesai

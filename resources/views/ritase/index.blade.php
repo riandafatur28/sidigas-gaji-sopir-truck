@@ -320,7 +320,14 @@
         ];
         window.ritaseStoreUrl = '{{ route("ritase.store") }}';
         window.ritaseUpdateUrl = '{{ route("ritase.update", ["id" => "__ID__"]) }}';
+        window.ritaseDeleteUrl = '{{ route("ritase.destroy", ["id" => "__ID__"]) }}';
     </script>
+
+    {{-- Form hapus (dipakai oleh confirmDeleteRitase di js/ritase.js) --}}
+    <form id="deleteRitaseForm" method="POST" style="display: none;">
+        @csrf
+        @method('DELETE')
+    </form>
 
     {{-- MODALS --}}
     <x-ritase.modal-edit :periodes="$periodes" :sopirs="$sopirs" />

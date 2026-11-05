@@ -1,0 +1,36 @@
+BAND 4  x[6530..7975] y[100..1530] n=35
+x= 6855 y=  100 1zDQF__BqGE2Fv26uxO--78  rounded=1              | Mulai
+x= 7710 y=  127 1zDQF__BqGE2Fv26uxO--124 rounded=1              | Mulai
+x= 6795 y=  158 PiIvOlXCaiVOVlH7BzCM-112 rounded=0              | Buka /validasi-bukti (publik, tidak perlu login)
+x= 7672 y=  190 PiIvOlXCaiVOVlH7BzCM-126 rounded=0              | Buka /gaji, pilih periode
+x= 6790 y=  220 1zDQF__BqGE2Fv26uxO--80  shape=parallelogram    | Tampilkan form submit bukti
+x= 7695 y=  252 1zDQF__BqGE2Fv26uxO--126 rhombus                | Jenis unduhan?
+x= 6770 y=  305 1zDQF__BqGE2Fv26uxO--81  shape=parallelogram    | Isi form: nama sopir, tujuan, foto, lokasi, catatan
+x= 7975 y=  337 PiIvOlXCaiVOVlH7BzCM-130 rounded=0              | Generate rekap data penggajian
+x= 7515 y=  340 PiIvOlXCaiVOVlH7BzCM-129 rounded=0              | Pilih sopir dari daftar
+x= 6830 y=  378 1zDQF__BqGE2Fv26uxO--82  rhombus                | Form lengkap & valid?
+x= 7010 y=  385 PiIvOlXCaiVOVlH7BzCM-117 shape=mxgraph.flowchart.display | Tampilkan error validasi
+x= 7480 y=  397 1zDQF__BqGE2Fv26uxO--128 shape=parallelogram    | Preview slip gaji (HTML)
+x= 7965 y=  397 1zDQF__BqGE2Fv26uxO--132 shape=parallelogram    | Preview laporan
+x= 7960 y=  458 PiIvOlXCaiVOVlH7BzCM-128 rounded=0              | Download laporan PDF (folio landscape)
+x= 7490 y=  460 PiIvOlXCaiVOVlH7BzCM-127 rounded=0              | Generate PDF slip gaji (4 per halaman F4)
+x= 6805 y=  470 PiIvOlXCaiVOVlH7BzCM-115 rounded=0              | Simpan sebagai pending (auto-cari periode aktif)
+x= 7485 y=  527 1zDQF__BqGE2Fv26uxO--130 shape=parallelogram    | Download slip gaji (PDF)
+x= 7960 y=  527 1zDQF__BqGE2Fv26uxO--134 shape=parallelogram    | Download laporan (PDF)
+x= 6797 y=  543 PiIvOlXCaiVOVlH7BzCM-116 shape=mxgraph.flowchart.display | Tampilkan 'Bukti berhasil dikirim, menunggu review admin'
+x= 6855 y=  610 1zDQF__BqGE2Fv26uxO--86  rounded=1              | Selesai
+x= 7710 y=  617 1zDQF__BqGE2Fv26uxO--135 rounded=1              | Selesai
+x= 6945 y=  820 1zDQF__BqGE2Fv26uxO--96  rounded=1              | Mulai
+x= 6930 y=  890 PiIvOlXCaiVOVlH7BzCM-118 rounded=0              | Buka /validasi-bukti/kelola
+x= 6840 y=  950 1zDQF__BqGE2Fv26uxO--98  shape=parallelogram    | Daftar bukti (pending/disetujui/ditolak)
+x= 7020 y= 1010 PiIvOlXCaiVOVlH7BzCM-120 text                   | Tidak
+x= 6935 y= 1015 1zDQF__BqGE2Fv26uxO--99  rhombus                | Ada pending?
+x= 6900 y= 1100 1zDQF__BqGE2Fv26uxO--101 shape=parallelogram    | Lihat detail & foto
+x= 6935 y= 1165 1zDQF__BqGE2Fv26uxO--102 rhombus                | Bukti valid?
+x= 6770 y= 1225 PiIvOlXCaiVOVlH7BzCM-121 rounded=0              | Setujui
+x= 7110 y= 1225 PiIvOlXCaiVOVlH7BzCM-122 rounded=0              | Tolak
+x= 6770 y= 1300 1zDQF__BqGE2Fv26uxO--105 rhombus                | Tambah ritase?
+x= 6530 y= 1305 PiIvOlXCaiVOVlH7BzCM-123 rounded=0              | Isi form ritase &amp; simpan
+x= 6935 y= 1440 1zDQF__BqGE2Fv26uxO--107 rhombus                | Aksi lain?
+x= 6980 y= 1480 PiIvOlXCaiVOVlH7BzCM-125 text                   | Tidak
+x= 6945 y= 1530 1zDQF__BqGE2Fv26uxO--108 rounded=1              | Selesai

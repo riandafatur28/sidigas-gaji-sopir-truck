@@ -221,7 +221,12 @@ function confirmDeleteRitase(id, kode) {
         message: 'Anda yakin ingin menghapus ritase ' + kode + '? Tindakan ini tidak dapat dibatalkan.',
         type: 'danger',
         confirmText: 'Ya, Hapus',
-        onConfirm: function() { document.getElementById('deleteRitase_' + id).submit(); }
+        onConfirm: function() {
+            var f = document.getElementById('deleteRitaseForm');
+            if (!f) return;
+            f.action = (window.ritaseDeleteUrl || '').replace('__ID__', id);
+            f.submit();
+        }
     });
 }
 

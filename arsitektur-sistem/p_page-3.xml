@@ -1,0 +1,170 @@
+<mxGraphModel dx="1411" dy="1927" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="uc-actor-admin" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#ffffff;strokeColor=#333333;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="60" width="30" x="60" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-actor-admin-label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="&lt;b&gt;Admin&lt;/b&gt;&lt;div style='font-size:9px;'&gt;(User)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="110" x="20" y="265" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-actor-sopir" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#ffffff;strokeColor=#333333;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="60" width="30" x="1020" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-actor-sopir-label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" value="&lt;b&gt;Sopir&lt;/b&gt;&lt;div style='font-size:9px;'&gt;(Publik, tanpa login)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="100" x="985" y="265" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-note-sopir" parent="1" style="text;html=1;strokeColor=none;fillColor=#FFF8E1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;" value="Sopir publik: tanpa login, hanya Submit Bukti (foto+GPS). Bukti yang disubmit menjadi objek yang dikelola Admin pada Lihat Daftar Validasi Bukti (&amp;lt;&amp;lt;include&amp;gt;&amp;gt;). Review/Tambah ritase oleh Admin." vertex="1">
+          <mxGeometry height="48" width="210" x="880" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-01" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;" value="Login&lt;div style='font-size:8px;'&gt;Email + Password&lt;/div&gt;" vertex="1">
+          <mxGeometry height="55" width="110" x="270" y="-140" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-02" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;" value="Login Google&lt;div style='font-size:8px;'&gt;OAuth&lt;/div&gt;" vertex="1">
+          <mxGeometry height="55" width="110" x="400" y="-140" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-03" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;" value="Lupa Password&lt;div style='font-size:8px;'&gt;Kirim OTP&lt;/div&gt;" vertex="1">
+          <mxGeometry height="55" width="110" x="325" y="15" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-04" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10;" value="Verifikasi OTP" vertex="1">
+          <mxGeometry height="40" width="110" x="520" y="-50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-05" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10;" value="Reset Password" vertex="1">
+          <mxGeometry height="40" width="110" x="445" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-06" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;" value="Logout" vertex="1">
+          <mxGeometry height="40" width="110" x="315" y="770" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-07" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;" value="Kelola Profil&lt;div style='font-size:8px;'&gt;Lihat &amp;amp; Update&lt;/div&gt;" vertex="1">
+          <mxGeometry height="40" width="110" x="460" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-08" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;" value="Lihat Dashboard&lt;div style='font-size:8px;'&gt;Ringkasan &amp;amp; Statistik&lt;/div&gt;" vertex="1">
+          <mxGeometry height="50" width="130" x="620" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-09" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;" value="Kelola Sopir&lt;div style='font-size:8px;'&gt;CRUD&lt;/div&gt;" vertex="1">
+          <mxGeometry height="55" width="100" x="335" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-10" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;" value="Kelola Tujuan&lt;div style='font-size:8px;'&gt;CRUD&lt;/div&gt;" vertex="1">
+          <mxGeometry height="55" width="100" x="590" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-11" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;" value="Kelola Periode&lt;div style='font-size:8px;'&gt;CRUD&lt;/div&gt;" vertex="1">
+          <mxGeometry height="55" width="100" x="500" y="135" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-12" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;" value="Kelola Ritase&lt;div style='font-size:8px;'&gt;CRUD + Filter&lt;/div&gt;" vertex="1">
+          <mxGeometry height="55" width="110" x="650" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-13" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;" value="Hitung Gaji&lt;div style='font-size:8px;'&gt;Per Periode&lt;/div&gt;" vertex="1">
+          <mxGeometry height="50" width="100" x="485" y="245" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-14" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10;" value="Lihat &amp;amp; Kelola Gaji&lt;div style='font-size:8px;'&gt;Edit / Hapus&lt;/div&gt;" vertex="1">
+          <mxGeometry height="50" width="120" x="750" y="215" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-15" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10;" value="Cetak Slip Gaji" vertex="1">
+          <mxGeometry height="40" width="100" x="570" y="305" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-16" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10;" value="Cetak Laporan&lt;div style='font-size:8px;'&gt;Rekap Gaji&lt;/div&gt;" vertex="1">
+          <mxGeometry height="40" width="110" x="530" y="415" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-17" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;" value="Submit Bukti Ritase&lt;div style='font-size:8px;'&gt;Foto + GPS&lt;/div&gt;" vertex="1">
+          <mxGeometry height="55" width="120" x="710" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-18" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10;" value="Lihat Daftar&lt;br&gt;Validasi Bukti" vertex="1">
+          <mxGeometry height="55" width="110" x="460" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-19" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10;" value="Setujui / Tolak&lt;br&gt;Bukti" vertex="1">
+          <mxGeometry height="50" width="110" x="410" y="590" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-20" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=10;" value="Tambah Ritase&lt;div style='font-size:8px;'&gt;dari Bukti&lt;/div&gt;" vertex="1">
+          <mxGeometry height="50" width="110" x="380" y="690" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-edge-a01" edge="1" parent="1" source="uc-actor-admin" style="endArrow=none;html=1;" target="uc-01" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-edge-a02" edge="1" parent="1" source="uc-actor-admin" style="endArrow=none;html=1;" target="uc-02" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-edge-a03" edge="1" parent="1" source="uc-actor-admin" style="endArrow=none;html=1;" target="uc-03" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-edge-a06" edge="1" parent="1" source="uc-actor-admin" style="endArrow=none;html=1;" target="uc-06" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-edge-a07" edge="1" parent="1" source="uc-actor-admin" style="endArrow=none;html=1;" target="uc-07" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-edge-a08" edge="1" parent="1" source="uc-actor-admin" style="endArrow=none;html=1;" target="uc-08" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-edge-a09" edge="1" parent="1" source="uc-actor-admin" style="endArrow=none;html=1;" target="uc-09" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-edge-a10" edge="1" parent="1" source="uc-actor-admin" style="endArrow=none;html=1;" target="uc-10" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-edge-a11" edge="1" parent="1" source="uc-actor-admin" style="endArrow=none;html=1;" target="uc-11" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-edge-a12" edge="1" parent="1" source="uc-actor-admin" style="endArrow=none;html=1;" target="uc-12" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-edge-a13" edge="1" parent="1" source="uc-actor-admin" style="endArrow=none;html=1;" target="uc-13" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-edge-a14" edge="1" parent="1" source="uc-actor-admin" style="endArrow=none;html=1;" target="uc-14" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-edge-a15" edge="1" parent="1" source="uc-actor-admin" style="endArrow=none;html=1;" target="uc-15" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-edge-a16" edge="1" parent="1" source="uc-actor-admin" style="endArrow=none;html=1;" target="uc-16" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-edge-a18" edge="1" parent="1" source="uc-actor-admin" style="endArrow=none;html=1;" target="uc-18" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-edge-a19" edge="1" parent="1" source="uc-actor-admin" style="endArrow=none;html=1;" target="uc-19" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-edge-a20" edge="1" parent="1" source="uc-actor-admin" style="endArrow=none;html=1;" target="uc-20" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uc-edge-s17" edge="1" parent="1" source="uc-actor-sopir" style="endArrow=none;html=1;strokeWidth=2;" target="uc-17" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-inc-0304" edge="1" parent="1" source="uc-03" style="endArrow=open;html=1;dashed=1;fontSize=10;fontStyle=1;" target="uc-04" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="480" y="10" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uc-inc-0405" edge="1" parent="1" source="uc-04" style="endArrow=open;html=1;dashed=1;fontSize=10;fontStyle=1;" target="uc-05" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-inc-1314" edge="1" parent="1" source="uc-13" style="endArrow=open;html=1;dashed=1;fontSize=10;fontStyle=1;" target="uc-14" value="&amp;lt;&amp;lt;extends&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" x="0.0585" y="-2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uc-inc-1415" edge="1" parent="1" source="uc-14" style="endArrow=open;html=1;dashed=1;fontSize=10;fontStyle=1;" target="uc-15" value="&amp;lt;&amp;lt;extends&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" x="0.0024" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uc-inc-1819" edge="1" parent="1" source="uc-18" style="endArrow=open;html=1;dashed=1;fontSize=10;fontStyle=1;" target="uc-19" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-inc-1920" edge="1" parent="1" source="uc-19" style="endArrow=open;html=1;dashed=1;fontSize=10;fontStyle=1;" target="uc-20" value="&amp;lt;&amp;lt;extends&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-dep-1718" edge="1" parent="1" source="uc-18" style="endArrow=open;html=1;dashed=1;fontSize=10;fontStyle=1;" target="uc-17" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="29cKR-451Cdjdq75nvb8-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;" value="" vertex="1">
+          <mxGeometry height="1045" width="845" x="110" y="-210" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  

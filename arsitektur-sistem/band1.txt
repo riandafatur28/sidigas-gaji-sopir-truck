@@ -1,0 +1,31 @@
+BAND 1  x[1120..1726] y[80..1220] n=30
+x= 1445 y=   80 ZCn41M8rbhQ9AeKk2Fn--1   rounded=1              | Mulai
+x= 1401 y=  138 8FK9DfTvh0lG-2RUyGW6-29  rounded=0              | Buka /ritase
+x= 1390 y=  200 ZCn41M8rbhQ9AeKk2Fn--3   shape=parallelogram    | Tampilkan tabel ritase (filter periode)
+x= 1425 y=  263 ZCn41M8rbhQ9AeKk2Fn--4   rhombus                | Ingin tambah ritase?
+x= 1549 y=  263 ZCn41M8rbhQ9AeKk2Fn--80  text                   | Tidak
+x= 1429 y=  350 8FK9DfTvh0lG-2RUyGW6-30  rounded=0              | Pilih periode
+x= 1389 y=  427 ZCn41M8rbhQ9AeKk2Fn--67  shape=parallelogram    | Isi form: sopir, tujuan, tanggal, waktu, kabupaten
+x= 1700 y=  435 8FK9DfTvh0lG-2RUyGW6-31  shape=mxgraph.flowchart.display | Tampilkan error
+x= 1429 y=  510 ZCn41M8rbhQ9AeKk2Fn--69  rhombus                | Valid?
+x= 1389 y=  610 8FK9DfTvh0lG-2RUyGW6-50  rounded=0              | Simpan ritase (hitung DT otomatis)
+x= 1540 y=  690 8FK9DfTvh0lG-2RUyGW6-38  text                   | Ya
+x= 1429 y=  695 ZCn41M8rbhQ9AeKk2Fn--18  rhombus                | Ingin edit ritase?
+x= 1595 y=  707 8FK9DfTvh0lG-2RUyGW6-34  rounded=0              | Pilih ritase dari tabel
+x= 1562 y=  765 8FK9DfTvh0lG-2RUyGW6-35  shape=parallelogram    | Edit tujuan, waktu, kabupaten, catatan
+x= 1380 y=  830 8FK9DfTvh0lG-2RUyGW6-42  text                   | Ya
+x= 1429 y=  830 ZCn41M8rbhQ9AeKk2Fn--22  rhombus                | Ingin hapus ritase?
+x= 1214 y=  837 8FK9DfTvh0lG-2RUyGW6-32  rounded=0              | Pilih ritase dari tabel
+x= 1617 y=  845 zdst4hzUN3gGA2vajSD1-3   rhombus                | Konfirmasi edit?
+x= 1726 y=  847 zdst4hzUN3gGA2vajSD1-7   text                   | Tidak
+x= 1668 y=  895 zdst4hzUN3gGA2vajSD1-5   text                   | Ya
+x= 1180 y=  920 8FK9DfTvh0lG-2RUyGW6-46  text                   | Tidak
+x= 1236 y=  920 ZCn41M8rbhQ9AeKk2Fn--24  rhombus                | Konfirmasi hapus?
+x= 1587 y=  940 8FK9DfTvh0lG-2RUyGW6-51  rounded=0              | Update database (rehitung DT)
+x= 1214 y= 1020 8FK9DfTvh0lG-2RUyGW6-52  rounded=0              | Hapus dari database
+x= 1380 y= 1050 8FK9DfTvh0lG-2RUyGW6-48  text                   | Ya
+x= 1432 y= 1055 ZCn41M8rbhQ9AeKk2Fn--26  rhombus                | Lihat detail ritase?
+x= 1130 y= 1062 8FK9DfTvh0lG-2RUyGW6-36  rounded=0              | Pilih periode
+x= 1120 y= 1125 ZCn41M8rbhQ9AeKk2Fn--28  shape=parallelogram    | Tampilkan ritase sopir x tanggal
+x= 1130 y= 1220 ZCn41M8rbhQ9AeKk2Fn--29  shape=parallelogram    | Download detail PDF
+x= 1449 y= 1220 ZCn41M8rbhQ9AeKk2Fn--30  rounded=1              | Selesai

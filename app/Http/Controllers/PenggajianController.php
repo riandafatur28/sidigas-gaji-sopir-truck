@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePenggajianRequest;
+use App\Models\Penggajian;
 use App\Services\DashboardService;
 use App\Services\PenggajianService;
 use Illuminate\Http\Request;
@@ -71,13 +72,36 @@ class PenggajianController extends Controller
         }
     }
 
+    /**
+     * Hapus seluruh data gaji pada satu periode (termasuk rinciannya).
+     *
+     * Route memakai nama {id}, tetapi nilainya adalah periode_id — sesuai
+     * dengan tombol "Hapus" di riwayat (confirmDeleteGaji($periode['id'])).
+     * Baris dihapus satu per satu (bukan mass delete) supaya event
+     * Penggajian::booted() ikut berjalan dan rincian ikut ter-soft delete.
+     */
     public function destroy($id)
     {
         try {
-            \App\Models\Penggajian::where('periode_id', $id)->delete();
+            $periodeId = (int) $id;
+            $deleted = 0;
+
+            DB::transaction(function () use ($periodeId, &$deleted): void {
+                Penggajian::where('periode_id', $periodeId)->get()->each(function (Penggajian $gaji) use (&$deleted): void {
+                    $gaji->delete();
+                    $deleted++;
+                });
+            });
+
             DashboardService::bumpVersion();
+
+            if ($deleted === 0) {
+                return redirect()->back()->with('error', 'Tidak ada data gaji pada periode tersebut.');
+            }
+
             return redirect()->back()->with('success', 'Data gaji berhasil dihapus!');
         } catch (\Exception $e) {
+            report($e);
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }

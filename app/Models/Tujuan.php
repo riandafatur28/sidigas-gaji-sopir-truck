@@ -8,10 +8,12 @@ use App\Models\Concerns\RecordsAuthor;
 use App\Traits\HasUniqueKode;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Tujuan extends Model
 {
-    use HasFactory, HasUniqueKode, RecordsAuthor;
+    use HasFactory, HasUniqueKode, RecordsAuthor, SoftDeletes;
 
     protected $table = 'tujuans';
 
@@ -37,6 +39,12 @@ class Tujuan extends Model
     public function ritase()
     {
         return $this->hasMany(Ritase::class, 'kode_tujuan', 'kode_tujuan');
+    }
+
+    // RELATIONSHIP: Tujuan dipakai sebagai rincian penggajian (kode_tujuan)
+    public function penggajianDetails(): HasMany
+    {
+        return $this->hasMany(PenggajianDetail::class, 'kode_tujuan', 'kode_tujuan');
     }
 
     public function scopeAktif($query)

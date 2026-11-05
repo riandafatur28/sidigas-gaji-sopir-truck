@@ -33,9 +33,10 @@ class SopirController extends Controller
                 ->paginate(10)
                 ->withQueryString();
 
-        $totalSopir = (clone $base)->count();
-        $sopirAktif = (clone $base)->where('status', 'aktif')->count();
-        $sopirNonaktif = (clone $base)->where('status', 'nonaktif')->count();
+        // Kartu statistik memakai angka global (tidak ikut filter pencarian)
+        $totalSopir = Sopir::count();
+        $sopirAktif = Sopir::where('status', 'aktif')->count();
+        $sopirNonaktif = Sopir::where('status', 'nonaktif')->count();
         $totalRitase = Ritase::count();
 
         return view('sopir.index', compact('sopirs', 'search', 'statusFilter', 'totalSopir', 'sopirAktif', 'sopirNonaktif', 'totalRitase'));
@@ -96,6 +97,13 @@ class SopirController extends Controller
             if ($sopir->ritase()->count() > 0) {
                 return redirect()->back()
                     ->with('error', 'Sopir tidak dapat dihapus karena sudah memiliki data ritase!');
+            }
+
+            // FK penggajian.kode_sopir bersifat ON DELETE CASCADE. Karena sekarang
+            // soft delete, sisa data gaji akan menjadi yatim bila tidak dicegah.
+            if ($sopir->penggajian()->count() > 0) {
+                return redirect()->back()
+                    ->with('error', 'Sopir tidak dapat dihapus karena sudah memiliki data penggajian!');
             }
 
             $sopir->delete();

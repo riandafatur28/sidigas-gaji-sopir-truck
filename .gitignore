@@ -50,3 +50,14 @@ dropColumn(*
 .omo/
 .playwright-mcp/
 / storage/
+
+# Scratch lokal sesi agent (jangan di-commit)
+.work/
+.tmp-read/
+.opencode/
+.pi/
+pi-extensions/
+deploy-parser-ritase.zip
+/storage/*.py
+/storage/erd_*.xml
+arsitektur-sistem/.work/

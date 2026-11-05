@@ -38,7 +38,12 @@ class ValidasiBuktiController extends Controller
             'catatan' => 'nullable|string',
         ]);
 
-        $this->validasiService->submit($request);
+        try {
+            $this->validasiService->submit($request);
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Gagal mengirim bukti: ' . $e->getMessage());
+        }
+
         return redirect()->route('validasi-bukti.form')
             ->with('success', 'Bukti berhasil dikirim! Menunggu verifikasi mitra.');
     }
