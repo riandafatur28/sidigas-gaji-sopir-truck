@@ -84,7 +84,7 @@ class LaporanBuilderService
     {
         $perHariValid = Ritase::where('periode_id', $periodeId)
             ->where('status', '!=', 'gagal_produksi')
-            ->selectRaw('DATE(tanggal) as tgl, kode_tujuan, COUNT(*) as cnt, SUM(dt) as dt_sum')
+            ->selectRaw('DATE(tanggal) as tgl, kode_tujuan, COUNT(*) as cnt, SUM(dt) as dt_sum, SUM(upah_lembur) as lembur_sum, SUM(CASE WHEN is_lembur = 1 THEN 1 ELSE 0 END) as lembur_cnt')
             ->groupBy('tgl', 'kode_tujuan')
             ->get();
 
@@ -102,6 +102,8 @@ class LaporanBuilderService
                 'kode_tujuan' => $r->kode_tujuan,
                 'cnt_valid' => (int) $r->cnt,
                 'dt_sum' => (float) $r->dt_sum,
+                'lembur_sum' => (float) $r->lembur_sum,
+                'lembur_cnt' => (int) $r->lembur_cnt,
                 'cnt_gagal' => 0,
                 'komp_sum' => 0,
             ];
@@ -109,7 +111,7 @@ class LaporanBuilderService
         foreach ($perHariGagal as $r) {
             $key = $r->tgl . '|' . $r->kode_tujuan;
             if (!isset($grouped[$key])) {
-                $grouped[$key] = ['tgl' => $r->tgl, 'kode_tujuan' => $r->kode_tujuan, 'cnt_valid' => 0, 'dt_sum' => 0, 'cnt_gagal' => 0, 'komp_sum' => 0];
+                $grouped[$key] = ['tgl' => $r->tgl, 'kode_tujuan' => $r->kode_tujuan, 'cnt_valid' => 0, 'dt_sum' => 0, 'lembur_sum' => 0, 'lembur_cnt' => 0, 'cnt_gagal' => 0, 'komp_sum' => 0];
             }
             $grouped[$key]['cnt_gagal'] = (int) $r->cnt;
             $grouped[$key]['komp_sum'] = (float) $r->komp_sum;
@@ -128,7 +130,7 @@ class LaporanBuilderService
     private function buildDetailRowsPerHari($tujuanList, $gajiPerTujuan, $perHari): array
     {
         $rows = [];
-        $totals = ['total_solar_all' => 0, 'total_upah_all' => 0, 'total_dt_all' => 0, 'total_gagal_all' => 0, 'grand_total_all' => 0];
+        $totals = ['total_solar_all' => 0, 'total_upah_all' => 0, 'total_dt_all' => 0, 'total_lembur_all' => 0, 'total_gagal_all' => 0, 'grand_total_all' => 0];
         $no = 1;
 
         $grouped = $perHari['grouped'] ?? [];
@@ -149,6 +151,8 @@ class LaporanBuilderService
                 $detail = $gajiPerTujuan->get($kodeTujuan);
                 $cntValid = $it['cnt_valid'];
                 $dtSum = $it['dt_sum'];
+                $lemburHari = (float) ($it['lembur_sum'] ?? 0);
+                $lemburCnt = (int) ($it['lembur_cnt'] ?? 0);
                 $cntGagal = $it['cnt_gagal'];
                 $kompSum = $it['komp_sum'];
 
@@ -167,7 +171,7 @@ class LaporanBuilderService
                 $upahHari = $upahPerRit * $cntValid;
                 $tolHari = $tolPerRit * $cntValid;
                 $dtHari = $dtSum;
-                $subtotal = $solarHari + $upahHari + $dtHari + $tolHari + $kompSum;
+                $subtotal = $solarHari + $upahHari + $dtHari + $tolHari + $lemburHari + $kompSum;
 
                 $groupNo = $no++;
 
@@ -179,6 +183,7 @@ class LaporanBuilderService
                     $rows[] = array_merge($base, $this->makeRow($groupNo, $nama, 'Upah Sopir', $upahPerRit, $cntValid, $upahHari));
                     $rows[] = array_merge($base, $this->makeRow($groupNo, $nama, 'DT', $cntValid > 0 ? $dtHari / $cntValid : 0, $cntValid, $dtHari));
                     if ($tolHari > 0) $rows[] = array_merge($base, $this->makeRow($groupNo, $nama, 'Tol', $tolPerRit, $cntValid, $tolHari));
+                    if ($lemburHari > 0) $rows[] = array_merge($base, $this->makeRow($groupNo, $nama, 'Lembur', $lemburCnt > 0 ? $lemburHari / $lemburCnt : 0, $lemburCnt, $lemburHari));
                 }
                 if ($cntGagal > 0) {
                     $rows[] = array_merge($base, $this->makeRow($groupNo, $nama, 'Gagal', $cntGagal > 0 ? $kompSum / $cntGagal : 0, $cntGagal, $kompSum));
@@ -189,6 +194,7 @@ class LaporanBuilderService
                 $totals['total_solar_all'] += $solarHari;
                 $totals['total_upah_all'] += $upahHari;
                 $totals['total_dt_all'] += $dtHari;
+                $totals['total_lembur_all'] += $lemburHari;
                 $totals['total_gagal_all'] += $kompSum;
                 $totals['grand_total_all'] += $subtotal;
             }
@@ -201,7 +207,7 @@ class LaporanBuilderService
     {
         // Fallback agregat lama (tanpa per-hari) - dipertahankan untuk kompatibilitas
         $rows = [];
-        $totals = ['total_solar_all' => 0, 'total_upah_all' => 0, 'total_dt_all' => 0, 'total_gagal_all' => 0, 'grand_total_all' => 0];
+        $totals = ['total_solar_all' => 0, 'total_upah_all' => 0, 'total_dt_all' => 0, 'total_lembur_all' => 0, 'total_gagal_all' => 0, 'grand_total_all' => 0];
         return [$rows, $totals];
     }
 
