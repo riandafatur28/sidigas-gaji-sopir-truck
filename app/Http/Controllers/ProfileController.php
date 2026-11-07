@@ -23,7 +23,7 @@ class ProfileController extends Controller
         $request->validate([
             'name' => 'required|string|max:100',
             'email' => 'required|email|max:100|unique:users,email,' . $user->id,
-            'password_lama' => 'nullable|current_password',
+            'password_lama' => 'required_with:password_baru|nullable|current_password',
             'password_baru' => 'nullable|min:6|confirmed',
         ]);
 
