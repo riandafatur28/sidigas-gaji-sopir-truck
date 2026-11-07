@@ -199,7 +199,9 @@ class DashboardService
         }
 
         $rows = Ritase::selectRaw("DATE(tanggal) as d, COUNT(*) as c, SUM(CASE WHEN status = 'gagal_produksi' THEN 1 ELSE 0 END) as g")
-            ->whereBetween('tanggal', [$from->format('Y-m-d'), $to->format('Y-m-d')])
+            // Batas atas pakai endOfDay: format 'Y-m-d' murni lebih KECIL dari kolom
+            // datetime ('2026-10-15 00:00:00' > '2026-10-15') — tanggal terakhir bocor.
+            ->whereBetween('tanggal', [$from->format('Y-m-d'), $to->copy()->endOfDay()])
             ->groupBy('d')
             ->orderBy('d')
             ->get()

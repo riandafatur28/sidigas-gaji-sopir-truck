@@ -126,7 +126,14 @@ class PenggajianDataService
 
         $ritSummary = $this->getRitaseSummary($periodeIds);
         $gajiSummary = $this->getGajiSummary($periodeIds);
-        $years = Periode::selectRaw('YEAR(tanggal_mulai) as tahun')->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
+        // Tahun tersedia — ekstraksi di PHP supaya portabel SQLite & MySQL
+        // (YEAR() hanya ada di MySQL; SQLite tidak mengenalnya).
+        $years = Periode::query()
+            ->pluck('tanggal_mulai')
+            ->map(fn ($d) => (int) \Carbon\Carbon::parse($d)->format('Y'))
+            ->unique()
+            ->sortDesc()
+            ->values();
 
         $periodes = $paginated->getCollection()->map(fn($p) => $this->mapRiwayatPeriode($p, $ritSummary, $gajiSummary));
         $paginated->setCollection($periodes);

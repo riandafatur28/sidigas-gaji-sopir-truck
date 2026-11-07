@@ -23,10 +23,11 @@ Route::get('/validasi-bukti', [ValidasiBuktiController::class, 'form'])->name('v
 Route::post('/validasi-bukti', [ValidasiBuktiController::class, 'submit'])->name('validasi-bukti.submit')->middleware('throttle:20,10');
 
 // ================= GUEST ROUTES =================
-Route::middleware(['guest', 'throttle:10,3'])->group(function () {
+Route::middleware(['guest', 'throttle:120,1'])->group(function () {
     // Google Login
     Route::get('/auth/google', [AuthController::class, 'loginGoogle'])->name('google.login');
     Route::get('/auth/google/callback', [AuthController::class, 'loginGoogleCallback'])->name('google.callback');
+    Route::post('/auth/google/verify', [AuthController::class, 'loginGoogleVerify'])->name('google.verify');
 
     // Login — stricter rate limit (5 attempts per 3 minutes)
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

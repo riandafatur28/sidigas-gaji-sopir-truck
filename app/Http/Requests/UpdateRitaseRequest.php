@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use App\Models\Periode;
 
 class UpdateRitaseRequest extends FormRequest
@@ -40,7 +41,7 @@ class UpdateRitaseRequest extends FormRequest
                 }
             }],
             'waktu' => 'required|in:pagi,malam',
-            'kabupaten' => 'required|in:Nganjuk,Kediri,Kota Kediri,Jombang,Lainnya',
+            'kabupaten' => ['required', Rule::in(self::kabupatenList())],
             'status' => 'required|in:valid,pending,gagal_produksi',
             'nominal_kompensasi' => 'nullable',
             'catatan' => 'nullable|string|max:500',
@@ -76,5 +77,14 @@ class UpdateRitaseRequest extends FormRequest
             'upah_lembur.numeric' => 'Upah lembur harus berupa angka.',
             'upah_lembur.min' => 'Upah lembur tidak boleh negatif.',
         ];
+    }
+
+    /**
+     * Daftar kabupaten resmi — SATU sumber kebenaran: RitaseCreator::kabupatenKeywords()
+     * (logika repo). Jangan hardcode di sini.
+     */
+    public static function kabupatenList(): array
+    {
+        return array_merge(array_values(\App\Services\RitaseCreator::kabupatenKeywords()), ['Lainnya']);
     }
 }

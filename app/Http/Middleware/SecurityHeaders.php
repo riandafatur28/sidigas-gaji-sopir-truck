@@ -30,10 +30,11 @@ class SecurityHeaders
         // Content Security Policy — restrict script/style sources
         $csp = implode('; ', [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.tailwindcss.com",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.tailwindcss.com https://accounts.google.com",
             "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com https://cdn.tailwindcss.com",
             "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com",
             "img-src 'self' data: https:",
+            "frame-src 'self' https://accounts.google.com",
             "connect-src 'self' https://nominatim.openstreetmap.org https://ip-api.com https://ipapi.co",
         ]);
         $response->headers->set('Content-Security-Policy', $csp);

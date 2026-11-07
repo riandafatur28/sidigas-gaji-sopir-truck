@@ -49,11 +49,49 @@
             <hr class="flex-1 border-[#e8e4de]">
         </div>
 
-        <a href="{{ route('google.login') }}"
-            class="w-full flex items-center justify-center gap-1.5 border border-[#e8e4de] rounded-[10px] text-xs font-medium py-1.5 hover:bg-gray-50 transition">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-3.5 h-3.5">
-            Masuk dengan Google
-        </a>
+        <div id="g_id_onload"
+            data-client_id="{{ config('services.google.client_id') }}"
+            data-callback="handleGsi" class="hidden">
+        </div>
+        <div class="g_id_signin w-full flex justify-center"
+            data-type="standard"
+            data-shape="rectangular"
+            data-theme="outline"
+            data-text="continue_with"
+            data-size="large"
+            data-width="320">
+        </div>
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
+        <script>
+            let gsiTries = 0;
+            window.handleGsi = async function (resp) {
+                if (!resp || !resp.credential) return;
+                const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+                const fd = new FormData();
+                fd.append('id_token', resp.credential);
+                try {
+                    const r = await fetch('{{ route('google.verify') }}', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
+                        body: fd
+                    });
+                    const data = await r.json().catch(() => null);
+                    if (data && data.ok && data.redirect) {
+                        window.location.href = data.redirect;
+                        return;
+                    }
+                    // Jaringan ke Google lagi down → auto-retry 2x, baru alert.
+                    if (data && data.network && gsiTries < 2) {
+                        gsiTries++;
+                        setTimeout(() => window.handleGsi(resp), 3000);
+                        return;
+                    }
+                    alert((data && data.error) || 'Gagal login dengan Google.');
+                } catch (e) {
+                    alert('Gagal login dengan Google. Coba lagi.');
+                }
+            };
+        </script>
 
         <p class="text-[10px] text-gray-300 text-center mt-5">SIDIGAS &copy; 2026</p>
     </div>

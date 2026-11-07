@@ -57,8 +57,30 @@
                         <select id="edit_kabupaten" name="kabupaten" required class="form-input">
                             <option value="Nganjuk">Nganjuk</option>
                             <option value="Kediri">Kediri</option>
-                            <option value="Kota Kediri">Kota Kediri</option>
                             <option value="Jombang">Jombang</option>
+                            <option value="Blitar">Blitar</option>
+                            <option value="Ngawi">Ngawi</option>
+                            <option value="Madiun">Madiun</option>
+                            <option value="Tulungagung">Tulungagung</option>
+                            <option value="Malang">Malang</option>
+                            <option value="Mojokerto">Mojokerto</option>
+                            <option value="Surabaya">Surabaya</option>
+                            <option value="Gresik">Gresik</option>
+                            <option value="Lamongan">Lamongan</option>
+                            <option value="Tuban">Tuban</option>
+                            <option value="Bojonegoro">Bojonegoro</option>
+                            <option value="Pasuruan">Pasuruan</option>
+                            <option value="Probolinggo">Probolinggo</option>
+                            <option value="Lumajang">Lumajang</option>
+                            <option value="Jember">Jember</option>
+                            <option value="Banyuwangi">Banyuwangi</option>
+                            <option value="Magetan">Magetan</option>
+                            <option value="Ponorogo">Ponorogo</option>
+                            <option value="Pacitan">Pacitan</option>
+                            <option value="Trenggalek">Trenggalek</option>
+                            <option value="Situbondo">Situbondo</option>
+                            <option value="Bondowoso">Bondowoso</option>
+                            <option value="Batu">Batu</option>
                             <option value="Lainnya">Lainnya</option>
                         </select>
                     </div>
