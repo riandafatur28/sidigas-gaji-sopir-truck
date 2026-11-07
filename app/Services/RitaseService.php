@@ -416,7 +416,7 @@ class RitaseService
             'kabupaten' => $request->kabupaten,
             'status' => $request->status,
             'dt' => $dtValue,
-            'upah_sopir' => $this->resolveUpahSopir($request->periode_id, $request->kode_tujuan),
+            'upah_sopir' => $this->resolveUpahSopir((int) $request->periode_id, (string) $request->kode_tujuan),
             'nominal_kompensasi' => $nominalKompensasi,
             'catatan' => $request->catatan,
             'is_lembur' => $isLembur,

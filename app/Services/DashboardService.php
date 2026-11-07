@@ -41,9 +41,12 @@ class DashboardService
         $cacheKey = "dashboard_v{$version}_{$user->id}_{$filter}_" . md5($tanggal);
         $cacheMinutes = 5; // Cache for 5 minutes
 
-        return Cache::remember($cacheKey, $cacheMinutes, function () use ($user, $filter, $tanggal) {
-            return $this->computeDashboardData($user, $filter, $tanggal);
-        });
+        // Catatan: payload dashboard memuat instance Eloquent (Periode, User,
+        // Collection Ritase). Menyimpannya ke cache menghasilkan
+        // __PHP_Incomplete_Class saat dibaca ulang sehingga halaman error 500.
+        // Karena itu cache hanya dipakai untuk agregat skalar, sedangkan data
+        // model selalu dibangun ulang (query ringan).
+        return $this->computeDashboardData($user, $filter, $tanggal);
     }
 
     /**
