@@ -6,93 +6,126 @@
     'use strict';
 
     // === DOM Elements ===
-    var sopirSelect = document.getElementById('sopir_select');
-    var sopirBaruInput = document.getElementById('sopir_baru_input');
+    var sopirInput = document.getElementById('sopir_input');
+    var sopirList = document.getElementById('sopir_list');
     var sopirBaruHidden = document.getElementById('sopir_baru');
     var kodeSopirHidden = document.getElementById('kode_sopir');
-    var namaSopirHidden = document.createElement('input');
-    namaSopirHidden.type = 'hidden';
-    namaSopirHidden.name = 'nama_sopir';
-    document.getElementById('formBukti').appendChild(namaSopirHidden);
+    var namaSopirHidden = document.getElementById('sopir_nama');
 
-    var tujuanSelect = document.getElementById('tujuan_select');
-    var tujuanBaruInput = document.getElementById('tujuan_baru_input');
+    var tujuanInput = document.getElementById('tujuan_input');
+    var tujuanList = document.getElementById('tujuan_list');
     var tujuanBaruHidden = document.getElementById('tujuan_baru');
     var kodeTujuanHidden = document.getElementById('kode_tujuan');
-    var namaTujuanHidden = document.createElement('input');
-    namaTujuanHidden.type = 'hidden';
-    namaTujuanHidden.name = 'nama_tujuan';
-    document.getElementById('formBukti').appendChild(namaTujuanHidden);
+    var namaTujuanHidden = document.getElementById('tujuan_nama');
 
-    // Pilih sopir dari dropdown (existing) atau set data baru lewat input teks.
-    function setSopirExisting(kode, nama) {
-        sopirBaruHidden.value = '0';
-        kodeSopirHidden.value = kode;
-        namaSopirHidden.value = nama;
-    }
-    function setSopirBaru(nama) {
-        sopirBaruHidden.value = '1';
-        kodeSopirHidden.value = '';
-        namaSopirHidden.value = nama;
+    var dataSopirs = (window.validasiBuktiData && window.validasiBuktiData.sopirs) || [];
+    var dataTujuans = (window.validasiBuktiData && window.validasiBuktiData.tujuans) || [];
+
+    // === Combobox generik ===
+    function setupCombobox(opts) {
+        var input = opts.input;
+        var listEl = opts.listEl;
+        var items = opts.items; // [{kode, nama}]
+        var onPick = opts.onPick; // function(item|null, isNew, text)
+
+        function render(filter) {
+            var f = (filter || '').toLowerCase().trim();
+            listEl.innerHTML = '';
+            var matches = items.filter(function(it) {
+                if (!f) return true;
+                return (it.nama || '').toLowerCase().indexOf(f) !== -1 ||
+                       (it.kode || '').toLowerCase().indexOf(f) !== -1;
+            });
+            matches.slice(0, 50).forEach(function(it) {
+                var div = document.createElement('div');
+                div.className = 'px-4 py-2 text-sm text-gray-700 cursor-pointer hover:bg-green-50 hover:text-green-700';
+                div.textContent = it.kode + ' - ' + it.nama;
+                div.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    input.value = it.nama;
+                    onPick(it, false, null);
+                    listEl.classList.add('hidden');
+                });
+                listEl.appendChild(div);
+            });
+            // Opsi "baru" selalu ada di paling atas bila ada teks yang tidak cocok
+            if (f) {
+                var exists = items.some(function(it) { return it.nama.toLowerCase() === f; });
+                if (!exists) {
+                    var newDiv = document.createElement('div');
+                    newDiv.className = 'px-4 py-2 text-sm text-green-700 font-medium cursor-pointer hover:bg-green-50 border-t border-gray-100';
+                    newDiv.textContent = '+ Gunakan "' + filter + '" sebagai data baru';
+                    newDiv.addEventListener('mousedown', function(e) {
+                        e.preventDefault();
+                        input.value = filter;
+                        onPick(null, true, filter);
+                        listEl.classList.add('hidden');
+                    });
+                    listEl.prepend(newDiv);
+                }
+            }
+            listEl.classList.remove('hidden');
+        }
+
+        input.addEventListener('focus', function() { render(input.value); });
+        input.addEventListener('input', function() {
+            var v = this.value;
+            if (v.trim() === '') {
+                onPick(null, false, '');
+                render('');
+            } else {
+                // Belum tahu apakah existing atau baru sampai user memilih
+                onPick(null, true, v);
+                render(v);
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!input.contains(e.target) && !listEl.contains(e.target)) {
+                listEl.classList.add('hidden');
+            }
+        });
     }
 
-    sopirSelect.addEventListener('change', function() {
-        var val = this.value;
-        if (val === '__baru__') {
-            sopirBaruInput.value = '';
-            sopirBaruInput.focus();
-            setSopirBaru('');
-        } else if (val) {
-            var opt = this.options[this.selectedIndex];
-            setSopirExisting(opt.value, opt.dataset.nama);
-        } else {
-            setSopirBaru('');
+    setupCombobox({
+        input: sopirInput,
+        listEl: sopirList,
+        items: dataSopirs.map(function(s) { return { kode: s.kode_sopir, nama: s.nama }; }),
+        onPick: function(item, isNew, text) {
+            if (isNew) {
+                sopirBaruHidden.value = '1';
+                kodeSopirHidden.value = '';
+                namaSopirHidden.value = text || '';
+            } else if (item) {
+                sopirBaruHidden.value = '0';
+                kodeSopirHidden.value = item.kode;
+                namaSopirHidden.value = item.nama;
+            } else {
+                sopirBaruHidden.value = '0';
+                kodeSopirHidden.value = '';
+                namaSopirHidden.value = '';
+            }
         }
     });
 
-    sopirBaruInput.addEventListener('input', function() {
-        if (this.value.trim() !== '') {
-            sopirSelect.value = '__baru__';
-            setSopirBaru(this.value);
-        } else {
-            sopirSelect.value = '';
-            setSopirBaru('');
-        }
-    });
-
-    // Pilih tujuan dari dropdown (existing) atau set data baru lewat input teks.
-    function setTujuanExisting(kode, nama) {
-        tujuanBaruHidden.value = '0';
-        kodeTujuanHidden.value = kode;
-        namaTujuanHidden.value = nama;
-    }
-    function setTujuanBaru(nama) {
-        tujuanBaruHidden.value = '1';
-        kodeTujuanHidden.value = '';
-        namaTujuanHidden.value = nama;
-    }
-
-    tujuanSelect.addEventListener('change', function() {
-        var val = this.value;
-        if (val === '__baru__') {
-            tujuanBaruInput.value = '';
-            tujuanBaruInput.focus();
-            setTujuanBaru('');
-        } else if (val) {
-            var opt = this.options[this.selectedIndex];
-            setTujuanExisting(opt.value, opt.dataset.nama);
-        } else {
-            setTujuanBaru('');
-        }
-    });
-
-    tujuanBaruInput.addEventListener('input', function() {
-        if (this.value.trim() !== '') {
-            tujuanSelect.value = '__baru__';
-            setTujuanBaru(this.value);
-        } else {
-            tujuanSelect.value = '';
-            setTujuanBaru('');
+    setupCombobox({
+        input: tujuanInput,
+        listEl: tujuanList,
+        items: dataTujuans.map(function(t) { return { kode: t.kode_tujuan, nama: t.nama }; }),
+        onPick: function(item, isNew, text) {
+            if (isNew) {
+                tujuanBaruHidden.value = '1';
+                kodeTujuanHidden.value = '';
+                namaTujuanHidden.value = text || '';
+            } else if (item) {
+                tujuanBaruHidden.value = '0';
+                kodeTujuanHidden.value = item.kode;
+                namaTujuanHidden.value = item.nama;
+            } else {
+                tujuanBaruHidden.value = '0';
+                kodeTujuanHidden.value = '';
+                namaTujuanHidden.value = '';
+            }
         }
     });
 
@@ -173,7 +206,7 @@
             function(err) {
                 var msg = '';
                 if (err.code === 1) {
-                    msg = 'GPS diblokir. ' + (window.isSecureContext ? '' : 'Akses via HTTPS (ngrok) biar bisa GPS. ');
+                    msg = 'GPS diblokir. ' + (location.protocol === 'https:' ? '' : 'Akses via HTTPS (ngrok) biar bisa GPS. ');
                 } else if (!tryAgain) {
                     msg = 'GPS lambat, coba lagi 5 detik...';
                     statusLokasi.textContent = msg;
@@ -181,7 +214,7 @@
                     setTimeout(function() { cariGPS(true); }, 5000);
                     return;
                 } else {
-                    msg = 'GPS gagal. ' + (window.isSecureContext ? 'Coba klik tombol "Coba GPS".' : 'Akses via HTTPS (ngrok) biar GPS work.');
+                    msg = 'GPS gagal. ' + (location.protocol === 'https:' ? 'Coba klik tombol "Coba GPS".' : 'Akses via HTTPS (ngrok) biar GPS work.');
                 }
                 statusLokasi.textContent = msg;
                 statusLokasi.className = 'text-xs text-red-600 mt-2 font-medium';
@@ -202,7 +235,7 @@
         statusLokasi.appendChild(btn);
     }
 
-    if (window.isSecureContext) {
+    if (location.protocol === 'https:') {
         cariGPS();
     } else {
         statusLokasi.textContent = '⚠ HTTPS diperlukan untuk GPS. Buka via link ngrok. ';
@@ -269,15 +302,14 @@
 
                 var now = new Date();
                 document.getElementById('waktu_foto').value = now.toISOString();
-                var pad2 = function(n) { return (n < 10 ? '0' : '') + n; };
-                document.getElementById('tanggal').value = now.getFullYear() + '-' + pad2(now.getMonth() + 1) + '-' + pad2(now.getDate());
+                document.getElementById('tanggal').value = now.toISOString().slice(0, 10);
 
                 btnAmbilFoto.classList.add('hidden');
                 var g = document.getElementById('btnGaleri');
                 if (g) g.classList.add('hidden');
                 btnUlang.classList.remove('hidden');
                 btnSubmit.disabled = false;
-                btnSubmit.className = 'w-full bg-green-600 text-white rounded text-sm font-semibold px-5 py-3 hover:bg-green-700 transition cursor-pointer inline-flex items-center justify-center gap-1.5';
+                btnSubmit.className = 'w-full bg-gray-900 text-white rounded text-sm font-semibold px-5 py-3 hover:bg-gray-800 transition';
                 btnSubmit.textContent = 'Kirim Bukti';
             };
             img.src = e.target.result;
@@ -373,9 +405,9 @@
 
     btnSubmit.addEventListener('click', function() {
         if (btnSubmit.disabled) return;
-        var nama = namaSopirHidden.value || sopirBaruInput.value;
+        var nama = namaSopirHidden.value || sopirInput.value;
         if (!nama) { showAlert('Silakan pilih atau masukkan nama sopir!'); return; }
-        var tujuan = namaTujuanHidden.value || tujuanBaruInput.value;
+        var tujuan = namaTujuanHidden.value || tujuanInput.value;
         if (!tujuan) { showAlert('Silakan pilih atau masukkan tujuan!'); return; }
         if (!fotoInput.value) { showAlert('Silakan ambil foto terlebih dahulu!'); return; }
 

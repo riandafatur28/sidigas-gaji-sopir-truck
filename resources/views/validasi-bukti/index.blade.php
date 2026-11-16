@@ -46,35 +46,31 @@
             <input type="hidden" name="waktu_foto" id="waktu_foto">
             <input type="hidden" name="tanggal" id="tanggal">
             <input type="hidden" name="foto" id="foto">
-            <input type="hidden" name="sopir_baru" id="sopir_baru" value="0">
-            <input type="hidden" name="tujuan_baru" id="tujuan_baru" value="0">
-            <input type="hidden" name="kode_sopir" id="kode_sopir">
-            <input type="hidden" name="kode_tujuan" id="kode_tujuan">
 
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Sopir</label>
-                <input type="text" id="sopir_baru_input" placeholder="Ketik nama sopir baru jika tidak ada di daftar..."
-                    class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-green-500">
-                <select id="sopir_select" class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm bg-white mt-2 focus:outline-none focus:border-green-500">
-                    <option value="">-- Pilih Sopir --</option>
-                    @foreach($sopirs as $s)
-                        <option value="{{ $s->kode_sopir }}" data-nama="{{ $s->nama }}">{{ $s->kode_sopir }} - {{ $s->nama }}</option>
-                    @endforeach
-                    <option value="__baru__">+ Sopir Baru (tidak ada di daftar)</option>
-                </select>
+                <div class="relative" data-combobox="sopir">
+                    <input type="text" id="sopir_input" autocomplete="off"
+                        placeholder="Ketik / cari nama sopir..."
+                        class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm bg-white focus:outline-none focus:border-green-500">
+                    <input type="hidden" id="sopir_nama" name="nama_sopir">
+                    <input type="hidden" id="kode_sopir" name="kode_sopir">
+                    <input type="hidden" id="sopir_baru" name="sopir_baru" value="0">
+                    <div id="sopir_list" class="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded shadow-lg max-h-60 overflow-y-auto hidden"></div>
+                </div>
             </div>
 
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Tujuan</label>
-                <input type="text" id="tujuan_baru_input" placeholder="Ketik nama tujuan baru jika tidak ada di daftar..."
-                    class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-green-500">
-                <select id="tujuan_select" class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm bg-white mt-2 focus:outline-none focus:border-green-500">
-                    <option value="">-- Pilih Tujuan --</option>
-                    @foreach($tujuans as $t)
-                        <option value="{{ $t->kode_tujuan }}" data-nama="{{ $t->nama }}">{{ $t->kode_tujuan }} - {{ $t->nama }}</option>
-                    @endforeach
-                    <option value="__baru__">+ Tujuan Baru (tidak ada di daftar)</option>
-                </select>
+                <div class="relative" data-combobox="tujuan">
+                    <input type="text" id="tujuan_input" autocomplete="off"
+                        placeholder="Ketik / cari nama tujuan..."
+                        class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm bg-white focus:outline-none focus:border-green-500">
+                    <input type="hidden" id="tujuan_nama" name="nama_tujuan">
+                    <input type="hidden" id="kode_tujuan" name="kode_tujuan">
+                    <input type="hidden" id="tujuan_baru" name="tujuan_baru" value="0">
+                    <div id="tujuan_list" class="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded shadow-lg max-h-60 overflow-y-auto hidden"></div>
+                </div>
             </div>
 
             <div>
@@ -169,6 +165,10 @@
 
 <script>
     window.validasiBuktiNgrokUrl = '{{ config("app.url", "") }}/validasi-bukti';
+    window.validasiBuktiData = {
+        sopirs: {!! json_encode($sopirs) !!},
+        tujuans: {!! json_encode($tujuans) !!}
+    };
 </script>
 <script src="{{ asset('js/validasi-bukti.js') }}"></script>
 </body>
