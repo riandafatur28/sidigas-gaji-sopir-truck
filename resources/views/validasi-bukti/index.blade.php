@@ -37,7 +37,7 @@
             </div>
         @endif
 
-            <form id="formBukti" method="POST" action="/validasi-bukti" class="p-6 space-y-5">
+            <form id="formBukti" method="POST" action="/validasi-bukti" class="p-6 space-y-5" data-no-guard>
             @csrf
 
             <input type="hidden" name="latitude" id="latitude">

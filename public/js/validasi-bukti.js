@@ -79,6 +79,14 @@
                 render(v);
             }
         });
+        input.addEventListener('keydown', function(e) {
+            // Cegah Enter memicu submit form secara tidak sengaja
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                listEl.classList.add('hidden');
+                input.blur();
+            }
+        });
 
         document.addEventListener('click', function(e) {
             if (!input.contains(e.target) && !listEl.contains(e.target)) {
@@ -431,6 +439,11 @@
     });
 
     btnKirimModal.addEventListener('click', function() {
+        // Proteksi double-submit: disable tombol sebelum submit
+        if (this.disabled) return;
+        this.disabled = true;
+        this.style.opacity = '0.6';
+        this.style.cursor = 'wait';
         modal.classList.add('hidden');
         document.getElementById('formBukti').submit();
     });
