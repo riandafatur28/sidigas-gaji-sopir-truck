@@ -60,10 +60,8 @@
                     @endforeach
                     <option value="__baru__">+ Sopir Baru (tidak ada di daftar)</option>
                 </select>
-                <input type="text" id="sopir_baru_input" placeholder="Nama sopir baru..."
-                    class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm mt-2 hidden focus:outline-none focus:border-green-500">
-                <input type="text" id="sopir_nama_display" readonly
-                    class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm mt-2 hidden bg-gray-50">
+                <input type="text" id="sopir_baru_input" placeholder="Atau ketik nama sopir baru jika tidak ada di daftar..."
+                    class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm mt-2 focus:outline-none focus:border-green-500">
             </div>
 
             <div>
@@ -75,10 +73,8 @@
                     @endforeach
                     <option value="__baru__">+ Tujuan Baru (tidak ada di daftar)</option>
                 </select>
-                <input type="text" id="tujuan_baru_input" placeholder="Nama tujuan baru..."
-                    class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm mt-2 hidden focus:outline-none focus:border-green-500">
-                <input type="text" id="tujuan_nama_display" readonly
-                    class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm mt-2 hidden bg-gray-50">
+                <input type="text" id="tujuan_baru_input" placeholder="Atau ketik nama tujuan baru jika tidak ada di daftar..."
+                    class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm mt-2 focus:outline-none focus:border-green-500">
             </div>
 
             <div>

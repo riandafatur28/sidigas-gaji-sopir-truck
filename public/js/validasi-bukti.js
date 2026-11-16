@@ -8,7 +8,6 @@
     // === DOM Elements ===
     var sopirSelect = document.getElementById('sopir_select');
     var sopirBaruInput = document.getElementById('sopir_baru_input');
-    var sopirNamaDisplay = document.getElementById('sopir_nama_display');
     var sopirBaruHidden = document.getElementById('sopir_baru');
     var kodeSopirHidden = document.getElementById('kode_sopir');
     var namaSopirHidden = document.createElement('input');
@@ -18,7 +17,6 @@
 
     var tujuanSelect = document.getElementById('tujuan_select');
     var tujuanBaruInput = document.getElementById('tujuan_baru_input');
-    var tujuanNamaDisplay = document.getElementById('tujuan_nama_display');
     var tujuanBaruHidden = document.getElementById('tujuan_baru');
     var kodeTujuanHidden = document.getElementById('kode_tujuan');
     var namaTujuanHidden = document.createElement('input');
@@ -26,62 +24,76 @@
     namaTujuanHidden.name = 'nama_tujuan';
     document.getElementById('formBukti').appendChild(namaTujuanHidden);
 
+    // Pilih sopir dari dropdown (existing) atau set data baru lewat input teks.
+    function setSopirExisting(kode, nama) {
+        sopirBaruHidden.value = '0';
+        kodeSopirHidden.value = kode;
+        namaSopirHidden.value = nama;
+    }
+    function setSopirBaru(nama) {
+        sopirBaruHidden.value = '1';
+        kodeSopirHidden.value = '';
+        namaSopirHidden.value = nama;
+    }
+
     sopirSelect.addEventListener('change', function() {
         var val = this.value;
         if (val === '__baru__') {
-            sopirBaruInput.classList.remove('hidden');
-            sopirNamaDisplay.classList.add('hidden');
-            sopirBaruHidden.value = '1';
-            kodeSopirHidden.value = '';
-            namaSopirHidden.value = '';
+            sopirBaruInput.value = '';
+            sopirBaruInput.focus();
+            setSopirBaru('');
         } else if (val) {
-            sopirBaruInput.classList.add('hidden');
-            sopirNamaDisplay.classList.remove('hidden');
-            sopirBaruHidden.value = '0';
             var opt = this.options[this.selectedIndex];
-            kodeSopirHidden.value = opt.value;
-            namaSopirHidden.value = opt.dataset.nama;
-            sopirNamaDisplay.value = opt.dataset.nama;
+            setSopirExisting(opt.value, opt.dataset.nama);
         } else {
-            sopirBaruInput.classList.add('hidden');
-            sopirNamaDisplay.classList.add('hidden');
-            sopirBaruHidden.value = '0';
-            kodeSopirHidden.value = '';
-            namaSopirHidden.value = '';
+            setSopirBaru('');
         }
     });
 
     sopirBaruInput.addEventListener('input', function() {
-        namaSopirHidden.value = this.value;
+        if (this.value.trim() !== '') {
+            sopirSelect.value = '__baru__';
+            setSopirBaru(this.value);
+        } else {
+            sopirSelect.value = '';
+            setSopirBaru('');
+        }
     });
+
+    // Pilih tujuan dari dropdown (existing) atau set data baru lewat input teks.
+    function setTujuanExisting(kode, nama) {
+        tujuanBaruHidden.value = '0';
+        kodeTujuanHidden.value = kode;
+        namaTujuanHidden.value = nama;
+    }
+    function setTujuanBaru(nama) {
+        tujuanBaruHidden.value = '1';
+        kodeTujuanHidden.value = '';
+        namaTujuanHidden.value = nama;
+    }
 
     tujuanSelect.addEventListener('change', function() {
         var val = this.value;
         if (val === '__baru__') {
-            tujuanBaruInput.classList.remove('hidden');
-            tujuanNamaDisplay.classList.add('hidden');
-            tujuanBaruHidden.value = '1';
-            kodeTujuanHidden.value = '';
-            namaTujuanHidden.value = '';
+            tujuanBaruInput.value = '';
+            tujuanBaruInput.focus();
+            setTujuanBaru('');
         } else if (val) {
-            tujuanBaruInput.classList.add('hidden');
-            tujuanNamaDisplay.classList.remove('hidden');
-            tujuanBaruHidden.value = '0';
             var opt = this.options[this.selectedIndex];
-            kodeTujuanHidden.value = opt.value;
-            namaTujuanHidden.value = opt.dataset.nama;
-            tujuanNamaDisplay.value = opt.dataset.nama;
+            setTujuanExisting(opt.value, opt.dataset.nama);
         } else {
-            tujuanBaruInput.classList.add('hidden');
-            tujuanNamaDisplay.classList.add('hidden');
-            tujuanBaruHidden.value = '0';
-            kodeTujuanHidden.value = '';
-            namaTujuanHidden.value = '';
+            setTujuanBaru('');
         }
     });
 
     tujuanBaruInput.addEventListener('input', function() {
-        namaTujuanHidden.value = this.value;
+        if (this.value.trim() !== '') {
+            tujuanSelect.value = '__baru__';
+            setTujuanBaru(this.value);
+        } else {
+            tujuanSelect.value = '';
+            setTujuanBaru('');
+        }
     });
 
     var canvas = document.getElementById('canvas');
