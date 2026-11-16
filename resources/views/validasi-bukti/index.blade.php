@@ -53,28 +53,28 @@
 
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Sopir</label>
-                <select id="sopir_select" class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm bg-white focus:outline-none focus:border-green-500">
+                <input type="text" id="sopir_baru_input" placeholder="Ketik nama sopir baru jika tidak ada di daftar..."
+                    class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-green-500">
+                <select id="sopir_select" class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm bg-white mt-2 focus:outline-none focus:border-green-500">
                     <option value="">-- Pilih Sopir --</option>
                     @foreach($sopirs as $s)
                         <option value="{{ $s->kode_sopir }}" data-nama="{{ $s->nama }}">{{ $s->kode_sopir }} - {{ $s->nama }}</option>
                     @endforeach
                     <option value="__baru__">+ Sopir Baru (tidak ada di daftar)</option>
                 </select>
-                <input type="text" id="sopir_baru_input" placeholder="Atau ketik nama sopir baru jika tidak ada di daftar..."
-                    class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm mt-2 focus:outline-none focus:border-green-500">
             </div>
 
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Tujuan</label>
-                <select id="tujuan_select" class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm bg-white focus:outline-none focus:border-green-500">
+                <input type="text" id="tujuan_baru_input" placeholder="Ketik nama tujuan baru jika tidak ada di daftar..."
+                    class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm focus:outline-none focus:border-green-500">
+                <select id="tujuan_select" class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm bg-white mt-2 focus:outline-none focus:border-green-500">
                     <option value="">-- Pilih Tujuan --</option>
                     @foreach($tujuans as $t)
                         <option value="{{ $t->kode_tujuan }}" data-nama="{{ $t->nama }}">{{ $t->kode_tujuan }} - {{ $t->nama }}</option>
                     @endforeach
                     <option value="__baru__">+ Tujuan Baru (tidak ada di daftar)</option>
                 </select>
-                <input type="text" id="tujuan_baru_input" placeholder="Atau ketik nama tujuan baru jika tidak ada di daftar..."
-                    class="w-full px-4 py-2.5 border border-gray-200 rounded text-sm mt-2 focus:outline-none focus:border-green-500">
             </div>
 
             <div>
